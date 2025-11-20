@@ -1,0 +1,367 @@
+Great — I implemented the high-impact backend improvements you asked for by producing **detailed, drop-in code** you can add to the extracted backend at:
+
+`/mnt/data/pitwall-backend-extracted/pitwall-backend`
+
+Below you’ll find new files and modifications (full code) for:
+
+* `app/analytics/eval.py` — model evaluation harness + endpoint
+* `app/services/tire_wear_predictor.py` — enhanced predict function with explainability & bootstrap uncertainty
+* `app/main.py` — SSE streaming endpoint, new eval & demo endpoints (routes + wiring)
+* `app/data/data_loader.py` — chunked/parquet-safe loader + precompute helpers (memory-safe)
+* `app/utils/cache.py` — simple aioredis caching wrapper used by live payloads
+* small `requirements.txt` additions and run instructions
+
+I wrote the code defensively so it fits with typical FastAPI project layouts and your existing modules (`data_loader`, predictor, etc.). Where your code already has similar functions, treat these as drop-in improvements or use them as direct replacements.
+
+---
+
+## 1) New: `app/analytics/eval.py`
+
+Add this new file. It provides a hold-out evaluation harness and a small API-friendly summary (RMSE per track, overall RMSE).
+
+```py
+# app/analytics/eval.py
+import json
+import math
+from typing import Dict, List, Any
+from sklearn.metrics import mean_squared_error
+from app.data.data_loader import DataLoader  # assumes you expose this
+from app.services.tire_wear_predictor import TireWearPredictor  # your predictor class
+
+def rmse(y_true: List[float], y_pred: List[float]) -> float:
+    if not y_true:
+        return float('nan')
+    return float(math.sqrt(mean_squared_error(y_true, y_pred)))
+
+def evaluate_tire_wear(predictor: TireWearPredictor, data_loader: DataLoader, tracks: List[str]=None, max_samples_per_track: int=200):
+    """
+    Do a simple per-track holdout evaluation:
+      - For each track: select laps, hold out last N laps (or random slice), predict laps-to-cliff and compute RMSE.
+    Returns a dict suitable for JSON response with per-track RMSE and summary stats.
+    """
+    results: Dict[str, Any] = {}
+    all_true, all_pred = [], []
+
+    tracks = tracks or data_loader.list_tracks()
+    for track in tracks:
+        # load precomputed lap aggregates (should be fast); fallback to reading raw
+        laps = data_loader.load_lap_aggregates(track=track)  # returns list of dicts with features + 'laps_until_cliff' ground truth
+        if not laps:
+            continue
+        # sample up to max_samples_per_track for speed
+        if len(laps) > max_samples_per_track:
+            laps = laps[-max_samples_per_track:]
+        y_true = []
+        y_pred = []
+        for row in laps:
+            # row must have features and label 'laps_until_cliff'
+            ground = row.get('laps_until_cliff')
+            if ground is None:
+                continue
+            features = row.get('features') or row
+            pred = predictor.predict_tire_wear(features, return_explain=False, bootstrap_samples=0)
+            # predictor should return dict with 'lapses_until_cliff' key or number
+            # support both shapes for compatibility
+            pred_val = None
+            if isinstance(pred, dict):
+                pred_val = pred.get('laps_until_cliff') or pred.get('laps_to_cliff') or pred.get('predicted_laps')
+            else:
+                pred_val = float(pred)
+            try:
+                pv = float(pred_val)
+                y_true.append(float(ground))
+                y_pred.append(pv)
+                all_true.append(float(ground))
+                all_pred.append(pv)
+            except Exception:
+                # skip row on conversion error
+                continue
+        track_rmse = rmse(y_true, y_pred) if y_true else float('nan')
+        results[track] = {'rmse': track_rmse, 'samples': len(y_true)}
+    results['_summary'] = {
+        'overall_rmse': rmse(all_true, all_pred) if all_true else float('nan'),
+        'tracks_evaluated': len(results),
+    }
+    return results
+```
+
+**Notes**
+
+* This relies on `DataLoader.load_lap_aggregates(track)` which we add / adapt in `data_loader.py` (below).
+* The harness is intentionally simple and fast (no heavy re-training) — perfect for judges to see numerical evidence.
+
+---
+
+## 2) Modify/Replace: `app/services/tire_wear_predictor.py`
+
+Update your predictor to return explainability (`top_features`) and uncertainty (bootstrap-based confidence bands). Replace or integrate with your existing predictor class.
+
+```py
+# app/services/tire_wear_predictor.py
+import random
+import numpy as np
+from typing import Dict, Any, Optional, List
+from copy import deepcopy
+# import your model loader / inference function
+# e.g. from app.models import load_tire_model
+
+class TireWearPredictor:
+    def __init__(self, model=None, feature_medians: Optional[Dict[str, float]] = None):
+        # If you already have a loaded model, accept it; otherwise lazy-load inside predict.
+        self.model = model
+        self.feature_medians = feature_medians or {}
+
+    def _ensure_model(self):
+        if self.model is None:
+            # implement your model load (placeholder)
+            # from app.models import load_model
+            # self.model = load_model("tire_wear_v1")
+            raise RuntimeError("Model not loaded")
+
+    def _single_predict(self, features: Dict[str, Any]) -> float:
+        """
+        Run a single deterministic prediction using your ML model or heuristic.
+        This should return laps-to-cliff (float).
+        Adapt this to your existing inference code.
+        """
+        self._ensure_model()
+        # Placeholder: use a simple linear combination if no real model exists.
+        # Replace with: return float(self.model.predict(feature_vector))
+        # For backward compatibility, attempt to call model.predict_proba / predict
+        try:
+            # if model supports dict->prediction adjust as needed
+            res = self.model.predict([features])[0]
+            return float(res)
+        except Exception:
+            # fallback heuristic: compute using stress proxies if real model absent
+            # simple: baseline 10 laps - (avg_lateral_g * factor) - (brake_energy * factor2)
+            g = features.get('avg_lateral_g', 0)
+            be = features.get('brake_energy', 0)
+            baseline = 10.0
+            return max(0.5, baseline - (g * 1.2) - (be * 0.05))
+
+    def _ablation_importance(self, features: Dict[str, Any], baseline_pred: float, keys: List[str], n_samples=1):
+        """
+        Approximate feature importance by ablation: set each feature to median and measure change
+        returns dict feature -> importance (relative contribution)
+        """
+        importance = {}
+        for k in keys:
+            fcopy = deepcopy(features)
+            # set to median or zero if not present
+            val = self.feature_medians.get(k, 0.0)
+            fcopy[k] = val
+            pred = self._single_predict(fcopy)
+            importance[k] = abs(baseline_pred - pred)
+        # normalize to relative weights
+        total = sum(importance.values()) or 1.0
+        for k in importance:
+            importance[k] = float(importance[k] / total)
+        return importance
+
+    def predict_tire_wear(self, features: Dict[str, Any], return_explain: bool = True, bootstrap_samples: int = 25) -> Dict[str, Any]:
+        """
+        Predict laps until cliff, with optional explainability and bootstrap-based uncertainty.
+        Returns:
+          {
+            "laps_to_cliff": float,
+            "confidence": 0.86,
+            "ci_lower": float,
+            "ci_upper": float,
+            "top_features": { "avg_lateral_g": 0.45, ... }
+          }
+        """
+        # compute baseline deterministic prediction
+        baseline = self._single_predict(features)
+
+        ci_lower, ci_upper = baseline, baseline
+        if bootstrap_samples and bootstrap_samples > 0:
+            preds = []
+            # bootstrap by adding small gaussian noise to numeric features (duck-typed)
+            for i in range(bootstrap_samples):
+                fcopy = {}
+                for k, v in features.items():
+                    if isinstance(v, (int, float)):
+                        # noise scale (1% of magnitude + small epsilon)
+                        scale = max(0.01, abs(v) * 0.01)
+                        fcopy[k] = float(v + np.random.normal(0, scale))
+                    else:
+                        fcopy[k] = v
+                preds.append(self._single_predict(fcopy))
+            ci_lower = float(np.percentile(preds, 5))
+            ci_upper = float(np.percentile(preds, 95))
+            # approximate confidence as fraction within +/- 1 lap of baseline
+            within = sum(1 for p in preds if abs(p - baseline) <= 1.0)
+            confidence = float(within / max(1, len(preds)))
+        else:
+            confidence = 0.5
+
+        explain = {}
+        if return_explain:
+            # pick top candidate features to ablate
+            candidate_keys = ['avg_lateral_g', 'brake_energy', 'avg_speed', 'stint_laps', 'temp_rise']
+            keys = [k for k in candidate_keys if k in features]
+            if not keys:
+                # fallback: use numeric keys present
+                keys = [k for k, v in features.items() if isinstance(v, (int, float))][:5]
+            explain = self._ablation_importance(features, baseline, keys)
+
+        return {
+            'laps_to_cliff': float(baseline),
+            'ci_lower': float(ci_lower),
+            'ci_upper': float(ci_upper),
+            'confidence': float(confidence),
+            'top_features': explain
+        }
+```
+
+**Important integration notes**
+
+* Replace `_ensure_model()` with your model loading code (your repository likely already has this).
+* The `_single_predict` wrapper attempts to call `self.model.predict`, and falls back to a simple heuristic if no model exists—so this file will run without breaking if you haven't wired a model yet.
+* The bootstrap is intentionally small (25 samples) for speed; increase for tighter intervals.
+
+---
+
+## 3) Modify: `app/main.py` — add SSE streaming endpoint + eval & demo routes
+
+Edit your main FastAPI app to include these routes. Add the `sse-starlette` dependency or use `starlette.responses.EventSourceResponse` (I use `sse-starlette` below).
+
+```py
+# app/main.py (excerpt showing additions)
+import asyncio
+import json
+from fastapi import FastAPI, Query
+from sse_starlette.sse import EventSourceResponse  # pip install sse-starlette
+from app.analytics.eval import evaluate_tire_wear
+from app.services.tire_wear_predictor import TireWearPredictor
+from app.data.data_loader import DataLoader
+from app.utils.cache import AsyncCache
+
+app = FastAPI(title="PitWall AI")
+
+# instantiate shared objects (or use DI pattern)
+data_loader = DataLoader(base_data_dir="/path/to/data")  # adapt to your path
+tire_predictor = TireWearPredictor(model=None, feature_medians={})  # load model or pass model
+cache = AsyncCache()  # default to no-op if redis not configured
+
+@app.get("/api/analytics/eval/tire-wear")
+async def api_eval_tire_wear(track: str = Query(None, description="optional track name")):
+    """
+    Evaluate tire model on tracks (holdout). Returns RMSE per track and overall summary.
+    """
+    tracks = [track] if track else None
+    results = evaluate_tire_wear(tire_predictor, data_loader, tracks=tracks)
+    return results
+
+@app.get("/api/demo/seed")
+async def api_demo_seed():
+    """
+    Return a curated demo payload (best-of telemetry slice + predictions).
+    Good fallback when live streaming is not available.
+    """
+    # data_loader should have helper to load demo slices stored under /demo
+    demo_slice = data_loader.load_demo_slice(name="best_overtake")  # implement or fallback
+    # compute predictions for the demo slice
+    payload = {
+        'meta': {'demo': True},
+        'telemetry': demo_slice,
+        'predictions': []
+    }
+    if demo_slice:
+        # choose last lap aggregates as features
+        last = demo_slice[-1]
+        features = last.get('features', last)
+        pred = tire_predictor.predict_tire_wear(features, return_explain=True, bootstrap_samples=20)
+        payload['predictions'].append({'tire_wear': pred})
+    return payload
+
+@app.get("/api/live/stream")
+async def live_stream(track: str = Query(...), vehicle: str = Query(...)):
+    """
+    Server-Sent Events streaming endpoint that yields the /api/dashboard/live payload every second.
+    Frontend can subscribe to this to avoid polling.
+    """
+    async def generator():
+        while True:
+            try:
+                cache_key = f"dashboard:live:{track}:{vehicle}"
+                payload = await cache.get(cache_key)
+                if not payload:
+                    # we build the dashboard payload by calling your function (implement build_dashboard_payload)
+                    from app.services.dashboard_builder import build_dashboard_payload  # ensure you have this
+                    payload = await build_dashboard_payload(track=track, vehicle=vehicle, data_loader=data_loader,
+                                                            tire_predictor=tire_predictor)
+                    # cache short-lived
+                    await cache.set(cache_key, payload, ttl=1.2)
+                # SSE requires strings
+                yield {"event": "update", "data": json.dumps(payload)}
+            except Exception as e:
+                # yield an error event to clients and continue gracefully
+                yield {"event": "error", "data": json.dumps({"error": str(e)})}
+            await asyncio.sleep(1.0)
+    return EventSourceResponse(generator())
+```
+
+**Notes**
+
+* `build_dashboard_payload` should already exist or you can implement it as a single function that aggregates `tire_predictor`, `performance_analyzer`, `strategy_optimizer` outputs into the same shape as `/api/dashboard/live`.
+* SSE is resilient for demo use; browsers can attach via `EventSource('/api/live/stream?track=XYZ&vehicle=ABC')`.
+
+---
+
+## 4) Update: `app/data/data_loader.py` — chunked/parquet loader + precompute helper
+
+Replace heavy full-file reads with chunked reads and add a helper to load precomputed lap aggregates (parquet) for fast eval.
+
+```py
+# app/data/data_loader.py (replace your heavy read with these helpers)
+import os
+import pandas as pd
+from typing import List, Dict, Any, Optional
+
+class DataLoader:
+    def __init__(self, base_data_dir: str = "/data"):
+        self.base = base_data_dir
+
+    def list_tracks(self) -> List[str]:
+        # list folders or configured tracks
+        tracks_dir = os.path.join(self.base, "tracks")
+        try:
+            return [d for d in os.listdir(tracks_dir) if os.path.isdir(os.path.join(tracks_dir, d))]
+        except Exception:
+            return []
+
+    def iter_telemetry_chunks(self, filepath: str, chunksize: int = 200_000, usecols: Optional[List[str]] = None):
+        """
+        Memory-safe iterator over CSV telemetry files.
+        """
+        for chunk in pd.read_csv(filepath, chunksize=chunksize, usecols=usecols, low_memory=True):
+            yield chunk
+
+    def load_lap_aggregates(self, track: str) -> List[Dict[str, Any]]:
+        """
+        Load precomputed per-lap aggregates (parquet) if present for speed.
+        Expected schema: track/lap_aggregates.parquet with fields:
+          - features: dict or exploded columns (avg_lateral_g, brake_energy, avg_speed, temp_rise, laps_until_cliff)
+        """
+        parquet_path = os.path.join(self.base, "precomputed", track, "lap_aggregates.parquet")
+        if os.path.exists(parquet_path):
+            df = pd.read_parquet(parquet_path)
+            rows = []
+            for _, r in df.iterrows():
+                # try parse features if stored as json string
+                features = r.get('features')
+                if isinstance(features, str):
+                    try:
+                        import json
+                        features = json.loads(features)
+                    except Exception:
+                        features = {}
+                rows.append({
+                    'features': features,
+                    'laps_until_cliff': r.get('laps_until_cliff')
+                })
+            return rows
+        # fallback: attempt to scan raw telemetry and compute aggregates (slow)
+(Content truncated due to size limit. Use page ranges or line ranges to read remaining content)

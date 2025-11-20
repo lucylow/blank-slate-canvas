@@ -1,0 +1,353 @@
+Perfect — below is a concrete, ready-to-drop set of backend code and wiring that will make your FastAPI backend **play nicely with your frontend** (`blank-slate-canvas`). It includes:
+
+* CORS + config so the frontend can call the API
+* `/api/dashboard/live` endpoint that returns a frontend-friendly payload (tire_wear + performance + strategy)
+* `/api/demo/seed` fallback payload the frontend can use if live data is flaky
+* `/api/live/stream` SSE endpoint so the frontend can subscribe to live updates (EventSource)
+* Small `dashboard_builder` service that composes outputs from your existing services
+* Health and config endpoints
+* Notes on where to place these files inside your extracted backend at:
+  `/mnt/data/pitwall-backend-extracted/pitwall-backend`
+
+I wrote these to be defensive (they tolerate missing services and fall back to demo data), and to match the payload shapes your frontend expects (from our previous messages). You may need to adapt small import paths to your repo’s exact module names — I used names that match the structure you described (`app/services/...`, `app/data/...`).
+
+---
+
+## Where to put the new files
+
+Base path for your backend (from your upload):
+`/mnt/data/pitwall-backend-extracted/pitwall-backend`
+
+Add these files (create folders if missing):
+
+```
+/mnt/data/pitwall-backend-extracted/pitwall-backend/app/routes/frontend_integration.py
+/mnt/data/pitwall-backend-extracted/pitwall-backend/app/services/dashboard_builder.py
+/mnt/data/pitwall-backend-extracted/pitwall-backend/app/main_integration.py
+```
+
+You will replace or merge the existing `app/main.py` with the contents in `app/main_integration.py` (or import the new router from your current main).
+
+---
+
+## 1) `app/services/dashboard_builder.py`
+
+This builds the single combined payload the frontend expects. It queries existing services (tire_predictor, performance_analyzer, strategy_optimizer) and falls back to demo slices when needed.
+
+```py
+# app/services/dashboard_builder.py
+import asyncio
+import logging
+from typing import Any, Dict, Optional
+
+from app.data.data_loader import DataLoader
+from app.services.tire_wear_predictor import TireWearPredictor
+# import your other services; adapt names if different in your repo:
+from app.services.performance_analyzer import PerformanceAnalyzer
+from app.services.strategy_optimizer import StrategyOptimizer
+
+logger = logging.getLogger(__name__)
+
+# Single shared instances (or inject via DI in your real app)
+data_loader = DataLoader()
+tire_predictor = TireWearPredictor(model=None)  # if your code requires model loading, pass one
+performance_analyzer = PerformanceAnalyzer()
+strategy_optimizer = StrategyOptimizer()
+
+async def build_dashboard_payload(
+    track: str,
+    vehicle: str,
+    use_demo_if_missing: bool = True
+) -> Dict[str, Any]:
+    """
+    Returns a payload shaped for the frontend:
+    {
+      "tire_wear": { front_left: .., ci_lower: .., ci_upper: .., top_features: {...}, pit_window_optimal: [15,17] },
+      "performance": { current_lap: "2:04.560", best_lap: "2:03.120", gap_to_leader: "+1.240s", predicted_finish: "P3" },
+      "strategy": { recommended_lap: 18, risk: "low", expected_delta_sec: -3.4 },
+      "meta": {...}
+    }
+    """
+    try:
+        # choose a source of "current" features for the vehicle on this track.
+        # prefer a live telemetry source if you have one, else a demo slice
+        telemetry_slice = data_loader.load_recent_telemetry(track=track, vehicle=vehicle) \
+            if hasattr(data_loader, "load_recent_telemetry") else None
+
+        if (not telemetry_slice or len(telemetry_slice) == 0) and use_demo_if_missing:
+            telemetry_slice = data_loader.load_demo_slice(name="best_overtake") or []
+
+        if not telemetry_slice:
+            # final fallback: empty payload
+            return {"meta": {"ok": False, "reason": "no telemetry"}, "tire_wear": {}, "performance": {}, "strategy": {}}
+
+        # derive features for current lap from telemetry_slice last row (you may already have a helper)
+        last_sample = telemetry_slice[-1]
+        features = last_sample.get("features") if isinstance(last_sample, dict) and "features" in last_sample else last_sample
+
+        # tire prediction (include explainability + uncertainty)
+        tire_pred = tire_predictor.predict_tire_wear(features, return_explain=True, bootstrap_samples=20)
+
+        # performance analysis (wrap to be defensive)
+        try:
+            perf = performance_analyzer.analyze_from_telemetry(telemetry_slice)
+        except Exception:
+            perf = {"current_lap": None, "best_lap": None, "gap_to_leader": None, "predicted_finish": None}
+
+        # strategy recommendation
+        try:
+            strategy = strategy_optimizer.recommend(telemetry_slice, features)
+        except Exception as e:
+            logger.exception("Strategy optimizer failed: %s", e)
+            strategy = {"recommended_lap": None, "risk": "unknown", "expected_delta_sec": None}
+
+        payload = {
+            "meta": {
+                "ok": True,
+                "track": track,
+                "vehicle": vehicle,
+                "samples": len(telemetry_slice),
+            },
+            "tire_wear": {
+                "front_left": tire_pred.get("front_left") if isinstance(tire_pred, dict) else None,
+                "front_right": tire_pred.get("front_right") if isinstance(tire_pred, dict) else None,
+                "rear_left": tire_pred.get("rear_left") if isinstance(tire_pred, dict) else None,
+                "rear_right": tire_pred.get("rear_right") if isinstance(tire_pred, dict) else None,
+                "laps_to_cliff": tire_pred.get("laps_to_cliff") or tire_pred.get("laps_to_cliff", None),
+                "ci_lower": tire_pred.get("ci_lower"),
+                "ci_upper": tire_pred.get("ci_upper"),
+                "confidence": tire_pred.get("confidence"),
+                "top_features": tire_pred.get("top_features", {}),
+                "pit_window_optimal": tire_pred.get("pit_window_optimal") or tire_pred.get("pit_window", None)
+            },
+            "performance": perf,
+            "strategy": strategy
+        }
+        return payload
+    except Exception as e:
+        logger.exception("Failed to build payload: %s", e)
+        return {"meta": {"ok": False, "reason": str(e)}}
+```
+
+**Notes**
+
+* `DataLoader.load_recent_telemetry(track, vehicle)` is assumed; if you don't have it, implement it to return the last N rows for that vehicle/track. If not available, `load_demo_slice` is used.
+* The `tire_predictor.predict_tire_wear` function should be the one modified earlier to return explainability and bootstrap intervals.
+
+---
+
+## 2) `app/routes/frontend_integration.py` — router with endpoints the frontend will use
+
+```py
+# app/routes/frontend_integration.py
+from fastapi import APIRouter, Query, HTTPException
+from fastapi.responses import JSONResponse
+from sse_starlette.sse import EventSourceResponse
+import asyncio
+import json
+from typing import Optional
+
+from app.services.dashboard_builder import build_dashboard_payload, data_loader, tire_predictor
+
+router = APIRouter(prefix="/api")
+
+@router.get("/dashboard/live", response_class=JSONResponse)
+async def api_dashboard_live(track: str = Query(...), vehicle: str = Query(...)):
+    """
+    Simple REST endpoint returning the full dashboard payload synchronously.
+    Frontend polling or initial load should call this.
+    """
+    payload = await build_dashboard_payload(track=track, vehicle=vehicle)
+    if not payload.get("meta", {}).get("ok"):
+        raise HTTPException(status_code=503, detail=payload.get("meta", {}).get("reason", "service unavailable"))
+    return JSONResponse(payload)
+
+@router.get("/demo/seed")
+async def api_demo_seed(name: Optional[str] = Query("best_overtake")):
+    """
+    Return a curated demo slice and example predictions.
+    Frontend should use this when live telemetry is not available.
+    """
+    demo = data_loader.load_demo_slice(name=name)
+    if not demo:
+        return {"meta": {"ok": False, "reason": "no demo slice found"}}
+    # compute a simple tire prediction for the last sample in demo
+    last = demo[-1]
+    features = last.get("features") if isinstance(last, dict) and "features" in last else last
+    tw = tire_predictor.predict_tire_wear(features, return_explain=True, bootstrap_samples=20)
+    return {"meta": {"ok": True}, "telemetry": demo, "predictions": {"tire_wear": tw}}
+
+@router.get("/live/stream")
+async def api_live_stream(track: str = Query(...), vehicle: str = Query(...)):
+    """
+    SSE stream endpoint that pushes the same structure as /dashboard/live every second.
+    Frontend usage:
+      const s = new EventSource(`/api/live/stream?track=barber&vehicle=GR86-004-78`);
+      s.addEventListener('update', e => console.log(JSON.parse(e.data)));
+    """
+    async def event_generator():
+        while True:
+            try:
+                payload = await build_dashboard_payload(track=track, vehicle=vehicle)
+                yield {"event": "update", "data": json.dumps(payload)}
+            except Exception as e:
+                yield {"event": "error", "data": json.dumps({"error": str(e)})}
+            await asyncio.sleep(1.0)
+    return EventSourceResponse(event_generator())
+
+@router.get("/health")
+async def health_check():
+    return {"status": "ok"}
+```
+
+**Important**
+
+* This router returns consistent JSON that your frontend hook `usePitwallData` (or EventSource) can parse.
+* `/dashboard/live` is REST (fast), `/live/stream` is SSE for real-time UI.
+
+---
+
+## 3) `app/main_integration.py` — FastAPI app wiring (CORS, include router)
+
+If you already have `app/main.py`, either replace it or merge the CORS and router includes. This file is a fully working `main` that you can run with uvicorn.
+
+```py
+# app/main_integration.py
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import logging
+
+from app.routes.frontend_integration import router as frontend_router
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="PitWall AI - Frontend Integration")
+
+# allow the frontend origin (use env var or default to the Lovable preview / your local dev)
+FRONTEND_ORIGINS = os.environ.get("PITWALL_FRONTEND_ORIGINS",
+                                 "https://void-form-forge.lovable.app,http://localhost:3000").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in FRONTEND_ORIGINS if o.strip()],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+# include the frontend router
+app.include_router(frontend_router)
+
+# copy any extra app startup/shutdown handlers from your existing main.py here if needed
+@app.on_event("startup")
+async def startup_event():
+    logger.info("PitWall API starting up")
+    # optionally warm models or caches here
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("PitWall API shutting down")
+```
+
+**Run:**
+
+```bash
+cd /mnt/data/pitwall-backend-extracted/pitwall-backend
+export PITWALL_FRONTEND_ORIGINS="https://void-form-forge.lovable.app,http://localhost:3000"
+uvicorn app.main_integration:app --host 0.0.0.0 --port 8000 --reload
+```
+
+---
+
+## 4) Frontend integration notes
+
+* **Polling (current):** your frontend `usePitwallData` hook can poll `/api/dashboard/live?track=barber&vehicle=GR86-004-78` every 1–2s. The new endpoint returns the combined payload (tire_wear, performance, strategy).
+* **SSE preferred:** for live updates, use:
+
+```js
+const s = new EventSource('/api/live/stream?track=barber&vehicle=GR86-004-78');
+s.addEventListener('update', e => {
+  const payload = JSON.parse(e.data);
+  // update UI state with payload
+});
+s.addEventListener('error', e => {
+  console.error('SSE error', e);
+});
+```
+
+This is more efficient than polling and avoids CORS issues if app is configured.
+
+* **Demo fallback:** If SSE fails or no telemetry exists, call `/api/demo/seed` during initial load to populate the dashboard so judges can see a polished demo even when live telemetry isn't available.
+
+---
+
+## 5) Quick checklist & integration tips
+
+1. Copy the three files above into the extracted backend repo at:
+   `/mnt/data/pitwall-backend-extracted/pitwall-backend/app/...`
+2. Ensure `requirements.txt` includes:
+
+   ```
+   sse-starlette>=0.14.0
+   ```
+
+   and install with `pip install -r requirements.txt`.
+3. Ensure imports refer to your actual service class names. If your existing files use different names, adjust the imports at top of `dashboard_builder.py` and `frontend_integration.py`.
+4. Start the server using the `main_integration.py` entrypoint:
+
+   ```bash
+   uvicorn app.main_integration:app --reload --port 8000
+   ```
+5. Point the frontend environment to `VITE_BACKEND_URL=http://localhost:8000` (or the deployed backend URL). The frontend `usePitwallData` hook will poll `/api/dashboard/live` by default — change to use SSE for real-time.
+6. If you want caching, set `PITWALL_REDIS_URL` and create an instance of `AsyncCache` in `dashboard_builder` and `frontend_integration`.
+
+---
+
+## 6) Small sample payload (what the frontend will receive)
+
+```json
+{
+  "meta": {"ok": true, "track": "barber", "vehicle": "GR86-004-78", "samples": 240},
+  "tire_wear": {
+    "front_left": 78.0,
+    "front_right": 82.0,
+    "rear_left": 71.0,
+    "rear_right": 75.0,
+    "laps_to_cliff": 3.4,
+    "ci_lower": 2.2,
+    "ci_upper": 4.8,
+    "confidence": 0.78,
+    "top_features": {"avg_lateral_g": 0.45, "brake_energy": 0.32},
+    "pit_window_optimal": [15, 17]
+  },
+  "performance": {
+    "current_lap": "2:04.560",
+    "best_lap": "2:03.120",
+    "gap_to_leader": "+1.240s",
+    "predicted_finish": "P3"
+  },
+  "strategy": {
+    "recommended_lap": 16,
+    "risk": "medium",
+    "expected_delta_sec": -2.8
+  }
+}
+```
+
+---
+
+## 7) Want me to apply these changes as a patch?
+
+I can produce a `git` patch (diff) that you can `git apply` to the extracted backend at `/mnt/data/pitwall-backend-extracted/pitwall-backend`. Say **"apply patch"** and I’ll generate the patch file and include exact `git apply` instructions.
+
+---
+
+If you want, I can also:
+
+* Add server-side caching (Redis) wiring so `/api/dashboard/live` is very fast under load.
+* Add authentication (API key) middleware for endpoints heavy in compute.
+* Implement a small demo-replay CLI that replays a stored telemetry file as SSE for frontend testing.
+
+Which would you like next?
