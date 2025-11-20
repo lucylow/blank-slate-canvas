@@ -16,7 +16,8 @@ import { useDemoMode } from "../hooks/useDemoMode";
 export default function PitWallDashboard() {
   const [track, setTrack] = useState(TRACKS[0]);
   const { isDemoMode } = useDemoMode();
-  const wsUrl = isDemoMode ? '' : `ws://localhost:8081/ws`; // Skip WS in demo mode
+  const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/^https?:/, 'ws:') : '');
+  const wsUrl = isDemoMode ? '' : wsBaseUrl ? `${wsBaseUrl}${wsBaseUrl.endsWith('/') ? '' : '/'}ws` : '';
   const { connected, messages, messageCount } = useWebSocket(wsUrl, {
     batchMs: 80,
     maxBuffer: 2000,

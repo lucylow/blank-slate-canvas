@@ -51,7 +51,7 @@ const DemoLauncher: React.FC = () => {
               className="border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105"
             >
               <a
-                href="http://localhost:8081/predict_tire/road_america/GR86-DEMO-01"
+                href={`${import.meta.env.VITE_API_BASE_URL || ''}/predict_tire/road_america/GR86-DEMO-01`}
                 target="_blank"
                 rel="noreferrer"
               >

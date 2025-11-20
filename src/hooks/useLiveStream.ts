@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DashboardData } from '@/lib/types';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export function useLiveStream(
   track: string,
@@ -14,7 +14,11 @@ export function useLiveStream(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!track || !race || !vehicle) return;
+    if (!track || !race || !vehicle || !API_URL) return;
+    if (!API_URL) {
+      setError('API URL not configured');
+      return;
+    }
 
     const url = `${API_URL}/api/live/stream?track=${track}&race=${race}&vehicle=${vehicle}&start_lap=${startLap}&interval=1.0`;
     const eventSource = new EventSource(url);
@@ -25,13 +29,25 @@ export function useLiveStream(
     };
 
     eventSource.addEventListener('update', (e) => {
-      const json = JSON.parse(e.data);
-      setData(json);
+      try {
+        const json = JSON.parse(e.data);
+        setData(json);
+      } catch (err) {
+        setError('Failed to parse update data');
+      }
     });
 
-    eventSource.addEventListener('error', (e: any) => {
-      const errorData = JSON.parse(e.data);
-      setError(errorData.error);
+    // Custom error event from server (if backend sends error events)
+    eventSource.addEventListener('error', (e: MessageEvent) => {
+      try {
+        if (e.data) {
+          const errorData = JSON.parse(e.data);
+          setError(errorData.error || 'Stream error occurred');
+        }
+      } catch {
+        // If error event doesn't have parseable data, ignore it
+        // The onerror handler will catch connection errors
+      }
     });
 
     eventSource.addEventListener('complete', () => {
@@ -41,7 +57,9 @@ export function useLiveStream(
 
     eventSource.onerror = () => {
       setConnected(false);
-      setError('Connection to stream lost.');
+      if (eventSource.readyState === EventSource.CLOSED) {
+        setError('Connection to stream lost.');
+      }
     };
 
     return () => {

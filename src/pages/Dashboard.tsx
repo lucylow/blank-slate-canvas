@@ -6,7 +6,7 @@ import { StrategyCard } from '@/components/dashboard/StrategyCard';
 import { PerformanceCard } from '@/components/dashboard/PerformanceCard';
 
 export function Dashboard() {
-  const { config, loading: configLoading } = useBackendConfig();
+  const { config, loading: configLoading, error: configError } = useBackendConfig();
   const [selectedTrack, setSelectedTrack] = useState('sebring');
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
@@ -17,7 +17,19 @@ export function Dashboard() {
     selectedVehicle
   );
 
-  if (configLoading) return <div className="p-4">Loading Configuration...</div>;
+  if (configLoading) return <div className="p-4 text-white">Loading Configuration...</div>;
+  
+  if (configError) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-4">
+        <div className="bg-red-800 p-4 rounded">
+          <h2 className="font-bold mb-2">Configuration Error</h2>
+          <p>{configError}</p>
+          <p className="text-sm mt-2">Make sure your Python backend is running on port 8000.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">

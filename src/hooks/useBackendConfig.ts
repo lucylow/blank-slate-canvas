@@ -1,22 +1,36 @@
 import { useState, useEffect } from 'react';
 import { BackendConfig } from '@/lib/types';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export function useBackendConfig() {
   const [config, setConfig] = useState<BackendConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!API_URL) {
+      setLoading(false);
+      return;
+    }
     fetch(`${API_URL}/api/config`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
         setConfig(data);
         setLoading(false);
+        setError(null);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Failed to load config');
+        setLoading(false);
+      });
   }, []);
 
-  return { config, loading };
+  return { config, loading, error };
 }
 

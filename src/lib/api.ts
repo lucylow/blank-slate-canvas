@@ -1,8 +1,8 @@
 // API client for backend communication
 // Supports both REST endpoints and WebSocket connections
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081';
-const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:8081';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/^https?:/, 'ws:') : '');
 
 // TypeScript interfaces matching backend API responses
 

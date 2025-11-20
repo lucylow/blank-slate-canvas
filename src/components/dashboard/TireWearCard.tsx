@@ -16,30 +16,30 @@ export function TireWearCard({ wear }: Props) {
       <div className="grid grid-cols-4 gap-2 text-center">
         <div>
           <div className="text-xs text-gray-400">FRONT LEFT</div>
-          <div className="font-mono text-lg">{wear.front_left}%</div>
+          <div className="font-mono text-lg">{wear.front_left.toFixed(1)}%</div>
           <div className="text-xs font-mono text-gray-500">
-            [{wear.ci_lower.front_left} - {wear.ci_upper.front_left}]
+            [{wear.ci_lower.front_left !== undefined ? wear.ci_lower.front_left.toFixed(1) : 'N/A'} - {wear.ci_upper.front_left !== undefined ? wear.ci_upper.front_left.toFixed(1) : 'N/A'}]
           </div>
         </div>
         <div>
           <div className="text-xs text-gray-400">FRONT RIGHT</div>
-          <div className="font-mono text-lg">{wear.front_right}%</div>
+          <div className="font-mono text-lg">{wear.front_right.toFixed(1)}%</div>
           <div className="text-xs font-mono text-gray-500">
-            [{wear.ci_lower.front_right} - {wear.ci_upper.front_right}]
+            [{wear.ci_lower.front_right !== undefined ? wear.ci_lower.front_right.toFixed(1) : 'N/A'} - {wear.ci_upper.front_right !== undefined ? wear.ci_upper.front_right.toFixed(1) : 'N/A'}]
           </div>
         </div>
         <div>
           <div className="text-xs text-gray-400">REAR LEFT</div>
-          <div className="font-mono text-lg">{wear.rear_left}%</div>
+          <div className="font-mono text-lg">{wear.rear_left.toFixed(1)}%</div>
           <div className="text-xs font-mono text-gray-500">
-            [{wear.ci_lower.rear_left} - {wear.ci_upper.rear_left}]
+            [{wear.ci_lower.rear_left !== undefined ? wear.ci_lower.rear_left.toFixed(1) : 'N/A'} - {wear.ci_upper.rear_left !== undefined ? wear.ci_upper.rear_left.toFixed(1) : 'N/A'}]
           </div>
         </div>
         <div>
           <div className="text-xs text-gray-400">REAR RIGHT</div>
-          <div className="font-mono text-lg">{wear.rear_right}%</div>
+          <div className="font-mono text-lg">{wear.rear_right.toFixed(1)}%</div>
           <div className="text-xs font-mono text-gray-500">
-            [{wear.ci_lower.rear_right} - {wear.ci_upper.rear_right}]
+            [{wear.ci_lower.rear_right !== undefined ? wear.ci_lower.rear_right.toFixed(1) : 'N/A'} - {wear.ci_upper.rear_right !== undefined ? wear.ci_upper.rear_right.toFixed(1) : 'N/A'}]
           </div>
         </div>
       </div>

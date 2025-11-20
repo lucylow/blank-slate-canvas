@@ -3,7 +3,7 @@
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const BASE = import.meta.env.VITE_API_BASE || "http://localhost:8081";
+const BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "";
 
 const client = axios.create({
   baseURL: BASE,
