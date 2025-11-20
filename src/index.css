@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
+    --background: 222 47% 8%;
     --foreground: 210 40% 98%;
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
@@ -16,15 +16,15 @@ All colors MUST be HSL.
     --popover-foreground: 210 40% 98%;
     --primary: 0 72% 51%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
+    --secondary: 217 33% 14%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
+    --accent: 217 33% 20%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 24%;
+    --border: 217 33% 20%;
     --input: 217 33% 24%;
     --ring: 0 72% 51%;
     --chart-1: 217 91% 60%;
@@ -34,10 +34,19 @@ All colors MUST be HSL.
     --chart-5: 43 96% 56%;
     --radius: 0.75rem;
     
+    /* Racing flag-inspired colors */
     --racing-red: 0 72% 51%;
     --racing-gold: 45 93% 47%;
     --racing-silver: 0 0% 63%;
     --racing-bronze: 28 79% 52%;
+    --racing-yellow: 48 96% 53%;
+    --racing-green: 142 76% 36%;
+    
+    /* Status colors aligned with racing flags */
+    --status-critical: 0 84% 60%;
+    --status-warning: 48 96% 53%;
+    --status-optimal: 142 76% 36%;
+    --status-info: 217 91% 60%;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -48,7 +57,7 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 222 47% 11%;
+    --background: 222 47% 8%;
     --foreground: 210 40% 98%;
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
@@ -56,15 +65,15 @@ All colors MUST be HSL.
     --popover-foreground: 210 40% 98%;
     --primary: 0 72% 51%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
+    --secondary: 217 33% 14%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
+    --accent: 217 33% 20%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 33% 24%;
+    --border: 217 33% 20%;
     --input: 217 33% 24%;
     --ring: 0 72% 51%;
     --chart-1: 217 91% 60%;
@@ -73,10 +82,19 @@ All colors MUST be HSL.
     --chart-4: 262 83% 58%;
     --chart-5: 43 96% 56%;
     
+    /* Racing flag-inspired colors */
     --racing-red: 0 72% 51%;
     --racing-gold: 45 93% 47%;
     --racing-silver: 0 0% 63%;
     --racing-bronze: 28 79% 52%;
+    --racing-yellow: 48 96% 53%;
+    --racing-green: 142 76% 36%;
+    
+    /* Status colors aligned with racing flags */
+    --status-critical: 0 84% 60%;
+    --status-warning: 48 96% 53%;
+    --status-optimal: 142 76% 36%;
+    --status-info: 217 91% 60%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
