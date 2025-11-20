@@ -228,7 +228,7 @@ export class TelemetryWebSocket {
   }
 
   isConnected(): boolean {
-    return this.ws?.readyState === WebSocket.OPEN ?? false;
+    return this.ws?.readyState === WebSocket.OPEN;
   }
 }
 
