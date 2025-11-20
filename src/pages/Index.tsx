@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import DemoLauncher from "@/components/DemoLauncher";
+import { checkHealth } from "@/api/pitwall";
 
 /* ================================================================================
 
@@ -397,6 +398,22 @@ const Index = () => {
   }, []);
 
   // Backend health check
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const health = await checkHealth();
+        setBackendHealth({ ok: health.ok || false });
+      } catch (error) {
+        setBackendHealth({ ok: false });
+      }
+    };
+
+    // Check immediately and then every 10 seconds
+    checkBackendHealth();
+    const interval = setInterval(checkBackendHealth, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const features = [
     {
