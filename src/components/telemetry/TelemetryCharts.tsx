@@ -41,58 +41,74 @@ export function TelemetryCharts() {
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 bg-gradient-to-br from-secondary/30 to-muted/30 rounded-lg p-4 border border-border/50">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={chartConfigs[activeChart as keyof typeof chartConfigs].color} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={chartConfigs[activeChart as keyof typeof chartConfigs].color} stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
               dataKey="timestamp" 
               stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
+              fontSize={11}
+              tickLine={false}
             />
             <YAxis 
               stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
+              fontSize={11}
+              tickLine={false}
             />
             <Tooltip
               contentStyle={{ 
-                backgroundColor: 'hsl(var(--card))',
+                backgroundColor: 'hsl(var(--secondary))',
                 border: '1px solid hsl(var(--border))',
-                borderRadius: '8px',
-                color: 'hsl(var(--card-foreground))'
+                borderRadius: '12px',
+                color: 'hsl(var(--foreground))',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
               }}
             />
             <Line
               type="monotone"
               dataKey={activeChart}
               stroke={chartConfigs[activeChart as keyof typeof chartConfigs].color}
-              strokeWidth={2}
+              strokeWidth={3}
               dot={false}
-              activeDot={{ r: 4 }}
+              activeDot={{ r: 6, strokeWidth: 2, fill: chartConfigs[activeChart as keyof typeof chartConfigs].color }}
+              fillOpacity={1}
+              fill="url(#chartGradient)"
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="grid grid-cols-5 gap-2 mt-4 h-24">
+      <div className="grid grid-cols-5 gap-3 mt-4 h-24">
         {Object.entries(chartConfigs).map(([key, config]) => (
           <motion.div
             key={key}
-            whileHover={{ scale: 1.02 }}
-            className={`rounded-lg p-2 cursor-pointer border ${
-              activeChart === key ? 'border-primary bg-primary/10' : 'border-border bg-secondary'
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className={`rounded-xl p-3 cursor-pointer border-2 transition-all backdrop-blur-sm ${
+              activeChart === key 
+                ? 'border-primary bg-primary/20 shadow-lg shadow-primary/20' 
+                : 'border-border/50 bg-secondary/50 hover:bg-secondary hover:border-accent'
             }`}
             onClick={() => setActiveChart(key)}
           >
-            <div className="text-xs text-muted-foreground mb-1">{config.label.split(' ')[0]}</div>
+            <div className={`text-xs font-semibold mb-1 ${activeChart === key ? 'text-primary' : 'text-muted-foreground'}`}>
+              {config.label.split(' ')[0]}
+            </div>
             <div className="h-12">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData.slice(-10)}>
                   <Line
                     type="monotone"
                     dataKey={key}
-                    stroke={config.color}
-                    strokeWidth={1.5}
+                    stroke={activeChart === key ? config.color : 'hsl(var(--muted-foreground))'}
+                    strokeWidth={activeChart === key ? 2 : 1.5}
                     dot={false}
                   />
                 </LineChart>
