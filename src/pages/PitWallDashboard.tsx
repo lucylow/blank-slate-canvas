@@ -10,10 +10,18 @@ import LiveMapSVG from "../components/LiveMapSVG";
 import PredictionPanel from "../components/PredictionPanel";
 import { useWebSocket } from "../hooks/useWebSocket";
 import MultiTrackSummary from "../components/MultiTrackSummary";
+import { DemoModeToggle } from "../components/DemoModeToggle";
+import { useDemoMode } from "../hooks/useDemoMode";
 
 export default function PitWallDashboard() {
   const [track, setTrack] = useState(TRACKS[0]);
-  const { connected, messages } = useWebSocket(`ws://localhost:8081/ws`);
+  const { isDemoMode } = useDemoMode();
+  const wsUrl = isDemoMode ? '' : `ws://localhost:8081/ws`; // Skip WS in demo mode
+  const { connected, messages, messageCount } = useWebSocket(wsUrl, {
+    batchMs: 80,
+    maxBuffer: 2000,
+    maxMessages: 500,
+  });
   // derive last telemetry point for car position
   const lastPoint = useMemo(() => messages.length ? messages[messages.length-1] : null, [messages]);
 
@@ -47,19 +55,29 @@ export default function PitWallDashboard() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4"
             >
+              <DemoModeToggle />
               <Badge 
-                variant={connected ? "default" : "secondary"}
+                variant={connected || isDemoMode ? "default" : "secondary"}
                 className={`flex items-center gap-2 px-4 py-2 ${
-                  connected 
+                  connected || isDemoMode
                     ? "bg-primary/20 text-primary border-primary/30" 
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                {connected ? (
+                {isDemoMode ? (
+                  <>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-lg shadow-primary/50" />
+                    <Activity className="w-4 h-4" />
+                    <span className="font-semibold">DEMO</span>
+                  </>
+                ) : connected ? (
                   <>
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-lg shadow-primary/50" />
                     <Wifi className="w-4 h-4" />
                     <span className="font-semibold">LIVE</span>
+                    {messageCount > 0 && (
+                      <span className="text-xs ml-1">({messageCount})</span>
+                    )}
                   </>
                 ) : (
                   <>

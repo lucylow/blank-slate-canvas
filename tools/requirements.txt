@@ -5,4 +5,5 @@ scikit-image>=0.21.0
 shapely>=2.0.0
 svgwrite>=1.4.0
 numpy>=1.24.0
+pandas>=2.0.0
 

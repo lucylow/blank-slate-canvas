@@ -4,9 +4,11 @@ import { useTelemetry } from '@/hooks/useTelemetry';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useDemoMode } from '@/hooks/useDemoMode';
 
 export function Header() {
   const { currentLap, sessionTime, connectionStatus } = useTelemetry();
+  const { isDemoMode } = useDemoMode();
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50 z-50 shadow-lg shadow-primary/5">
@@ -39,33 +41,45 @@ export function Header() {
           </div>
 
           <Badge
-            variant={connectionStatus === 'connected' ? 'default' : 'secondary'}
+            variant={connectionStatus === 'connected' || isDemoMode ? 'default' : 'secondary'}
             className={cn(
               "flex items-center space-x-2 px-3 py-1.5",
-              connectionStatus === 'connected' 
+              isDemoMode
+                ? 'bg-primary/20 text-primary border-primary/30'
+                : connectionStatus === 'connected' 
                 ? 'bg-primary/20 text-primary border-primary/30' 
                 : connectionStatus === 'connecting'
                 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
                 : 'bg-destructive/20 text-destructive border-destructive/30'
             )}
           >
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              connectionStatus === 'connected' 
-                ? 'bg-primary animate-pulse shadow-lg shadow-primary/50' 
-                : connectionStatus === 'connecting'
-                ? 'bg-yellow-400'
-                : 'bg-destructive'
-            )} />
-            {connectionStatus === 'connected' ? (
+            {isDemoMode ? (
               <>
-                <Wifi className="w-3 h-3" />
-                <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">LIVE</span>
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-lg shadow-primary/50" />
+                <Play className="w-3 h-3" />
+                <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">DEMO</span>
               </>
             ) : (
               <>
-                <WifiOff className="w-3 h-3" />
-                <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">{connectionStatus}</span>
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  connectionStatus === 'connected' 
+                    ? 'bg-primary animate-pulse shadow-lg shadow-primary/50' 
+                    : connectionStatus === 'connecting'
+                    ? 'bg-yellow-400'
+                    : 'bg-destructive'
+                )} />
+                {connectionStatus === 'connected' ? (
+                  <>
+                    <Wifi className="w-3 h-3" />
+                    <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">LIVE</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="w-3 h-3" />
+                    <span className="text-xs font-semibold uppercase tracking-wide hidden sm:inline">{connectionStatus}</span>
+                  </>
+                )}
               </>
             )}
           </Badge>

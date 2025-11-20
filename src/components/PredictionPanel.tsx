@@ -1,44 +1,50 @@
 // src/components/PredictionPanel.tsx
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Target, Clock, TrendingUp, AlertCircle, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { predictTire } from "../api/pitwall";
+import { usePrediction } from "@/hooks/usePrediction";
+import { TirePredictionResponse } from "@/api/pitwall";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
-type Props = { track: string; chassis?: string; pollMs?: number; onExplain?: (evidence:string[]) => void };
+type Props = { 
+  track: string; 
+  chassis?: string; 
+  pollMs?: number; 
+  onExplain?: (evidence: string[]) => void;
+};
 
-export default function PredictionPanel({ track, chassis = "GR86-DEMO-01", pollMs = 4000, onExplain }: Props) {
-  const [prediction, setPrediction] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    let timer: any;
-
-    async function fetchPred() {
-      setLoading(true);
-      try {
-        const p = await predictTire(track, chassis);
-        if (!mounted) return;
-        setPrediction(p);
-      } catch (e: any) {
-        setPrediction({ error: e.message || String(e) });
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPred();
-    timer = setInterval(fetchPred, pollMs);
-    return () => {
-      mounted = false;
-      clearInterval(timer);
-    }
-  }, [track, chassis, pollMs]);
+export default function PredictionPanel({ 
+  track, 
+  chassis = "GR86-DEMO-01", 
+  pollMs = 4000, 
+  onExplain 
+}: Props) {
+  const { toast } = useToast();
+  
+  const { 
+    data: prediction, 
+    isLoading, 
+    error,
+    isFetching,
+    dataUpdatedAt 
+  } = usePrediction(track, chassis, {
+    refetchInterval: pollMs,
+    staleTime: 3000,
+    retry: 2,
+    onError: (err) => {
+      toast({
+        title: "Prediction Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const renderBars = (items: {name:string,score:number}[] = []) => {
     const max = Math.max(...items.map(i => Math.abs(i.score)), 0.0001);
@@ -78,11 +84,19 @@ export default function PredictionPanel({ track, chassis = "GR86-DEMO-01", pollM
           <CardTitle className="text-base flex items-center gap-2">
             <Target className="w-4 h-4 text-primary" />
             Tire Prediction
+            {isFetching && (
+              <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+            )}
           </CardTitle>
           {prediction?.meta?.generated_at && (
             <Badge variant="outline" className="text-xs">
               <Clock className="w-3 h-3 mr-1" />
               {new Date(prediction.meta.generated_at).toLocaleTimeString()}
+            </Badge>
+          )}
+          {prediction?.meta?.model_version && (
+            <Badge variant="secondary" className="text-xs ml-2">
+              v{prediction.meta.model_version}
             </Badge>
           )}
         </div>
@@ -92,15 +106,23 @@ export default function PredictionPanel({ track, chassis = "GR86-DEMO-01", pollM
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {loading && !prediction ? (
+        {isLoading && !prediction ? (
           <div className="space-y-3">
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-20 w-full" />
           </div>
-        ) : prediction?.error ? (
+        ) : error ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AlertCircle className="w-8 h-8 text-destructive mb-2" />
-            <p className="text-sm text-muted-foreground">{prediction.error}</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
           </div>
         ) : (
           <>
@@ -143,12 +165,14 @@ export default function PredictionPanel({ track, chassis = "GR86-DEMO-01", pollM
                 </div>
                 <div className="space-y-1.5 p-3 bg-muted/30 rounded-lg border border-border/50">
                   {renderBars(
-                    Array.isArray(prediction.explanation) 
-                      ? prediction.explanation.map((s:string, i:number) => ({
-                          name: s,
-                          score: (prediction.feature_scores?.[i] ?? (1/(i+1)))
-                        })) 
-                      : []
+                    prediction.feature_scores && prediction.feature_scores.length > 0
+                      ? prediction.feature_scores
+                      : Array.isArray(prediction.explanation) 
+                        ? prediction.explanation.map((s: string, i: number) => ({
+                            name: s,
+                            score: (prediction.feature_scores?.[i]?.score ?? (1/(i+1)))
+                          })) 
+                        : []
                   )}
                 </div>
               </div>
