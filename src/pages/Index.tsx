@@ -368,6 +368,7 @@ DATA INTEGRATION COMPLETE
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [backendHealth, setBackendHealth] = useState<{ ok: boolean }>({ ok: false });
   const location = useLocation();
 
   // Smooth scroll handler for anchor links
