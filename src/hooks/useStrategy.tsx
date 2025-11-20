@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { apiClient, TirePredictionResponse } from '@/lib/api';
 
 interface Alert {
   severity: 'high' | 'medium' | 'low';
@@ -31,31 +32,141 @@ interface StrategyContextType {
   strategy: Strategy;
   predictions: Predictions;
   alerts: Alert[];
+  isLoading: boolean;
+  error: string | null;
+  refreshPrediction: (track?: string, chassis?: string, currentLap?: number) => Promise<void>;
 }
 
 const StrategyContext = createContext<StrategyContextType | undefined>(undefined);
 
-export function StrategyProvider({ children }: { children: ReactNode }) {
-  const [alerts] = useState<Alert[]>([
-    { severity: 'high', message: 'High tire degradation detected - consider pit stop in 3-5 laps' },
-    { severity: 'medium', message: 'Driver losing time in Sector 2 - focus on braking points' }
-  ]);
+// Convert track name to API format (lowercase, replace spaces with underscores)
+function normalizeTrackName(trackName: string): string {
+  return trackName.toLowerCase().replace(/\s+/g, '_');
+}
+
+interface StrategyProviderProps {
+  children: ReactNode;
+  // Optional props to allow standalone usage or integration with TelemetryProvider
+  defaultTrack?: string;
+  defaultChassis?: string;
+  defaultLap?: number;
+}
+
+export function StrategyProvider({ 
+  children, 
+  defaultTrack = 'circuit_of_the_americas',
+  defaultChassis = 'GR001',
+  defaultLap = 12
+}: StrategyProviderProps) {
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [strategy, setStrategy] = useState<Strategy>({
+    tireWear: { current: 71 },
+    pitWindow: { start: 15, end: 17 },
+    currentPosition: 3
+  });
+  const [predictions, setPredictions] = useState<Predictions>({
+    pitStops: [
+      { lap: 16, tyreCompound: 'Soft' },
+      { lap: 32, tyreCompound: 'Medium' }
+    ],
+    finishPosition: 3,
+    gapToLeader: '+1.24'
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTirePrediction = useCallback(async () => {
+    if (!selectedDriver || !trackData.name) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const track = normalizeTrackName(trackData.name);
+      const chassis = selectedDriver.chassisNumber;
+      
+      const response: TirePredictionResponse = await apiClient.fetchTirePrediction(track, chassis);
+
+      // Convert API response to frontend format
+      setStrategy({
+        tireWear: {
+          current: Math.max(0, 100 - (response.predicted_loss_per_lap_s * currentLap * 10)) // Estimate current wear
+        },
+        pitWindow: {
+          start: Math.max(1, response.recommended_pit_lap - 1),
+          end: response.recommended_pit_lap + 1
+        },
+        currentPosition: 3 // TODO: Get from telemetry
+      });
+
+      setPredictions({
+        pitStops: [
+          { lap: response.recommended_pit_lap, tyreCompound: 'Medium' } // TODO: Get compound from backend
+        ],
+        finishPosition: 3, // TODO: Calculate from predictions
+        gapToLeader: `+${(response.predicted_loss_per_lap_s * response.laps_until_0_5s_loss).toFixed(2)}s`
+      });
+
+      // Convert explanations to alerts
+      const newAlerts: Alert[] = response.explanation.map((explanation, index) => {
+        let severity: 'high' | 'medium' | 'low' = 'medium';
+        if (response.laps_until_0_5s_loss <= 2) {
+          severity = 'high';
+        } else if (response.laps_until_0_5s_loss <= 5) {
+          severity = 'medium';
+        } else {
+          severity = 'low';
+        }
+        return {
+          severity,
+          message: explanation
+        };
+      });
+
+      // Add pit stop recommendation if critical
+      if (response.laps_until_0_5s_loss <= 3) {
+        newAlerts.unshift({
+          severity: 'high',
+          message: `Critical: Recommended pit stop on lap ${response.recommended_pit_lap} (${response.laps_until_0_5s_loss} laps until 0.5s loss)`
+        });
+      }
+
+      setAlerts(newAlerts);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tire prediction';
+      setError(errorMessage);
+      console.error('Error fetching tire prediction:', err);
+      
+      // Set fallback alerts
+      setAlerts([
+        { severity: 'medium', message: 'Unable to fetch real-time predictions. Using cached data.' }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedDriver, trackData.name, currentLap]);
+
+  // Fetch prediction when driver, track, or lap changes
+  useEffect(() => {
+    fetchTirePrediction();
+    
+    // Refresh prediction every 30 seconds
+    const interval = setInterval(() => {
+      fetchTirePrediction();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchTirePrediction]);
 
   const value = {
-    strategy: {
-      tireWear: { current: 71 },
-      pitWindow: { start: 15, end: 17 },
-      currentPosition: 3
-    },
-    predictions: {
-      pitStops: [
-        { lap: 16, tyreCompound: 'Soft' },
-        { lap: 32, tyreCompound: 'Medium' }
-      ],
-      finishPosition: 3,
-      gapToLeader: '+1.24'
-    },
-    alerts
+    strategy,
+    predictions,
+    alerts,
+    isLoading,
+    error,
+    refreshPrediction: fetchTirePrediction
   };
 
   return (

@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import { telemetryWS, TelemetryPoint } from '@/lib/api';
 
 interface TelemetryData {
   timestamp: number;
@@ -34,6 +35,21 @@ interface TelemetryContextType {
 
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
 
+// Convert backend TelemetryPoint to frontend TelemetryData format
+function convertTelemetryPoint(point: TelemetryPoint): TelemetryData {
+  return {
+    timestamp: point.timestamp || Date.now(),
+    speed: point.speed,
+    throttle: point.throttle * 100, // Convert 0-1 to 0-100
+    brake: point.brake * 100, // Convert 0-1 to 0-100
+    gear: point.gear || 0,
+    rpm: point.rpm || 0,
+    lat: point.lat || 0,
+    lng: point.lng || 0,
+    lapDistance: point.lapDistance || 0,
+  };
+}
+
 export function TelemetryProvider({ children }: { children: ReactNode }) {
   const [telemetryData, setTelemetryData] = useState<TelemetryData[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([
@@ -45,25 +61,38 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
   ]);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(drivers[0]);
   const [currentLap, setCurrentLap] = useState(12);
-  const [connectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connected');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
+  const lastLapRef = useRef<number>(0);
 
+  // Connect to WebSocket and handle telemetry data
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newData: TelemetryData = {
-        timestamp: Date.now(),
-        speed: Math.random() * 100 + 150,
-        throttle: Math.random() * 100,
-        brake: Math.random() * 50,
-        gear: Math.floor(Math.random() * 6) + 1,
-        rpm: Math.random() * 3000 + 5000,
-        lat: 0,
-        lng: 0,
-        lapDistance: Math.random() * 5000
-      };
-      setTelemetryData(prev => [...prev.slice(-999), newData]);
-    }, 100);
+    // Set up connection status handler
+    telemetryWS.setConnectionChangeHandler((status) => {
+      setConnectionStatus(status);
+    });
 
-    return () => clearInterval(interval);
+    // Connect to WebSocket
+    telemetryWS.connect();
+
+    // Subscribe to telemetry data
+    const unsubscribe = telemetryWS.subscribe((point: TelemetryPoint) => {
+      const converted = convertTelemetryPoint(point);
+      
+      // Update current lap when it changes
+      if (point.lap !== lastLapRef.current) {
+        lastLapRef.current = point.lap;
+        setCurrentLap(point.lap);
+      }
+
+      // Add to telemetry data array (keep last 1000 points)
+      setTelemetryData(prev => [...prev.slice(-999), converted]);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribe();
+      telemetryWS.disconnect();
+    };
   }, []);
 
   const value = {
@@ -72,9 +101,9 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
     selectedDriver,
     setSelectedDriver,
     currentLap,
-    sessionTime: '45:23.456',
+    sessionTime: '45:23.456', // TODO: Calculate from telemetry data
     connectionStatus,
-    trackData: { name: 'Circuit of the Americas' }
+    trackData: { name: 'Circuit of the Americas' } // TODO: Get from backend or config
   };
 
   return (

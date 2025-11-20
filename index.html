@@ -1,24 +1,33 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>558d1e2b-e32c-4c8d-a4b4-1a126dfccbf5</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
-
-    <meta property="og:title" content="558d1e2b-e32c-4c8d-a4b4-1a126dfccbf5" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PitWall A.I. — Demo</title>
+    <meta name="description" content="PitWall A.I. — Real-time strategy & tire intelligence for the GR Cup" />
+    <link rel="icon" href="/favicon.ico" />
+    <!-- Include your Tailwind / compiled CSS via Vite / build -->
   </head>
-
-  <body>
+  <body class="bg-[#0A0A0A] text-white">
     <div id="root"></div>
+
+    <!-- Hero for non-JS fallback / preview (also used when JS loads) -->
+    <div class="hidden" id="static-hero">
+      <div style="max-width:1100px;margin:48px auto;padding:28px;background:linear-gradient(90deg,#0f1724, #071427);border-radius:12px;">
+        <div style="display:flex;gap:18px;align-items:center;">
+          <img src="/mnt/data/A_vector-based_logo_design_for_&quot;PitWall_AI&quot;_featur.png" alt="PitWall AI logo" width="120" />
+          <div>
+            <h1 style="margin:0;font-size:28px;font-weight:700;">PitWall A.I. — Real-time race strategy & tire intelligence</h1>
+            <p style="margin-top:6px;color:#cbd5e1;">Predict tire loss, recommend pit windows, and get explainable radio-ready guidance — live.</p>
+            <div style="margin-top:12px;">
+              <a href="/demo" style="background:#EB0A1E;padding:10px 16px;border-radius:6px;color:white;margin-right:8px;text-decoration:none;font-weight:600;">Run Demo</a>
+              <a href="/assets/demo.mp4" style="border:1px solid #334155;padding:10px 16px;border-radius:6px;color:#cbd5e1;text-decoration:none;">Watch 3-min Video</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
