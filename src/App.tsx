@@ -7,6 +7,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import DashboardPage from "./pages/DashboardPage";
+import { Dashboard } from "./pages/Dashboard";
 import PitWallDashboard from "./pages/PitWallDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard-new" element={<Dashboard />} />
           <Route path="/pitwall" element={<PitWallDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
