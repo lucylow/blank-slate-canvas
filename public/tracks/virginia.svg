@@ -1,0 +1,34 @@
+<!-- public/tracks/virginia.svg -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+
+  <title>Virginia International Raceway - centerline placeholder</title>
+
+  <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+
+    <path id="track-path" d="
+
+      M100 340
+
+      C200 180 360 140 520 180
+
+      C680 220 780 300 860 320
+
+      C940 340 1020 320 1080 260
+
+      C1120 220 1100 160 1030 120
+
+      C940 80 820 100 720 140
+
+      C620 180 520 220 420 260
+
+      C300 320 200 420 100 340
+
+      Z
+
+    " />
+
+  </g>
+
+</svg>
+

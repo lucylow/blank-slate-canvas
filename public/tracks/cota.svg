@@ -1,0 +1,38 @@
+<!-- public/tracks/cota.svg -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+
+  <!-- meta: source PDF (user-uploaded) -> /mnt/data/COTA_Circuit_Map.pdf -->
+
+  <title>Circuit of the Americas - centerline placeholder</title>
+
+  <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+
+    <path id="track-path" d="
+
+      M140 420
+
+      C240 260 360 120 540 140
+
+      C680 160 760 260 820 300
+
+      C900 360 980 340 1060 240
+
+      C1100 200 1080 140 1020 120
+
+      C920 90 760 120 700 140
+
+      C640 160 540 220 460 300
+
+      C400 360 300 420 200 460
+
+      C160 480 140 440 140 420
+
+      Z
+
+    " />
+
+  </g>
+
+</svg>
+

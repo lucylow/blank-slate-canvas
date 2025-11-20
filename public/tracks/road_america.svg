@@ -1,0 +1,32 @@
+<!-- public/tracks/road_america.svg -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+
+  <title>Road America - centerline placeholder</title>
+
+  <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+
+    <path id="track-path" d="
+
+      M60 360
+
+      C180 200 360 160 520 180
+
+      C700 200 820 260 920 300
+
+      C1050 350 1100 450 1030 500
+
+      C930 560 760 540 620 520
+
+      C480 500 360 480 240 460
+
+      C140 445 80 400 60 360
+
+      Z
+
+    " />
+
+  </g>
+
+</svg>
+

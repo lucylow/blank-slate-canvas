@@ -1,0 +1,34 @@
+<!-- public/tracks/indianapolis.svg -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+
+  <title>Indianapolis (road course) - centerline placeholder</title>
+
+  <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+
+    <path id="track-path" d="
+
+      M80 300
+
+      C200 120 420 120 560 200
+
+      C700 280 820 320 920 260
+
+      C980 220 1060 220 1100 300
+
+      C1120 340 1080 420 980 460
+
+      C860 510 700 480 560 440
+
+      C420 400 240 380 140 340
+
+      C100 320 80 310 80 300
+
+      Z
+
+    " />
+
+  </g>
+
+</svg>
+

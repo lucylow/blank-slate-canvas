@@ -50,13 +50,16 @@ interface StrategyProviderProps {
   defaultTrack?: string;
   defaultChassis?: string;
   defaultLap?: number;
+  // Optional callback to get telemetry data when available
+  getTelemetryData?: () => { track?: string; chassis?: string; currentLap?: number } | null;
 }
 
 export function StrategyProvider({ 
   children, 
   defaultTrack = 'circuit_of_the_americas',
   defaultChassis = 'GR001',
-  defaultLap = 12
+  defaultLap = 12,
+  getTelemetryData
 }: StrategyProviderProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [strategy, setStrategy] = useState<Strategy>({
@@ -75,8 +78,14 @@ export function StrategyProvider({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTirePrediction = useCallback(async () => {
-    if (!selectedDriver || !trackData.name) {
+  const fetchTirePrediction = useCallback(async (track?: string, chassis?: string, currentLap?: number) => {
+    // Get data from telemetry if available, otherwise use provided params or defaults
+    const telemetryData = getTelemetryData?.();
+    const finalTrack = track || telemetryData?.track || defaultTrack;
+    const finalChassis = chassis || telemetryData?.chassis || defaultChassis;
+    const finalLap = currentLap ?? telemetryData?.currentLap ?? defaultLap;
+
+    if (!finalTrack || !finalChassis) {
       return;
     }
 
@@ -84,15 +93,14 @@ export function StrategyProvider({
     setError(null);
 
     try {
-      const track = normalizeTrackName(trackData.name);
-      const chassis = selectedDriver.chassisNumber;
+      const normalizedTrack = normalizeTrackName(finalTrack);
       
-      const response: TirePredictionResponse = await apiClient.fetchTirePrediction(track, chassis);
+      const response: TirePredictionResponse = await apiClient.fetchTirePrediction(normalizedTrack, finalChassis);
 
       // Convert API response to frontend format
       setStrategy({
         tireWear: {
-          current: Math.max(0, 100 - (response.predicted_loss_per_lap_s * currentLap * 10)) // Estimate current wear
+          current: Math.max(0, 100 - (response.predicted_loss_per_lap_s * finalLap * 10)) // Estimate current wear
         },
         pitWindow: {
           start: Math.max(1, response.recommended_pit_lap - 1),
@@ -110,7 +118,7 @@ export function StrategyProvider({
       });
 
       // Convert explanations to alerts
-      const newAlerts: Alert[] = response.explanation.map((explanation, index) => {
+      const newAlerts: Alert[] = response.explanation.map((explanation) => {
         let severity: 'high' | 'medium' | 'low' = 'medium';
         if (response.laps_until_0_5s_loss <= 2) {
           severity = 'high';
@@ -146,9 +154,9 @@ export function StrategyProvider({
     } finally {
       setIsLoading(false);
     }
-  }, [selectedDriver, trackData.name, currentLap]);
+  }, [defaultTrack, defaultChassis, defaultLap, getTelemetryData]);
 
-  // Fetch prediction when driver, track, or lap changes
+  // Fetch prediction on mount and when telemetry data changes
   useEffect(() => {
     fetchTirePrediction();
     

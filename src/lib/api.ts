@@ -58,23 +58,68 @@ export class ApiClient {
   }
 
   async fetchTirePrediction(track: string, chassis: string): Promise<TirePredictionResponse> {
-    const response = await fetch(`${this.baseUrl}/predict_tire/${track}/${chassis}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch tire prediction: ${response.statusText}`);
+    try {
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(`${this.baseUrl}/predict_tire/${track}/${chassis}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => response.statusText);
+        throw new Error(`Failed to fetch tire prediction (${response.status}): ${errorText}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout: Backend server may be unavailable');
+      }
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Unable to connect to backend server');
+      }
+      throw error;
     }
-    
-    return response.json();
   }
 
   async checkHealth(): Promise<HealthResponse> {
-    const response = await fetch(`${this.baseUrl}/health`);
-    
-    if (!response.ok) {
-      throw new Error(`Health check failed: ${response.statusText}`);
+    try {
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+      const response = await fetch(`${this.baseUrl}/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Health check failed: ${response.statusText}`);
+      }
+      
+      return response.json();
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Health check timeout: Backend server may be unavailable');
+      }
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Unable to connect to backend server');
+      }
+      throw error;
     }
-    
-    return response.json();
   }
 }
 

@@ -1,0 +1,34 @@
+<!-- public/tracks/sonoma.svg -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+
+  <title>Sonoma - centerline placeholder</title>
+
+  <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+
+    <path id="track-path" d="
+
+      M140 420
+
+      C220 260 300 160 420 140
+
+      C540 120 660 160 760 220
+
+      C860 280 920 360 980 340
+
+      C1030 330 1100 300 1060 240
+
+      C1020 180 900 160 780 170
+
+      C640 180 520 230 420 300
+
+      C320 360 220 440 140 420
+
+      Z
+
+    " />
+
+  </g>
+
+</svg>
+

@@ -1,0 +1,34 @@
+<!-- public/tracks/sebring.svg -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
+
+  <title>Sebring - centerline placeholder</title>
+
+  <g fill="none" stroke="#334155" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+
+    <path id="track-path" d="
+
+      M120 300
+
+      C200 200 320 180 440 220
+
+      C560 260 660 320 760 300
+
+      C860 280 940 220 1020 260
+
+      C1080 290 1100 360 1040 420
+
+      C980 480 820 520 700 500
+
+      C580 480 420 460 280 420
+
+      C200 390 140 350 120 300
+
+      Z
+
+    " />
+
+  </g>
+
+</svg>
+

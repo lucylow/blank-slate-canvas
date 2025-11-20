@@ -2,12 +2,12 @@ import { Dashboard } from '@/components/dashboard/Dashboard';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TelemetryProvider } from '@/hooks/useTelemetry';
-import { StrategyProvider } from '@/hooks/useStrategy';
+import { StrategyProviderWrapper } from '@/hooks/StrategyProviderWrapper';
 
 const DashboardPage = () => {
   return (
     <TelemetryProvider>
-      <StrategyProvider>
+      <StrategyProviderWrapper>
         <div className="min-h-screen bg-background">
           <Header />
           <div className="flex h-screen pt-16">
@@ -17,7 +17,7 @@ const DashboardPage = () => {
             </main>
           </div>
         </div>
-      </StrategyProvider>
+      </StrategyProviderWrapper>
     </TelemetryProvider>
   );
 };

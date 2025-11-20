@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X } from "lucide-react";
@@ -142,40 +143,67 @@ const Index = () => {
           </div>
           
           {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg md:hidden animate-in slide-in-from-top-2">
-              <nav className="container mx-auto px-6 py-4 flex flex-col gap-4" role="navigation" aria-label="Mobile navigation">
-                <a 
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg md:hidden"
+              >
+              <nav className="container mx-auto px-6 py-4 flex flex-col gap-2" role="navigation" aria-label="Mobile navigation">
+                <motion.a
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
                   href="#features" 
                   onClick={(e) => handleAnchorClick(e, '#features')}
-                  className="text-base font-medium hover:text-primary transition-all duration-200 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2"
+                  className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
                 >
                   Features
-                </a>
-                <a 
+                </motion.a>
+                <motion.a
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 }}
                   href="#tracks" 
                   onClick={(e) => handleAnchorClick(e, '#tracks')}
-                  className="text-base font-medium hover:text-primary transition-all duration-200 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2"
+                  className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
                 >
                   Tracks
-                </a>
-                <Link 
-                  to="/dashboard" 
-                  className="text-base font-medium hover:text-primary transition-all duration-200 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2"
+                </motion.a>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  Dashboard
-                </Link>
-                <Link to="/dashboard" className="mt-2">
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30"
-                    aria-label="View Dashboard - Opens interactive dashboard"
+                  <Link 
+                    to="/dashboard" 
+                    className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50 block"
                   >
-                    View Dashboard
-                  </Button>
-                </Link>
+                    Dashboard
+                  </Link>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="mt-2"
+                >
+                  <Link to="/dashboard" className="block">
+                    <Button 
+                      className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+                      aria-label="View Dashboard - Opens interactive dashboard"
+                    >
+                      View Dashboard
+                    </Button>
+                  </Link>
+                </motion.div>
               </nav>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 

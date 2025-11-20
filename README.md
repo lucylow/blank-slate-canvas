@@ -74,6 +74,22 @@ GET  /predict_tire/:track/:chassis    # Tire prediction with explanation
 WS   /ws                              # WebSocket telemetry stream
 ```
 
+### Frontend-Backend Integration
+
+The frontend is now fully integrated with the backend API:
+
+- **REST API Client** (`src/lib/api.ts`): Handles all HTTP requests to backend endpoints
+- **WebSocket Client**: Manages real-time telemetry streaming with automatic reconnection
+- **Environment Variables**: Configure API endpoints via `.env` file:
+  ```bash
+  VITE_API_BASE_URL=http://localhost:8081
+  VITE_WS_BASE_URL=ws://localhost:8081
+  ```
+
+- **Hooks Integration**:
+  - `useTelemetry`: Connects to WebSocket and streams live telemetry data
+  - `useStrategy`: Fetches tire predictions from REST API and updates every 30 seconds
+
 ## 📁 Project Structure
 
 ```
