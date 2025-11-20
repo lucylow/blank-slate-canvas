@@ -395,6 +395,8 @@ const Index = () => {
     };
   }, []);
 
+  // Backend health check
+
   const features = [
     {
       icon: <TrendingUp className="w-6 h-6" />,
@@ -466,19 +468,32 @@ const Index = () => {
               Features
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
             </a>
-            <a 
-              href="#tracks" 
-              onClick={(e) => handleAnchorClick(e, '#tracks')}
+            <Link 
+              to="/tracks" 
               className="text-sm font-medium hover:text-primary transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
             >
               Tracks
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
-            </a>
+            </Link>
+            <Link 
+              to="/analytics" 
+              className="text-sm font-medium hover:text-primary transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+            >
+              Analytics
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
+            </Link>
             <Link 
               to="/dashboard" 
               className="text-sm font-medium hover:text-primary transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
             >
               Dashboard
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
+            </Link>
+            <Link 
+              to="/about" 
+              className="text-sm font-medium hover:text-primary transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+            >
+              About
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
             </Link>
           </nav>
@@ -523,20 +538,34 @@ const Index = () => {
                 >
                   Features
                 </motion.a>
-                <motion.a
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.15 }}
-                  href="#tracks" 
-                  onClick={(e) => handleAnchorClick(e, '#tracks')}
-                  className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                >
-                  Tracks
-                </motion.a>
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
+                  transition={{ delay: 0.12 }}
+                >
+                  <Link 
+                    to="/tracks" 
+                    className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50 block"
+                  >
+                    Tracks
+                  </Link>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.14 }}
+                >
+                  <Link 
+                    to="/analytics" 
+                    className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50 block"
+                  >
+                    Analytics
+                  </Link>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.16 }}
                 >
                   <Link 
                     to="/dashboard" 
@@ -548,7 +577,19 @@ const Index = () => {
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.25 }}
+                  transition={{ delay: 0.18 }}
+                >
+                  <Link 
+                    to="/about" 
+                    className="text-base font-medium hover:text-primary transition-all duration-200 py-3 px-3 rounded-lg hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/50 block"
+                  >
+                    About
+                  </Link>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
                   className="mt-2"
                 >
                   <Link to="/dashboard" className="block">
@@ -902,10 +943,16 @@ const Index = () => {
                   </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
+                  <Link to="/analytics" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
-                    Demo
-                  </a>
+                    Analytics
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/tracks" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Tracks
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -936,16 +983,16 @@ const Index = () => {
               <h3 className="font-bold mb-5 text-primary">Company</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
+                  <Link to="/about" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     About
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
+                  <Link to="/settings" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
-                    Blog
-                  </a>
+                    Settings
+                  </Link>
                 </li>
                 <li>
                   <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">

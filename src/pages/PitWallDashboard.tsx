@@ -12,12 +12,14 @@ import { useWebSocket } from "../hooks/useWebSocket";
 import MultiTrackSummary from "../components/MultiTrackSummary";
 import { DemoModeToggle } from "../components/DemoModeToggle";
 import { useDemoMode } from "../hooks/useDemoMode";
+import { getWsUrl } from "../utils/wsUrl";
 
 export default function PitWallDashboard() {
   const [track, setTrack] = useState(TRACKS[0]);
   const { isDemoMode } = useDemoMode();
-  const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/^https?:/, 'ws:') : '');
-  const wsUrl = isDemoMode ? '' : wsBaseUrl ? `${wsBaseUrl}${wsBaseUrl.endsWith('/') ? '' : '/'}ws` : '';
+  
+  // Use the centralized WebSocket URL helper
+  const wsUrl = isDemoMode ? '' : getWsUrl('/ws');
   const { connected, messages, messageCount } = useWebSocket(wsUrl, {
     batchMs: 80,
     maxBuffer: 2000,

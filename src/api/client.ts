@@ -3,7 +3,8 @@
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "";
+// Use /api for dev (proxied by Vite) or explicit env var for production
+const BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? '/api' : '');
 
 const client = axios.create({
   baseURL: BASE,

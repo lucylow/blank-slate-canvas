@@ -1,4 +1,6 @@
 import { DashboardData } from '@/lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Trophy, Clock, TrendingUp, Target } from 'lucide-react';
 
 interface Props {
   performance: DashboardData['performance'];
@@ -7,15 +9,43 @@ interface Props {
 
 export function PerformanceCard({ performance, meta }: Props) {
   return (
-    <div className="bg-gray-800 p-4 rounded-lg">
-      <h3 className="font-bold mb-2">Live Performance - Lap {meta.lap}/{meta.total_laps}</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div>Position: <span className="font-mono text-xl">{performance.position}</span></div>
-        <div>Best Lap: <span className="font-mono text-xl">{performance.best_lap}</span></div>
-        <div>Gap to Leader: <span className="font-mono text-xl">{performance.gap_to_leader}</span></div>
-        <div>Predicted Finish: <span className="font-mono text-xl">{performance.predicted_finish}</span></div>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-primary" />
+          Live Performance - Lap {meta.lap}/{meta.total_laps}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-1">
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              Position
+            </div>
+            <div className="text-3xl font-bold font-mono">{performance.position}</div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              Best Lap
+            </div>
+            <div className="text-3xl font-bold font-mono">{performance.best_lap}</div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              Gap to Leader
+            </div>
+            <div className="text-3xl font-bold font-mono text-primary">{performance.gap_to_leader}</div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm text-muted-foreground">Predicted Finish</div>
+            <div className="text-3xl font-bold font-mono">{performance.predicted_finish}</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

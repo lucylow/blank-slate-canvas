@@ -1,8 +1,9 @@
 // API client for backend communication
 // Supports both REST endpoints and WebSocket connections
 
+import { getWsUrl } from '../utils/wsUrl';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/^https?:/, 'ws:') : '');
 
 // TypeScript interfaces matching backend API responses
 
@@ -133,11 +134,16 @@ export class TelemetryWebSocket {
   private listeners: Set<(data: TelemetryPoint) => void> = new Set();
   private onConnectionChange?: (status: 'connected' | 'connecting' | 'disconnected') => void;
 
-  constructor(url: string = `${WS_BASE_URL}/ws`) {
-    this.url = url;
+  constructor(url?: string) {
+    // Use provided URL or get from helper (which handles dev/prod/env vars)
+    this.url = url || getWsUrl('/ws');
   }
 
   connect(): void {
+    if (!this.url) {
+      console.warn('WebSocket URL is not configured. Skipping connection.');
+      return;
+    }
     if (this.ws?.readyState === WebSocket.OPEN) {
       return;
     }
