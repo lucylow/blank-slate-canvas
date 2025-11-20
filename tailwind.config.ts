@@ -47,6 +47,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        racing: {
+          red: "hsl(var(--racing-red))",
+          dark: "hsl(var(--racing-dark))",
+          gray: "hsl(var(--racing-gray))",
+          silver: "hsl(var(--racing-silver))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
