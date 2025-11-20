@@ -1,7 +1,7 @@
 // API client for backend communication
 // Supports both REST endpoints and WebSocket connections
 
-import { getWsUrl } from '../utils/wsUrl';
+import { getWsUrl } from '@/utils/wsUrl';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 

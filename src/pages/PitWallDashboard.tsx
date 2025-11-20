@@ -12,7 +12,7 @@ import { useWebSocket } from "../hooks/useWebSocket";
 import MultiTrackSummary from "../components/MultiTrackSummary";
 import { DemoModeToggle } from "../components/DemoModeToggle";
 import { useDemoMode } from "../hooks/useDemoMode";
-import { getWsUrl } from "../utils/wsUrl";
+import { getWsUrl } from "@/utils/wsUrl";
 
 export default function PitWallDashboard() {
   const [track, setTrack] = useState(TRACKS[0]);
