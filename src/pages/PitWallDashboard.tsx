@@ -14,6 +14,7 @@ import MultiTrackSummary from "@/components/MultiTrackSummary";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { useDemoWs } from "@/hooks/useDemoWs";
 import { useDemoMode } from "@/hooks/useDemoMode";
 
 import { getWsUrl } from "@/utils/wsUrl";
@@ -22,13 +23,23 @@ export default function PitWallDashboard() {
   const [track, setTrack] = useState(TRACKS[0]);
   const { isDemoMode } = useDemoMode();
   
-  // Use the centralized WebSocket URL helper
-  const wsUrl = isDemoMode ? '' : getWsUrl('/ws');
-  const { connected, messages, messageCount } = useWebSocket(wsUrl, {
+  // Use demo WebSocket when in demo mode, otherwise use regular WebSocket
+  const demoWs = useDemoWs({
+    url: 'ws://localhost:8081/ws/demo',
+    autoConnect: isDemoMode
+  });
+  
+  const regularWsUrl = isDemoMode ? '' : getWsUrl('/ws');
+  const regularWs = useWebSocket(regularWsUrl, {
     batchMs: 80,
     maxBuffer: 2000,
     maxMessages: 500,
   });
+  
+  // Use demo or regular WebSocket data
+  const connected = isDemoMode ? demoWs.connected : regularWs.connected;
+  const messages = isDemoMode ? demoWs.points : regularWs.messages;
+  const messageCount = messages.length;
   // derive last telemetry point for car position
   const lastPoint = useMemo(() => messages.length ? messages[messages.length-1] : null, [messages]);
 

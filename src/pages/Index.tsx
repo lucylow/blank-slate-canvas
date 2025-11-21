@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import DemoLauncher from "@/components/DemoLauncher";
 
 import { checkHealth } from "@/api/pitwall";
+import { checkDemoHealth } from "@/api/demo";
+import { useDemoMode } from "@/hooks/useDemoMode";
 
 /* ================================================================================
 
@@ -374,6 +376,7 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [backendHealth, setBackendHealth] = useState<{ ok: boolean }>({ ok: false });
   const location = useLocation();
+  const { isDemoMode } = useDemoMode();
 
   // Smooth scroll handler for anchor links
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -400,13 +403,19 @@ const Index = () => {
     };
   }, []);
 
-  // Backend health check
+  // Backend health check (demo or real backend)
   useEffect(() => {
     const checkBackendHealth = async () => {
       try {
-        const health = await checkHealth();
-        // Backend returns { status: "healthy", ... } or { ok: boolean, ... }
-        setBackendHealth({ ok: health.ok || health.status === "healthy" || false });
+        if (isDemoMode) {
+          // Check demo server health
+          const health = await checkDemoHealth();
+          setBackendHealth({ ok: health.ok || health.status === "healthy" || false });
+        } else {
+          // Check real backend health
+          const health = await checkHealth();
+          setBackendHealth({ ok: health.ok || health.status === "healthy" || false });
+        }
       } catch (error) {
         setBackendHealth({ ok: false });
       }
@@ -417,7 +426,7 @@ const Index = () => {
     const interval = setInterval(checkBackendHealth, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isDemoMode]);
 
   const features = [
     {
