@@ -15,6 +15,7 @@ import Tracks from "./pages/Tracks";
 import About from "./pages/About";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import AgentDashboard from "./components/AgentDashboard/AgentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,9 @@ const App = () => (
           
           {/* Analytics - Performance metrics and analysis */}
           <Route path="/analytics" element={<Analytics />} />
+          
+          {/* AI Agents - Agent system dashboard */}
+          <Route path="/agents" element={<AgentDashboard />} />
           
           {/* Track Map - Track information and visualization */}
           <Route path="/tracks" element={<Tracks />} />

@@ -501,3 +501,166 @@ export async function predictMultiple(
   return Promise.all(promises);
 }
 
+// ============================================================================
+// AI AGENTS API FUNCTIONS
+// ============================================================================
+
+export interface Agent {
+  id: string;
+  type: string;
+  status: 'active' | 'idle' | 'error';
+  registered_at?: string;
+  tracks?: string[];
+}
+
+export interface AgentStatusResponse {
+  success: boolean;
+  agents: Agent[];
+  queues?: {
+    tasksLength?: number;
+    resultsLength?: number;
+    inboxLengths?: Array<{
+      agentId: string;
+      length: number;
+    }>;
+  };
+  redis_available?: boolean;
+  timestamp: string;
+}
+
+export interface AgentDecision {
+  type: 'agent_decision';
+  agent_id: string;
+  decision_id: string;
+  track: string;
+  chassis: string;
+  action: string;
+  confidence: number;
+  risk_level: string;
+  decision_type?: 'pit' | 'coach' | 'anomaly' | 'strategy';
+  reasoning?: string[];
+  evidence?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface AgentDecisionsResponse {
+  success: boolean;
+  decisions: AgentDecision[];
+  count: number;
+  timestamp: string;
+}
+
+export interface InsightDetail {
+  decision_id: string;
+  agent_id: string;
+  agent_type: string;
+  decision_type: string;
+  action: string;
+  confidence: number;
+  risk_level: string;
+  reasoning: string[];
+  evidence: Record<string, unknown>;
+  alternatives?: Array<{
+    action: string;
+    risk: string;
+    rationale: string;
+  }>;
+  evidence_frames?: Array<Record<string, unknown>>;
+}
+
+export interface InsightResponse {
+  success: boolean;
+  insight: InsightDetail;
+  timestamp: string;
+}
+
+/**
+ * Get AI agent status
+ */
+export async function getAgentStatus(): Promise<AgentStatusResponse> {
+  try {
+    const res = await client.get<AgentStatusResponse>("/api/agents/status");
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Agent status API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get AI agent decisions
+ */
+export async function getAgentDecisions(
+  track?: string,
+  chassis?: string,
+  limit: number = 50,
+  decisionType?: 'pit' | 'coach' | 'anomaly' | 'strategy'
+): Promise<AgentDecisionsResponse> {
+  try {
+    const params: Record<string, string | number> = { limit };
+    if (track) params.track = track;
+    if (chassis) params.chassis = chassis;
+    if (decisionType) params.decision_type = decisionType;
+    
+    const res = await client.get<AgentDecisionsResponse>("/api/agents/decisions", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Agent decisions API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get detailed insight by ID
+ */
+export async function getInsightDetails(insightId: string): Promise<InsightResponse> {
+  try {
+    const res = await client.get<InsightResponse>(`/api/agents/insights/${encodeURIComponent(insightId)}`);
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Insight API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Submit telemetry data to AI agents
+ */
+export async function submitTelemetryToAgents(telemetry: Record<string, unknown>): Promise<{ success: boolean; message: string; timestamp: string }> {
+  try {
+    const res = await client.post("/api/agents/telemetry", telemetry);
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Telemetry submission error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+

@@ -10,25 +10,9 @@ export default defineConfig(({ mode }) => ({
     port: parseInt(process.env.PORT || "8080", 10),
     strictPort: false,
     proxy: {
-      // Forward agent API routes to agent API server (port 3001)
-      '/api/agents': {
-        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
-        changeOrigin: true,
-      },
-      '/api/insights': {
-        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
-        changeOrigin: true,
-      },
-      '/api/telemetry': {
-        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
-        changeOrigin: true,
-      },
-      '/api/system': {
-        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
-        changeOrigin: true,
-      },
-      // Forward other /api/* to backend during dev
+      // Forward all /api/* to backend during dev
       // Backend runs on port 8000 by default (pitwall-backend)
+      // This includes /api/agents, /api/insights, /api/telemetry, etc.
       '/api': {
         target: process.env.VITE_BACKEND_URL || 'http://localhost:8000',
         changeOrigin: true,
@@ -39,11 +23,18 @@ export default defineConfig(({ mode }) => ({
         target: process.env.VITE_BACKEND_URL || 'http://localhost:8000',
         changeOrigin: true,
       },
-      // Proxy WebSocket connections
+      // Proxy WebSocket connections (includes agent decisions WebSocket)
       '/ws': {
         target: process.env.VITE_BACKEND_WS_URL || 'ws://localhost:8000',
         ws: true,
         changeOrigin: true,
+      },
+      // Proxy agent decisions WebSocket endpoint
+      '/api/agents/decisions/ws': {
+        target: process.env.VITE_BACKEND_WS_URL || 'ws://localhost:8000',
+        ws: true,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
     },
   },

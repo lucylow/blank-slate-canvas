@@ -8,7 +8,9 @@ from datetime import datetime
 import logging
 from typing import Optional
 import pandas as pd
+import re
 from contextlib import asynccontextmanager
+from starlette.requests import Request
 
 from app.config import (
     API_TITLE, API_VERSION, API_DESCRIPTION, CORS_ORIGINS, TRACKS,
@@ -18,6 +20,7 @@ from app.routes.frontend_integration import router as frontend_router
 from app.routes.anomaly_ws import router as anomaly_router
 from app.routes.health import router as health_router, set_model_loaded, set_db_available, set_cache_available
 from app.routes.telemetry import router as telemetry_router
+from app.routes.agents import router as agents_router
 from app.observability.logger import setup_logging
 from app.observability.prom_metrics import get_metrics_response
 from app.models.analytics import (
@@ -82,40 +85,71 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add CORS middleware with wildcard support
-# Handle wildcard origins (for demo mode)
+# Add CORS middleware with wildcard support for Lovable Cloud
+# Handle wildcard origins (for demo mode and Lovable Cloud)
 cors_origins = CORS_ORIGINS.copy()
-if "*" in cors_origins:
-    cors_origins.remove("*")
+wildcard_patterns = []
+explicit_origins = []
+
+# Separate wildcard patterns from explicit origins
+for origin in cors_origins:
+    if origin == "*":
+        # Full wildcard - handled separately
+        continue
+    elif "*" in origin:
+        # Convert wildcard pattern to regex (e.g., "https://*.lovable.app" -> r"^https://.*\.lovable\.app$")
+        pattern = origin.replace(".", r"\.").replace("*", ".*")
+        wildcard_patterns.append(re.compile(f"^{pattern}$"))
+    else:
+        explicit_origins.append(origin)
+
+# Add CORS middleware with explicit origins
+if explicit_origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=cors_origins,
+        allow_origins=explicit_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    # Also add middleware that allows all origins
-    @app.middleware("http")
-    async def add_cors_headers(request, call_next):
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "*"
+
+# Add custom middleware to handle wildcard patterns and full wildcard
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    """Custom CORS middleware that handles wildcard patterns and Lovable Cloud domains"""
+    origin = request.headers.get("origin")
+    
+    # Check if we should allow this origin
+    allow_origin = None
+    
+    if "*" in cors_origins:
+        # Full wildcard - allow all
+        allow_origin = "*"
+    elif origin:
+        # Check explicit origins (handled by CORSMiddleware above)
+        # Check wildcard patterns
+        for pattern in wildcard_patterns:
+            if pattern.match(origin):
+                allow_origin = origin
+                break
+    
+    response = await call_next(request)
+    
+    # Add CORS headers if origin is allowed
+    if allow_origin:
+        response.headers["Access-Control-Allow-Origin"] = allow_origin
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
         response.headers["Access-Control-Allow-Headers"] = "*"
-        return response
-else:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+    
+    return response
 
 # Include routers
 app.include_router(health_router, tags=["Health"])
 app.include_router(anomaly_router, tags=["Realtime"])
 app.include_router(frontend_router, tags=["Frontend Integration"])
 app.include_router(telemetry_router, tags=["Telemetry"])
+app.include_router(agents_router, tags=["AI Agents"])
 
 # Metrics endpoint
 @app.get("/metrics")

@@ -9,7 +9,16 @@ sse-starlette==1.6.5
 prometheus-client==0.19.0
 aioredis==2.0.1
 redis==5.0.1
+hiredis>=5.0.1  # For AI agents Redis support
+# AI Agents dependencies
+# Note: redis[hiredis] is already included above, but explicit for clarity
 # Optional dependencies for telemetry pipeline
 joblib>=1.3.0  # For model serialization
+xgboost>=2.0.0  # For gradient boosting models (predictive_model.py)
+tqdm>=4.66.0  # For progress bars (predictive_model.py)
 river>=0.20.0  # For streaming ML (optional)
 onnxruntime>=1.16.0  # For ONNX model inference (optional, install onnxruntime-gpu for GPU support)
+# Visualization agents dependencies
+plotly>=5.18.0  # For interactive visualizations
+kaleido>=0.2.1  # For PNG export from Plotly figures
+umap-learn>=0.5.5  # For 2D embedding visualization (optional, falls back to sklearn TSNE if not available)

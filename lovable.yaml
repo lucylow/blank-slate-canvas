@@ -22,9 +22,12 @@ environment:
   - SSE_INTERVAL_MS=1000
   - LOG_LEVEL=INFO
   
-  # Redis (optional)
+  # Redis (optional, but recommended for AI agents)
   - USE_REDIS_PUBSUB=false
   - REDIS_URL=redis://localhost:6379
+  # AI Agents configuration
+  - AI_AGENTS_ENABLED=true
+  - AI_AGENTS_REDIS_URL=redis://localhost:6379
   
   # Model paths (optional)
   - AE_MODEL_PATH=

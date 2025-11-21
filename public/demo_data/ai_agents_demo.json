@@ -1,0 +1,637 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "description": "AI Agents mock data for PitWall AI demo mode",
+    "last_updated": "2025-11-19T00:00:00Z",
+    "total_agents": 6,
+    "total_decisions": 24,
+    "tracks_covered": [
+      "cota",
+      "road_america",
+      "sonoma",
+      "vir",
+      "sebring",
+      "barber",
+      "indianapolis"
+    ]
+  },
+  "agents": [
+    {
+      "id": "strategy-01",
+      "type": "strategist",
+      "name": "Strategic Pit Advisor",
+      "status": "active",
+      "registered_at": "2025-11-19T08:00:00Z",
+      "tracks": [
+        "cota",
+        "road_america",
+        "sonoma",
+        "vir",
+        "sebring",
+        "barber",
+        "indianapolis"
+      ],
+      "capabilities": [
+        "pit_window_optimization",
+        "tire_life_prediction",
+        "undercut_overcut_analysis",
+        "race_strategy_simulation"
+      ],
+      "performance": {
+        "decisions_made": 1247,
+        "accuracy": 0.89,
+        "avg_confidence": 0.85
+      }
+    },
+    {
+      "id": "coach-01",
+      "type": "coach",
+      "name": "Driver Performance Coach",
+      "status": "active",
+      "registered_at": "2025-11-19T08:00:05Z",
+      "tracks": [],
+      "capabilities": [
+        "corner_analysis",
+        "brake_zone_optimization",
+        "throttle_application_review",
+        "consistency_tracking"
+      ],
+      "performance": {
+        "sessions_coached": 89,
+        "improvement_rate": 0.12,
+        "avg_confidence": 0.78
+      }
+    },
+    {
+      "id": "anomaly-01",
+      "type": "anomaly_detective",
+      "name": "Safety Monitor",
+      "status": "active",
+      "registered_at": "2025-11-19T08:00:10Z",
+      "tracks": [],
+      "capabilities": [
+        "tire_lockup_detection",
+        "engine_anomaly_detection",
+        "brake_fade_warning",
+        "mechanical_failure_prediction"
+      ],
+      "performance": {
+        "anomalies_detected": 23,
+        "false_positive_rate": 0.04,
+        "avg_confidence": 0.92
+      }
+    },
+    {
+      "id": "strategy-02",
+      "type": "strategist",
+      "name": "Race Pace Optimizer",
+      "status": "active",
+      "registered_at": "2025-11-19T08:15:00Z",
+      "tracks": [
+        "cota",
+        "sebring",
+        "road_america"
+      ],
+      "capabilities": [
+        "pace_calculation",
+        "fuel_strategy",
+        "traffic_management",
+        "overtaking_opportunities"
+      ],
+      "performance": {
+        "decisions_made": 567,
+        "accuracy": 0.87,
+        "avg_confidence": 0.83
+      }
+    },
+    {
+      "id": "coach-02",
+      "type": "coach",
+      "name": "Sector Specialist",
+      "status": "active",
+      "registered_at": "2025-11-19T08:15:05Z",
+      "tracks": [
+        "sonoma",
+        "vir",
+        "barber"
+      ],
+      "capabilities": [
+        "sector_time_analysis",
+        "apex_optimization",
+        "exit_speed_improvement",
+        "lap_time_prediction"
+      ],
+      "performance": {
+        "sessions_coached": 45,
+        "improvement_rate": 0.15,
+        "avg_confidence": 0.81
+      }
+    },
+    {
+      "id": "predictor-01",
+      "type": "predictor",
+      "name": "Tire Life Predictor",
+      "status": "active",
+      "registered_at": "2025-11-19T08:20:00Z",
+      "tracks": [
+        "cota",
+        "road_america",
+        "sonoma",
+        "vir",
+        "sebring",
+        "barber",
+        "indianapolis"
+      ],
+      "capabilities": [
+        "tire_degradation_modeling",
+        "temperature_prediction",
+        "wear_rate_forecasting",
+        "pit_window_suggestion"
+      ],
+      "performance": {
+        "predictions_made": 2341,
+        "accuracy": 0.91,
+        "avg_confidence": 0.88
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "decision-strategy-01-001",
+      "agent_id": "strategy-01",
+      "agent_type": "strategist",
+      "track": "sebring",
+      "chassis": "GR86-002-002",
+      "vehicle_number": 2,
+      "timestamp": "2025-11-19T12:15:30Z",
+      "decision_type": "pit",
+      "action": "Recommend pit stop on lap 15",
+      "confidence": 0.87,
+      "risk_level": "moderate",
+      "reasoning": [
+        "Tire wear currently at 72% with 8 laps remaining",
+        "Optimal pit window: laps 15-17 based on traffic analysis",
+        "Undercut opportunity detected - competitor #7 pitting on lap 16",
+        "Gap to leader allows for pit stop without losing position",
+        "Weather conditions stable, no rain predicted"
+      ],
+      "evidence": {
+        "current_lap": 12,
+        "total_laps": 25,
+        "tire_wear_percent": 72.3,
+        "front_left": 71.2,
+        "front_right": 73.5,
+        "rear_left": 70.8,
+        "rear_right": 73.7,
+        "estimated_laps_remaining": 8,
+        "pit_stop_time": 27.5,
+        "gap_to_leader": 1.24,
+        "gap_to_next": 0.45
+      },
+      "evidence_frames": [
+        {
+          "timestamp": "2025-11-19T12:15:20Z",
+          "lap": 12,
+          "sector": 2,
+          "tire_temp_fl": 112.3,
+          "tire_temp_fr": 114.5,
+          "tire_temp_rl": 108.7,
+          "tire_temp_rr": 110.2
+        }
+      ],
+      "alternatives": [
+        {
+          "action": "Stay out until lap 18",
+          "risk": "high",
+          "rationale": "Higher tire degradation risk, may lose performance in final laps",
+          "estimated_impact": "-0.8s to final lap time"
+        },
+        {
+          "action": "Pit immediately (lap 12)",
+          "risk": "medium",
+          "rationale": "Earlier pit provides fresher tires but loses track position",
+          "estimated_impact": "-1 position, +0.3s to final lap time"
+        }
+      ],
+      "metadata": {
+        "race_number": 1,
+        "session_type": "race",
+        "track_temperature": 42.3,
+        "air_temperature": 28.7
+      }
+    },
+    {
+      "decision_id": "decision-coach-01-001",
+      "agent_id": "coach-01",
+      "agent_type": "coach",
+      "track": "cota",
+      "chassis": "GR86-004-078",
+      "vehicle_number": 78,
+      "timestamp": "2025-11-19T13:22:15Z",
+      "decision_type": "coach",
+      "action": "Optimize brake point in Turn 11",
+      "confidence": 0.82,
+      "risk_level": "safe",
+      "reasoning": [
+        "Braking 8 meters early compared to peak lap template",
+        "Losing 0.15s in Turn 11 exit speed",
+        "Brake pressure can be increased by 12% without lockup risk",
+        "Consistency improved 5% in last 5 laps"
+      ],
+      "evidence": {
+        "current_lap": 8,
+        "turn": 11,
+        "current_brake_point_m": 523.4,
+        "optimal_brake_point_m": 531.4,
+        "current_brake_pressure": 78.5,
+        "suggested_brake_pressure": 88.0,
+        "exit_speed_kmh": 142.3,
+        "peak_lap_exit_speed_kmh": 145.8,
+        "lap_time_loss": 0.15
+      },
+      "evidence_frames": [
+        {
+          "timestamp": "2025-11-19T13:22:08Z",
+          "lap": 8,
+          "sector": 2,
+          "speed_kmh": 198.5,
+          "brake_pressure": 78.5,
+          "lateral_g": 0.42
+        }
+      ],
+      "alternatives": [
+        {
+          "action": "Maintain current brake point",
+          "risk": "low",
+          "rationale": "Conservative approach, less risk of lockup",
+          "estimated_impact": "No improvement, consistent +0.15s loss per lap"
+        },
+        {
+          "action": "Aggressive braking, brake 2m later",
+          "risk": "moderate",
+          "rationale": "Higher exit speed but increased lockup risk",
+          "estimated_impact": "+0.25s improvement if successful, risk of lockup"
+        }
+      ],
+      "metadata": {
+        "session_type": "practice",
+        "driver_consistency_score": 0.89,
+        "best_lap_time": "2:14.567"
+      }
+    },
+    {
+      "decision_id": "decision-anomaly-01-001",
+      "agent_id": "anomaly-01",
+      "agent_type": "anomaly_detective",
+      "track": "road_america",
+      "chassis": "GR86-012-047",
+      "vehicle_number": 47,
+      "timestamp": "2025-11-19T14:35:42Z",
+      "decision_type": "anomaly",
+      "action": "Warning: Front right tire temperature anomaly detected",
+      "confidence": 0.94,
+      "risk_level": "moderate",
+      "reasoning": [
+        "Front right tire temperature 15°C lower than expected",
+        "Inconsistent with other tire temperatures (FL: 115°C, FR: 98°C, RL: 112°C, RR: 110°C)",
+        "Pattern suggests possible pressure loss or sensor issue",
+        "No lockup events detected, but monitoring required"
+      ],
+      "evidence": {
+        "current_lap": 14,
+        "tire_temp_fl": 115.3,
+        "tire_temp_fr": 98.2,
+        "tire_temp_rl": 112.7,
+        "tire_temp_rr": 110.1,
+        "expected_fr_temp": 113.5,
+        "temperature_delta": -15.3,
+        "tire_pressure_fr": 22.8,
+        "normal_pressure_range": [23.0, 24.5],
+        "lockup_events": 0
+      },
+      "evidence_frames": [
+        {
+          "timestamp": "2025-11-19T14:35:35Z",
+          "lap": 14,
+          "sector": 1,
+          "tire_temp_fr": 98.2,
+          "tire_pressure_fr": 22.8,
+          "lateral_g": 0.38
+        },
+        {
+          "timestamp": "2025-11-19T14:35:30Z",
+          "lap": 14,
+          "sector": 1,
+          "tire_temp_fr": 99.1,
+          "tire_pressure_fr": 22.9,
+          "lateral_g": 0.39
+        }
+      ],
+      "alternatives": [
+        {
+          "action": "Continue monitoring",
+          "risk": "low",
+          "rationale": "Temperature may normalize, no immediate safety concern",
+          "estimated_impact": "Continue racing, investigate during pit stop"
+        },
+        {
+          "action": "Recommend immediate pit inspection",
+          "risk": "low",
+          "rationale": "Prevent potential tire failure or performance degradation",
+          "estimated_impact": "Lose track position but ensure safety"
+        }
+      ],
+      "metadata": {
+        "race_number": 1,
+        "session_type": "race",
+        "anomaly_severity": "moderate",
+        "detection_method": "temperature_analysis"
+      }
+    },
+    {
+      "decision_id": "decision-strategy-02-001",
+      "agent_id": "strategy-02",
+      "agent_type": "strategist",
+      "track": "sonoma",
+      "chassis": "GR86-006-013",
+      "vehicle_number": 13,
+      "timestamp": "2025-11-19T15:48:22Z",
+      "decision_type": "strategy",
+      "action": "Recommend aggressive pace to close gap before pit window",
+      "confidence": 0.79,
+      "risk_level": "aggressive",
+      "reasoning": [
+        "Currently P4, 2.1s behind P3",
+        "P3 expected to pit on lap 16, providing undercut opportunity",
+        "Tire degradation acceptable for aggressive pace (68% remaining)",
+        "Fuel consumption within safe limits",
+        "Traffic ahead clearing in 2 laps"
+      ],
+      "evidence": {
+        "current_lap": 11,
+        "position": 4,
+        "gap_to_next": 2.1,
+        "gap_to_leader": 5.8,
+        "tire_wear_percent": 68.2,
+        "fuel_remaining_percent": 62.5,
+        "predicted_pit_lap_competitor": 16,
+        "undercut_window": [14, 15],
+        "current_pace": "1:48.234",
+        "target_pace": "1:47.890"
+      },
+      "evidence_frames": [
+        {
+          "timestamp": "2025-11-19T15:48:15Z",
+          "lap": 11,
+          "sector": 3,
+          "speed_kmh": 156.7,
+          "throttle_pct": 85.3
+        }
+      ],
+      "alternatives": [
+        {
+          "action": "Maintain current pace",
+          "risk": "low",
+          "rationale": "Conservative approach, preserve tires",
+          "estimated_impact": "Maintain P4, miss undercut opportunity"
+        },
+        {
+          "action": "Wait for competitor pit, then push",
+          "risk": "moderate",
+          "rationale": "Lower tire risk, better overtaking position after their pit",
+          "estimated_impact": "Possible P3 after pit cycle, +0.5s to final gap"
+        }
+      ],
+      "metadata": {
+        "race_number": 1,
+        "session_type": "race",
+        "strategy_type": "pace_optimization"
+      }
+    },
+    {
+      "decision_id": "decision-coach-02-001",
+      "agent_id": "coach-02",
+      "agent_type": "coach",
+      "track": "vir",
+      "chassis": "GR86-008-022",
+      "vehicle_number": 22,
+      "timestamp": "2025-11-19T16:12:08Z",
+      "decision_type": "coach",
+      "action": "Improve sector 2 exit speed - early throttle application",
+      "confidence": 0.76,
+      "risk_level": "safe",
+      "reasoning": [
+        "Sector 2 time 0.8s slower than personal best",
+        "Throttle application delayed by 0.15s in Turn 8 exit",
+        "Early apex detected - can optimize line for better exit",
+        "Track conditions favorable for aggressive exit"
+      ],
+      "evidence": {
+        "current_lap": 5,
+        "sector": 2,
+        "current_sector_time": 43.456,
+        "best_sector_time": 42.656,
+        "time_loss": 0.8,
+        "turn": 8,
+        "current_throttle_application": 0.68,
+        "optimal_throttle_application": 0.82,
+        "delay_ms": 150,
+        "exit_speed_kmh": 138.5,
+        "optimal_exit_speed_kmh": 142.3
+      },
+      "evidence_frames": [
+        {
+          "timestamp": "2025-11-19T16:12:02Z",
+          "lap": 5,
+          "sector": 2,
+          "turn": 8,
+          "throttle_pct": 68.2,
+          "speed_kmh": 138.5,
+          "lateral_g": 0.41
+        }
+      ],
+      "alternatives": [
+        {
+          "action": "Maintain current approach",
+          "risk": "low",
+          "rationale": "Consistent but suboptimal, minimal risk",
+          "estimated_impact": "Continue losing 0.8s in sector 2"
+        },
+        {
+          "action": "Aggressive throttle application",
+          "risk": "moderate",
+          "rationale": "Higher exit speed but increased oversteer risk",
+          "estimated_impact": "+0.6s improvement if successful, possible correction needed"
+        }
+      ],
+      "metadata": {
+        "session_type": "qualifying",
+        "driver_experience_level": "intermediate",
+        "track_grip_level": "high"
+      }
+    },
+    {
+      "decision_id": "decision-predictor-01-001",
+      "agent_id": "predictor-01",
+      "agent_type": "predictor",
+      "track": "barber",
+      "chassis": "GR86-014-021",
+      "vehicle_number": 21,
+      "timestamp": "2025-11-19T17:25:33Z",
+      "decision_type": "prediction",
+      "action": "Tire degradation accelerating - pit window moved earlier to lap 14",
+      "confidence": 0.91,
+      "risk_level": "moderate",
+      "reasoning": [
+        "Tire wear rate increased 12% in last 3 laps",
+        "Current wear at 74%, accelerating faster than predicted",
+        "Track temperature increased 3°C since race start",
+        "Driver pushing harder, increasing degradation",
+        "Original pit window (lap 16-18) now risky"
+      ],
+      "evidence": {
+        "current_lap": 11,
+        "original_predicted_pit_lap": 17,
+        "revised_predicted_pit_lap": 14,
+        "current_tire_wear": 74.3,
+        "wear_rate_last_3_laps": [2.1, 2.3, 2.6],
+        "predicted_wear_at_lap_14": 81.5,
+        "predicted_wear_at_lap_18": 89.2,
+        "track_temp_start": 39.2,
+        "track_temp_current": 42.1,
+        "tire_cliff_threshold": 85.0
+      },
+      "evidence_frames": [
+        {
+          "timestamp": "2025-11-19T17:25:28Z",
+          "lap": 11,
+          "tire_wear_fl": 73.8,
+          "tire_wear_fr": 75.1,
+          "tire_wear_rl": 72.9,
+          "tire_wear_rr": 74.3
+        },
+        {
+          "timestamp": "2025-11-19T17:25:20Z",
+          "lap": 10,
+          "tire_wear_fl": 71.7,
+          "tire_wear_fr": 73.2,
+          "tire_wear_rl": 70.5,
+          "tire_wear_rr": 71.8
+        }
+      ],
+      "alternatives": [
+        {
+          "action": "Stick to original pit window",
+          "risk": "high",
+          "rationale": "May hit tire cliff before pit, significant performance loss",
+          "estimated_impact": "-3 to -5 positions, +2-3s per lap degradation"
+        },
+        {
+          "action": "Reduce pace to extend tire life",
+          "risk": "moderate",
+          "rationale": "Preserve tires but lose track position",
+          "estimated_impact": "-1 to -2 positions, maintain tire condition"
+        }
+      ],
+      "metadata": {
+        "race_number": 1,
+        "session_type": "race",
+        "prediction_model_version": "v2.3",
+        "confidence_interval": [13, 15]
+      }
+    }
+  ],
+  "insights": [
+    {
+      "insight_id": "insight-strategy-01-sebring-001",
+      "agent_id": "strategy-01",
+      "agent_type": "strategist",
+      "track": "sebring",
+      "chassis": "GR86-002-002",
+      "timestamp": "2025-11-19T12:15:30Z",
+      "type": "strategic_analysis",
+      "title": "Optimal Pit Window Analysis - Sebring Race 1",
+      "summary": "Based on current tire wear (72%) and traffic analysis, optimal pit window is laps 15-17. Undercut opportunity detected with competitor #7.",
+      "confidence": 0.87,
+      "priority": "high",
+      "recommendations": [
+        "Pit on lap 15 for maximum undercut advantage",
+        "Monitor competitor #7 pit timing",
+        "Prepare for double-stack if teammate pits same window"
+      ],
+      "supporting_data": {
+        "tire_wear_trend": [65.2, 68.1, 70.5, 72.3],
+        "traffic_analysis": {
+          "cars_ahead": 2,
+          "cars_behind": 1,
+          "pit_window_clear": true
+        },
+        "weather_forecast": {
+          "rain_probability": 0.05,
+          "temperature_trend": "stable"
+        }
+      }
+    },
+    {
+      "insight_id": "insight-coach-01-cota-001",
+      "agent_id": "coach-01",
+      "agent_type": "coach",
+      "track": "cota",
+      "chassis": "GR86-004-078",
+      "timestamp": "2025-11-19T13:22:15Z",
+      "type": "driver_coaching",
+      "title": "Turn 11 Brake Optimization - COTA",
+      "summary": "Braking 8m early in Turn 11, losing 0.15s per lap. Can optimize brake point and increase brake pressure by 12%.",
+      "confidence": 0.82,
+      "priority": "medium",
+      "recommendations": [
+        "Move brake point 8m later (from 523.4m to 531.4m)",
+        "Increase brake pressure from 78.5% to 88.0%",
+        "Focus on smooth brake release for better exit speed"
+      ],
+      "supporting_data": {
+        "lap_comparison": {
+          "current_lap_time": "2:14.782",
+          "peak_lap_time": "2:14.567",
+          "improvement_potential": 0.15
+        },
+        "sector_analysis": {
+          "sector_2_current": 43.234,
+          "sector_2_best": 43.089,
+          "improvement_potential": 0.145
+        }
+      }
+    }
+  ],
+  "agent_statistics": {
+    "total_decisions": 24,
+    "decisions_by_type": {
+      "pit": 8,
+      "coach": 7,
+      "anomaly": 4,
+      "strategy": 3,
+      "prediction": 2
+    },
+    "decisions_by_track": {
+      "sebring": 5,
+      "cota": 4,
+      "road_america": 3,
+      "sonoma": 4,
+      "vir": 3,
+      "barber": 3,
+      "indianapolis": 2
+    },
+    "average_confidence": 0.84,
+    "decisions_by_risk_level": {
+      "safe": 10,
+      "moderate": 11,
+      "aggressive": 2,
+      "critical": 1
+    },
+    "time_range": {
+      "first_decision": "2025-11-19T12:15:30Z",
+      "last_decision": "2025-11-19T17:25:33Z"
+    }
+  }
+}
+

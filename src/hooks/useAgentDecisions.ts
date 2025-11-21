@@ -31,8 +31,11 @@ export function useAgentDecisions(track: string, maxDecisions: number = 50): Age
   const [decisions, setDecisions] = useState<AgentDecision[]>([]);
   
   // Connect to agent decisions WebSocket channel
-  // In production, this would connect to a WebSocket server that subscribes to Redis pub/sub
-  const ws = useWebSocket(getWsUrl('/agents/decisions'), {
+  // Use the backend WebSocket endpoint for agent decisions
+  // Convert HTTP path to WebSocket path
+  const wsPath = '/api/agents/decisions/ws';
+  const wsUrl = getWsUrl(wsPath);
+  const ws = useWebSocket(wsUrl, {
     batchMs: 100,
     maxBuffer: 100,
     maxMessages: maxDecisions

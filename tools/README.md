@@ -18,13 +18,54 @@ pip install PyMuPDF Pillow opencv-python scikit-image shapely svgwrite numpy pan
 
 ## Usage
 
-### Extract centerline from a PDF
+### Parse All 7 Track Map PDFs
+
+**Comprehensive PDF parser** - Extracts text, metadata, images, and vector paths from all PDFs:
+
+```bash
+# Basic parsing (text, metadata, vector paths)
+python tools/parse_track_maps.py
+
+# With image extraction
+python tools/parse_track_maps.py --extract-images
+
+# With SVG extraction
+python tools/parse_track_maps.py --extract-svg
+
+# Custom output directory
+python tools/parse_track_maps.py --output data/parsed_maps
+```
+
+**Batch centerline extraction** - Process all 7 PDFs using centerline extraction:
+
+```bash
+# Process all PDFs at once
+python tools/batch_parse_maps.py
+
+# Custom output directory
+python tools/batch_parse_maps.py --out public/tracks
+
+# Process specific page
+python tools/batch_parse_maps.py --page 0
+```
+
+### Extract centerline from a single PDF
 
 ```bash
 python tools/extract_centerline.py <pdf_path> --track <track_name> --out public/tracks
 ```
 
 ### Examples
+
+**Parse all track maps:**
+```bash
+python tools/parse_track_maps.py --extract-svg --output data/parsed_track_maps
+```
+
+**Batch extract centerlines:**
+```bash
+python tools/batch_parse_maps.py --out public/tracks
+```
 
 **Extract COTA centerline:**
 ```bash
@@ -63,6 +104,66 @@ The tool generates:
 - Path stroke is set to `#334155` with width 6
 - The path element has `id="track-path"` for compatibility with LiveMapSVG
 - For best results, use high-quality PDFs with clear track outlines
+
+---
+
+## PDF Parsing Tools
+
+### `parse_track_maps.py`
+
+Comprehensive parser that extracts detailed information from all 7 track map PDFs:
+
+**Features:**
+- Extracts PDF metadata (title, author, creation date, etc.)
+- Extracts text content from all pages
+- Extracts images (optional)
+- Extracts vector paths and drawing information
+- Generates SVG representations (optional)
+- Creates structured JSON output for each track
+
+**Output Structure:**
+```
+data/parsed_track_maps/
+├── parsing_summary.json          # Summary of all parsed PDFs
+├── barber/
+│   ├── barber_parsed.json        # Full parsing data
+│   ├── barber.svg                # SVG representation (if --extract-svg)
+│   └── images/                   # Extracted images (if --extract-images)
+├── cota/
+│   └── ...
+└── ...
+```
+
+**Track Mappings:**
+- `Barber_Circuit_Map.pdf` → `barber`
+- `COTA_Circuit_Map.pdf` → `cota`
+- `Indy_Circuit_Map.pdf` → `indy`
+- `Road_America_Map.pdf` → `road_america`
+- `Sebring_Track_Sector_Map.pdf` → `sebring`
+- `Sonoma_Map.pdf` → `sonoma`
+- `VIR_mapk.pdf` → `vir`
+
+### `batch_parse_maps.py`
+
+Batch processor that uses `extract_centerline.py` to process all 7 PDFs at once:
+
+**Features:**
+- Automatically finds all 7 track PDFs
+- Processes each PDF using centerline extraction
+- Generates SVG centerlines for all tracks
+- Provides summary of successful/failed extractions
+
+**Usage:**
+```bash
+# Process all PDFs
+python tools/batch_parse_maps.py
+
+# Custom output directory
+python tools/batch_parse_maps.py --out public/tracks
+
+# Process specific page
+python tools/batch_parse_maps.py --page 0
+```
 
 ---
 

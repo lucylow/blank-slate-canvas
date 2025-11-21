@@ -12,11 +12,25 @@ interface Agent {
 
 interface Insight {
   insight_id: string;
+  decision_id?: string; // Alternative ID field from InsightDetail
   track: string;
   chassis: string;
   created_at: string;
   priority?: 'critical' | 'high' | 'normal' | 'low';
   type?: string;
+  decision_type?: string; // From InsightDetail
+  agent_id?: string; // From InsightDetail
+  agent_type?: string; // From InsightDetail
+  action?: string; // From InsightDetail
+  confidence?: number; // From InsightDetail
+  risk_level?: string; // From InsightDetail
+  reasoning?: string[]; // From InsightDetail
+  evidence?: Record<string, unknown>; // From InsightDetail
+  alternatives?: Array<{
+    action: string;
+    risk: string;
+    rationale: string;
+  }>; // From InsightDetail
   predictions?: {
     predicted_loss_per_lap_seconds?: number;
     laps_until_0_5s_loss?: number;
@@ -65,15 +79,16 @@ export const useAgentSystem = () => {
   useEffect(() => {
     const fetchAgentStatus = async () => {
       try {
-        const response = await fetch('/api/agents/status');
-        if (!response.ok) {
-          throw new Error('Failed to fetch agent status');
-        }
-        const data = await response.json();
+        // Use the API client from pitwall.ts
+        const { getAgentStatus } = await import('@/api/pitwall');
+        const data = await getAgentStatus();
         setAgents(data.agents || []);
         setQueueStats(data.queues || {});
       } catch (error) {
         console.error('Failed to fetch agent status:', error);
+        // Set empty agents on error to prevent UI errors
+        setAgents([]);
+        setQueueStats({});
       }
     };
 
@@ -94,8 +109,7 @@ export const useAgentSystem = () => {
           case 'insight_update': {
             const newInsight: Insight = {
               ...data.data,
-              insight_id: data.data.insight_id || data.data.id,
-              receivedAt: new Date().toISOString()
+              insight_id: data.data.insight_id || data.data.id || data.data.decision_id || `insight-${Date.now()}`
             };
             
             setInsights(prev => {
@@ -131,12 +145,37 @@ export const useAgentSystem = () => {
 
   const fetchInsightDetails = useCallback(async (insightId: string) => {
     try {
-      const response = await fetch(`/api/insights/${insightId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch insight details');
-      }
-      const data = await response.json();
-      setSelectedInsight(data);
+      const { getInsightDetails } = await import('@/api/pitwall');
+      const response = await getInsightDetails(insightId);
+      const detail = response.insight;
+      
+      // Convert InsightDetail to Insight format
+      const insight: Insight = {
+        insight_id: detail.decision_id || insightId,
+        decision_id: detail.decision_id,
+        track: (detail.evidence?.track as string) || (detail.evidence?.chassis as string)?.split('-')[0] || '',
+        chassis: (detail.evidence?.chassis as string) || '',
+        created_at: new Date().toISOString(),
+        type: detail.decision_type,
+        decision_type: detail.decision_type,
+        agent_id: detail.agent_id,
+        agent_type: detail.agent_type,
+        action: detail.action,
+        confidence: detail.confidence,
+        risk_level: detail.risk_level,
+        reasoning: detail.reasoning,
+        evidence: detail.evidence,
+        alternatives: detail.alternatives,
+        // Map reasoning to explanation if needed
+        explanation: detail.reasoning ? {
+          top_features: detail.reasoning.map((r: string, idx: number) => ({
+            name: `Reason ${idx + 1}`,
+            value: r
+          }))
+        } : undefined,
+      };
+      
+      setSelectedInsight(insight);
       setIsModalOpen(true);
     } catch (error) {
       console.error('Failed to fetch insight details:', error);
@@ -145,15 +184,8 @@ export const useAgentSystem = () => {
 
   const submitTelemetry = useCallback(async (telemetryData: Record<string, unknown>) => {
     try {
-      const response = await fetch('/api/telemetry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(telemetryData)
-      });
-      if (!response.ok) {
-        throw new Error('Failed to submit telemetry');
-      }
-      return await response.json();
+      const { submitTelemetryToAgents } = await import('@/api/pitwall');
+      return await submitTelemetryToAgents(telemetryData);
     } catch (error) {
       console.error('Failed to submit telemetry:', error);
       throw error;

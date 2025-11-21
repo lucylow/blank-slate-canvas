@@ -30,17 +30,32 @@ Ingesters (UDP/S3/API)
 - Sectorizes data using track_sectors.json
 - Publishes aggregate windows to Redis
 
-### EDA Agent (`eda/eda_agent.py`)
-- Runs UMAP dimensionality reduction
-- HDBSCAN clustering for driver style groups
-- Detects cluster drift over time
-- Returns evidence frames for insights
+### Preprocessor v2 (`preprocessor/preprocessor_v2.js`) - **NEW**
+- **Improved**: Redis Streams-based ingestion with schema validation (AJV)
+- **Enhanced**: Strict canonicalization with type coercion
+- **Better aggregation**: Per-sector aggregates with evidence samples
+- **Data quality**: Metrics tracking in Redis
+- **Low-latency**: Real-time derived features (lateral_g, tire_stress, brake_power, steer_rate)
+- See [PREPROCESSOR_V2_INTEGRATION.md](./PREPROCESSOR_V2_INTEGRATION.md) for details
+
+### EDA Agent (`eda/eda_cluster_agent.py`)
+- Comprehensive exploratory data analysis with robust input validation
+- Automated feature engineering (cyclical time features, aggregations)
+- Scalable dimensionality reduction: PCA → UMAP pipeline
+- Density-based clustering (HDBSCAN) with stability analysis
+- Cluster profiling: per-cluster statistics, top features, representative examples
+- Explainability: mean-difference feature importance per cluster
+- Interactive visualizations (UMAP scatter plots)
+- Persistence: saves models, embeddings, and profiles
+- Seamless Redis integration with multi-agent orchestrator
+- Falls back to KMeans if HDBSCAN unavailable
 
 ### Predictor Agent (`predictor/predictor_agent.py`)
 - Loads per-track tire degradation models
 - Predicts loss per lap and laps until threshold
 - SHAP explainability for feature attribution
 - Returns top contributing features
+- **NEW**: Uses `fe_lib.py` for feature engineering and `predictor_wrapper.py` for integration
 
 ### Simulator Agent (`simulator/simulator_agent.py`)
 - Discrete-event strategy simulation
@@ -95,9 +110,10 @@ npm install ioredis ws express
 
 **Python agents:**
 ```bash
-pip install redis requests numpy scikit-learn
-pip install umap-learn hdbscan  # For EDA agent
-pip install lightgbm shap joblib  # For Predictor agent
+pip install -r requirements.txt
+# Includes: redis, requests, numpy, pandas, scikit-learn
+# EDA: umap-learn, hdbscan
+# Predictor: lightgbm, shap, joblib
 ```
 
 ### Configuration
@@ -123,12 +139,20 @@ node router.js
 **3. Start Agents:**
 
 ```bash
-# Preprocessor
+# Preprocessor (v1 - original)
 cd agents/preprocessor
 node preprocessor-agent.js
 
-# EDA
+# Preprocessor v2 (improved - recommended)
+cd agents/preprocessor
+node preprocessor_v2.js
+# Or: npm run preprocessor:v2
+
+# EDA Cluster Agent
 cd agents/eda
+python eda_cluster_agent.py
+
+# Or use the simpler version
 python eda_agent.py
 
 # Predictor

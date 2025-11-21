@@ -29,8 +29,18 @@ All components have been successfully integrated into your repository. Below is 
    - Processes tasks from inbox
    - Publishes insights to `results.stream`
 
-5. **`agents/eda/eda_agent.py`** - Exploratory data analysis agent
-   - UMAP + HDBSCAN clustering
+5. **`agents/eda/eda_cluster_agent.py`** - Comprehensive EDA and clustering agent
+   - Robust input validation and schema inference
+   - Automated feature engineering (cyclical time features)
+   - PCA → UMAP dimensionality reduction
+   - HDBSCAN clustering with stability analysis
+   - Cluster profiling and explainability
+   - Interactive visualizations
+   - Persistence of models and artifacts
+   - Falls back to KMeans if HDBSCAN unavailable
+   
+   **`agents/eda/eda_agent.py`** - Simple EDA agent (legacy)
+   - Basic UMAP + HDBSCAN clustering
    - Fallback to KMeans if UMAP/HDBSCAN not available
 
 ### Kubernetes Manifests
@@ -115,10 +125,15 @@ WebSocket → Frontend
    python predictor_agent.py
    ```
 
-6. **Start EDA:**
+6. **Start EDA Cluster Agent (comprehensive):**
    ```bash
    cd eda
-   pip install redis numpy scikit-learn umap-learn hdbscan
+   pip install redis numpy pandas scikit-learn umap-learn hdbscan plotly joblib
+   python eda_cluster_agent.py
+   ```
+   
+   Or use the simpler version:
+   ```bash
    python eda_agent.py
    ```
 
