@@ -50,6 +50,16 @@ Ingesters (UDP/S3/API)
 - Seamless Redis integration with multi-agent orchestrator
 - Falls back to KMeans if HDBSCAN unavailable
 
+### EDA Agent V2 (`eda/eda_cluster_agent_v2.py`) - **NEW**
+- **Enhanced**: Redis Streams consumer groups for horizontal scaling
+- **Improved**: Distributed locking prevents duplicate task processing
+- **NEW**: Cluster drift detection with historical centroid tracking
+- **Enhanced**: Automated drift alerts trigger retrain tasks for Predictor agents
+- **Improved**: Better stability scoring with hyperparameter sweep
+- **Better**: Per-track artifact organization and metadata
+- **Enhanced**: Orchestrator integration with automatic registration
+- See [EDA README V2](./eda/README_V2.md) for detailed documentation
+
 ### Predictor Agent (`predictor/predictor_agent.py`)
 - Loads per-track tire degradation models
 - Predicts loss per lap and laps until threshold
@@ -148,9 +158,13 @@ cd agents/preprocessor
 node preprocessor_v2.js
 # Or: npm run preprocessor:v2
 
-# EDA Cluster Agent
+# EDA Cluster Agent (V1 - original)
 cd agents/eda
 python eda_cluster_agent.py
+
+# EDA Cluster Agent V2 (improved - recommended for horizontal scaling)
+cd agents/eda
+python eda_cluster_agent_v2.py
 
 # Or use the simpler version
 python eda_agent.py

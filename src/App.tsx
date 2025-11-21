@@ -6,6 +6,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { DeliveryProvider } from "@/components/DeliveryProvider";
 
 import Index from "./pages/Index";
 import DashboardPage from "./pages/DashboardPage";
@@ -18,17 +19,20 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AgentDashboard from "./components/AgentDashboard/AgentDashboard";
 import AgentReviewDashboard from "./pages/AgentReviewDashboard";
+import DemoSandbox from "./pages/DemoSandbox";
+import AgentInsightsDashboard from "./pages/AgentInsightsDashboard";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
+      <DeliveryProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Routes>
           {/* Main landing page */}
           <Route path="/" element={<Index />} />
           
@@ -50,6 +54,9 @@ const App = () => (
           {/* Human-in-the-Loop - Review agent decisions */}
           <Route path="/agents/review" element={<AgentReviewDashboard />} />
           
+          {/* Demo Sandbox - Interactive demo with 7-track mock data */}
+          <Route path="/demo" element={<DemoSandbox />} />
+          
           {/* Track Map - Track information and visualization */}
           <Route path="/tracks" element={<Tracks />} />
           
@@ -62,10 +69,14 @@ const App = () => (
           {/* Legacy route redirects */}
           <Route path="/home" element={<Index />} />
           
+          {/* Agent Insights Dashboard - Live insights from Delivery agent */}
+          <Route path="/agent-insights" element={<AgentInsightsDashboard />} />
+          
           {/* 404 - Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </DeliveryProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
