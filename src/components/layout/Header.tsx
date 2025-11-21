@@ -13,6 +13,7 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50 z-50 shadow-lg shadow-primary/5">
       <div className="flex items-center justify-between h-full px-4 sm:px-6">
+        {/* Logo */}
         <Link to="/" className="flex items-center space-x-3 sm:space-x-4 group">
           <motion.div
             whileHover={{ scale: 1.1 }}
@@ -28,6 +29,25 @@ export function Header() {
             <p className="text-xs text-muted-foreground hidden sm:block">Toyota GR Cup Real-time Strategy</p>
           </div>
         </Link>
+
+        {/* Navigation Menu */}
+        <nav className="hidden md:flex items-center space-x-1">
+          <Link to="/dashboard" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
+            Dashboard
+          </Link>
+          <Link to="/tracks" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
+            Tracks
+          </Link>
+          <Link to="/analytics" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
+            Analytics
+          </Link>
+          <Link to="/pitwall" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
+            Strategy
+          </Link>
+          <Link to="/about" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
+            About
+          </Link>
+        </nav>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="hidden sm:block text-center px-3 py-1.5 bg-muted/50 rounded-lg border border-border/50 backdrop-blur-sm">

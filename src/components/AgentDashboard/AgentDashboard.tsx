@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAgentSystem } from '../../hooks/useAgentSystem';
+import { useAgentSystem, type Insight } from '../../hooks/useAgentSystem';
 import InsightModal from '../InsightModal/InsightModal';
 import RealTimeMetrics from '../RealTimeMetrics/RealTimeMetrics';
 import './AgentDashboard.css';

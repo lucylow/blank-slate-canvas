@@ -1,4 +1,5 @@
 import React from 'react';
+import { type Insight } from '@/hooks/useAgentSystem';
 import './InsightModal.css';
 
 interface EvidenceItem {
@@ -11,24 +12,6 @@ interface EvidenceItem {
 interface FeatureItem {
   name: string;
   value: number | string;
-}
-
-interface Insight {
-  insight_id: string;
-  track: string;
-  chassis: string;
-  created_at: string;
-  model_version?: string;
-  predictions?: Record<string, number | string>;
-  explanation?: {
-    top_features?: FeatureItem[];
-    evidence?: EvidenceItem[];
-  };
-  recommendations?: Array<{
-    priority: string;
-    message: string;
-    action?: string;
-  }>;
 }
 
 interface InsightModalProps {
