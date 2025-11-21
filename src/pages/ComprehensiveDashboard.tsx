@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,9 +56,12 @@ export default function ComprehensiveDashboard() {
   const [selectedVehicle, setSelectedVehicle] = useState(7);
   const [selectedLap, setSelectedLap] = useState(12);
   const [tracks, setTracks] = useState<TrackList | null>(null);
+  const hasInitializedTracks = useRef(false);
 
   // Fetch tracks list
   useEffect(() => {
+    if (hasInitializedTracks.current) return;
+    
     const fetchTracks = async () => {
       try {
         const tracksData = await getTracks();
@@ -66,11 +69,13 @@ export default function ComprehensiveDashboard() {
         if (tracksData.tracks.length > 0 && !selectedTrack) {
           setSelectedTrack(tracksData.tracks[0].id);
         }
+        hasInitializedTracks.current = true;
       } catch (error) {
         console.error("Failed to fetch tracks:", error);
       }
     };
     fetchTracks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch dashboard data

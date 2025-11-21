@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import RaceAnalysis from "@/components/RaceAnalysis";
 
 // Track configuration with PDF map references
 // Maps track names to PDF filenames in public/track-maps/
@@ -334,6 +335,11 @@ const Tracks = () => {
               );
             })}
           </div>
+
+          {/* Race Analysis for Road America, Virginia International, and Barber Motorsports Park */}
+          {(selectedTrack === "Road America" || selectedTrack === "Virginia International" || selectedTrack === "Barber Motorsports Park") && (
+            <RaceAnalysis trackName={selectedTrack} />
+          )}
 
           {/* Track Data Summary */}
           <motion.div

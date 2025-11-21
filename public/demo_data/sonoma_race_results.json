@@ -1,0 +1,465 @@
+{
+  "track_id": "sonoma",
+  "track_name": "Sonoma Raceway",
+  "location": "Sonoma, California",
+  "race_number": 1,
+  "class": "Am",
+  "total_participants": 31,
+  "total_laps": 23,
+  "race_duration": "46:44.198",
+  "race_date": "2025-03-30",
+  "results": [
+    {
+      "position": 1,
+      "car_number": 46,
+      "total_time": "46:44.198",
+      "gap_to_leader": "0.000",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.073",
+      "fastest_lap_kph": 123.4,
+      "fastest_lap_lap": 19,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 2,
+      "car_number": 13,
+      "total_time": "46:44.350",
+      "gap_to_leader": "0.152",
+      "laps_completed": 23,
+      "fastest_lap": "1:51.724",
+      "fastest_lap_kph": 123.7,
+      "fastest_lap_lap": 17,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 3,
+      "car_number": 55,
+      "total_time": "46:45.925",
+      "gap_to_leader": "1.727",
+      "laps_completed": 23,
+      "fastest_lap": "1:51.985",
+      "fastest_lap_kph": 123.4,
+      "fastest_lap_lap": 15,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 4,
+      "car_number": 2,
+      "total_time": "46:46.329",
+      "gap_to_leader": "2.131",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.039",
+      "fastest_lap_kph": 123.3,
+      "fastest_lap_lap": 18,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 5,
+      "car_number": 16,
+      "total_time": "46:47.930",
+      "gap_to_leader": "3.732",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.119",
+      "fastest_lap_kph": 123.2,
+      "fastest_lap_lap": 16,
+      "group": "Legends",
+      "status": "Running"
+    },
+    {
+      "position": 6,
+      "car_number": 78,
+      "total_time": "46:49.079",
+      "gap_to_leader": "4.881",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.020",
+      "fastest_lap_kph": 123.4,
+      "fastest_lap_lap": 14,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 7,
+      "car_number": 98,
+      "total_time": "46:52.482",
+      "gap_to_leader": "8.284",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.300",
+      "fastest_lap_kph": 123.0,
+      "fastest_lap_lap": 13,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 8,
+      "car_number": 88,
+      "total_time": "47:02.172",
+      "gap_to_leader": "17.974",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.465",
+      "fastest_lap_kph": 122.8,
+      "fastest_lap_lap": 12,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 9,
+      "car_number": 71,
+      "total_time": "47:04.132",
+      "gap_to_leader": "19.934",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.760",
+      "fastest_lap_kph": 122.5,
+      "fastest_lap_lap": 11,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 10,
+      "car_number": 31,
+      "total_time": "47:07.115",
+      "gap_to_leader": "22.917",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.459",
+      "fastest_lap_kph": 122.8,
+      "fastest_lap_lap": 10,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 11,
+      "car_number": 113,
+      "total_time": "47:10.234",
+      "gap_to_leader": "26.036",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.890",
+      "fastest_lap_kph": 122.3,
+      "fastest_lap_lap": 9,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 12,
+      "car_number": 7,
+      "total_time": "47:15.678",
+      "gap_to_leader": "31.480",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.120",
+      "fastest_lap_kph": 122.0,
+      "fastest_lap_lap": 8,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 13,
+      "car_number": 93,
+      "total_time": "47:20.123",
+      "gap_to_leader": "35.925",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.234",
+      "fastest_lap_kph": 121.9,
+      "fastest_lap_lap": 7,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 14,
+      "car_number": 15,
+      "total_time": "47:25.456",
+      "gap_to_leader": "41.258",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.456",
+      "fastest_lap_kph": 121.7,
+      "fastest_lap_lap": 6,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 15,
+      "car_number": 89,
+      "total_time": "47:30.789",
+      "gap_to_leader": "46.591",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.567",
+      "fastest_lap_kph": 121.6,
+      "fastest_lap_lap": 21,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 16,
+      "car_number": 50,
+      "total_time": "47:35.123",
+      "gap_to_leader": "50.925",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.678",
+      "fastest_lap_kph": 121.5,
+      "fastest_lap_lap": 22,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 17,
+      "car_number": 17,
+      "total_time": "47:40.456",
+      "gap_to_leader": "56.258",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.277",
+      "fastest_lap_kph": 121.8,
+      "fastest_lap_lap": 4,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 18,
+      "car_number": 11,
+      "total_time": "47:45.789",
+      "gap_to_leader": "61.591",
+      "laps_completed": 23,
+      "fastest_lap": "1:53.789",
+      "fastest_lap_kph": 121.4,
+      "fastest_lap_lap": 23,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 19,
+      "car_number": 72,
+      "total_time": "47:50.123",
+      "gap_to_leader": "65.925",
+      "laps_completed": 23,
+      "fastest_lap": "1:51.668",
+      "fastest_lap_kph": 123.7,
+      "fastest_lap_lap": 20,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 20,
+      "car_number": 19,
+      "total_time": "47:55.456",
+      "gap_to_leader": "71.258",
+      "laps_completed": 23,
+      "fastest_lap": "1:51.985",
+      "fastest_lap_kph": 123.4,
+      "fastest_lap_lap": 19,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 21,
+      "car_number": 12,
+      "total_time": "48:00.789",
+      "gap_to_leader": "76.591",
+      "laps_completed": 22,
+      "fastest_lap": "1:54.123",
+      "fastest_lap_kph": 121.2,
+      "fastest_lap_lap": 5,
+      "group": "Am",
+      "status": "Running",
+      "laps_down": 1
+    },
+    {
+      "position": 22,
+      "car_number": 3,
+      "total_time": "48:05.123",
+      "gap_to_leader": "80.925",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.234",
+      "fastest_lap_kph": 121.1,
+      "fastest_lap_lap": 3,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 23,
+      "car_number": 18,
+      "total_time": "48:10.456",
+      "gap_to_leader": "86.258",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.345",
+      "fastest_lap_kph": 121.0,
+      "fastest_lap_lap": 2,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 24,
+      "car_number": 51,
+      "total_time": "48:15.789",
+      "gap_to_leader": "91.591",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.456",
+      "fastest_lap_kph": 120.9,
+      "fastest_lap_lap": 1,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 25,
+      "car_number": 47,
+      "total_time": "48:20.123",
+      "gap_to_leader": "95.925",
+      "laps_completed": 23,
+      "fastest_lap": "1:52.612",
+      "fastest_lap_kph": 123.0,
+      "fastest_lap_lap": 8,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 26,
+      "car_number": 24,
+      "total_time": "48:25.456",
+      "gap_to_leader": "101.258",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.567",
+      "fastest_lap_kph": 120.8,
+      "fastest_lap_lap": 7,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 27,
+      "car_number": 73,
+      "total_time": "48:30.789",
+      "gap_to_leader": "106.591",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.678",
+      "fastest_lap_kph": 120.7,
+      "fastest_lap_lap": 6,
+      "group": "Legends",
+      "status": "Running"
+    },
+    {
+      "position": 28,
+      "car_number": 14,
+      "total_time": "48:35.123",
+      "gap_to_leader": "110.925",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.789",
+      "fastest_lap_kph": 120.6,
+      "fastest_lap_lap": 5,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 29,
+      "car_number": 23,
+      "total_time": "48:40.456",
+      "gap_to_leader": "116.258",
+      "laps_completed": 23,
+      "fastest_lap": "1:54.890",
+      "fastest_lap_kph": 120.5,
+      "fastest_lap_lap": 4,
+      "group": "Am",
+      "status": "Running"
+    },
+    {
+      "position": 30,
+      "car_number": 5,
+      "total_time": "48:45.789",
+      "gap_to_leader": "121.591",
+      "laps_completed": 14,
+      "fastest_lap": "1:55.123",
+      "fastest_lap_kph": 120.3,
+      "fastest_lap_lap": 3,
+      "group": "Legends",
+      "status": "DNF"
+    },
+    {
+      "position": 31,
+      "car_number": 67,
+      "total_time": "48:50.123",
+      "gap_to_leader": "125.925",
+      "laps_completed": 8,
+      "fastest_lap": "1:55.234",
+      "fastest_lap_kph": 120.2,
+      "fastest_lap_lap": 2,
+      "group": "Am",
+      "status": "DNF"
+    }
+  ],
+  "statistics": {
+    "fastest_lap_overall": {
+      "car_number": 72,
+      "lap_time": "1:51.668",
+      "kph": 123.7,
+      "lap": 20
+    },
+    "fastest_lap_among_leaders": {
+      "car_number": 13,
+      "lap_time": "1:51.724",
+      "kph": 123.7,
+      "lap": 17
+    },
+    "closest_finish": {
+      "gap": "0.152",
+      "cars": [46, 13]
+    },
+    "top_5_average_fast_lap": "1:51.985",
+    "field_average_fast_lap": "1:53.128",
+    "field_spread": "1:42.242",
+    "completion_rate": "90.3",
+    "dnf_count": 3,
+    "legends_drivers": 7,
+    "legends_best_finish": 5,
+    "legends_worst_finish": 27,
+    "legends_average_position": 16
+  },
+  "notable_performances": {
+    "overachievers": [
+      {
+        "car_number": 46,
+        "position": 1,
+        "fastest_lap_rank": 5,
+        "reason": "Won race with 5th fastest lap time - excellent racecraft"
+      },
+      {
+        "car_number": 2,
+        "position": 4,
+        "fastest_lap_rank": 7,
+        "reason": "P4 finish with 7th fastest lap time"
+      },
+      {
+        "car_number": 78,
+        "position": 6,
+        "fastest_lap_rank": 4,
+        "reason": "P6 finish with 4th fastest lap time"
+      }
+    ],
+    "underachievers": [
+      {
+        "car_number": 72,
+        "position": 19,
+        "fastest_lap_rank": 1,
+        "reason": "Set absolute fastest lap (1:51.668) but finished 19th - investigate early issues"
+      },
+      {
+        "car_number": 47,
+        "position": 25,
+        "fastest_lap_rank": 8,
+        "reason": "8th fastest lap but finished 25th - significant time loss elsewhere"
+      },
+      {
+        "car_number": 19,
+        "position": 20,
+        "fastest_lap_rank": 3,
+        "reason": "3rd fastest lap but finished 20th"
+      }
+    ]
+  },
+  "race_highlights": [
+    "Extremely close finish - winner decided by 0.152 seconds",
+    "Top 4 cars separated by just 2.131 seconds",
+    "Car #72 set absolute fastest lap (1:51.668) but finished 19th",
+    "Car #13 had second-fastest lap and finished second by 0.152s",
+    "7 drivers in Legends category competed in same field",
+    "90.3% completion rate (28/31 drivers finished)",
+    "Intense battles throughout field with 9 position battles <1 second"
+  ]
+}
+

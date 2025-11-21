@@ -37,6 +37,16 @@ export function DemoButton({
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const handleDemoClick = async () => {
+    // If already in demo mode, just show a message
+    if (isDemoMode) {
+      toast({
+        title: "Demo Mode Already Active",
+        description: "Demo mode is already enabled. Data will load from demo_data.json",
+        duration: 2000,
+      });
+      return;
+    }
+
     setIsLoading(true);
     setHasLoaded(false);
 
@@ -77,14 +87,15 @@ export function DemoButton({
     }
   };
 
-  // If already in demo mode and loaded, show checkmark
-  if (isDemoMode && hasLoaded && !isLoading) {
+  // If already in demo mode, show active state
+  if (isDemoMode && !isLoading) {
     return (
       <Button
         variant={variant}
         size={size}
         className={`${className} bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20`}
-        disabled
+        onClick={handleDemoClick}
+        title="Demo mode is active. Click to reload demo data."
       >
         <CheckCircle2 className="w-4 h-4 mr-2" />
         Demo Active
@@ -97,7 +108,7 @@ export function DemoButton({
       variant={variant}
       size={size}
       onClick={handleDemoClick}
-      disabled={isLoading || (isDemoMode && hasLoaded)}
+      disabled={isLoading}
       className={className}
     >
       {isLoading ? (

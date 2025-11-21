@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import DemoLauncher from "@/components/DemoLauncher";
 import AIAgentResults from "@/components/AIAgentResults";
+import PDFReportGenerator from "@/components/PDFReportGenerator";
+import SonomaRaceResults from "@/components/SonomaRaceResults";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
@@ -1102,6 +1104,10 @@ const Index = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Comprehensive data and models for all 7 tracks in the Toyota GR Cup North America series.
             </p>
+            {/* PDF Report Generator for Barber Motorsports Park */}
+            <div className="mt-8 flex justify-center">
+              <PDFReportGenerator />
+            </div>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tracks.map((track, index) => (
@@ -1181,6 +1187,19 @@ const Index = () => {
                 </Card>
               </motion.div>
             ))}
+          </div>
+          
+          {/* Sonoma Race Results Section */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Sonoma Raceway - Race Results
+              </h3>
+              <p className="text-muted-foreground">
+                Complete race results and analytics from the GR Cup event at Sonoma Raceway
+              </p>
+            </div>
+            <SonomaRaceResults />
           </div>
         </div>
       </section>
