@@ -102,9 +102,9 @@ Respond ONLY with valid JSON:
       predicted_loss_per_lap_s: prediction.tire_wear_percent / 100, // Convert percent to seconds approximation
       laps_until_0_5s_loss: prediction.laps_until_cliff || 10,
       recommended_pit_lap: current_lap + (prediction.laps_until_cliff || 10),
-      feature_scores: prediction.top_factors?.map((f: any) => ({
-        name: f.factor,
-        score: f.impact
+      feature_scores: prediction.top_factors?.map((f: { factor?: string; impact?: number }) => ({
+        name: f.factor || 'unknown',
+        score: f.impact || 0
       })) || [],
       explanation: [
         `Tire wear: ${prediction.tire_wear_percent}%`,

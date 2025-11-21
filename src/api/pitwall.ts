@@ -42,6 +42,12 @@ export interface TireWearData {
   rear_right: number;
   predicted_laps_remaining?: number;
   pit_window_optimal?: number[];
+  // Enhanced fields for explainability and uncertainty
+  confidence?: number;
+  ci_lower?: Record<string, number>;
+  ci_upper?: Record<string, number>;
+  top_features?: Record<string, number>;
+  model_version?: string;
 }
 
 export interface PerformanceMetrics {
@@ -262,12 +268,80 @@ export async function analyzeTireWear(request: TireWearRequest): Promise<{ succe
  */
 export async function analyzePerformance(request: PerformanceRequest): Promise<{ success: boolean; data: PerformanceMetrics; timestamp: string }> {
   try {
-    const res = await client.post("/api/analytics/performance", request);
+    const res = await client.post<{ success: boolean; data: PerformanceMetrics; timestamp: string }>(
+      "/api/analytics/performance",
+      request
+    );
     return res.data;
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'response' in error) {
       const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
       throw new Error(`Performance API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Evaluate tire wear prediction model
+ * Returns RMSE, MAE, and calibration stats per track
+ */
+export interface TireWearEvalResult {
+  track?: string;
+  race?: number;
+  vehicle?: number;
+  rmse?: number;
+  mae?: number;
+  samples?: number;
+  predictions?: Array<{
+    lap: number;
+    predicted_wear: number;
+    expected_wear: number;
+    error: number;
+  }>;
+}
+
+export interface TireWearEvalResponse {
+  success: boolean;
+  data: TireWearEvalResult | {
+    tracks: Record<string, {
+      name: string;
+      rmse?: number;
+      mae?: number;
+      samples: number;
+    }>;
+    summary: {
+      overall_rmse?: number;
+      overall_mae?: number;
+      tracks_evaluated: number;
+      total_samples: number;
+    };
+  };
+  timestamp: string;
+}
+
+export async function evaluateTireWear(
+  track?: string,
+  race?: number,
+  vehicle?: number,
+  maxLaps: number = 20
+): Promise<TireWearEvalResponse> {
+  try {
+    const params: Record<string, string | number> = { max_laps: maxLaps };
+    if (track) params.track = track;
+    if (race) params.race = race;
+    if (vehicle) params.vehicle = vehicle;
+    
+    const res = await client.get<TireWearEvalResponse>("/api/analytics/eval/tire-wear", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Evaluation API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
     } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {

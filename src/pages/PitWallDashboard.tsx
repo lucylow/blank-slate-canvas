@@ -42,6 +42,17 @@ export default function PitWallDashboard() {
   const messageCount = messages.length;
   // derive last telemetry point for car position
   const lastPoint = useMemo(() => messages.length ? messages[messages.length-1] : null, [messages]);
+  
+  // Helper function to safely extract numeric value from telemetry point
+  const getTelemetryValue = (point: unknown, key: string, defaultValue: number): number => {
+    if (point && typeof point === 'object' && key in point) {
+      const value = (point as Record<string, unknown>)[key];
+      if (typeof value === 'number') {
+        return value;
+      }
+    }
+    return defaultValue;
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -149,8 +160,8 @@ export default function PitWallDashboard() {
                   <div className="bg-gradient-to-br from-card via-card/95 to-card/90 p-6">
                     <LiveMapSVG 
                       track={track} 
-                      lapdist={(lastPoint as any)?.lapdist_m ?? 0} 
-                      totalMeters={(lastPoint as any)?.track_total_m ?? 6515}
+                      lapdist={lastPoint ? getTelemetryValue(lastPoint, 'lapdist_m', 0) : 0} 
+                      totalMeters={lastPoint ? getTelemetryValue(lastPoint, 'track_total_m', 6515) : 6515}
                     />
                   </div>
                 </CardContent>

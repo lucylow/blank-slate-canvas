@@ -78,7 +78,10 @@ export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassi
           <div className="space-y-3">
             {TRACKS.map((track, i) => {
               const trackData = data[i];
-              const lossPerLap = ('predicted_loss_per_lap_s' in (trackData || {})) ? (trackData as any).predicted_loss_per_lap_s : 0;
+              const isError = trackData && 'error' in trackData;
+              const isPrediction = trackData && 'predicted_loss_per_lap_s' in trackData;
+              const prediction = isPrediction ? trackData as TirePredictionResponse : null;
+              const lossPerLap = prediction?.predicted_loss_per_lap_s ?? 0;
               const percentage = Math.min(100, (lossPerLap / 1) * 100);
               
               return (
@@ -91,11 +94,11 @@ export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassi
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-medium text-foreground truncate">
-                      {formatTrackName(trackData?.track || track)}
+                      {formatTrackName(isError ? (trackData as { error: string; track: string }).track : (prediction?.track || track))}
                     </span>
                     <span className="font-mono font-semibold text-foreground ml-2">
-                      {('predicted_loss_per_lap_s' in (trackData || {}))
-                        ? `${(trackData as any).predicted_loss_per_lap_s.toFixed(2)}s`
+                      {prediction
+                        ? `${prediction.predicted_loss_per_lap_s.toFixed(2)}s`
                         : '—'}
                     </span>
                   </div>

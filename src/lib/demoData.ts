@@ -21,7 +21,7 @@ export interface LapTimesSample {
   vehicle_id: string;
   lap: number;
   timestamp: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface WeatherSample {
@@ -31,7 +31,7 @@ export interface WeatherSample {
   HUMIDITY?: number;
   WIND_SPEED?: number;
   RAIN?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface RaceDemoData {
@@ -160,7 +160,7 @@ export function getWeatherForRace(
 /**
  * Convert demo telemetry sample to format expected by frontend components
  */
-export function convertTelemetrySample(sample: TelemetrySample): Record<string, any> {
+export function convertTelemetrySample(sample: TelemetrySample): Record<string, unknown> {
   return {
     vehicle_id: sample.vehicle_id,
     vehicle_number: sample.vehicle_number,

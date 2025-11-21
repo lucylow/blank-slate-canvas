@@ -31,11 +31,13 @@ export interface DashboardData {
     front_right: number;
     rear_left: number;
     rear_right: number;
-    confidence: number;
-    ci_lower: Record<string, number>;
-    ci_upper: Record<string, number>;
-    top_features: Record<string, number>;
-    pit_window_optimal: number[];
+    predicted_laps_remaining?: number;
+    pit_window_optimal?: number[];
+    confidence?: number;
+    ci_lower?: Record<string, number>;
+    ci_upper?: Record<string, number>;
+    top_features?: Record<string, number>;
+    model_version?: string;
   };
   performance: {
     current_lap: string;

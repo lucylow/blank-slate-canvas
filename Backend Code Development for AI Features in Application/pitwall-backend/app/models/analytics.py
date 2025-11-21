@@ -13,6 +13,12 @@ class TireWearData(BaseModel):
     rear_right: float = Field(..., ge=0, le=100, description="Rear right tire wear %")
     predicted_laps_remaining: Optional[int] = None
     pit_window_optimal: Optional[List[int]] = None
+    # Enhanced fields for explainability and uncertainty
+    confidence: Optional[float] = Field(None, ge=0, le=1, description="Confidence score (0-1)")
+    ci_lower: Optional[Dict[str, float]] = Field(None, description="Lower confidence intervals for each tire")
+    ci_upper: Optional[Dict[str, float]] = Field(None, description="Upper confidence intervals for each tire")
+    top_features: Optional[Dict[str, float]] = Field(None, description="Top contributing features with importance scores")
+    model_version: Optional[str] = Field(None, description="Model version used for prediction")
 
 
 class PerformanceMetrics(BaseModel):

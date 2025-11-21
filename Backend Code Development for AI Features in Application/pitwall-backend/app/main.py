@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import logging
 from typing import Optional
+import pandas as pd
 
 from app.config import API_TITLE, API_VERSION, API_DESCRIPTION, CORS_ORIGINS, TRACKS
 from app.routes.frontend_integration import router as frontend_router
@@ -19,6 +20,7 @@ from app.data.data_loader import data_loader
 from app.services.tire_wear_predictor import tire_wear_predictor
 from app.services.performance_analyzer import performance_analyzer
 from app.services.strategy_optimizer import strategy_optimizer
+from app.analytics.eval import evaluate_tire_wear_on_track, evaluate_all_tracks
 
 # Configure logging
 logging.basicConfig(
@@ -197,8 +199,12 @@ async def get_live_dashboard(
     
     # ========== AI PREDICTIONS ==========
     
-    # 1. Tire Wear Prediction
-    tire_wear = tire_wear_predictor.predict_tire_wear(telemetry_df, lap, vehicle)
+    # 1. Tire Wear Prediction (with CI and explainability)
+    tire_wear = tire_wear_predictor.predict_tire_wear(
+        telemetry_df, lap, vehicle, 
+        include_ci=True, 
+        include_explainability=True
+    )
     
     # 2. Performance Analysis
     performance = performance_analyzer.analyze_performance(
@@ -340,6 +346,51 @@ async def get_gap_analysis(
         "data": gap_analysis,
         "timestamp": datetime.utcnow().isoformat()
     }
+
+
+@app.get("/api/analytics/eval/tire-wear")
+async def eval_tire_wear(
+    track: Optional[str] = Query(None, description="Track to evaluate (None = all tracks)"),
+    race: Optional[int] = Query(1, description="Race number"),
+    vehicle: Optional[int] = Query(None, description="Vehicle number (None = first available)"),
+    max_laps: int = Query(20, description="Maximum laps to evaluate")
+):
+    """
+    Evaluate tire wear prediction model
+    
+    Returns RMSE, MAE, and calibration stats per track.
+    Uses leave-one-out validation: predict lap N using laps 1 to N-1.
+    """
+    logger.info(f"Tire wear evaluation request: track={track}, race={race}, vehicle={vehicle}")
+    
+    if track:
+        # Evaluate specific track
+        if track not in TRACKS:
+            raise HTTPException(status_code=404, detail=f"Track '{track}' not found")
+        
+        # Get vehicle if not specified
+        if vehicle is None:
+            vehicles = data_loader.get_available_vehicles(track, race or 1)
+            if not vehicles:
+                raise HTTPException(status_code=404, detail=f"No vehicles found for track '{track}'")
+            vehicle = vehicles[0]
+        
+        result = evaluate_tire_wear_on_track(track, race or 1, vehicle, max_laps)
+        
+        return {
+            "success": True,
+            "data": result,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    else:
+        # Evaluate all tracks
+        result = evaluate_all_tracks(max_samples_per_track=max_laps)
+        
+        return {
+            "success": True,
+            "data": result,
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
 
 # ============================================================================

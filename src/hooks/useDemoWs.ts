@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 export interface TelemetryPoint {
-  [key: string]: any;
+  [key: string]: unknown;
   timestamp?: string;
   vehicle_id?: string;
   vehicle_number?: number;
@@ -98,7 +98,7 @@ export function useDemoWs(options: UseDemoWsOptions = {}) {
     setConnected(false);
   };
 
-  const sendCommand = (cmd: { type: string; [key: string]: any }) => {
+  const sendCommand = (cmd: { type: string; [key: string]: unknown }) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(cmd));
     }
@@ -124,6 +124,7 @@ export function useDemoWs(options: UseDemoWsOptions = {}) {
     return () => {
       disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url, autoConnect]);
 
   return {
