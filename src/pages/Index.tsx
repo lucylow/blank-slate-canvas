@@ -402,7 +402,8 @@ const Index = () => {
     const checkBackendHealth = async () => {
       try {
         const health = await checkHealth();
-        setBackendHealth({ ok: health.ok || false });
+        // Backend returns { status: "healthy", ... } or { ok: boolean, ... }
+        setBackendHealth({ ok: health.ok || health.status === "healthy" || false });
       } catch (error) {
         setBackendHealth({ ok: false });
       }

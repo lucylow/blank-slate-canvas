@@ -11,14 +11,20 @@ export default defineConfig(({ mode }) => ({
     strictPort: false,
     proxy: {
       // Forward /api/* to backend during dev
+      // Backend runs on port 8000 by default (pitwall-backend)
       '/api': {
-        target: 'http://localhost:8081',
+        target: process.env.VITE_BACKEND_URL || 'http://localhost:8000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+      // Forward /health to backend
+      '/health': {
+        target: process.env.VITE_BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
       },
       // Proxy WebSocket connections
       '/ws': {
-        target: 'ws://localhost:8081',
+        target: process.env.VITE_BACKEND_WS_URL || 'ws://localhost:8000',
         ws: true,
         changeOrigin: true,
       },
