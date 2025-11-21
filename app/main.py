@@ -17,6 +17,7 @@ from app.config import (
 from app.routes.frontend_integration import router as frontend_router
 from app.routes.anomaly_ws import router as anomaly_router
 from app.routes.health import router as health_router, set_model_loaded, set_db_available, set_cache_available
+from app.routes.telemetry import router as telemetry_router
 from app.observability.logger import setup_logging
 from app.observability.prom_metrics import get_metrics_response
 from app.models.analytics import (
@@ -114,6 +115,7 @@ else:
 app.include_router(health_router, tags=["Health"])
 app.include_router(anomaly_router, tags=["Realtime"])
 app.include_router(frontend_router, tags=["Frontend Integration"])
+app.include_router(telemetry_router, tags=["Telemetry"])
 
 # Metrics endpoint
 @app.get("/metrics")

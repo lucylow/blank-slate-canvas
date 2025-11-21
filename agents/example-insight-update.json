@@ -1,0 +1,25 @@
+{
+  "type": "insight_update",
+  "task_id": "task-1234",
+  "insight_id": "insight-ab12cd34",
+  "track": "cota",
+  "chassis": "GR86-002",
+  "model_version": "tire-v1.0",
+  "predictions": {
+    "predicted_loss_per_lap_seconds": 0.321,
+    "laps_until_0_5s_loss": 6.2
+  },
+  "explanation": {
+    "top_features": [
+      { "name": "tire_stress_s2", "value": 3.9e5 },
+      { "name": "brake_energy", "value": 0.92 }
+    ],
+    "evidence": [
+      { "meta_time": "2025-11-20T00:00:00.200Z", "lap": 12, "lapdist_m": 280.5, "small_trace": [140, 155, 160] },
+      { "meta_time": "2025-11-20T00:00:01.200Z", "lap": 12, "lapdist_m": 1350.2, "small_trace": [132, 128, 140] },
+      { "meta_time": "2025-11-20T00:00:02.400Z", "lap": 13, "lapdist_m": 45.7, "small_trace": [118, 120, 116] }
+    ]
+  },
+  "created_at": "2025-11-20T00:00:03.500Z"
+}
+

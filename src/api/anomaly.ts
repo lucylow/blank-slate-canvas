@@ -43,7 +43,7 @@ const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
  */
 export async function detectAnomaly(
   vehicleId: string,
-  telemetryPoint: Record<string, any>
+  telemetryPoint: Record<string, string | number | boolean>
 ): Promise<AnomalyDetectionResult> {
   const response = await fetch(`${API_BASE}/api/anomaly/detect`, {
     method: 'POST',
@@ -115,7 +115,7 @@ export async function detectAnomaliesBatch(
     anomaly_rate: number;
     avg_anomaly_score: number;
   };
-  results: any[];
+  results: AnomalyDetectionResult[];
   timestamp: string;
 }> {
   const response = await fetch(`${API_BASE}/api/anomaly/detect/batch`, {

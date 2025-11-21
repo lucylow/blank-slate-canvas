@@ -20,7 +20,7 @@ export class RingBuffer<T> {
   snapshot(n = 1000): T[] {
     const take = Math.min(Math.max(0, n), this.size);
     const out: T[] = new Array(take);
-    let start = (this.head - take + this.cap) % this.cap;
+    const start = (this.head - take + this.cap) % this.cap;
 
     for (let i = 0; i < take; i++) {
       const val = this.buf[(start + i) % this.cap];

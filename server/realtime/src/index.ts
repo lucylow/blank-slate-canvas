@@ -7,15 +7,24 @@ import Fastify from "fastify";
 import WebSocket from "ws";
 import { Worker } from "worker_threads";
 import { RingBuffer } from "./ringbuffer";
-import { TelemetryPoint } from "./types";
+import { TelemetryPoint, AggregateResult } from "./types";
 import { startUdpListener } from "./udp_listener";
 import { pollBucketPrefix } from "./s3_watcher";
 import * as cfg from "./config";
 
 const ring = new RingBuffer<TelemetryPoint>(cfg.RINGBUFFER_SIZE);
 
+interface TrackSector {
+  start_m: number;
+  end_m: number;
+}
+
+interface TrackSectorsData {
+  sectors?: TrackSector[];
+}
+
 // load track sectors
-let trackSectors: Record<string, any> = {};
+let trackSectors: Record<string, TrackSectorsData> = {};
 try {
   trackSectors = JSON.parse(fs.readFileSync(cfg.TRACK_SECTORS_PATH, "utf8"));
 } catch (e) {
@@ -26,7 +35,13 @@ try {
 const workerPath = path.join(__dirname, "aggregator.worker.js");
 const worker = new Worker(workerPath);
 
-worker.on("message", (m: any) => {
+interface WorkerMessage {
+  type: string;
+  results?: AggregateResult[];
+  ts?: number;
+}
+
+worker.on("message", (m: WorkerMessage) => {
   if (m.type === "AGGREGATES") {
     const payload = JSON.stringify({ 
       type: "insight_update", 
@@ -47,7 +62,8 @@ fastify.get("/api/health", async (req, reply) =>
   reply.send({ ok: true, now: new Date().toISOString(), demo: cfg.DEMO_DATA_PATH }));
 
 fastify.get("/api/recent/:n", async (req, reply) => {
-  const n = Math.min(5000, Number((req.params as any)["n"] || 200));
+  const params = req.params as { n?: string };
+  const n = Math.min(5000, Number(params.n || 200));
   return reply.send({ recent: ring.snapshot(n) });
 });
 
@@ -69,7 +85,7 @@ function broadcast(msg: string) {
   const buf = Buffer.from(msg);
   for (const client of wss.clients) {
     if (client.readyState === WebSocket.OPEN) {
-      if ((client as any).bufferedAmount > cfg.MAX_WS_BUFFER) {
+      if (client.bufferedAmount > cfg.MAX_WS_BUFFER) {
         continue;
       }
       client.send(buf, (err) => {

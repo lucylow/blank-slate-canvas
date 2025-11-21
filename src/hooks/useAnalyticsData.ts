@@ -102,19 +102,20 @@ function extractLapTimes(trackData: TrackDemoData): LapTimeData[] {
       for (const lapTimeRecord of race.lap_times_sample) {
         // Try to extract lap time from various possible fields
         let lapTime: number | null = null;
-        const vehicleNumber = (lapTimeRecord as any).vehicle_number || 
+        const record = lapTimeRecord as Record<string, unknown>;
+        const vehicleNumber = (record.vehicle_number as number | undefined) || 
                              parseInt((lapTimeRecord.vehicle_id || '').split('-').pop() || '0');
         
         // Check common lap time field names
-        if ('lap_time' in lapTimeRecord && typeof lapTimeRecord.lap_time === 'number') {
-          lapTime = lapTimeRecord.lap_time;
-        } else if ('LapTime' in lapTimeRecord && typeof (lapTimeRecord as any).LapTime === 'number') {
-          lapTime = (lapTimeRecord as any).LapTime;
-        } else if ('time' in lapTimeRecord && typeof (lapTimeRecord as any).time === 'number') {
-          lapTime = (lapTimeRecord as any).time;
-        } else if ('value' in lapTimeRecord && typeof (lapTimeRecord as any).value === 'number') {
+        if ('lap_time' in record && typeof record.lap_time === 'number') {
+          lapTime = record.lap_time;
+        } else if ('LapTime' in record && typeof record.LapTime === 'number') {
+          lapTime = record.LapTime as number;
+        } else if ('time' in record && typeof record.time === 'number') {
+          lapTime = record.time as number;
+        } else if ('value' in record && typeof record.value === 'number') {
           // Value might be in milliseconds, convert to seconds
-          const value = (lapTimeRecord as any).value;
+          const value = record.value as number;
           if (value > 1000) {
             // Likely milliseconds
             lapTime = value / 1000;

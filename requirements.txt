@@ -9,3 +9,7 @@ sse-starlette==1.6.5
 prometheus-client==0.19.0
 aioredis==2.0.1
 redis==5.0.1
+# Optional dependencies for telemetry pipeline
+joblib>=1.3.0  # For model serialization
+river>=0.20.0  # For streaming ML (optional)
+onnxruntime>=1.16.0  # For ONNX model inference (optional, install onnxruntime-gpu for GPU support)

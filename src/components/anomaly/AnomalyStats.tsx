@@ -51,6 +51,7 @@ export function AnomalyStats({
       const interval = setInterval(fetchStats, refreshInterval);
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track, race, vehicle, lapStart, lapEnd, autoRefresh, refreshInterval]);
 
   if (loading) {

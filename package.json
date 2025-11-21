@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "demo-server": "node server/demo-server.js",
-    "demo": "concurrently \"npm:demo-server\" \"npm:dev\""
+    "demo": "concurrently \"npm:demo-server\" \"npm:dev\"",
+    "agent-api": "node server/agent-api-server.js",
+    "agent-api:dev": "nodemon server/agent-api-server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -52,6 +54,7 @@
     "embla-carousel-react": "^8.6.0",
     "express": "^4.18.2",
     "framer-motion": "^12.23.24",
+    "ioredis": "^5.3.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "msw": "^2.12.2",

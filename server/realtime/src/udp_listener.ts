@@ -36,8 +36,9 @@ export function startUdpListener(ring: RingBuffer<TelemetryPoint>, onParsed?: (p
       ring.push(parsed);
       if (onParsed) onParsed(parsed);
     } catch (err) {
-      if (!(socket as any)._lastWarn || Date.now() - (socket as any)._lastWarn > 5000) {
-        (socket as any)._lastWarn = Date.now();
+      const socketWithWarn = socket as dgram.Socket & { _lastWarn?: number };
+      if (!socketWithWarn._lastWarn || Date.now() - socketWithWarn._lastWarn > 5000) {
+        socketWithWarn._lastWarn = Date.now();
         console.warn("UDP parse error (rate-limited):", (err as Error).message);
       }
     }

@@ -2,8 +2,6 @@
 import os, time, json, redis, numpy as np
 from datetime import datetime
 from sklearn.decomposition import PCA
-import umap
-import hdbscan
 import uuid
 
 REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379')
@@ -12,6 +10,15 @@ r = redis.from_url(REDIS_URL)
 AGENT_ID = os.getenv('EDA_AGENT_ID', 'eda-01')
 INBOX = f'agent:{AGENT_ID}:inbox'
 RESULT_STREAM = 'results.stream'
+
+# Try to import umap and hdbscan, fallback to sklearn if not available
+try:
+    import umap
+    import hdbscan
+    UMAP_AVAILABLE = True
+except ImportError:
+    UMAP_AVAILABLE = False
+    print("Warning: umap-learn and hdbscan not installed. Install with: pip install umap-learn hdbscan")
 
 def extract_features_from_samples(samples):
     # expected list of dicts (samples)
@@ -36,6 +43,18 @@ def main_loop():
                 # cannot cluster → return trivial result
                 clusters = [-1]*len(samples)
                 embedding = X.tolist()
+            elif not UMAP_AVAILABLE:
+                # Fallback to simple clustering
+                from sklearn.cluster import KMeans
+                n_clusters = min(3, len(samples))
+                if n_clusters < 2:
+                    clusters = [0]*len(samples)
+                    embedding = X.tolist()
+                else:
+                    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+                    labels = kmeans.fit_predict(X)
+                    clusters = labels.tolist()
+                    embedding = X.tolist()
             else:
                 reducer = umap.UMAP(n_components=2, random_state=42)
                 emb = reducer.fit_transform(X)

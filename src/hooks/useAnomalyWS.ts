@@ -2,11 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 
+interface AnomalyAlert {
+  type?: string;
+  alert?: {
+    type?: string;
+    sensor?: string;
+    value?: number;
+    message?: string;
+    severity?: string;
+  };
+  [key: string]: unknown;
+}
+
 export default function useAnomalyWS(
   vehicleId: string,
   backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"
 ) {
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<AnomalyAlert[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -40,7 +52,7 @@ export default function useAnomalyWS(
   }, [vehicleId, backendUrl]);
 
   // helper to send telemetry frames to server via ws (if ws open)
-  const sendTelemetry = (frame: any) => {
+  const sendTelemetry = (frame: Record<string, unknown>) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(frame));
     }

@@ -13,7 +13,7 @@ export async function fetchS3CsvToBuffer(bucket: string, key: string, ring: Ring
 
   stream.pipe(parser);
 
-  parser.on("data", (row: any) => {
+  parser.on("data", (row: Record<string, string>) => {
     const parsed: TelemetryPoint = {
       meta_time: row.meta_time || new Date().toISOString(),
       track: row.track || row.circuit || "unknown",

@@ -16,7 +16,7 @@ export interface TelemetryPoint {
   rpm?: number;
   raw_source?: RawSource;
   // optional: other vendor fields can be present
-  [key: string]: any;
+  [key: string]: string | number | undefined;
 }
 
 export interface AggregateResult {
@@ -27,7 +27,7 @@ export interface AggregateResult {
   perSectorStress: { [sectorIndex: number]: number };
   predicted_loss_per_lap_seconds: number;
   laps_until_0_5s_loss: number;
-  meta?: Record<string, any>;
+  meta?: Record<string, string | number | boolean>;
 }
 
 export type TelemetryUpdateMessage = {

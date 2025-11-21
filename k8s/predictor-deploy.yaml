@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pitwall-predictor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pitwall-predictor
+  template:
+    metadata:
+      labels:
+        app: pitwall-predictor
+    spec:
+      containers:
+        - name: predictor
+          image: <YOUR_REGISTRY>/pitwall-predictor:latest
+          env:
+            - name: REDIS_URL
+              value: redis://redis:6379
+            - name: MODEL_PATH
+              value: /models/cota_tire_v1.pkl
+            - name: AGENT_ID
+              value: predictor-cota-1
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      volumes:
+        - name: models
+          configMap:
+            name: predictor-models-cmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pitwall-predictor
+spec:
+  selector:
+    app: pitwall-predictor
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+

@@ -4,9 +4,13 @@
   "description": "Multi-agent orchestration system for PitWall AI",
   "scripts": {
     "orchestrator": "node orchestrator/router.js",
+    "orchestrator:simple": "node orchestrator/index.js",
     "preprocessor": "node preprocessor/preprocessor-agent.js",
+    "preprocessor:simple": "node preprocessor/index.js",
     "delivery": "node delivery/delivery-agent.js",
-    "start:all": "concurrently \"npm:orchestrator\" \"npm:preprocessor\" \"npm:delivery\""
+    "delivery:simple": "node delivery/index.js",
+    "start:all": "concurrently \"npm:orchestrator\" \"npm:preprocessor\" \"npm:delivery\"",
+    "start:simple": "concurrently \"npm:orchestrator:simple\" \"npm:preprocessor:simple\" \"npm:delivery:simple\""
   },
   "dependencies": {
     "ioredis": "^5.3.2",

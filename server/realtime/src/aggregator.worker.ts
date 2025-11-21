@@ -10,7 +10,12 @@ function sampleTireStress(p: TelemetryPoint): number {
   return ax * ax + ay * ay + steer * steer;
 }
 
-function computeSectorIndex(sectors: any[] | undefined, lapdist: number): number {
+interface Sector {
+  start_m: number;
+  end_m: number;
+}
+
+function computeSectorIndex(sectors: Sector[] | undefined, lapdist: number): number {
   if (!sectors || sectors.length === 0) {
     const total = 5000;
     const len = total / 3;
@@ -30,7 +35,7 @@ function computeSectorIndex(sectors: any[] | undefined, lapdist: number): number
 type BatchMessage = {
   type: "BATCH";
   points: TelemetryPoint[];
-  sectors?: Record<string, any>;
+  sectors?: Record<string, { sectors?: Sector[] }>;
   track?: string;
 };
 

@@ -1,0 +1,64 @@
+.real-time-metrics {
+  background: #1f2937;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #374151;
+  margin-top: 20px;
+}
+
+.real-time-metrics h3 {
+  margin: 0 0 20px 0;
+  color: #F9FAFB;
+  font-size: 1.25rem;
+}
+
+.metrics-content {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.metrics-canvas {
+  background: #0f172a;
+  border-radius: 8px;
+  border: 1px solid #374151;
+}
+
+.metrics-text {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #374151;
+  border-radius: 6px;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: #D1D5DB;
+}
+
+.metric-value {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #3B82F6;
+}
+
+@media (max-width: 768px) {
+  .metrics-content {
+    flex-direction: column;
+  }
+
+  .metrics-canvas {
+    width: 100%;
+    max-width: 350px;
+  }
+}
+
