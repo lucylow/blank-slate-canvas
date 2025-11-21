@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { TrackMap } from '../telemetry/TrackMap';
-import { TelemetryCharts } from '../telemetry/TelemetryCharts';
-import { StrategyConsole } from '../strategy/StrategyConsole';
-import { DriverList } from '../telemetry/DriverList';
+
+import { TrackMap } from '@/components/telemetry/TrackMap';
+import { TelemetryCharts } from '@/components/telemetry/TelemetryCharts';
+import { StrategyConsole } from '@/components/strategy/StrategyConsole';
+import { DriverList } from '@/components/telemetry/DriverList';
 
 export function Dashboard() {
   return (

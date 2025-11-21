@@ -3,15 +3,19 @@
 import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Flag, Wifi, WifiOff, Activity, MapPin } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import TrackSelector, { TRACKS } from "../components/TrackSelector";
-import LiveMapSVG from "../components/LiveMapSVG";
-import PredictionPanel from "../components/PredictionPanel";
-import { useWebSocket } from "../hooks/useWebSocket";
-import MultiTrackSummary from "../components/MultiTrackSummary";
-import { DemoModeToggle } from "../components/DemoModeToggle";
-import { useDemoMode } from "../hooks/useDemoMode";
+
+import TrackSelector, { TRACKS } from "@/components/TrackSelector";
+import LiveMapSVG from "@/components/LiveMapSVG";
+import PredictionPanel from "@/components/PredictionPanel";
+import MultiTrackSummary from "@/components/MultiTrackSummary";
+import { DemoModeToggle } from "@/components/DemoModeToggle";
+
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { useDemoMode } from "@/hooks/useDemoMode";
+
 import { getWsUrl } from "@/utils/wsUrl";
 
 export default function PitWallDashboard() {

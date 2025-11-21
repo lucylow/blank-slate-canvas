@@ -1,7 +1,9 @@
 // src/pages/Home.tsx
+
 import React, { useState } from "react";
-import DemoLauncher from "../components/DemoLauncher";
-import ExplainModal from "../components/ExplainModal";
+
+import DemoLauncher from "@/components/DemoLauncher";
+import ExplainModal from "@/components/ExplainModal";
 
 const Home: React.FC = () => {
   const [explainOpen, setExplainOpen] = useState(false);

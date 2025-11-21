@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+
 import DemoLauncher from "@/components/DemoLauncher";
+
 import { checkHealth } from "@/api/pitwall";
 
 /* ================================================================================
@@ -455,14 +458,25 @@ const Index = () => {
     }
   ];
 
+  // Track PDF map references (matching Tracks.tsx)
+  const TRACK_PDF_MAP: Record<string, string> = {
+    "Circuit of the Americas": "COTA_Circuit_Map.pdf",
+    "Road America": "Road_America_Map.pdf",
+    "Sebring International": "Sebring_Track_Sector_Map.pdf",
+    "Sonoma Raceway": "Sonoma_Map.pdf",
+    "Barber Motorsports Park": "Barber_Circuit_Map.pdf",
+    "Virginia International": "VIR_mapk.pdf",
+    "Indianapolis Motor Speedway": "Indy_Circuit_Map.pdf",
+  };
+
   const tracks = [
-    { name: "Circuit of the Americas", location: "Austin, Texas", length: "3.427 miles", turns: 20 },
-    { name: "Road America", location: "Elkhart Lake, Wisconsin", length: "4.048 miles", turns: 14 },
-    { name: "Sebring International", location: "Sebring, Florida", length: "3.74 miles", turns: 17 },
-    { name: "Sonoma Raceway", location: "Sonoma, California", length: "2.52 miles", turns: 12 },
-    { name: "Barber Motorsports Park", location: "Birmingham, Alabama", length: "2.38 miles", turns: 17 },
-    { name: "Virginia International", location: "Alton, Virginia", length: "3.27 miles", turns: 17 },
-    { name: "Mid-Ohio Sports Car Course", location: "Lexington, Ohio", length: "2.4 miles", turns: 15 }
+    { name: "Circuit of the Americas", location: "Austin, Texas", length: "3.427 miles", turns: 20, id: "cota" },
+    { name: "Road America", location: "Elkhart Lake, Wisconsin", length: "4.048 miles", turns: 14, id: "road-america" },
+    { name: "Sebring International", location: "Sebring, Florida", length: "3.74 miles", turns: 17, id: "sebring" },
+    { name: "Sonoma Raceway", location: "Sonoma, California", length: "2.52 miles", turns: 12, id: "sonoma" },
+    { name: "Barber Motorsports Park", location: "Birmingham, Alabama", length: "2.38 miles", turns: 17, id: "barber" },
+    { name: "Virginia International", location: "Alton, Virginia", length: "3.27 miles", turns: 17, id: "vir" },
+    { name: "Indianapolis Motor Speedway", location: "Indianapolis, Indiana", length: "2.439 miles", turns: 14, id: "indianapolis" }
   ];
 
   return (
@@ -773,6 +787,21 @@ const Index = () => {
                     <MapPin className="w-4 h-4" />
                     {track.location}
                   </p>
+                  {TRACK_PDF_MAP[track.name] && (
+                    <div className="mb-4">
+                      <a
+                        href={`/track-maps/${TRACK_PDF_MAP[track.name]}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FileText className="w-4 h-4" />
+                        View Track Map
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center pt-4 border-t border-border/50">
                     <div className="flex flex-col">
                       <span className="text-xs text-muted-foreground uppercase tracking-wide">Length</span>

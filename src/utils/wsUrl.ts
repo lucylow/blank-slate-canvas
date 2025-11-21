@@ -3,8 +3,8 @@
 
 export function getWsUrl(path = '/ws'): string {
   if (typeof window === 'undefined') {
-    // SSR fallback
-    return 'ws://localhost:8081/ws';
+    // SSR fallback (port 8000 for pitwall-backend)
+    return 'ws://localhost:8000/ws';
   }
 
   const loc = window.location;
@@ -14,11 +14,11 @@ export function getWsUrl(path = '/ws'): string {
     // Check if we should use the proxy (dev mode) or direct connection
     // For dev, we can use the proxy if Vite is running, otherwise direct
     if (import.meta.env.DEV && !import.meta.env.VITE_WS_BASE_URL) {
-      // Use proxy path in dev (Vite will proxy /ws to backend)
+      // Use proxy path in dev (Vite will proxy /ws to backend on port 8000)
       return `${loc.protocol === 'https:' ? 'wss:' : 'ws:'}//${loc.host}${path}`;
     }
-    // Direct connection to backend
-    return `ws://localhost:8081${path}`;
+    // Direct connection to backend (port 8000 for pitwall-backend)
+    return `ws://localhost:8000${path}`;
   }
 
   // Production: derive from current host or use explicit env var

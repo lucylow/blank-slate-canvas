@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { apiClient, TirePredictionResponse } from '@/lib/api';
+import { getLiveDashboard, analyzeTireWear, TireWearRequest } from '@/api/pitwall';
 
 interface Alert {
   severity: 'high' | 'medium' | 'low';
@@ -85,7 +85,7 @@ export function StrategyProvider({
     const finalChassis = chassis || telemetryData?.chassis || defaultChassis;
     const finalLap = currentLap ?? telemetryData?.currentLap ?? defaultLap;
 
-    if (!finalTrack || !finalChassis) {
+    if (!finalTrack) {
       return;
     }
 
@@ -95,57 +95,82 @@ export function StrategyProvider({
     try {
       const normalizedTrack = normalizeTrackName(finalTrack);
       
-      const response: TirePredictionResponse = await apiClient.fetchTirePrediction(normalizedTrack, finalChassis);
+      // Extract vehicle number from chassis (e.g., "GR86-016-7" -> 7) or use default
+      const vehicleNumber = finalChassis ? parseInt(finalChassis.split('-').pop() || '7') : 7;
+      const race = 1; // Default to race 1
+      
+      // Use the main dashboard endpoint which provides all data
+      const dashboardData = await getLiveDashboard(normalizedTrack, race, vehicleNumber, finalLap);
 
       // Convert API response to frontend format
+      const avgTireWear = (
+        dashboardData.tire_wear.front_left +
+        dashboardData.tire_wear.front_right +
+        dashboardData.tire_wear.rear_left +
+        dashboardData.tire_wear.rear_right
+      ) / 4;
+
       setStrategy({
         tireWear: {
-          current: Math.max(0, 100 - (response.predicted_loss_per_lap_s * finalLap * 10)) // Estimate current wear
+          current: Math.max(0, 100 - avgTireWear) // Tire wear is already a percentage
         },
         pitWindow: {
-          start: Math.max(1, response.recommended_pit_lap - 1),
-          end: response.recommended_pit_lap + 1
+          start: dashboardData.tire_wear.pit_window_optimal?.[0] || 15,
+          end: dashboardData.tire_wear.pit_window_optimal?.[1] || 17
         },
-        currentPosition: 3 // TODO: Get from telemetry
+        currentPosition: dashboardData.gap_analysis.position
       });
+
+      // Generate pit stops from strategy recommendations if available
+      const pitStops = dashboardData.tire_wear.pit_window_optimal?.map(lap => ({
+        lap,
+        tyreCompound: 'Medium' // TODO: Get compound from backend
+      })) || [{ lap: 15, tyreCompound: 'Medium' }];
 
       setPredictions({
-        pitStops: [
-          { lap: response.recommended_pit_lap, tyreCompound: 'Medium' } // TODO: Get compound from backend
-        ],
-        finishPosition: 3, // TODO: Calculate from predictions
-        gapToLeader: `+${(response.predicted_loss_per_lap_s * response.laps_until_0_5s_loss).toFixed(2)}s`
+        pitStops,
+        finishPosition: dashboardData.performance.position,
+        gapToLeader: dashboardData.gap_analysis.gap_to_leader
       });
 
-      // Convert explanations to alerts
-      const newAlerts: Alert[] = response.explanation.map((explanation) => {
-        let severity: 'high' | 'medium' | 'low' = 'medium';
-        if (response.laps_until_0_5s_loss <= 2) {
-          severity = 'high';
-        } else if (response.laps_until_0_5s_loss <= 5) {
-          severity = 'medium';
-        } else {
-          severity = 'low';
-        }
-        return {
-          severity,
-          message: explanation
-        };
-      });
-
-      // Add pit stop recommendation if critical
-      if (response.laps_until_0_5s_loss <= 3) {
-        newAlerts.unshift({
+      // Generate alerts from tire wear and gap analysis
+      const newAlerts: Alert[] = [];
+      
+      // Tire wear alerts
+      if (avgTireWear > 80) {
+        newAlerts.push({
           severity: 'high',
-          message: `Critical: Recommended pit stop on lap ${response.recommended_pit_lap} (${response.laps_until_0_5s_loss} laps until 0.5s loss)`
+          message: `Critical tire wear: ${avgTireWear.toFixed(1)}% remaining. Pit window: Laps ${dashboardData.tire_wear.pit_window_optimal?.join('-') || '15-17'}`
+        });
+      } else if (avgTireWear > 60) {
+        newAlerts.push({
+          severity: 'medium',
+          message: `Tire wear: ${avgTireWear.toFixed(1)}% remaining. Monitor for pit stop opportunity.`
         });
       }
 
-      setAlerts(newAlerts);
+      // Gap analysis alerts
+      if (dashboardData.gap_analysis.overtaking_opportunity) {
+        newAlerts.push({
+          severity: 'low',
+          message: `Overtaking opportunity ahead. Gap: ${dashboardData.gap_analysis.gap_to_ahead || 'N/A'}`
+        });
+      }
+
+      if (dashboardData.gap_analysis.under_pressure) {
+        newAlerts.push({
+          severity: 'medium',
+          message: `Under pressure from behind. Gap: ${dashboardData.gap_analysis.gap_to_behind || 'N/A'}`
+        });
+      }
+
+      setAlerts(newAlerts.length > 0 ? newAlerts : [
+        { severity: 'low', message: 'All systems normal. Strategy on track.' }
+      ]);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tire prediction';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch dashboard data';
       setError(errorMessage);
-      console.error('Error fetching tire prediction:', err);
+      console.error('Error fetching dashboard data:', err);
       
       // Set fallback alerts
       setAlerts([

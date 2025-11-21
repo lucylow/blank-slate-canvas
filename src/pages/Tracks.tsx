@@ -1,12 +1,32 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Flag, ArrowLeft } from "lucide-react";
+import { MapPin, Flag, ArrowLeft, FileText, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Track configuration with PDF map references
+// Maps track names to PDF filenames in public/track-maps/
+const TRACK_PDF_MAP: Record<string, string> = {
+  "Circuit of the Americas": "COTA_Circuit_Map.pdf",
+  "Road America": "Road_America_Map.pdf",
+  "Sebring International": "Sebring_Track_Sector_Map.pdf",
+  "Sonoma Raceway": "Sonoma_Map.pdf",
+  "Barber Motorsports Park": "Barber_Circuit_Map.pdf",
+  "Virginia International": "VIR_mapk.pdf",
+  "Indianapolis Motor Speedway": "Indy_Circuit_Map.pdf",
+};
 
 const Tracks = () => {
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
+  const [viewingMap, setViewingMap] = useState<string | null>(null);
 
   const tracks = [
     { 
@@ -14,6 +34,7 @@ const Tracks = () => {
       location: "Austin, Texas", 
       length: "3.427 miles", 
       turns: 20,
+      id: "cota",
       description: "A challenging circuit featuring elevation changes and a mix of technical and high-speed sections."
     },
     { 
@@ -21,6 +42,7 @@ const Tracks = () => {
       location: "Elkhart Lake, Wisconsin", 
       length: "4.048 miles", 
       turns: 14,
+      id: "road-america",
       description: "One of America's fastest permanent road courses with long straights and sweeping corners."
     },
     { 
@@ -28,6 +50,7 @@ const Tracks = () => {
       location: "Sebring, Florida", 
       length: "3.74 miles", 
       turns: 17,
+      id: "sebring",
       description: "Famous for its bumpy surface and demanding layout, testing both driver and machine."
     },
     { 
@@ -35,6 +58,7 @@ const Tracks = () => {
       location: "Sonoma, California", 
       length: "2.52 miles", 
       turns: 12,
+      id: "sonoma",
       description: "Technical circuit set in wine country with elevation changes and tight corners."
     },
     { 
@@ -42,6 +66,7 @@ const Tracks = () => {
       location: "Birmingham, Alabama", 
       length: "2.38 miles", 
       turns: 17,
+      id: "barber",
       description: "A beautiful and flowing circuit known for its smooth surface and technical complexity."
     },
     { 
@@ -49,14 +74,16 @@ const Tracks = () => {
       location: "Alton, Virginia", 
       length: "3.27 miles", 
       turns: 17,
+      id: "vir",
       description: "Historic track with a perfect blend of fast and technical sections."
     },
     { 
-      name: "Mid-Ohio Sports Car Course", 
-      location: "Lexington, Ohio", 
-      length: "2.4 miles", 
-      turns: 15,
-      description: "Challenging circuit with blind corners and elevation changes."
+      name: "Indianapolis Motor Speedway", 
+      location: "Indianapolis, Indiana", 
+      length: "2.439 miles", 
+      turns: 14,
+      id: "indianapolis",
+      description: "The legendary Brickyard, home of the Indianapolis 500, featuring a challenging road course layout."
     }
   ];
 
@@ -130,14 +157,30 @@ const Tracks = () => {
                       {track.location}
                     </p>
                     {selectedTrack === track.name && (
-                      <motion.p
+                      <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="text-sm text-muted-foreground mb-4"
+                        className="mb-4 space-y-3"
                       >
-                        {track.description}
-                      </motion.p>
+                        <p className="text-sm text-muted-foreground">
+                          {track.description}
+                        </p>
+                        {TRACK_PDF_MAP[track.name] && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingMap(track.name);
+                            }}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            View Track Map
+                          </Button>
+                        )}
+                      </motion.div>
                     )}
                     <div className="flex justify-between items-center pt-4 border-t border-border/50">
                       <div className="flex flex-col">
@@ -149,6 +192,22 @@ const Tracks = () => {
                         <span className="text-sm font-semibold">{track.turns}</span>
                       </div>
                     </div>
+                    {TRACK_PDF_MAP[track.name] && (
+                      <div className="mt-3 pt-3 border-t border-border/50">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingMap(track.name);
+                          }}
+                        >
+                          <MapPin className="w-3 h-3 mr-2" />
+                          View Map PDF
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -184,6 +243,46 @@ const Tracks = () => {
           </motion.div>
         </div>
       </main>
+
+      {/* Track Map PDF Viewer Dialog */}
+      <Dialog open={!!viewingMap} onOpenChange={(open) => !open && setViewingMap(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              {viewingMap} - Track Map
+            </DialogTitle>
+            <DialogDescription>
+              Official track map and sector layout
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 h-[70vh] w-full">
+            {viewingMap && TRACK_PDF_MAP[viewingMap] && (
+              <iframe
+                src={`/track-maps/${TRACK_PDF_MAP[viewingMap]}`}
+                className="w-full h-full border border-border rounded-lg"
+                title={`${viewingMap} Track Map`}
+              />
+            )}
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (viewingMap && TRACK_PDF_MAP[viewingMap]) {
+                  window.open(`/track-maps/${TRACK_PDF_MAP[viewingMap]}`, '_blank');
+                }
+              }}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open in New Tab
+            </Button>
+            <Button onClick={() => setViewingMap(null)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
