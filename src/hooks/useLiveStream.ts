@@ -14,7 +14,8 @@ export function useLiveStream(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!track || !race || !vehicle || !API_URL) return;
+    if (!track || !race || !vehicle) return;
+    
     if (!API_URL) {
       setError('API URL not configured');
       return;
