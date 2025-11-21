@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: predictor-agent
+  labels:
+    app: predictor-agent
+    component: agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: predictor-agent
+  template:
+    metadata:
+      labels:
+        app: predictor-agent
+        component: agent
+    spec:
+      containers:
+      - name: predictor
+        image: pitwall/predictor-agent:latest
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: url
+        - name: ORCHESTRATOR_URL
+          value: "http://orchestrator:3000"
+        - name: AGENT_ID
+          value: "predictor-$(HOSTNAME)"
+        - name: MODEL_PATH
+          value: "/models/tire_model.pkl"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: models
+          mountPath: /models
+          readOnly: true
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: predictor-models-pvc
+

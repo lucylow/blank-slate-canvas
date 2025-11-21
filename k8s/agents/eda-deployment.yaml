@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eda-agent
+  labels:
+    app: eda-agent
+    component: agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eda-agent
+  template:
+    metadata:
+      labels:
+        app: eda-agent
+        component: agent
+    spec:
+      containers:
+      - name: eda
+        image: pitwall/eda-agent:latest
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: url
+        - name: ORCHESTRATOR_URL
+          value: "http://orchestrator:3000"
+        - name: AGENT_ID
+          value: "eda-$(HOSTNAME)"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+

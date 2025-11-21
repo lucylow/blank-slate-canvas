@@ -1,6 +1,7 @@
 // src/components/LiveMapSVG.tsx
 
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { loadSvgPath } from "@/utils/loadSvgCenterline";
 
 type Props = {
@@ -71,14 +72,20 @@ export default function LiveMapSVG({
   const showPath = !showImage;
 
   return (
-    <div className={className ?? "w-full h-[500px] bg-gradient-to-br from-card/90 via-card/70 to-card/50 rounded-md p-4 relative overflow-hidden border border-border/50"}>
+    <div className={className ?? "w-full h-[500px] bg-gradient-to-br from-card/90 via-card/70 to-card/50 rounded-md p-4 relative overflow-hidden border border-border/50 group"}>
+      {/* Animated background glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
       {/* Track map image as background */}
       {svgUrl && !imageError && (
-        <img 
+        <motion.img 
           src={svgUrl}
           alt={`${track || 'track'} track map`}
           className="absolute inset-0 w-full h-full object-contain opacity-95"
           style={{ filter: 'brightness(0.95) contrast(1.05)' }}
+          initial={{ scale: 1 }}
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.3 }}
           onError={() => {
             // Fallback if image fails to load
             console.warn(`Failed to load track map: ${svgUrl}`);
@@ -107,8 +114,62 @@ export default function LiveMapSVG({
         {/* Car indicator overlay - only show if we have valid path data */}
         {pathData && (
           <g>
-            <circle ref={carRef} cx="0" cy="0" r={12} fill="#EB0A1E" stroke="#fff" strokeWidth={2.5} opacity={0.95} />
-            <circle ref={carInnerRef} cx="0" cy="0" r={7} fill="#fff" opacity={0.9} />
+            {/* Glow effect - animated pulsing ring */}
+            <circle 
+              cx="0" 
+              cy="0" 
+              r={20} 
+              fill="none" 
+              stroke="#EB0A1E" 
+              strokeWidth={1} 
+              opacity={0.3}
+            >
+              <animate
+                attributeName="r"
+                values="20;30;20"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0.3;0;0.3"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+            {/* Pulsing outer ring */}
+            <circle 
+              ref={carRef} 
+              cx="0" 
+              cy="0" 
+              r={12} 
+              fill="#EB0A1E" 
+              stroke="#fff" 
+              strokeWidth={2.5} 
+              opacity={0.95}
+            >
+              <animate
+                attributeName="r"
+                values="12;16;12"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0.95;0.7;0.95"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+            {/* Inner core */}
+            <circle 
+              ref={carInnerRef} 
+              cx="0" 
+              cy="0" 
+              r={7} 
+              fill="#fff" 
+              opacity={0.9}
+            />
           </g>
         )}
       </svg>

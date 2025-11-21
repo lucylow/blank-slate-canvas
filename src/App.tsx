@@ -8,9 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 import Index from "./pages/Index";
-import Home from "./pages/Home";
 import DashboardPage from "./pages/DashboardPage";
-import { Dashboard } from "./pages/Dashboard";
 import PitWallDashboard from "./pages/PitWallDashboard";
 import Analytics from "./pages/Analytics";
 import Tracks from "./pages/Tracks";
@@ -28,16 +26,31 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
+          {/* Main landing page */}
           <Route path="/" element={<Index />} />
-          <Route path="/home" element={<Home />} />
+          
+          {/* Dashboard - Main race dashboard with live data and telemetry */}
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/dashboard-simple" element={<Dashboard />} />
+          
+          {/* Strategy - Race strategy console (PitWall dashboard) */}
           <Route path="/pitwall" element={<PitWallDashboard />} />
+          
+          {/* Analytics - Performance metrics and analysis */}
           <Route path="/analytics" element={<Analytics />} />
+          
+          {/* Track Map - Track information and visualization */}
           <Route path="/tracks" element={<Tracks />} />
+          
+          {/* About - Information about the app */}
           <Route path="/about" element={<About />} />
+          
+          {/* Settings - App configuration */}
           <Route path="/settings" element={<Settings />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Legacy route redirects */}
+          <Route path="/home" element={<Index />} />
+          
+          {/* 404 - Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

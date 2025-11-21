@@ -1,0 +1,59 @@
+{
+  "orchestrator": {
+    "port": 3000,
+    "redis_url": "redis://localhost:6379",
+    "heartbeat_timeout": 60000,
+    "task_timeout": {
+      "preprocessor": 100,
+      "eda": 3000,
+      "predictor": 200,
+      "simulator": 5000,
+      "explainer": 1000
+    }
+  },
+  "preprocessor": {
+    "agent_id": "preprocessor-1",
+    "capacity": 10,
+    "max_buffer_size": 2000,
+    "track_sectors_path": "./public/tracks/track_sectors.json"
+  },
+  "eda": {
+    "agent_id": "eda-1",
+    "capacity": 4,
+    "window_size": 2000,
+    "min_cluster_size": 8,
+    "drift_threshold": 0.5
+  },
+  "predictor": {
+    "agent_id": "predictor-1",
+    "capacity": 8,
+    "model_path": "/models/tire_model.pkl",
+    "tracks": ["*"]
+  },
+  "simulator": {
+    "agent_id": "simulator-1",
+    "capacity": 2,
+    "pit_cost_seconds": 30.0
+  },
+  "explainer": {
+    "agent_id": "explainer-1",
+    "capacity": 6
+  },
+  "delivery": {
+    "agent_id": "delivery-1",
+    "ws_port": 8082,
+    "http_port": 3001,
+    "max_history": 1000
+  },
+  "redis": {
+    "url": "redis://localhost:6379",
+    "streams": {
+      "tasks": "tasks.stream",
+      "results": "results.stream",
+      "agent_results": "agent_results.stream",
+      "aggregates": "aggregates.stream",
+      "failed": "tasks.failed"
+    }
+  }
+}
+

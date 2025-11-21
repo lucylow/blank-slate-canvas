@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Play, ExternalLink, Terminal, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -41,10 +42,10 @@ const DemoLauncher: React.FC = () => {
               size="lg"
               className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105"
             >
-              <a href="/pitwall">
+              <Link to="/pitwall">
                 <Play className="w-4 h-4 mr-2" />
                 Open Demo Dashboard
-              </a>
+              </Link>
             </Button>
             <Button
               asChild

@@ -822,56 +822,81 @@ const Index = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tracks.map((track, index) => (
-              <Card 
-                key={index} 
-                className="group overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border-border/50 hover:border-primary/30 bg-card/60 backdrop-blur-sm"
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.03, y: -5 }}
+                className="h-full"
               >
-                <div className="h-48 bg-gradient-to-br from-primary/30 via-primary/20 to-accent/50 flex items-center justify-center relative overflow-hidden">
-                  {/* Animated background pattern */}
-                  <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:20px_20px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  {TRACK_SVG_MAP[track.name] ? (
-                    <img 
-                      src={`/tracks/${TRACK_SVG_MAP[track.name]}`}
-                      alt={`${track.name} track map`}
-                      className="w-full h-full object-contain p-4 relative z-10 group-hover:scale-110 transition-all duration-300 drop-shadow-lg"
+                <Card 
+                  className="group overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:scale-[1.02] border-border/50 hover:border-primary/50 bg-card/80 backdrop-blur-md h-full flex flex-col"
+                >
+                  <div className="h-56 bg-gradient-to-br from-primary/40 via-primary/20 to-accent/60 flex items-center justify-center relative overflow-hidden">
+                    {/* Animated background pattern */}
+                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.08)_25%,rgba(255,255,255,0.08)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.08)_75%,rgba(255,255,255,0.08))] bg-[size:30px_30px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    
+                    {/* Animated gradient overlay */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-primary/20"
+                      animate={{
+                        opacity: [0.3, 0.6, 0.3],
+                      }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                     />
-                  ) : (
-                    <MapPin className="w-20 h-20 text-primary relative z-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 drop-shadow-lg" />
-                  )}
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">{track.name}</h3>
-                  <p className="text-muted-foreground mb-5 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    {track.location}
-                  </p>
-                  {TRACK_PDF_MAP[track.name] && (
-                    <div className="mb-4">
-                      <a
-                        href={`/track-maps/${TRACK_PDF_MAP[track.name]}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FileText className="w-4 h-4" />
-                        View Track Map
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center pt-4 border-t border-border/50">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Length</span>
-                      <span className="text-sm font-semibold">{track.length}</span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Turns</span>
-                      <span className="text-sm font-semibold">{track.turns}</span>
-                    </div>
+                    
+                    {TRACK_SVG_MAP[track.name] ? (
+                      <motion.img 
+                        src={`/tracks/${TRACK_SVG_MAP[track.name]}`}
+                        alt={`${track.name} track map`}
+                        className="w-full h-full object-contain p-6 relative z-10 drop-shadow-2xl"
+                        initial={{ scale: 1, opacity: 0.9 }}
+                        whileHover={{ scale: 1.1, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        style={{
+                          filter: 'brightness(0.95) contrast(1.05)',
+                        }}
+                      />
+                    ) : (
+                      <MapPin className="w-20 h-20 text-primary relative z-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 drop-shadow-lg" />
+                    )}
                   </div>
-                </CardContent>
-              </Card>
+                  <CardContent className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">{track.name}</h3>
+                    <p className="text-muted-foreground mb-5 flex items-center gap-2 text-sm">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      {track.location}
+                    </p>
+                    {TRACK_PDF_MAP[track.name] && (
+                      <div className="mb-4">
+                        <a
+                          href={`/track-maps/${TRACK_PDF_MAP[track.name]}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors group/link"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FileText className="w-4 h-4 group-hover/link:rotate-12 transition-transform" />
+                          View Track Map
+                          <ExternalLink className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
+                        </a>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-4 border-t border-border/50 mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Length</span>
+                        <span className="text-sm font-semibold">{track.length}</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Turns</span>
+                        <span className="text-sm font-semibold">{track.turns}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>

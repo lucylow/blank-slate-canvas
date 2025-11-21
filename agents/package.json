@@ -1,0 +1,21 @@
+{
+  "name": "pitwall-agents",
+  "version": "1.0.0",
+  "description": "Multi-agent orchestration system for PitWall AI",
+  "scripts": {
+    "orchestrator": "node orchestrator/router.js",
+    "preprocessor": "node preprocessor/preprocessor-agent.js",
+    "delivery": "node delivery/delivery-agent.js",
+    "start:all": "concurrently \"npm:orchestrator\" \"npm:preprocessor\" \"npm:delivery\""
+  },
+  "dependencies": {
+    "ioredis": "^5.3.2",
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
+

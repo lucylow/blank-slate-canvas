@@ -150,21 +150,81 @@ export default function PitWallDashboard() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
+              whileHover={{ scale: 1.01 }}
+              className="group"
             >
-              <Card className="bg-card/80 backdrop-blur-lg border-border/50 shadow-2xl shadow-black/20 overflow-hidden">
-                <CardHeader className="pb-3">
+              <Card className="bg-card/80 backdrop-blur-lg border-border/50 hover:border-primary/50 shadow-2xl shadow-black/20 hover:shadow-primary/20 overflow-hidden transition-all duration-500">
+                <CardHeader className="pb-3 bg-gradient-to-r from-card via-card/95 to-card/90 border-b border-border/50">
                   <CardTitle className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-primary" />
-                    Live Track Map
+                    <motion.div
+                      animate={connected ? { rotate: [0, 360] } : {}}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                      <MapPin className="w-5 h-5 text-primary" />
+                    </motion.div>
+                    <span>Live Track Map</span>
+                    {connected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="ml-auto"
+                      >
+                        <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-pulse mr-2" />
+                          LIVE
+                        </Badge>
+                      </motion.div>
+                    )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="bg-gradient-to-br from-card via-card/95 to-card/90 p-6">
-                    <LiveMapSVG 
-                      track={track} 
-                      lapdist={lastPoint ? getTelemetryValue(lastPoint, 'lapdist_m', 0) : 0} 
-                      totalMeters={lastPoint ? getTelemetryValue(lastPoint, 'track_total_m', 6515) : 6515}
-                    />
+                <CardContent className="p-0 relative">
+                  <div className="bg-gradient-to-br from-card via-card/95 to-card/90 p-6 relative overflow-hidden">
+                    {/* Animated background pattern on hover */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/10 group-hover:via-primary/5 group-hover:to-primary/0 transition-all duration-500 pointer-events-none" />
+                    
+                    <div className="relative z-10">
+                      <LiveMapSVG 
+                        track={track} 
+                        lapdist={lastPoint ? getTelemetryValue(lastPoint, 'lapdist_m', 0) : 0} 
+                        totalMeters={lastPoint ? getTelemetryValue(lastPoint, 'track_total_m', 6515) : 6515}
+                        className="w-full h-[500px] bg-gradient-to-br from-card/90 via-card/70 to-card/50 rounded-md p-4 relative overflow-hidden border border-border/50 group-hover:border-primary/30 transition-all duration-500"
+                      />
+                    </div>
+                    
+                    {/* Track info overlay */}
+                    {lastPoint && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="absolute bottom-6 left-6 right-6 z-20"
+                      >
+                        <div className="bg-background/90 backdrop-blur-md rounded-lg p-3 border border-border/50 shadow-lg">
+                          <div className="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">LAP DISTANCE</div>
+                              <div className="text-sm font-bold text-primary">
+                                {((lastPoint ? getTelemetryValue(lastPoint, 'lapdist_m', 0) : 0) / 1000).toFixed(2)} km
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">SPEED</div>
+                              <div className="text-sm font-bold text-foreground">
+                                {lastPoint ? Math.round(getTelemetryValue(lastPoint, 'Speed', 0)) : 0} mph
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">LAP</div>
+                              <div className="text-sm font-bold text-foreground">
+                                {lastPoint ? getTelemetryValue(lastPoint, 'lap', 1) : 1}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
