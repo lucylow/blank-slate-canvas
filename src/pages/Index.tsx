@@ -374,7 +374,6 @@ DATA INTEGRATION COMPLETE
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [backendHealth, setBackendHealth] = useState<{ ok: boolean }>({ ok: false });
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
 
@@ -403,21 +402,20 @@ const Index = () => {
     };
   }, []);
 
-  // Backend health check (demo or real backend)
+  // Backend health check (demo or real backend) - silently check in background
   useEffect(() => {
     const checkBackendHealth = async () => {
       try {
         if (isDemoMode) {
           // Check demo server health
-          const health = await checkDemoHealth();
-          setBackendHealth({ ok: health.ok || health.status === "healthy" || false });
+          await checkDemoHealth();
         } else {
           // Check real backend health
-          const health = await checkHealth();
-          setBackendHealth({ ok: health.ok || health.status === "healthy" || false });
+          await checkHealth();
         }
       } catch (error) {
-        setBackendHealth({ ok: false });
+        // Silently handle health check failures
+        console.debug('Backend health check failed:', error);
       }
     };
 

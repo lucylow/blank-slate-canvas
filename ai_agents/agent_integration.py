@@ -292,6 +292,10 @@ class AgentWorkerPool:
         logger.info(f"Spawning {agent_type} worker: {agent_id}")
         
         # Import appropriate agent class
+        import sys
+        import os
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        
         if agent_type == "strategy":
             from ai_agents import StrategyAgent
             agent = StrategyAgent(agent_id, self.redis_url, tracks=config.get("tracks", []) if config else [])
