@@ -210,3 +210,4 @@ When the real backend is ready:
 - TypeScript ensures type safety across the integration
 - Environment variables allow easy configuration for different environments
 
+

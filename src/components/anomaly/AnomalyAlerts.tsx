@@ -3,7 +3,7 @@
  * Displays real-time anomaly detection alerts
  */
 import React, { useEffect, useState } from 'react';
-import { Alert, AlertCircle, AlertTriangle, X, Zap } from 'lucide-react';
+import { Info, AlertCircle, AlertTriangle, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,7 +82,7 @@ export function AnomalyAlerts({
       case 'medium':
         return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
       default:
-        return <Alert className="w-5 h-5 text-blue-500" />;
+        return <Info className="w-5 h-5 text-blue-500" />;
     }
   };
 

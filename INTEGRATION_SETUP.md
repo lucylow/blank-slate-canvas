@@ -75,3 +75,4 @@ You can modify these defaults in `src/pages/Dashboard.tsx` or add UI controls to
 4. Enhance the UI with more visualizations
 5. Add explainability modal for tire wear predictions
 
+

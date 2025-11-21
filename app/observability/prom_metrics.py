@@ -45,3 +45,4 @@ def get_metrics_response() -> Response:
         media_type=CONTENT_TYPE_LATEST
     )
 
+

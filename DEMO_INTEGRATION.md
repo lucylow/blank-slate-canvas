@@ -206,3 +206,4 @@ When demo mode is **disabled**, the frontend automatically:
 
 The demo mode toggle in the UI switches between these modes seamlessly.
 
+

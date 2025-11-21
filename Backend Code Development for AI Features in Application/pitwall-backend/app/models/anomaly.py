@@ -57,3 +57,4 @@ class BatchAnomalyDetectionRequest(BaseModel):
     lap_end: Optional[int] = Field(None, description="Ending lap")
     retrain: bool = Field(True, description="Whether to retrain model on the data")
 
+

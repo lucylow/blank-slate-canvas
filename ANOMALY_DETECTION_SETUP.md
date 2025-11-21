@@ -215,3 +215,4 @@ For issues or questions, check:
 - Frontend console: Browser developer tools
 - WebSocket status: `/api/anomaly/health` endpoint
 
+

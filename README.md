@@ -179,6 +179,97 @@ The demo includes realistic sample telemetry data (`backend/sample_data/sample_l
 - **Accessibility**: ARIA labels, keyboard navigation, focus states
 - **Responsive**: Mobile-first design with pit-wall mobile mode
 
+## ☁️ Lovable Cloud Deployment
+
+PitWall AI Backend is fully configured for deployment on Lovable Cloud with realtime features, demo mode, and production-ready ops.
+
+### Quick Deploy
+
+1. **Configure Environment Variables** (in Lovable UI):
+   - `DEMO_MODE=true` - Enable demo mode (uses precomputed data)
+   - `ALLOWED_ORIGINS=https://*.lovable.app,http://localhost:5173` - CORS origins
+   - `SSE_INTERVAL_MS=1000` - SSE update interval
+   - `PORT=8000` - Server port (Lovable sets this automatically)
+   
+   Optional:
+   - `USE_REDIS_PUBSUB=false` - Enable Redis pub/sub for multi-instance WebSocket
+   - `REDIS_URL=redis://...` - Redis connection URL (if using pub/sub)
+   - `DATA_ARCHIVE_URL=file:///mnt/data/pitwall-backend-v2.tar.gz` - Optional data archive
+
+2. **Deploy via Lovable**:
+   - Push to main branch or use Lovable UI
+   - Lovable builds using `lovable.yaml` configuration
+   - Health checks run automatically at `/health` and `/ready`
+
+3. **Verify Deployment**:
+   ```bash
+   # Health check
+   curl https://your-app.lovable.app/health
+   
+   # Demo seed data
+   curl https://your-app.lovable.app/demo/seed
+   
+   # SSE stream
+   curl -N https://your-app.lovable.app/sse/live/GR86-001
+   ```
+
+### Features Enabled
+
+- ✅ **Health & Readiness Endpoints**: `/health`, `/ready` for monitoring
+- ✅ **Prometheus Metrics**: `/metrics` endpoint for observability
+- ✅ **SSE Streaming**: `/sse/live/{vehicle_id}` for real-time telemetry
+- ✅ **WebSocket Support**: `/ws/telemetry/{vehicle_id}` for bidirectional communication
+- ✅ **Anomaly Detection**: Real-time anomaly detection with alerts
+- ✅ **Demo Mode**: Safe demo mode with precomputed data (no large files in Git)
+- ✅ **CORS Configuration**: Environment-driven CORS for Lovable previews
+- ✅ **Structured Logging**: JSON logs for production observability
+
+### Local Development (Demo Mode)
+
+```bash
+# Build Docker image
+docker build -t pitwall-backend .
+
+# Run with demo mode
+docker run -e DEMO_MODE=true -p 8000:8000 pitwall-backend
+
+# Test endpoints
+curl http://localhost:8000/health
+curl http://localhost:8000/demo/seed
+
+# Test WebSocket (requires wscat: npm install -g wscat)
+wscat -c ws://localhost:8000/ws/telemetry/GR86-001
+
+# Or use test client
+python3 test/test_ws_client.py --ws ws://localhost:8000/ws/telemetry/GR86-001
+```
+
+### Data Handling
+
+**Important:** Do not commit large telemetry files to Git. The repo contains only small demo slices:
+- `data/demo_slices/*.json` - Small demo samples (< 500KB each)
+- `data/precomputed/*` - Precomputed aggregations (if generated)
+
+For production deployments, use:
+- Environment-mounted data archives (`DATA_ARCHIVE_URL`)
+- Cloud storage (S3, GCS) with API access
+- External data services
+
+See [DEMO.md](DEMO.md) for detailed demo mode instructions.
+
+### CI/CD
+
+GitHub Actions workflow (`.github/workflows/lovable-deploy.yml`) automatically:
+- Builds Docker image
+- Runs smoke tests (`/health`, `/ready`, `/demo/seed`)
+- Validates deployment readiness
+
+### Monitoring
+
+- **Health**: `GET /health` - Returns 200 if service is running
+- **Readiness**: `GET /ready` - Returns 200 only when all services are available
+- **Metrics**: `GET /metrics` - Prometheus metrics format
+
 ## 🚧 Roadmap
 
 - [ ] Add training notebook stub for model development

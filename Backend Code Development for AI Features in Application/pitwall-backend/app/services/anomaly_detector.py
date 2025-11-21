@@ -412,3 +412,4 @@ class AnomalyDetector:
 # Global instance
 anomaly_detector = AnomalyDetector()
 
+
