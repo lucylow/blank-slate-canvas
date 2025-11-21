@@ -1,5 +1,5 @@
 // src/stores/agentStore.ts
-import create from 'zustand';
+import { create } from 'zustand';
 
 export type InsightSummary = {
   insight_id: string;

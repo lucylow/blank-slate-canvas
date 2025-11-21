@@ -118,57 +118,154 @@ def build_df_from_payload(payload):
     df = pd.DataFrame.from_records(rows)
     return df
 
+def pivot_telemetry(df):
+    """Pivot long-format telemetry (telemetry_name/telemetry_value) into wide format"""
+    if df is None or df.empty:
+        return None
+    
+    # Check if data is in long format (has telemetry_name and telemetry_value)
+    if 'telemetry_name' in df.columns and 'telemetry_value' in df.columns:
+        # Create a unique key for grouping (timestamp + vehicle + lap)
+        group_cols = []
+        for col in ['timestamp', 'vehicle_id', 'vehicle_number', 'original_vehicle_id', 'lap']:
+            if col in df.columns:
+                group_cols.append(col)
+        
+        if not group_cols:
+            # Fallback: use index
+            df['_group_key'] = df.index
+            group_cols = ['_group_key']
+        
+        # Pivot the data
+        pivoted = df.pivot_table(
+            index=group_cols,
+            columns='telemetry_name',
+            values='telemetry_value',
+            aggfunc='first'  # Take first value if duplicates
+        ).reset_index()
+        
+        # Flatten column names
+        pivoted.columns.name = None
+        
+        # Merge back other metadata columns that weren't in the pivot
+        meta_cols = [col for col in df.columns if col not in ['telemetry_name', 'telemetry_value'] and col not in group_cols]
+        if meta_cols:
+            # Get first occurrence of each group for metadata
+            meta_df = df.groupby(group_cols)[meta_cols].first().reset_index()
+            pivoted = pivoted.merge(meta_df, on=group_cols, how='left')
+        
+        # Drop temporary group key if we created it
+        if '_group_key' in pivoted.columns:
+            pivoted = pivoted.drop(columns=['_group_key'])
+        
+        return pivoted
+    else:
+        # Data is already in wide format
+        return df
+
 def normalize_and_stats(df):
-    # normalize common columns
+    """Normalize column names and compute statistics"""
+    # First pivot if needed
+    df = pivot_telemetry(df)
+    if df is None or df.empty:
+        return None, {"n_samples": 0, "note": "empty dataframe after pivot"}
+    
+    # Normalize column names - map telemetry channel names to standard names
     rename_map = {}
     for col in df.columns:
-        lc = col.lower()
-        if "speed" in lc and "km" in lc:
+        lc = str(col).lower()
+        # Map telemetry channel names
+        if lc == 'speed':
             rename_map[col] = "speed_kmh"
-        elif lc in ("speed","spd"):
-            rename_map[col] = "speed_kmh"
-        elif "lapdist" in lc or "lap_dist" in lc:
-            rename_map[col] = "lapdist_m"
-        elif "throttle" in lc:
-            rename_map[col] = "throttle"
-        elif "brake" in lc:
-            rename_map[col] = "brake"
-        elif "tire" in lc and "temp" in lc:
+        elif lc == 'ath':
+            rename_map[col] = "throttle_pct"
+        elif lc in ('pbrake_f', 'pbrake_r', 'brake'):
+            rename_map[col] = "brake_pct"
+        elif 'tire' in lc and 'temp' in lc:
             rename_map[col] = "tire_temp"
-        elif "vehicle" in lc or "chassis" in lc or "original_vehicle_id" in lc:
-            rename_map[col] = "chassis"
-        elif lc == "lap":
+        elif lc == 'accx_can':
+            rename_map[col] = "accx_can"
+        elif lc == 'accy_can':
+            rename_map[col] = "accy_can"
+        elif lc == 'nmot' or lc == 'rpm':
+            rename_map[col] = "rpm"
+        elif 'vehicle' in lc or 'chassis' in lc or lc == 'original_vehicle_id':
+            rename_map[col] = "vehicle_id"
+        elif lc == 'lap':
             rename_map[col] = "lap"
+    
     if rename_map:
         df = df.rename(columns=rename_map)
-    # coerce numeric
+    
+    # Coerce numeric columns
     for c in df.columns:
         try:
-            if df.dtypes[c] == 'object':
+            if c in df.dtypes.index and df.dtypes[c] == 'object':
                 df[c] = pd.to_numeric(df[c], errors="ignore")
         except (KeyError, AttributeError, Exception):
             pass
+    
     numeric = df.select_dtypes(include=[np.number]).copy()
     
-    # Get vehicle count
+    # Get vehicle count - try multiple column names (before numeric coercion)
+    # We need to check this before converting to numeric, as vehicle_id might be a string
     n_vehicles = None
     try:
-        if 'chassis' in df.columns:
-            unique_vals = df['chassis'].unique()
-            n_vehicles = len(unique_vals) if hasattr(unique_vals, '__len__') else int(unique_vals) if isinstance(unique_vals, (int, np.integer)) else None
-        elif 'vehicle_id' in df.columns:
-            unique_vals = df['vehicle_id'].unique()
-            n_vehicles = len(unique_vals) if hasattr(unique_vals, '__len__') else int(unique_vals) if isinstance(unique_vals, (int, np.integer)) else None
+        # Check original df before numeric conversion for string vehicle IDs
+        for veh_col in ['vehicle_id', 'vehicle_number', 'original_vehicle_id', 'chassis']:
+            if veh_col in df.columns:
+                # Get unique values - handle both string and numeric IDs
+                unique_vals = df[veh_col].dropna()
+                if len(unique_vals) > 0:
+                    # Convert to unique set
+                    unique_set = unique_vals.unique()
+                    n_vehicles = len(unique_set) if hasattr(unique_set, '__len__') else 1
+                    if n_vehicles is not None and n_vehicles > 0:
+                        break
     except Exception:
         n_vehicles = None
+    
+    # Also check numeric columns for vehicle_number (integer)
+    if n_vehicles is None:
+        try:
+            if 'vehicle_number' in numeric.columns:
+                unique_vals = numeric['vehicle_number'].dropna().unique()
+                if len(unique_vals) > 0:
+                    n_vehicles = len(unique_vals) if hasattr(unique_vals, '__len__') else 1
+        except Exception:
+            pass
+    
+    # Extract stats from pivoted data
+    def safe_mean(series):
+        """Safely get mean value, handling edge cases"""
+        try:
+            mean_val = series.mean()
+            if pd.isna(mean_val):
+                return None
+            return float(mean_val) if not isinstance(mean_val, (list, pd.Series)) else float(mean_val.iloc[0]) if len(mean_val) > 0 else None
+        except Exception:
+            return None
+    
+    def safe_std(series):
+        """Safely get std value, handling edge cases"""
+        try:
+            std_val = series.std()
+            if pd.isna(std_val):
+                return None
+            return float(std_val) if not isinstance(std_val, (list, pd.Series)) else float(std_val.iloc[0]) if len(std_val) > 0 else None
+        except Exception:
+            return None
     
     stats = {
         "n_samples": int(len(df)),
         "n_vehicles": n_vehicles,
-        "avg_speed_kmh": float(numeric['speed_kmh'].mean()) if 'speed_kmh' in numeric.columns else None,
-        "std_speed_kmh": float(numeric['speed_kmh'].std()) if 'speed_kmh' in numeric.columns else None,
-        "avg_tire_temp": float(numeric['tire_temp'].mean()) if 'tire_temp' in numeric.columns else None,
-        "numeric_cols": numeric.columns.tolist()
+        "avg_speed_kmh": safe_mean(numeric['speed_kmh']) if 'speed_kmh' in numeric.columns else None,
+        "std_speed_kmh": safe_std(numeric['speed_kmh']) if 'speed_kmh' in numeric.columns else None,
+        "avg_throttle_pct": safe_mean(numeric['throttle_pct']) if 'throttle_pct' in numeric.columns else None,
+        "avg_brake_pct": safe_mean(numeric['brake_pct']) if 'brake_pct' in numeric.columns else None,
+        "avg_tire_temp": safe_mean(numeric['tire_temp']) if 'tire_temp' in numeric.columns else None,
+        "avg_rpm": safe_mean(numeric['rpm']) if 'rpm' in numeric.columns else None,
+        "numeric_cols": list(numeric.columns)
     }
     return numeric, stats
 
@@ -193,7 +290,7 @@ def do_clustering(numeric, features=None):
     scaler = StandardScaler().fit(sample_df.values)
     Xs = scaler.transform(sample_df.values)
     k = 3 if len(sample_df) >= 6 else 2
-    kmeans = KMeans(n_clusters=k, random_state=42).fit(Xs)
+    kmeans = KMeans(n_clusters=k, n_init=10, random_state=42).fit(Xs)
     labels = kmeans.labels_
     sizes = dict(zip(*np.unique(labels, return_counts=True)))
     centroids = scaler.inverse_transform(kmeans.cluster_centers_).tolist()

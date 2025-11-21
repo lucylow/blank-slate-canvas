@@ -10,17 +10,29 @@
     "note": "no telemetry samples found"
   },
   "sebring": {
-    "n_samples": 200,
+    "n_samples": 14,
     "n_vehicles": null,
-    "avg_speed_kmh": null,
-    "std_speed_kmh": null,
+    "avg_speed_kmh": 173.505,
+    "std_speed_kmh": 0.7000357133746885,
+    "avg_throttle_pct": 99.99214285714287,
+    "avg_brake_pct": null,
     "avg_tire_temp": null,
+    "avg_rpm": 6829.5,
     "numeric_cols": [
-      "expire_at",
+      "vehicle_id",
       "lap",
+      "Steering_Angle",
+      "accx_can",
+      "accy_can",
+      "throttle_pct",
+      "gear",
+      "rpm",
+      "brake_pct",
+      "brake_pct",
+      "speed_kmh",
+      "expire_at",
       "outing",
-      "telemetry_value",
-      "chassis"
+      "value"
     ],
     "cluster_info": null
   },
@@ -35,48 +47,123 @@
     "note": "no telemetry samples found"
   },
   "road_america": {
-    "n_samples": 200,
+    "n_samples": 28,
     "n_vehicles": null,
-    "avg_speed_kmh": null,
-    "std_speed_kmh": null,
+    "avg_speed_kmh": 110.026,
+    "std_speed_kmh": 14.42237255100561,
+    "avg_throttle_pct": 60.185714285714276,
+    "avg_brake_pct": null,
     "avg_tire_temp": null,
+    "avg_rpm": 6189.25,
     "numeric_cols": [
-      "expire_at",
+      "vehicle_id",
       "lap",
-      "outing",
-      "telemetry_value",
-      "chassis"
+      "Steering_Angle",
+      "accx_can",
+      "accy_can",
+      "throttle_pct",
+      "gear",
+      "rpm",
+      "brake_pct",
+      "brake_pct",
+      "speed_kmh",
+      "expire_at",
+      "outing"
     ],
-    "cluster_info": null
+    "cluster_info": {
+      "n_clusters": 2,
+      "sizes": {
+        "0": 2,
+        "1": 3
+      },
+      "centroids": {
+        "0": {
+          "speed_kmh": 94.285
+        },
+        "1": {
+          "speed_kmh": 120.52
+        }
+      }
+    }
   },
   "sonoma": {
-    "n_samples": 200,
+    "n_samples": 28,
     "n_vehicles": null,
-    "avg_speed_kmh": null,
-    "std_speed_kmh": null,
+    "avg_speed_kmh": 105.72,
+    "std_speed_kmh": 9.476214961681693,
+    "avg_throttle_pct": 21.935357142857146,
+    "avg_brake_pct": null,
     "avg_tire_temp": null,
+    "avg_rpm": 5312.2,
     "numeric_cols": [
-      "expire_at",
+      "vehicle_id",
       "lap",
-      "outing",
-      "telemetry_value",
-      "chassis"
+      "Steering_Angle",
+      "accx_can",
+      "accy_can",
+      "throttle_pct",
+      "gear",
+      "rpm",
+      "brake_pct",
+      "brake_pct",
+      "speed_kmh",
+      "expire_at",
+      "outing"
     ],
-    "cluster_info": null
+    "cluster_info": {
+      "n_clusters": 2,
+      "sizes": {
+        "0": 3,
+        "1": 2
+      },
+      "centroids": {
+        "0": {
+          "speed_kmh": 112.63
+        },
+        "1": {
+          "speed_kmh": 95.355
+        }
+      }
+    }
   },
   "vir": {
-    "n_samples": 200,
+    "n_samples": 28,
     "n_vehicles": null,
-    "avg_speed_kmh": null,
-    "std_speed_kmh": null,
+    "avg_speed_kmh": 135.07999999999998,
+    "std_speed_kmh": 1.2860015552090127,
+    "avg_throttle_pct": 100.00821428571429,
+    "avg_brake_pct": null,
     "avg_tire_temp": null,
+    "avg_rpm": 6338.2,
     "numeric_cols": [
-      "expire_at",
+      "vehicle_id",
       "lap",
-      "outing",
-      "telemetry_value",
-      "chassis"
+      "Steering_Angle",
+      "accx_can",
+      "accy_can",
+      "throttle_pct",
+      "gear",
+      "rpm",
+      "brake_pct",
+      "brake_pct",
+      "speed_kmh",
+      "expire_at",
+      "outing"
     ],
-    "cluster_info": null
+    "cluster_info": {
+      "n_clusters": 2,
+      "sizes": {
+        "0": 2,
+        "1": 3
+      },
+      "centroids": {
+        "0": {
+          "speed_kmh": 133.84
+        },
+        "1": {
+          "speed_kmh": 135.90666666666667
+        }
+      }
+    }
   }
 }
