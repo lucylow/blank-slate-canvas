@@ -2,9 +2,10 @@
 // Axios client with retry logic, timeout, and base URL configuration
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { getBackendUrl } from "@/utils/backendUrl";
 
-// Use /api for dev (proxied by Vite) or explicit env var for production
-const BASE = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? '/api' : '');
+// Get backend URL with Lovable Cloud detection
+const BASE = getBackendUrl() || (import.meta.env.DEV ? '/api' : '');
 
 const client = axios.create({
   baseURL: BASE,
@@ -50,4 +51,3 @@ client.interceptors.request.use(
 );
 
 export default client;
-

@@ -5,6 +5,8 @@ import { TrendingUp, BarChart3, PieChart, Activity, Target, Zap } from "lucide-r
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { LapTimeTrendsChart } from "@/components/analytics/LapTimeTrendsChart";
+import { TireWearDistributionChart } from "@/components/analytics/TireWearDistributionChart";
 
 const Analytics = () => {
   const analyticsData = [
@@ -129,8 +131,8 @@ const Analytics = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    <p>Lap time chart visualization coming soon</p>
+                  <div className="h-64">
+                    <LapTimeTrendsChart />
                   </div>
                 </CardContent>
               </Card>
@@ -149,8 +151,8 @@ const Analytics = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    <p>Tire wear chart visualization coming soon</p>
+                  <div className="h-64">
+                    <TireWearDistributionChart />
                   </div>
                 </CardContent>
               </Card>
