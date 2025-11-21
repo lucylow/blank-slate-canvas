@@ -1,6 +1,21 @@
 // src/api/demo.ts
 // Demo API functions for offline/demo mode
 
+export interface TelemetryRecord {
+  [key: string]: unknown;
+  timestamp?: string;
+  vehicle_id?: string;
+  vehicle_number?: number;
+  lap?: number;
+}
+
+export interface TrackData {
+  [key: string]: unknown;
+  track_id?: string;
+  track_name?: string;
+  location?: string;
+}
+
 export interface DemoDataResponse {
   meta: {
     source: string;
@@ -8,8 +23,8 @@ export interface DemoDataResponse {
     tracks_available: number;
     loaded_at: string;
   };
-  telemetry: any[];
-  tracks: Record<string, any>;
+  telemetry: TelemetryRecord[];
+  tracks: Record<string, TrackData>;
 }
 
 export interface DemoPredictionResponse {
