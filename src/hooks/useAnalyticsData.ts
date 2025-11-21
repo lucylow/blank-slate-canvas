@@ -28,16 +28,31 @@ export interface AnalyticsData {
 /**
  * Calculate tire wear from telemetry data
  * Uses cumulative G-force exposure (accx_can + accy_can)
+ * Also considers braking and cornering events
  */
 function calculateTireWear(telemetry: TelemetrySample[]): number {
   if (!telemetry || telemetry.length === 0) return 0;
   
   let cumulativeWear = 0;
+  let gForceCount = 0;
+  
   for (const point of telemetry) {
     if (point.telemetry_name === 'accx_can' || point.telemetry_name === 'accy_can') {
-      cumulativeWear += Math.abs(point.telemetry_value || 0);
+      const gForce = Math.abs(point.telemetry_value || 0);
+      cumulativeWear += gForce;
+      gForceCount++;
+    } else if (point.telemetry_name === 'pbrake_f' || point.telemetry_name === 'pbrake_r') {
+      // Braking contributes to tire wear
+      const brakePressure = Math.abs(point.telemetry_value || 0);
+      cumulativeWear += brakePressure * 0.1; // Scale down brake contribution
     }
   }
+  
+  // Normalize by number of data points to get average wear per sample
+  if (gForceCount > 0) {
+    return cumulativeWear / Math.max(gForceCount, 1);
+  }
+  
   return cumulativeWear;
 }
 
@@ -97,8 +112,19 @@ function extractLapTimes(trackData: TrackDemoData): LapTimeData[] {
           lapTime = (lapTimeRecord as any).LapTime;
         } else if ('time' in lapTimeRecord && typeof (lapTimeRecord as any).time === 'number') {
           lapTime = (lapTimeRecord as any).time;
+        } else if ('value' in lapTimeRecord && typeof (lapTimeRecord as any).value === 'number') {
+          // Value might be in milliseconds, convert to seconds
+          const value = (lapTimeRecord as any).value;
+          if (value > 1000) {
+            // Likely milliseconds
+            lapTime = value / 1000;
+          } else if (value > 0 && value < 300) {
+            // Likely already in seconds
+            lapTime = value;
+          }
         }
         
+        // Only add if we have a valid lap time
         if (lapTime && lapTime > 0 && lapTime < 300) {
           lapTimes.push({
             track_id: trackData.track_id,

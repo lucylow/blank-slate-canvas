@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { telemetryWS, TelemetryPoint } from '@/lib/api';
+import { getSeedDrivers } from '@/lib/driverProfiles';
 
 interface TelemetryData {
   timestamp: number;
@@ -52,13 +53,7 @@ function convertTelemetryPoint(point: TelemetryPoint): TelemetryData {
 
 export function TelemetryProvider({ children }: { children: ReactNode }) {
   const [telemetryData, setTelemetryData] = useState<TelemetryData[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([
-    { carNumber: '23', chassisNumber: 'GR001', position: 1, gapToLeader: 0, lastLapTime: 123.456, bestLapTime: 122.890 },
-    { carNumber: '45', chassisNumber: 'GR002', position: 2, gapToLeader: 1.234, lastLapTime: 123.890, bestLapTime: 123.123 },
-    { carNumber: '78', chassisNumber: 'GR003', position: 3, gapToLeader: 2.567, lastLapTime: 124.234, bestLapTime: 123.456 },
-    { carNumber: '12', chassisNumber: 'GR004', position: 4, gapToLeader: 4.123, lastLapTime: 124.567, bestLapTime: 123.789 },
-    { carNumber: '67', chassisNumber: 'GR005', position: 5, gapToLeader: 6.789, lastLapTime: 125.123, bestLapTime: 124.012 },
-  ]);
+  const [drivers, setDrivers] = useState<Driver[]>(getSeedDrivers());
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(drivers[0]);
   const [currentLap, setCurrentLap] = useState(12);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');

@@ -13,6 +13,7 @@ import PredictionPanel from "@/components/PredictionPanel";
 import MultiTrackSummary from "@/components/MultiTrackSummary";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { AnomalyAlerts } from "@/components/anomaly/AnomalyAlerts";
+import RealTimeTimeSeriesChart from "@/components/pitwall/RealTimeTimeSeriesChart";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useDemoWs } from "@/hooks/useDemoWs";
@@ -185,11 +186,11 @@ export default function PitWallDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-40 flex items-center justify-center bg-muted/20 rounded-lg border border-border/50">
-                      <p className="text-sm text-muted-foreground">
-                        Chart implementation placeholder
-                      </p>
-                    </div>
+                    <RealTimeTimeSeriesChart 
+                      messages={messages} 
+                      maxDataPoints={300}
+                      height={320}
+                    />
                   </CardContent>
                 </Card>
               </motion.div>

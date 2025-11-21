@@ -1,13 +1,12 @@
 import { LayoutDashboard, Map, TrendingUp, Settings, Database, Home, Flag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
   
   const menuItems = [
     { icon: Flag, label: 'Home', to: '/' },
@@ -31,11 +30,6 @@ export function Sidebar() {
     return pathWithoutHash === to;
   };
 
-  const handleNavigation = (e: React.MouseEvent, to: string) => {
-    e.preventDefault();
-    navigate(to);
-  };
-
   return (
     <aside className="w-16 bg-accent/50 backdrop-blur-sm border-r border-border/50 flex flex-col items-center py-4 space-y-2">
       {menuItems.map((item, index) => {
@@ -48,7 +42,6 @@ export function Sidebar() {
               <Link 
                 to={item.to} 
                 className="block"
-                onClick={(e) => handleNavigation(e, item.to)}
               >
                 <motion.div
                   whileHover={{ scale: 1.1 }}
@@ -72,7 +65,7 @@ export function Sidebar() {
                     <Icon className="w-5 h-5" />
                     {active && (
                       <motion.div
-                        layoutId="activeIndicator"
+                        layoutId={`activeIndicator-${item.to}`}
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary-foreground rounded-r-full"
                         initial={false}
                         transition={{ type: "spring", stiffness: 500, damping: 30 }}
