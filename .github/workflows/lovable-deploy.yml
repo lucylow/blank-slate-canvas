@@ -1,0 +1,91 @@
+name: Lovable Deploy CI
+
+on:
+  push:
+    branches: [main, improve/lovable-integration]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run linting (if available)
+        run: |
+          pip install flake8 black || true
+          python -m flake8 app/ --max-line-length=120 --ignore=E501,W503 || echo "Linting skipped"
+        continue-on-error: true
+      
+      - name: Build Docker image
+        run: |
+          docker build -t pitwall-backend:test .
+      
+      - name: Start container
+        run: |
+          docker run -d \
+            --name pitwall-test \
+            -e DEMO_MODE=true \
+            -e PORT=8000 \
+            -p 8000:8000 \
+            pitwall-backend:test
+      
+      - name: Wait for service
+        run: |
+          timeout=30
+          elapsed=0
+          while ! curl -f http://localhost:8000/health > /dev/null 2>&1; do
+            if [ $elapsed -ge $timeout ]; then
+              echo "Service did not start within ${timeout}s"
+              docker logs pitwall-test
+              exit 1
+            fi
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+          echo "Service is up!"
+      
+      - name: Run smoke tests
+        run: |
+          # Health check
+          echo "Testing /health endpoint..."
+          curl -f http://localhost:8000/health | jq '.' || exit 1
+          
+          # Readiness check
+          echo "Testing /ready endpoint..."
+          curl -f http://localhost:8000/ready | jq '.' || exit 1
+          
+          # Demo seed endpoint
+          echo "Testing /demo/seed endpoint..."
+          curl -f http://localhost:8000/demo/seed | jq '.' || exit 1
+          
+          # Metrics endpoint
+          echo "Testing /metrics endpoint..."
+          curl -f http://localhost:8000/metrics | head -20 || exit 1
+          
+          echo "✓ All smoke tests passed"
+      
+      - name: Show container logs
+        if: failure()
+        run: |
+          docker logs pitwall-test
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop pitwall-test || true
+          docker rm pitwall-test || true
+

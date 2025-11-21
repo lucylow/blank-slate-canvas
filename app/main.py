@@ -8,10 +8,17 @@ from datetime import datetime
 import logging
 from typing import Optional
 import pandas as pd
+from contextlib import asynccontextmanager
 
-from app.config import API_TITLE, API_VERSION, API_DESCRIPTION, CORS_ORIGINS, TRACKS
+from app.config import (
+    API_TITLE, API_VERSION, API_DESCRIPTION, CORS_ORIGINS, TRACKS,
+    LOG_LEVEL, DEMO_MODE, DATA_MODELS_DIR
+)
 from app.routes.frontend_integration import router as frontend_router
 from app.routes.anomaly_ws import router as anomaly_router
+from app.routes.health import router as health_router, set_model_loaded, set_db_available, set_cache_available
+from app.observability.logger import setup_logging
+from app.observability.prom_metrics import get_metrics_response
 from app.models.analytics import (
     DashboardData, TireWearRequest, PerformanceRequest, 
     StrategyRequest, StrategyOptimization
@@ -23,34 +30,96 @@ from app.services.performance_analyzer import performance_analyzer
 from app.services.strategy_optimizer import strategy_optimizer
 from app.analytics.eval import evaluate_tire_wear_on_track, evaluate_all_tracks
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Setup structured JSON logging
+setup_logging()
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown lifecycle events"""
+    # Startup
+    logger.info("Starting PitWall AI Backend", extra={
+        "version": API_VERSION,
+        "demo_mode": DEMO_MODE,
+        "log_level": LOG_LEVEL
+    })
+    
+    try:
+        # Load models if available
+        model_path = DATA_MODELS_DIR / "seq_ae.h5" if DATA_MODELS_DIR.exists() else None
+        if model_path and model_path.exists():
+            logger.info(f"Model found at {model_path}")
+            set_model_loaded(True)
+        else:
+            logger.info("No model found, running without ML model")
+            set_model_loaded(False)
+        
+        # Check database/cache availability (for production)
+        if not DEMO_MODE:
+            # In production, check DB/cache connectivity
+            set_db_available(True)  # Placeholder - implement actual check
+            set_cache_available(True)  # Placeholder - implement actual check
+        else:
+            set_db_available(True)
+            set_cache_available(True)
+        
+        logger.info("Startup complete")
+        
+    except Exception as e:
+        logger.error(f"Startup error: {e}", exc_info=True)
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down PitWall AI Backend")
+
+# Create FastAPI app with lifespan
 app = FastAPI(
     title=API_TITLE,
     version=API_VERSION,
-    description=API_DESCRIPTION
+    description=API_DESCRIPTION,
+    lifespan=lifespan
 )
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Add CORS middleware with wildcard support
+# Handle wildcard origins (for demo mode)
+cors_origins = CORS_ORIGINS.copy()
+if "*" in cors_origins:
+    cors_origins.remove("*")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    # Also add middleware that allows all origins
+    @app.middleware("http")
+    async def add_cors_headers(request, call_next):
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-# Include frontend integration router (SSE streaming, enhanced endpoints)
+# Include routers
+app.include_router(health_router, tags=["Health"])
+app.include_router(anomaly_router, tags=["Realtime"])
 app.include_router(frontend_router, tags=["Frontend Integration"])
 
-# Include anomaly detection WebSocket router
-app.include_router(anomaly_router, tags=["Anomaly Detection"])
+# Metrics endpoint
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    return get_metrics_response()
 
 
 @app.get("/")
@@ -66,12 +135,11 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint (legacy - use /api/health for enhanced version)"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        "note": "Use /api/health for enhanced health check"
-    }
+    """Health check endpoint (legacy - redirects to /health endpoint from health router)"""
+    # This endpoint is now handled by the health router
+    # Keeping for backward compatibility
+    from app.routes.health import health
+    return await health()
 
 
 # ============================================================================

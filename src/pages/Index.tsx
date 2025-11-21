@@ -464,6 +464,24 @@ const Index = () => {
       title: "Live Gap Analysis",
       description: "Monitor real-time gaps to competitors and calculate overtaking opportunities.",
       gradient: "from-indigo-500/20 to-blue-500/20"
+    },
+    {
+      icon: <Sparkles className="w-6 h-6" />,
+      title: "Explainable AI & Trust",
+      description: "Research-backed confidence intervals, uncertainty bands, and feature attribution for transparent decision-making.",
+      gradient: "from-emerald-500/20 to-teal-500/20"
+    },
+    {
+      icon: <Target className="w-6 h-6" />,
+      title: "Driver Coaching Insights",
+      description: "Corner-by-corner analysis with anomaly detection (lockups, early lifts) and actionable coaching feedback.",
+      gradient: "from-violet-500/20 to-purple-500/20"
+    },
+    {
+      icon: <Users className="w-6 h-6" />,
+      title: "Competitor Modeling",
+      description: "Predict competitor pit timing and identify undercut/overcut windows for strategic advantage.",
+      gradient: "from-rose-500/20 to-pink-500/20"
     }
   ];
 
@@ -700,6 +718,18 @@ const Index = () => {
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
                 Driver fingerprinting + actionable coaching alerts
+              </p>
+            </div>
+            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-lg text-foreground font-medium">
+                Explainable AI with confidence intervals & feature attribution
+              </p>
+            </div>
+            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-lg text-foreground font-medium">
+                Competitor modeling for undercut/overcut strategy windows
               </p>
             </div>
           </div>

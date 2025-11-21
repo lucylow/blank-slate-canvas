@@ -12,6 +12,7 @@ import LiveMapSVG from "@/components/LiveMapSVG";
 import PredictionPanel from "@/components/PredictionPanel";
 import MultiTrackSummary from "@/components/MultiTrackSummary";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
+import { AnomalyAlerts } from "@/components/anomaly/AnomalyAlerts";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useDemoWs } from "@/hooks/useDemoWs";
@@ -209,9 +210,20 @@ export default function PitWallDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-1"
+            className="lg:col-span-1 space-y-6"
           >
             <MultiTrackSummary chassis="GR86-DEMO-01" />
+            
+            {/* Anomaly Detection Alerts */}
+            {lastPoint && (
+              <AnomalyAlerts
+                vehicleId={`vehicle_${getTelemetryValue(lastPoint, 'vehicle_number', 7)}`}
+                vehicleNumber={getTelemetryValue(lastPoint, 'vehicle_number', 7)}
+                maxAlerts={5}
+                autoDismiss={true}
+                dismissAfter={10000}
+              />
+            )}
           </motion.aside>
         </div>
       </main>

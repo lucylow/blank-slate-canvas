@@ -1,0 +1,33 @@
+{
+  "speed_anomaly": {
+    "threshold": 180,
+    "severity": "high",
+    "description": "Vehicle speed exceeds maximum safe threshold"
+  },
+  "brake_pressure_anomaly": {
+    "threshold": 150,
+    "severity": "medium",
+    "description": "Brake pressure exceeds normal operating range"
+  },
+  "acceleration_anomaly": {
+    "threshold": 3.0,
+    "severity": "high",
+    "description": "Acceleration magnitude exceeds safe G-force limits"
+  },
+  "tire_temp_anomaly": {
+    "min": 50,
+    "max": 180,
+    "severity": "medium",
+    "description": "Tire temperature outside optimal operating range"
+  },
+  "lateral_g_anomaly": {
+    "threshold": 2.5,
+    "severity": "medium",
+    "description": "Lateral G-force exceeds normal cornering limits"
+  },
+  "fuel_level_anomaly": {
+    "min": 5.0,
+    "severity": "low",
+    "description": "Fuel level below recommended threshold"
+  }
+}

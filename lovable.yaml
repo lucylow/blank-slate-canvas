@@ -1,0 +1,44 @@
+# Lovable Cloud Deployment Configuration
+# See https://docs.lovable.app for details
+
+name: pitwall-backend
+type: backend
+
+build:
+  dockerfile: Dockerfile
+  context: .
+
+run:
+  command: ./start.sh
+  port: 8000
+
+environment:
+  # Required
+  - PORT=8000
+  # Optional - set in Lovable UI
+  - DEMO_MODE=true
+  - DATA_ARCHIVE_URL=file:///mnt/data/pitwall-backend-v2.tar.gz
+  - ALLOWED_ORIGINS=https://*.lovable.app,http://localhost:5173
+  - SSE_INTERVAL_MS=1000
+  - LOG_LEVEL=INFO
+  
+  # Redis (optional)
+  - USE_REDIS_PUBSUB=false
+  - REDIS_URL=redis://localhost:6379
+  
+  # Model paths (optional)
+  - AE_MODEL_PATH=
+  - AE_THRESHOLD=0.0005
+
+healthcheck:
+  path: /health
+  interval: 30s
+  timeout: 5s
+  retries: 3
+
+readiness:
+  path: /ready
+  interval: 10s
+  timeout: 3s
+  retries: 2
+

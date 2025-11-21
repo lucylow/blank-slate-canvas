@@ -1,152 +1,339 @@
-# app/routes/anomaly_ws.py
-
+"""
+WebSocket and SSE endpoints for real-time telemetry and anomaly detection
+"""
 import json
-import logging
 import asyncio
-from typing import Dict, Any
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from app.utils.ring_buffer import RingBuffer
-from app.services.anomaly_engine import AnomalyEngine
-import numpy as np
+import logging
+from typing import Dict, Set, Optional
+from datetime import datetime
 
-router = APIRouter()
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
+from fastapi.responses import EventSourceResponse
+from sse_starlette.sse import EventSourceResponse as SSEEventSourceResponse
+
+from app.services.anomaly_engine import get_anomaly_engine
+from app.config import SSE_INTERVAL_MS, USE_REDIS_PUBSUB, REDIS_URL, DEMO_MODE
+from app.observability.prom_metrics import ws_connections, sse_updates_sent
+import time
 
 logger = logging.getLogger(__name__)
 
-# instantiate single engine for app (can be replaced with dependency injection)
-ENGINE = AnomalyEngine(config={
-    # basic defaults; tune per series/track
-    "rules": {
-        "brake_pressure": {"max": 2000, "dmax": 1000},
-        "tire_temp": {"d_rate_c_per_s": 3.0},
-        "speed": {"max": 220}
-    },
-    "use_pyod_iforest": False,  # set True if you trained and fitted IForest offline
-    # "ae_model_path": "/path/to/ae_model.h5",
-    "pyod_threshold": 0.5,
-    "ae_threshold": 1e-3
-})
-
-# buffers per vehicle (sliding window)
-VEHICLE_BUFFERS: Dict[str, RingBuffer] = {}
-
+router = APIRouter(prefix="", tags=["Realtime"])
 
 class ConnectionManager:
+    """Manages WebSocket connections and broadcasts"""
+    
     def __init__(self):
-        self.active: Dict[str, Dict[WebSocket, None]] = {}  # vehicle_id -> websockets set
+        self.active_connections: Dict[str, Set[WebSocket]] = {}
+        self.redis_pub = None
+        self.redis_sub = None
+        self.redis_client = None
+        
+        if USE_REDIS_PUBSUB:
+            self._init_redis()
+    
+    async def _init_redis(self):
+        """Initialize Redis pub/sub for multi-instance support"""
+        try:
+            import aioredis
+            self.redis_client = await aioredis.from_url(REDIS_URL)
+            self.redis_pub = self.redis_client
+            self.redis_sub = self.redis_client.pubsub()
+            logger.info("Redis pub/sub initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize Redis: {e}, falling back to in-process manager")
+            USE_REDIS_PUBSUB = False
 
     async def connect(self, vehicle_id: str, websocket: WebSocket):
+        """Connect a WebSocket for a vehicle"""
         await websocket.accept()
-        self.active.setdefault(vehicle_id, {})
-        self.active[vehicle_id][websocket] = None
-        logger.info("Client connected for vehicle %s. total=%d", vehicle_id, len(self.active[vehicle_id]))
+        
+        if vehicle_id not in self.active_connections:
+            self.active_connections[vehicle_id] = set()
+        
+        self.active_connections[vehicle_id].add(websocket)
+        ws_connections.labels(vehicle_id=vehicle_id).inc()
+        
+        # Subscribe to Redis channel if using pub/sub
+        if USE_REDIS_PUBSUB and self.redis_sub:
+            try:
+                await self.redis_sub.subscribe(f"anomalies:{vehicle_id}")
+                # Start listener task
+                asyncio.create_task(self._redis_listener(vehicle_id))
+            except Exception as e:
+                logger.error(f"Failed to subscribe to Redis channel: {e}")
+        
+        logger.info(f"WebSocket connected for vehicle {vehicle_id} (total: {len(self.active_connections[vehicle_id])})")
 
     def disconnect(self, vehicle_id: str, websocket: WebSocket):
-        if vehicle_id in self.active and websocket in self.active[vehicle_id]:
-            del self.active[vehicle_id][websocket]
-            logger.info("Client disconnected for vehicle %s. total=%d", vehicle_id, len(self.active[vehicle_id]))
-
-    async def broadcast(self, vehicle_id: str, message: Dict[str, Any]):
-        if vehicle_id not in self.active:
+        """Disconnect a WebSocket"""
+        if vehicle_id in self.active_connections:
+            self.active_connections[vehicle_id].discard(websocket)
+            ws_connections.labels(vehicle_id=vehicle_id).dec()
+            
+            if not self.active_connections[vehicle_id]:
+                del self.active_connections[vehicle_id]
+        
+        logger.info(f"WebSocket disconnected for vehicle {vehicle_id}")
+    
+    async def broadcast_to_vehicle(self, vehicle_id: str, message: dict):
+        """Broadcast message to all connections for a vehicle"""
+        if vehicle_id not in self.active_connections:
             return
 
-        data = json.dumps(message, default=str)
-        for ws in list(self.active[vehicle_id].keys()):
+        message_str = json.dumps(message)
+        disconnected = set()
+        
+        for connection in self.active_connections[vehicle_id]:
             try:
-                await ws.send_text(data)
+                await connection.send_text(message_str)
             except Exception as e:
-                logger.exception("Failed to send ws to client: %s", e)
+                logger.warning(f"Error sending to WebSocket: {e}")
+                disconnected.add(connection)
+        
+        # Clean up disconnected connections
+        for conn in disconnected:
+            self.disconnect(vehicle_id, conn)
+        
+        # Publish to Redis if using pub/sub
+        if USE_REDIS_PUBSUB and self.redis_pub:
+            try:
+                await self.redis_pub.publish(
+                    f"anomalies:{vehicle_id}",
+                    message_str
+                )
+            except Exception as e:
+                logger.warning(f"Failed to publish to Redis: {e}")
+    
+    async def _redis_listener(self, vehicle_id: str):
+        """Listen for Redis pub/sub messages and broadcast locally"""
+        if not self.redis_sub:
+            return
+        
+        try:
+            while True:
+                message = await self.redis_sub.get_message(ignore_subscribe_messages=True)
+                if message and message["type"] == "message":
+                    data = json.loads(message["data"])
+                    # Broadcast to local connections (excluding the sender instance)
+                    if vehicle_id in self.active_connections:
+                        message_str = json.dumps(data)
+                        for connection in self.active_connections[vehicle_id]:
+                            try:
+                                await connection.send_text(message_str)
+                            except Exception:
+                                pass
+        except Exception as e:
+            logger.error(f"Redis listener error: {e}")
 
+# Global connection manager
+_manager: Optional[ConnectionManager] = None
 
-manager = ConnectionManager()
+def get_connection_manager() -> ConnectionManager:
+    """Get global connection manager instance"""
+    global _manager
+    if _manager is None:
+        _manager = ConnectionManager()
+    return _manager
 
+async def build_dashboard_payload(vehicle_id: str) -> dict:
+    """Build dashboard payload for SSE/WebSocket"""
+    # In demo mode, use precomputed data
+    if DEMO_MODE:
+        try:
+            from pathlib import Path
+            from app.config import DATA_DEMO_SLICES_DIR
+            demo_dir = Path(DATA_DEMO_SLICES_DIR)
+            
+            # Try to load a demo slice
+            demo_files = list(demo_dir.glob("*.json")) if demo_dir.exists() else []
+            if demo_files:
+                import random
+                demo_file = random.choice(demo_files)
+                with open(demo_file) as f:
+                    demo_data = json.load(f)
+                    # Return first item or sample
+                    if isinstance(demo_data, list) and len(demo_data) > 0:
+                        sample = random.choice(demo_data) if len(demo_data) > 0 else demo_data[0]
+                        return {
+                            "vehicle_id": vehicle_id,
+                            "timestamp": datetime.utcnow().isoformat() + "Z",
+                            "telemetry": sample,
+                            "demo_mode": True
+                        }
+        except Exception as e:
+            logger.warning(f"Could not load demo data: {e}")
+    
+    # Default payload
+    return {
+        "vehicle_id": vehicle_id,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "telemetry": {},
+        "model_version": "1.0.0",
+        "demo_mode": DEMO_MODE
+    }
+
+def get_sse_interval() -> int:
+    """Get SSE interval from config"""
+    from app.config import SSE_INTERVAL_MS
+    return SSE_INTERVAL_MS
+
+@router.get("/sse/live/{vehicle_id}")
+async def sse_live(vehicle_id: str, interval_ms: int = Depends(get_sse_interval)):
+    """
+    Server-Sent Events endpoint for live telemetry streaming
+    
+    Usage:
+        curl -N http://localhost:8000/sse/live/GR86-001
+    """
+    async def event_generator():
+        """Generate SSE events"""
+        try:
+            while True:
+                # Build dashboard payload
+                payload = await build_dashboard_payload(vehicle_id)
+                
+                # Send event
+                event_data = json.dumps(payload)
+                yield {
+                    "event": "update",
+                    "data": event_data
+                }
+                
+                # Increment metric
+                sse_updates_sent.labels(vehicle_id=vehicle_id).inc()
+                
+                # Wait for next interval
+                await asyncio.sleep(interval_ms / 1000.0)
+                
+        except asyncio.CancelledError:
+            logger.info(f"SSE stream cancelled for {vehicle_id}")
+        except Exception as e:
+            logger.error(f"SSE stream error for {vehicle_id}: {e}")
+    
+    return EventSourceResponse(event_generator())
 
 @router.websocket("/ws/telemetry/{vehicle_id}")
-async def telemetry_ws(websocket: WebSocket, vehicle_id: str):
-    # connect client for receiving alerts; but also we accept telemetry frames here too
+async def ws_telemetry(websocket: WebSocket, vehicle_id: str):
+    """
+    WebSocket endpoint for bidirectional telemetry and anomaly alerts
+    
+    Usage:
+        wscat -c ws://localhost:8000/ws/telemetry/GR86-001
+        Send: {"telemetry_name": "speed", "telemetry_value": 120, "timestamp": "2025-05-15T20:25:55.003Z"}
+    """
+    manager = get_connection_manager()
+    anomaly_engine = get_anomaly_engine()
+    
     await manager.connect(vehicle_id, websocket)
 
     try:
-        if vehicle_id not in VEHICLE_BUFFERS:
-            VEHICLE_BUFFERS[vehicle_id] = RingBuffer(maxlen=2000)
-
-        buffer = VEHICLE_BUFFERS[vehicle_id]
-
         while True:
-            text = await websocket.receive_text()
-
-            # expect JSON telemetry frames or commands
-            payload = json.loads(text)
-
-            # Accept two types of messages:
-            # 1) telemetry: {"type":"telemetry", "ts":..., "speed":..., "brake_pressure":..., ...}
-            # 2) control: {"type":"subscribe"} - ignore for now
-
-            if payload.get('type') == 'telemetry' or 'ts' in payload:
-                sample = payload
-
-                # append to buffer
-                buffer.append(sample)
-
-                # prepare features: flattened recent window features for window detector
-                # e.g. take last 20 samples, compute per-channel summary features
-                recent = buffer.tail(20)
-
-                # compute flattened summary vector: mean/std/last for keys
-                keys = [k for k in sample.keys() if k not in ('ts', 'type', 'vehicle')]
-                fv = []
-                for k in keys:
-                    arr = [float(s.get(k, 0.0) or 0.0) for s in recent]
-                    if len(arr) == 0:
-                        fv += [0.0, 0.0, 0.0]
-                    else:
-                        fv += [float(np.mean(arr)), float(np.std(arr)), float(arr[-1])]
-
-                # prepare seq window for AE: shape (timesteps, features)
-                seq_window = None
-                try:
-                    seq_arr = []
-                    for s in recent:
-                        seq_row = [float(s.get(k, 0.0) or 0.0) for k in keys]
-                        seq_arr.append(seq_row)
-                    if len(seq_arr) >= 8:
-                        seq_window = np.array(seq_arr)  # (timesteps, features)
-                except Exception:
-                    seq_window = None
-
-                # run engine detection in background to avoid blocking websocket receive
-                loop = asyncio.get_event_loop()
-                loop.create_task(process_and_maybe_alert(vehicle_id, sample, fv if fv else None, seq_window))
-
-            else:
-                # other message types: ignore or handle subscription messages
-                pass
+            # Receive telemetry frame
+            raw = await websocket.receive_text()
+            
+            try:
+                frame = json.loads(raw)
+                
+                # Add vehicle_id and timestamp if missing
+                frame["vehicle_id"] = vehicle_id
+                if "timestamp" not in frame:
+                    frame["timestamp"] = datetime.utcnow().isoformat() + "Z"
+                
+                # Process frame through anomaly engine
+                anomaly = anomaly_engine.process_frame(vehicle_id, frame)
+                
+                # Send acknowledgment
+                await websocket.send_text(json.dumps({
+                    "status": "ok",
+                    "timestamp": frame["timestamp"],
+                    "vehicle_id": vehicle_id
+                }))
+                
+                # Broadcast anomaly alert if detected
+                if anomaly:
+                    alert = {
+                        "type": "anomaly_alert",
+                        "alert": anomaly
+                    }
+                    await manager.broadcast_to_vehicle(vehicle_id, alert)
+                    
+            except json.JSONDecodeError:
+                await websocket.send_text(json.dumps({
+                    "status": "error",
+                    "message": "Invalid JSON"
+                }))
+            except Exception as e:
+                logger.error(f"Error processing WebSocket message: {e}", exc_info=True)
+                await websocket.send_text(json.dumps({
+                    "status": "error",
+                    "message": str(e)
+                }))
 
     except WebSocketDisconnect:
         manager.disconnect(vehicle_id, websocket)
+        logger.info(f"WebSocket disconnected for {vehicle_id}")
     except Exception as e:
-        logger.exception("WS telemetry loop crashed: %s", e)
+        logger.error(f"WebSocket error for {vehicle_id}: {e}", exc_info=True)
         manager.disconnect(vehicle_id, websocket)
 
-
-async def process_and_maybe_alert(vehicle_id: str, sample: Dict[str, Any], window_features: list, seq_window):
+@router.get("/demo/seed")
+async def demo_seed():
     """
-    Run detection and broadcast alert if anomaly found.
+    Demo seed endpoint - returns curated demo telemetry data
     """
-    alert = ENGINE.detect(vehicle_id, sample, window_features, seq_window)
-    if alert:
-        # add explainability: pick top channels by local zscores / reconstruction errors
-        # Build a simple top_features list (channel -> deviation)
-        payload = {
-            "vehicle": vehicle_id,
-            "alert": alert,
-            "sample": sample,
-            "ts": alert.get('ts')
+    try:
+        from pathlib import Path
+        from app.config import DATA_DEMO_SLICES_DIR
+        
+        demo_dir = Path(DATA_DEMO_SLICES_DIR)
+        
+        if not demo_dir.exists():
+            # Return synthetic demo data
+            return {
+                "vehicle_id": "GR86-001",
+                "track": "sebring",
+                "telemetry_sample": [
+                    {
+                        "telemetry_name": "speed",
+                        "telemetry_value": 120.5,
+                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "vehicle_id": "GR86-001"
+                    },
+                    {
+                        "telemetry_name": "brake_pressure",
+                        "telemetry_value": 85.2,
+                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "vehicle_id": "GR86-001"
+                    }
+                ],
+                "precomputed": {
+                    "best_lap_time": 135.234,
+                    "avg_speed": 98.5
+                },
+                "demo_mode": True
+            }
+        
+        # Load demo slice
+        demo_files = list(demo_dir.glob("*.json"))
+        if demo_files:
+            import random
+            demo_file = random.choice(demo_files)
+            with open(demo_file) as f:
+                demo_data = json.load(f)
+                return {
+                    "vehicle_id": "GR86-001",
+                    "source_file": demo_file.name,
+                    "telemetry_sample": demo_data[:50] if isinstance(demo_data, list) else demo_data,
+                    "demo_mode": True
+                }
+        
+        # Fallback
+        return {"message": "No demo data available", "demo_mode": True}
+        
+    except Exception as e:
+        logger.error(f"Error loading demo seed: {e}", exc_info=True)
+        return {
+            "error": str(e),
+            "demo_mode": True
         }
-
-        # broadcast to all clients subscribed to this vehicle
-        await manager.broadcast(vehicle_id, payload)
-
-        # also log to server logs (file)
-        logger.warning("Anomaly for %s: %s", vehicle_id, json.dumps(payload, default=str))
-
