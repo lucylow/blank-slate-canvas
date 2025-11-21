@@ -1,0 +1,2242 @@
+[
+  {
+    "timestamp": "2025-11-21T02:07:06.353226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 80,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.353226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.353226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.353226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.403226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 82,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.403226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.515,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.403226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.403226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.453226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 84,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.453226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.53,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.453226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.453226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.503226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 86,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.503226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.545,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.503226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.503226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.553226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 88,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.553226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.56,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.553226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.553226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.603226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 90,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.603226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.575,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.603226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.603226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.653226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 92,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.653226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.59,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.653226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.653226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.703226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 94,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.703226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.605,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.703226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.703226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.753226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 96,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.753226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.62,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.753226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.753226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.803226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 98,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.803226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.635,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.803226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.803226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.853226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 100,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.853226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.65,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.853226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.853226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.903226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 102,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.903226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.665,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.903226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.903226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.953226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 104,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.953226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6799999999999999,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.953226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:06.953226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.003226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 106,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.003226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6950000000000001,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.003226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.003226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.053226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 108,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.053226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.71,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.053226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.053226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.103226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 110,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.103226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.725,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.103226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.103226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.153226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 112,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.153226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.74,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.153226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.153226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.203226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 114,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.203226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.755,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.203226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.203226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.253226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 116,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.253226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.77,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.253226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.253226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.303226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 118,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.303226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.7849999999999999,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.303226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.303226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.353226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.353226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.353226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.8,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.353226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.403226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 119,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.403226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.403226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.825,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.403226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.453226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 118,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.453226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.453226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.85,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.453226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.503226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 117,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.503226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.503226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.875,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.503226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.553226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 116,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.553226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.553226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.9000000000000001,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.553226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.603226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 115,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.603226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.603226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.925,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.603226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.653226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 114,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.653226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.653226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.95,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.653226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.703226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 113,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.703226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.703226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 1.975,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.703226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.753226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 112,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.753226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.753226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.753226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.803226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 111,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.803226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.803226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.025,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.803226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.853226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 110,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.853226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.853226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.05,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.853226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.903226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 109,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.903226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.903226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.075,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.903226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.953226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 108,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.953226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.953226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:07.953226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.003226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 107,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.003226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.003226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.125,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.003226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.053226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 106,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.053226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.053226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.15,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.053226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.103226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 105,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.103226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.103226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.175,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.103226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.153226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 104,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.153226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.153226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.2,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.153226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.203226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 103,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.203226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.203226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.225,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.203226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.253226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 102,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.253226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.253226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.25,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.253226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.303226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 101,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.303226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": -0.3,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.303226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 2.275,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.303226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.353226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 100.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.353226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.353226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.353226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.403226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 101.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.403226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.403226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.403226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.453226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 103.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.453226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.453226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.453226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.503226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 104.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.503226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.503226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.503226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.553226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 106.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.553226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.553226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.553226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.603226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 107.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.603226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.603226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.603226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 120,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.653226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 109.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.653226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.653226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.653226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.703226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 110.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.703226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.703226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.703226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.753226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 112.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.753226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.753226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.753226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.803226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 113.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.803226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.803226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.803226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.853226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 115.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.853226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.853226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.853226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.903226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 116.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.903226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.903226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.903226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.953226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 118.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.953226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.953226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:08.953226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.003226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 119.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.003226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.003226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.003226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.053226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 121.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.053226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.053226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.053226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.103226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 122.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.103226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.103226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.103226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.153226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 124.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.153226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.153226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.153226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.203226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 125.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.203226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.203226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.203226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.253226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 127.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.253226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.253226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.253226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.303226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 128.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.303226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.303226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.303226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.353226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 130.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.353226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.353226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.353226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.403226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 131.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.403226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.403226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.403226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.453226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 133.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.453226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.453226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.453226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.503226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 134.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.503226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.503226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.503226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.553226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 136.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.553226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.553226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.553226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.603226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 137.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.603226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.603226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.603226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.653226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 139.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.653226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.653226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.653226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.703226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 140.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.703226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.703226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.703226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.753226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 142.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.753226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.753226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.753226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.803226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 143.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.803226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.803226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.803226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.853226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 145.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.853226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.853226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.853226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.903226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 146.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.903226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.903226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.903226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.953226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 148.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.953226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.953226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:09.953226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.003226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 149.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.003226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.003226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.003226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.053226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 151.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.053226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.053226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.053226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.103226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 152.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.103226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.103226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.103226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.153226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 154.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.153226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.153226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.153226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.203226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 155.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.203226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.203226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.203226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.253226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 157.0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.253226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.253226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.253226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.303226Z",
+    "telemetry_name": "speed",
+    "telemetry_value": 158.5,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.303226Z",
+    "telemetry_name": "accx_can",
+    "telemetry_value": 0.6,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.303226Z",
+    "telemetry_name": "accy_can",
+    "telemetry_value": 0.1,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  },
+  {
+    "timestamp": "2025-11-21T02:07:10.303226Z",
+    "telemetry_name": "brake_pressure",
+    "telemetry_value": 0,
+    "vehicle_id": "GR86-001",
+    "vehicle_number": 1
+  }
+]
