@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "generated_at": "2025-11-20T00:00:00Z",
+    "duration_s": 32,
+    "source": "/mnt/data/demo_data.json"
+  },
+  "messages": [
+    { "time": "2025-11-20T00:00:00.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:00.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":10,"speed_kmh":48.2,"accx_can":0.03,"accy_can":0.05,"Steering_Angle":2.3,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:01.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:01.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":120,"speed_kmh":110.3,"accx_can":0.15,"accy_can":0.20,"Steering_Angle":8.1,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:02.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:02.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":370,"speed_kmh":220.0,"accx_can":0.05,"accy_can":0.10,"Steering_Angle":1.2,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:03.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:03.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":620,"speed_kmh":278.9,"accx_can":0.02,"accy_can":0.08,"Steering_Angle":0.5,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:04.000Z", "type": "aggregate_update", "data": {"window_s":4,"chassis":"GR86-DEMO-01","track":"road_america","avg_speed":164.35,"max_speed":278.9,"rolling_tire_stress":3.12,"braking_events":0} },
+    { "time": "2025-11-20T00:00:04.500Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:04.500Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":900,"speed_kmh":150.2,"accx_can":0.60,"accy_can":0.90,"Steering_Angle":-12.2,"pbrake_f":0.8} },
+    { "time": "2025-11-20T00:00:06.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:06.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":1210,"speed_kmh":130.6,"accx_can":0.80,"accy_can":1.10,"Steering_Angle":-18.5,"pbrake_f":0.9} },
+    { "time": "2025-11-20T00:00:08.000Z", "type": "aggregate_update", "data": {"window_s":8,"chassis":"GR86-DEMO-01","track":"road_america","avg_speed":167.3,"max_speed":278.9,"rolling_tire_stress":8.4,"braking_events":2} },
+    { "time": "2025-11-20T00:00:08.200Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:08.200Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":1600,"speed_kmh":181.4,"accx_can":0.30,"accy_can":0.50,"Steering_Angle":6.8,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:10.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:10.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":2100,"speed_kmh":200.9,"accx_can":0.1,"accy_can":0.2,"Steering_Angle":3.1,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:12.000Z", "type": "insight_update", "data": {
+      "chassis":"GR86-DEMO-01","track":"road_america","lap":1,
+      "lap_tire_stress": 152.3,
+      "predicted_loss_per_lap_seconds": 0.12,
+      "laps_until_0_5s_loss": 4,
+      "pit_recommendation": {"best_pit_lap": 18, "expected_net_gain_seconds": -1.4},
+      "feature_scores":[ {"name":"tire_stress_S2","score":0.52},{"name":"brake_energy_S1","score":0.21},{"name":"avg_speed_S3","score":-0.03} ],
+      "evidence":[
+        {"note":"High lateral loads in S2 for last 3 laps","telemetry_rows":[ {"meta_time":"2025-11-20T00:00:02.000Z","lapdist_m":370,"speed_kmh":220},{"meta_time":"2025-11-20T00:00:04.500Z","lapdist_m":900,"speed_kmh":150}] }
+      ]
+    }},
+    { "time": "2025-11-20T00:00:13.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:13.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":2600,"speed_kmh":240.1,"accx_can":0.05,"accy_can":0.1,"Steering_Angle":1.1,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:14.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:14.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":3200,"speed_kmh":230.0,"accx_can":0.12,"accy_can":0.25,"Steering_Angle":4.2,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:16.000Z", "type": "aggregate_update", "data": {"window_s":16,"chassis":"GR86-DEMO-01","track":"road_america","avg_speed":178.2,"max_speed":278.9,"rolling_tire_stress":19.2,"braking_events":3} },
+    { "time": "2025-11-20T00:00:16.200Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:16.200Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":3800,"speed_kmh":180.9,"accx_can":0.5,"accy_can":0.6,"Steering_Angle":-10.0,"pbrake_f":0.4} },
+    { "time": "2025-11-20T00:00:18.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:18.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":4200,"speed_kmh":160.3,"accx_can":0.7,"accy_can":0.85,"Steering_Angle":-15.0,"pbrake_f":0.6} },
+    { "time": "2025-11-20T00:00:20.000Z", "type": "insight_update", "data": {
+      "chassis":"GR86-DEMO-01","track":"road_america","lap":1,
+      "lap_tire_stress": 320.9,
+      "predicted_loss_per_lap_seconds": 0.21,
+      "laps_until_0_5s_loss": 2,
+      "pit_recommendation": {"best_pit_lap": 16, "expected_net_gain_seconds": -2.1},
+      "feature_scores":[ {"name":"tire_stress_S2","score":0.62},{"name":"brake_energy_S1","score":0.30},{"name":"avg_speed_S3","score":-0.06} ],
+      "evidence":[
+        {"note":"Rising braking energy in S1; multiple heavy brake events","telemetry_rows":[ {"meta_time":"2025-11-20T00:00:06.000Z","lapdist_m":1210,"speed_kmh":130},{"meta_time":"2025-11-20T00:00:08.200Z","lapdist_m":1600,"speed_kmh":181}]}
+      ]
+    }},
+    { "time": "2025-11-20T00:00:22.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:22.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":4800,"speed_kmh":200,"accx_can":0.2,"accy_can":0.3,"Steering_Angle":2.0,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:24.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:24.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":5400,"speed_kmh":260,"accx_can":0.06,"accy_can":0.12,"Steering_Angle":0.8,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:26.000Z", "type": "aggregate_update", "data": {"window_s":26,"chassis":"GR86-DEMO-01","track":"road_america","avg_speed":185.7,"max_speed":278.9,"rolling_tire_stress":45.6,"braking_events":5} },
+    { "time": "2025-11-20T00:00:28.000Z", "type": "telemetry_update", "data": {"meta_time":"2025-11-20T00:00:28.000Z","track":"road_america","chassis":"GR86-DEMO-01","lap":1,"lapdist_m":6000,"speed_kmh":220,"accx_can":0.15,"accy_can":0.3,"Steering_Angle":3.3,"pbrake_f":0} },
+    { "time": "2025-11-20T00:00:30.000Z", "type": "insight_update", "data": {
+      "chassis":"GR86-DEMO-01","track":"road_america","lap":1,
+      "lap_tire_stress": 412.5,
+      "predicted_loss_per_lap_seconds": 0.28,
+      "laps_until_0_5s_loss": 1,
+      "pit_recommendation": {"best_pit_lap": 15, "expected_net_gain_seconds": -2.9},
+      "feature_scores":[ {"name":"tire_stress_S2","score":0.72},{"name":"brake_energy_S1","score":0.35},{"name":"avg_speed_S3","score":-0.12} ],
+      "evidence":[
+        {"note":"Tire stress climbed sharply in S2; predicted rapid degradation","telemetry_rows":[ {"meta_time":"2025-11-20T00:00:20.000Z","lapdist_m":4200,"speed_kmh":160},{"meta_time":"2025-11-20T00:00:28.000Z","lapdist_m":6000,"speed_kmh":220}]}
+      ]
+    }}
+  ]
+}
+
