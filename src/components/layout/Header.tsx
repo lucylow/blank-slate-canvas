@@ -1,4 +1,4 @@
-import { Clock, Wifi, WifiOff, Flag, MapPin } from 'lucide-react';
+import { Clock, Wifi, WifiOff, Flag, MapPin, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTelemetry } from '@/hooks/useTelemetry';
 import { Link } from 'react-router-dom';

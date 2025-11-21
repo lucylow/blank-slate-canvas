@@ -1,0 +1,10 @@
+project_id = "osucqcdjoztyqlqcguwc"
+
+[functions.predict-tire-wear]
+verify_jwt = false
+
+[functions.pit-window]
+verify_jwt = false
+
+[functions.coaching]
+verify_jwt = false

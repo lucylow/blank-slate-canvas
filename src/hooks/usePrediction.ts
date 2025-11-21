@@ -11,7 +11,6 @@ interface UsePredictionOptions {
   refetchInterval?: number;
   staleTime?: number;
   retry?: number;
-  onError?: (error: Error) => void;
 }
 
 export function usePrediction(
@@ -24,7 +23,6 @@ export function usePrediction(
     refetchInterval = 5000,
     staleTime = 3000,
     retry = 2,
-    onError,
   } = options;
 
   const { isDemoMode } = useDemoMode();
@@ -56,12 +54,5 @@ export function usePrediction(
     staleTime,
     retry,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    onError: (error) => {
-      console.error("[usePrediction] Error:", error);
-      if (onError) {
-        onError(error);
-      }
-    },
   });
 }
-

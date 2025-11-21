@@ -149,8 +149,8 @@ export default function PitWallDashboard() {
                   <div className="bg-gradient-to-br from-card via-card/95 to-card/90 p-6">
                     <LiveMapSVG 
                       track={track} 
-                      lapdist={lastPoint?.lapdist_m ?? 0} 
-                      totalMeters={lastPoint?.track_total_m ?? 6515} 
+                      lapdist={(lastPoint as any)?.lapdist_m ?? 0} 
+                      totalMeters={(lastPoint as any)?.track_total_m ?? 6515}
                     />
                   </div>
                 </CardContent>
