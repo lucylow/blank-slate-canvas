@@ -95,6 +95,31 @@ Respond ONLY with valid JSON:
     
     const prediction = JSON.parse(jsonMatch[0]);
 
+    // Transform to match TirePredictionResponse interface
+    const response = {
+      chassis: `car-${car_number}`,
+      track: track_id,
+      predicted_loss_per_lap_s: prediction.tire_wear_percent / 100, // Convert percent to seconds approximation
+      laps_until_0_5s_loss: prediction.laps_until_cliff || 10,
+      recommended_pit_lap: current_lap + (prediction.laps_until_cliff || 10),
+      feature_scores: prediction.top_factors?.map((f: any) => ({
+        name: f.factor,
+        score: f.impact
+      })) || [],
+      explanation: [
+        `Tire wear: ${prediction.tire_wear_percent}%`,
+        prediction.sector_analysis?.sector_1 || '',
+        prediction.sector_analysis?.sector_2 || '',
+        prediction.sector_analysis?.sector_3 || ''
+      ].filter(Boolean),
+      meta: {
+        model_version: 'gemini-2.5-flash',
+        generated_at: new Date().toISOString(),
+        demo: false,
+        confidence: prediction.confidence
+      }
+    };
+
     // Store in database
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -107,9 +132,9 @@ Respond ONLY with valid JSON:
       wear_percent: prediction.tire_wear_percent,
       laps_until_cliff: prediction.laps_until_cliff,
       confidence: prediction.confidence,
-      sector_1_wear: parseFloat(prediction.sector_analysis.sector_1.match(/[\d.]+/)?.[0] || '0'),
-      sector_2_wear: parseFloat(prediction.sector_analysis.sector_2.match(/[\d.]+/)?.[0] || '0'),
-      sector_3_wear: parseFloat(prediction.sector_analysis.sector_3.match(/[\d.]+/)?.[0] || '0'),
+      sector_1_wear: parseFloat(prediction.sector_analysis?.sector_1?.match(/[\d.]+/)?.[0] || '0'),
+      sector_2_wear: parseFloat(prediction.sector_analysis?.sector_2?.match(/[\d.]+/)?.[0] || '0'),
+      sector_3_wear: parseFloat(prediction.sector_analysis?.sector_3?.match(/[\d.]+/)?.[0] || '0'),
       top_factors: prediction.top_factors,
     });
 
@@ -129,7 +154,7 @@ Respond ONLY with valid JSON:
 
     console.log(`Tire prediction completed in ${latency}ms`);
 
-    return new Response(JSON.stringify(prediction), {
+    return new Response(JSON.stringify(response), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
