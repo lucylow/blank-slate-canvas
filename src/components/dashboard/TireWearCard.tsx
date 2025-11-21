@@ -86,7 +86,7 @@ export function TireWearCard({ wear }: Props) {
             <div className="font-mono text-2xl font-bold mb-1">{wear.rear_right.toFixed(1)}%</div>
             {hasCI && (
               <div className="text-xs font-mono text-muted-foreground">
-                [{wear.ci_lower!.rear_right?.toFixed(1) ?? 'N/A'} - {wear.ci_upper!.rear_right?.toFixed(1) ?? 'N/A'}]
+                [{wear.ci_lower?.rear_right?.toFixed(1) ?? 'N/A'} - {wear.ci_upper?.rear_right?.toFixed(1) ?? 'N/A'}]
               </div>
             )}
           </div>
