@@ -23,19 +23,47 @@ class DeliveryAgent {
   // Register with orchestrator
   async register() {
     try {
-      const response = await fetch(`${this.orchestratorUrl}/agents/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const http = require('http');
+      const url = require('url');
+      const parsedUrl = url.parse(this.orchestratorUrl);
+      
+      return new Promise((resolve) => {
+        const postData = JSON.stringify({
           agent_id: this.agentId,
           types: ['delivery'],
           tracks: ['*'],
           capacity: 20
-        })
+        });
+        
+        const options = {
+          hostname: parsedUrl.hostname,
+          port: parsedUrl.port || 3000,
+          path: '/agents/register',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+          }
+        };
+        
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => { data += chunk; });
+          res.on('end', () => {
+            try {
+              const result = JSON.parse(data);
+              console.log(`[Delivery] Registered: ${result.success ? 'OK' : 'FAILED'}`);
+              resolve(result.success);
+            } catch (e) {
+              resolve(false);
+            }
+          });
+        });
+        
+        req.on('error', () => resolve(false));
+        req.write(postData);
+        req.end();
       });
-      const result = await response.json();
-      console.log(`[Delivery] Registered: ${result.success ? 'OK' : 'FAILED'}`);
-      return result.success;
     } catch (err) {
       console.error('[Delivery] Registration failed:', err);
       return false;
@@ -45,9 +73,20 @@ class DeliveryAgent {
   // Send heartbeat
   async heartbeat() {
     try {
-      await fetch(`${this.orchestratorUrl}/agents/heartbeat/${this.agentId}`, {
+      const http = require('http');
+      const url = require('url');
+      const parsedUrl = url.parse(this.orchestratorUrl);
+      
+      const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || 3000,
+        path: `/agents/heartbeat/${this.agentId}`,
         method: 'POST'
-      });
+      };
+      
+      const req = http.request(options);
+      req.on('error', () => {});
+      req.end();
     } catch (err) {
       // Silent fail
     }

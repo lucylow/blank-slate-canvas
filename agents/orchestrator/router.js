@@ -31,15 +31,17 @@ class AgentOrchestrator {
   // Agent registration endpoint
   async registerAgent(agentId, agentInfo) {
     const { types, tracks, capacity = 4 } = agentInfo;
+    const typesArray = Array.isArray(types) ? types : [types];
+    const tracksArray = Array.isArray(tracks) ? tracks : [tracks];
     this.agentRegistry.set(agentId, {
-      types: Array.isArray(types) ? types : [types],
-      tracks: Array.isArray(tracks) ? tracks : [tracks],
+      types: typesArray,
+      tracks: tracksArray,
       capacity,
       lastHeartbeat: Date.now(),
       currentLoad: 0
     });
     this.metrics.agentCount = this.agentRegistry.size;
-    console.log(`[Orchestrator] Agent registered: ${agentId} (types: ${types.join(', ')}, tracks: ${tracks.join(', ')})`);
+    console.log(`[Orchestrator] Agent registered: ${agentId} (types: ${typesArray.join(', ')}, tracks: ${tracksArray.join(', ')})`);
     return { success: true, agentId };
   }
 
@@ -300,6 +302,7 @@ class AgentOrchestrator {
 
 // HTTP server for orchestrator API
 const express = require('express');
+const http = require('http');
 const app = express();
 app.use(express.json());
 

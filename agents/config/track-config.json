@@ -1,0 +1,120 @@
+{
+  "barber": {
+    "name": "Barber Motorsports Park",
+    "characteristics": {
+      "type": "twisty",
+      "emphasis": "lateral_metrics",
+      "pit_cost_seconds": 28.0,
+      "sectors": 3
+    },
+    "features": {
+      "corner_count_window": true,
+      "lateral_g_threshold": 0.9,
+      "vibration_index": false,
+      "elevation_delta": false
+    }
+  },
+  "cota": {
+    "name": "Circuit of the Americas",
+    "characteristics": {
+      "type": "long_straight",
+      "emphasis": "top_speed",
+      "pit_cost_seconds": 30.0,
+      "sectors": 3
+    },
+    "features": {
+      "max_speed_back_straight": true,
+      "coast_time": true,
+      "braking_pattern": true,
+      "vibration_index": false
+    }
+  },
+  "indianapolis": {
+    "name": "Indianapolis Motor Speedway",
+    "characteristics": {
+      "type": "mixed",
+      "emphasis": "oval_vs_infield",
+      "pit_cost_seconds": 29.0,
+      "sectors": 3
+    },
+    "features": {
+      "oval_segments": true,
+      "infield_technical": true,
+      "high_speed_adaptation": true
+    }
+  },
+  "road_america": {
+    "name": "Road America",
+    "characteristics": {
+      "type": "long_lap",
+      "emphasis": "multi_sector",
+      "pit_cost_seconds": 35.0,
+      "sectors": 4
+    },
+    "features": {
+      "per_sector_time": true,
+      "top_speed_heavy_throttle": true,
+      "early_brake_strategy": true,
+      "cumulative_heat_index": true
+    }
+  },
+  "sebring": {
+    "name": "Sebring International Raceway",
+    "characteristics": {
+      "type": "concrete_bumpy",
+      "emphasis": "abrasion",
+      "pit_cost_seconds": 32.0,
+      "sectors": 3
+    },
+    "features": {
+      "vibration_index": true,
+      "concrete_sectors": true,
+      "surface_flag": true,
+      "abrasion_penalty": true
+    }
+  },
+  "sonoma": {
+    "name": "Sonoma Raceway",
+    "characteristics": {
+      "type": "elevation",
+      "emphasis": "elevation_changes",
+      "pit_cost_seconds": 27.0,
+      "sectors": 3
+    },
+    "features": {
+      "elevation_delta": true,
+      "left_right_stress_asymmetry": true,
+      "uphill_braking": true,
+      "downhill_overdrive": true
+    }
+  },
+  "vir": {
+    "name": "Virginia International Raceway",
+    "characteristics": {
+      "type": "roller_coaster",
+      "emphasis": "layout_variants",
+      "pit_cost_seconds": 30.0,
+      "sectors": 3
+    },
+    "features": {
+      "layout_aware": true,
+      "frequent_lateral_spikes": true,
+      "roller_coaster_handling": true
+    }
+  },
+  "virginia": {
+    "name": "Virginia International Raceway",
+    "characteristics": {
+      "type": "roller_coaster",
+      "emphasis": "layout_variants",
+      "pit_cost_seconds": 30.0,
+      "sectors": 3
+    },
+    "features": {
+      "layout_aware": true,
+      "frequent_lateral_spikes": true,
+      "roller_coaster_handling": true
+    }
+  }
+}
+

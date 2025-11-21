@@ -1,6 +1,16 @@
 // src/lib/demoData.ts
 // Utility functions for loading and using demo data from JSON files
 
+/**
+ * Demo data configuration constants
+ */
+export const DEMO_DATA_CONFIG = {
+  BASE_PATH: '/demo_data',
+  TRACKS_INDEX: '/demo_data/tracks_index.json',
+  MAX_CACHE_SIZE: 500,
+  REQUEST_TIMEOUT: 10000, // 10 seconds
+} as const;
+
 export interface TelemetrySample {
   expire_at: number | null;
   lap: number;
@@ -61,48 +71,140 @@ export interface TracksIndex {
 }
 
 /**
- * Load a track's demo data from JSON file
+ * Load a track's demo data from JSON file with error handling and validation
  */
 export async function loadTrackDemo(trackId: string): Promise<TrackDemoData> {
+  if (!trackId || typeof trackId !== 'string') {
+    throw new Error('Invalid track ID provided');
+  }
+
+  const normalizedTrackId = trackId.toLowerCase().trim().replace(/\s+/g, '_');
+  const url = `${DEMO_DATA_CONFIG.BASE_PATH}/${normalizedTrackId}_demo.json`;
+
   try {
-    const response = await fetch(`/demo_data/${trackId}_demo.json`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), DEMO_DATA_CONFIG.REQUEST_TIMEOUT);
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      throw new Error(`Failed to load demo data for ${trackId}: ${response.statusText}`);
+      if (response.status === 404) {
+        throw new Error(`Demo data not found for track: ${trackId}`);
+      }
+      throw new Error(`Failed to load demo data for ${trackId}: ${response.status} ${response.statusText}`);
     }
-    return await response.json();
+
+    const data = await response.json();
+
+    // Basic validation
+    if (!data || typeof data !== 'object') {
+      throw new Error(`Invalid demo data format for track: ${trackId}`);
+    }
+
+    // Ensure track_id matches
+    if (data.track_id && data.track_id !== normalizedTrackId) {
+      console.warn(`Track ID mismatch: expected ${normalizedTrackId}, got ${data.track_id}`);
+    }
+
+    return data as TrackDemoData;
   } catch (error) {
-    console.error(`Error loading demo data for ${trackId}:`, error);
-    throw error;
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error(`Request timeout loading demo data for ${trackId}`);
+      }
+      throw error;
+    }
+    throw new Error(`Unexpected error loading demo data for ${trackId}: ${String(error)}`);
   }
 }
 
 /**
- * Load the tracks index file
+ * Load the tracks index file with error handling and caching
  */
-export async function loadTracksIndex(): Promise<TracksIndex> {
+let tracksIndexCache: TracksIndex | null = null;
+let tracksIndexCacheTime: number = 0;
+const TRACKS_INDEX_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export async function loadTracksIndex(useCache: boolean = true): Promise<TracksIndex> {
+  const now = Date.now();
+  
+  // Return cached data if available and fresh
+  if (useCache && tracksIndexCache && (now - tracksIndexCacheTime) < TRACKS_INDEX_CACHE_TTL) {
+    return tracksIndexCache;
+  }
+
   try {
-    const response = await fetch('/demo_data/tracks_index.json');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), DEMO_DATA_CONFIG.REQUEST_TIMEOUT);
+
+    const response = await fetch(DEMO_DATA_CONFIG.TRACKS_INDEX, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      throw new Error(`Failed to load tracks index: ${response.statusText}`);
+      throw new Error(`Failed to load tracks index: ${response.status} ${response.statusText}`);
     }
-    return await response.json();
+
+    const data = await response.json();
+
+    // Validate structure
+    if (!data || typeof data !== 'object' || !Array.isArray(data.tracks)) {
+      throw new Error('Invalid tracks index format');
+    }
+
+    // Update cache
+    tracksIndexCache = data as TracksIndex;
+    tracksIndexCacheTime = now;
+
+    return tracksIndexCache;
   } catch (error) {
-    console.error('Error loading tracks index:', error);
-    throw error;
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout loading tracks index');
+      }
+      throw error;
+    }
+    throw new Error(`Unexpected error loading tracks index: ${String(error)}`);
   }
 }
 
 /**
- * Get available track IDs from the index
+ * Clear the tracks index cache
  */
+export function clearTracksIndexCache(): void {
+  tracksIndexCache = null;
+  tracksIndexCacheTime = 0;
+}
+
+/**
+ * Get available track IDs from the index with fallback
+ */
+const FALLBACK_TRACK_IDS = ['sebring', 'vir', 'road_america', 'sonoma', 'barber', 'cota', 'indianapolis'] as const;
+
 export async function getAvailableTrackIds(): Promise<string[]> {
   try {
     const index = await loadTracksIndex();
-    return index.tracks.map(track => track.track_id);
+    const trackIds = index.tracks
+      .filter(track => track.races_available > 0) // Only tracks with available races
+      .map(track => track.track_id);
+    
+    return trackIds.length > 0 ? trackIds : [...FALLBACK_TRACK_IDS];
   } catch (error) {
-    console.error('Error getting available track IDs:', error);
+    console.warn('Error getting available track IDs from index, using fallback:', error);
     // Fallback to known track IDs if index fails to load
-    return ['sebring', 'vir', 'road_america', 'sonoma', 'barber', 'cota', 'indianapolis'];
+    return [...FALLBACK_TRACK_IDS];
   }
 }
 
@@ -110,13 +212,30 @@ export async function getAvailableTrackIds(): Promise<string[]> {
  * Check if demo data is available for a track
  */
 export async function isDemoDataAvailable(trackId: string): Promise<boolean> {
+  if (!trackId || typeof trackId !== 'string') {
+    return false;
+  }
+
+  const normalizedTrackId = trackId.toLowerCase().trim().replace(/\s+/g, '_');
+
   try {
     const index = await loadTracksIndex();
-    return index.tracks.some(track => track.track_id === trackId && track.races_available > 0);
+    return index.tracks.some(
+      track => track.track_id === normalizedTrackId && track.races_available > 0
+    );
   } catch (error) {
     // If index fails, try to load the track file directly
     try {
-      const response = await fetch(`/demo_data/${trackId}_demo.json`, { method: 'HEAD' });
+      const url = `${DEMO_DATA_CONFIG.BASE_PATH}/${normalizedTrackId}_demo.json`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEMO_DATA_CONFIG.REQUEST_TIMEOUT);
+
+      const response = await fetch(url, {
+        method: 'HEAD',
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
       return response.ok;
     } catch {
       return false;
@@ -131,8 +250,18 @@ export function getTelemetryForRace(
   demoData: TrackDemoData,
   raceNumber: number
 ): TelemetrySample[] {
+  if (!demoData || !Array.isArray(demoData.races)) {
+    console.warn('Invalid demo data structure');
+    return [];
+  }
+
   const race = demoData.races.find(r => r.race_number === raceNumber);
-  return race?.telemetry_sample || [];
+  if (!race) {
+    console.warn(`Race ${raceNumber} not found in demo data for track ${demoData.track_id}`);
+    return [];
+  }
+
+  return race.telemetry_sample || [];
 }
 
 /**
@@ -142,6 +271,10 @@ export function getLapTimesForRace(
   demoData: TrackDemoData,
   raceNumber: number
 ): LapTimesSample[] {
+  if (!demoData || !Array.isArray(demoData.races)) {
+    return [];
+  }
+
   const race = demoData.races.find(r => r.race_number === raceNumber);
   return race?.lap_times_sample || [];
 }
@@ -153,6 +286,10 @@ export function getWeatherForRace(
   demoData: TrackDemoData,
   raceNumber: number
 ): WeatherSample[] {
+  if (!demoData || !Array.isArray(demoData.races)) {
+    return [];
+  }
+
   const race = demoData.races.find(r => r.race_number === raceNumber);
   return race?.weather_sample || [];
 }
@@ -196,11 +333,44 @@ export function getVehicleIds(
 ): string[] {
   const telemetry = getTelemetryForRace(demoData, raceNumber);
   const vehicleIds = new Set<string>();
+  
   telemetry.forEach(point => {
-    if (point.vehicle_id) {
+    if (point.vehicle_id && typeof point.vehicle_id === 'string') {
       vehicleIds.add(point.vehicle_id);
     }
   });
+  
   return Array.from(vehicleIds).sort();
+}
+
+/**
+ * Normalize track ID to standard format
+ */
+export function normalizeTrackId(trackId: string): string {
+  if (!trackId || typeof trackId !== 'string') {
+    return '';
+  }
+  return trackId.toLowerCase().trim().replace(/\s+/g, '_');
+}
+
+/**
+ * Validate demo data structure
+ */
+export function validateTrackDemoData(data: unknown): data is TrackDemoData {
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  const demo = data as Partial<TrackDemoData>;
+  
+  if (!demo.track_id || typeof demo.track_id !== 'string') {
+    return false;
+  }
+
+  if (!Array.isArray(demo.races)) {
+    return false;
+  }
+
+  return true;
 }
 

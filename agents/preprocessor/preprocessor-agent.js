@@ -12,6 +12,7 @@ class PreprocessorAgent {
     this.redis = new Redis(config.redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
     this.orchestratorUrl = config.orchestratorUrl || process.env.ORCHESTRATOR_URL || 'http://localhost:3000';
     this.trackSectors = null;
+    this.trackConfig = null;
     this.ringBuffer = new Map(); // track+chassis -> recent points
     this.maxBufferSize = 2000;
   }
@@ -29,22 +30,80 @@ class PreprocessorAgent {
     }
   }
 
+  // Load track-specific configuration
+  async loadTrackConfig() {
+    try {
+      const configPath = path.join(__dirname, '../config/track-config.json');
+      const data = await fs.readFile(configPath, 'utf8');
+      this.trackConfig = JSON.parse(data);
+      console.log(`[Preprocessor] Loaded track config for ${Object.keys(this.trackConfig).length} tracks`);
+    } catch (err) {
+      console.error('[Preprocessor] Failed to load track config:', err);
+      this.trackConfig = {};
+    }
+  }
+
+  // Normalize track name
+  normalizeTrack(track) {
+    const normalized = track.toLowerCase().replace(/\s+/g, '_');
+    const trackMap = {
+      'virginia': 'vir',
+      'road-america': 'road_america',
+      'road america': 'road_america'
+    };
+    return trackMap[normalized] || normalized;
+  }
+
+  // Get track configuration
+  getTrackConfig(track) {
+    const normalized = this.normalizeTrack(track);
+    return this.trackConfig?.[normalized] || this.trackConfig?.['vir'] || null;
+  }
+
   // Register with orchestrator
   async register() {
     try {
-      const response = await fetch(`${this.orchestratorUrl}/agents/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const http = require('http');
+      const url = require('url');
+      const parsedUrl = url.parse(this.orchestratorUrl);
+      
+      return new Promise((resolve) => {
+        const postData = JSON.stringify({
           agent_id: this.agentId,
           types: ['preprocessor'],
           tracks: ['*'], // Support all tracks
           capacity: 10
-        })
+        });
+        
+        const options = {
+          hostname: parsedUrl.hostname,
+          port: parsedUrl.port || 3000,
+          path: '/agents/register',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+          }
+        };
+        
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', (chunk) => { data += chunk; });
+          res.on('end', () => {
+            try {
+              const result = JSON.parse(data);
+              console.log(`[Preprocessor] Registered: ${result.success ? 'OK' : 'FAILED'}`);
+              resolve(result.success);
+            } catch (e) {
+              resolve(false);
+            }
+          });
+        });
+        
+        req.on('error', () => resolve(false));
+        req.write(postData);
+        req.end();
       });
-      const result = await response.json();
-      console.log(`[Preprocessor] Registered: ${result.success ? 'OK' : 'FAILED'}`);
-      return result.success;
     } catch (err) {
       console.error('[Preprocessor] Registration failed:', err);
       return false;
@@ -54,9 +113,20 @@ class PreprocessorAgent {
   // Send heartbeat
   async heartbeat() {
     try {
-      await fetch(`${this.orchestratorUrl}/agents/heartbeat/${this.agentId}`, {
+      const http = require('http');
+      const url = require('url');
+      const parsedUrl = url.parse(this.orchestratorUrl);
+      
+      const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || 3000,
+        path: `/agents/heartbeat/${this.agentId}`,
         method: 'POST'
-      });
+      };
+      
+      const req = http.request(options);
+      req.on('error', () => {});
+      req.end();
     } catch (err) {
       // Silent fail
     }
@@ -82,7 +152,7 @@ class PreprocessorAgent {
     };
   }
 
-  // Compute derived features
+  // Compute derived features (track-agnostic base)
   computeDerivedFeatures(point) {
     const speed_ms = point.speed_kmh / 3.6;
     const lateral_g = point.accy_can;
@@ -90,6 +160,7 @@ class PreprocessorAgent {
     const slip_estimate = Math.abs(lateral_g) > 0.5 ? Math.abs(lateral_g) - 0.5 : 0;
     const brake_energy_inst = point.brake_pct * speed_ms;
     const driver_input_rate = Math.abs(point.steering_angle) + point.throttle_pct + point.brake_pct;
+    const inst_tire_stress = point.accx_can * point.accx_can + point.accy_can * point.accy_can;
     
     return {
       ...point,
@@ -97,8 +168,83 @@ class PreprocessorAgent {
       long_g,
       slip_estimate,
       brake_energy_inst,
-      driver_input_rate
+      driver_input_rate,
+      inst_tire_stress
     };
+  }
+
+  // Compute track-specific features
+  computeTrackSpecificFeatures(point, trackConfig, sectorPoints = []) {
+    const track = this.normalizeTrack(point.track);
+    const features = {};
+    
+    if (!trackConfig) return features;
+
+    const config = trackConfig.features || {};
+    const sector = point.sector;
+
+    // Barber: corner count window (lateral G > threshold)
+    if (config.corner_count_window && config.lateral_g_threshold) {
+      const threshold = config.lateral_g_threshold;
+      if (Math.abs(point.lateral_g) > threshold) {
+        features.high_lateral_event = 1;
+      }
+    }
+
+    // COTA: max speed back straight, coast time
+    if (config.max_speed_back_straight && sector === 'S3') {
+      features.max_speed_back_straight = point.speed_kmh;
+      if (point.throttle_pct < 10 && point.brake_pct === 0) {
+        features.coast_time = 1; // Flag for thermal recovery
+      }
+    }
+
+    // Sebring: vibration index (high-frequency accel variance)
+    if (config.vibration_index) {
+      if (sectorPoints.length > 5) {
+        const accelVariance = this.computeVariance(sectorPoints.map(p => 
+          Math.sqrt(p.accx_can * p.accx_can + p.accy_can * p.accy_can)
+        ));
+        features.vibration_index = accelVariance;
+      }
+      // Tag concrete sectors
+      if (config.concrete_sectors && sector === 'S2') {
+        features.surface = 'concrete';
+      }
+    }
+
+    // Sonoma: elevation delta, left/right stress asymmetry
+    if (config.elevation_delta) {
+      // Would need altitude data - placeholder
+      features.elevation_delta = 0;
+    }
+    if (config.left_right_stress_asymmetry) {
+      // Compare left vs right turns (simplified)
+      features.stress_asymmetry = Math.abs(point.accy_can);
+    }
+
+    // Road America: per-sector time (for 4-sector variant)
+    if (config.per_sector_time && trackConfig.characteristics?.sectors === 4) {
+      // Would compute from timestamps - placeholder
+      features.per_sector_time = 0;
+    }
+
+    // VIR: frequent lateral spikes
+    if (config.frequent_lateral_spikes) {
+      if (Math.abs(point.lateral_g) > 1.0) {
+        features.lateral_spike = 1;
+      }
+    }
+
+    return features;
+  }
+
+  // Compute variance helper
+  computeVariance(values) {
+    if (values.length === 0) return 0;
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    return variance;
   }
 
   // Sectorize point
@@ -116,18 +262,20 @@ class PreprocessorAgent {
     return null;
   }
 
-  // Aggregate sector data
+  // Aggregate sector data with track-specific features
   aggregateSectorData(track, chassis, points) {
-    if (!this.trackSectors || !this.trackSectors[track]) {
+    const normalizedTrack = this.normalizeTrack(track);
+    if (!this.trackSectors || !this.trackSectors[normalizedTrack]) {
       return null;
     }
 
-    const sectors = this.trackSectors[track].sectors;
+    const trackConfig = this.getTrackConfig(track);
+    const sectors = this.trackSectors[normalizedTrack].sectors;
     const sectorData = {};
     
     for (const sector of sectors) {
       const sectorPoints = points.filter(p => {
-        const s = this.getSector(track, p.lapdist_m);
+        const s = this.getSector(normalizedTrack, p.lapdist_m);
         return s === sector.name;
       });
 
@@ -141,13 +289,51 @@ class PreprocessorAgent {
         return sum + (p.accx_can * p.accx_can + p.accy_can * p.accy_can);
       }, 0);
 
-      sectorData[sector.name] = {
+      const baseSectorData = {
         avg_speed: speeds.length > 0 ? speeds.reduce((a, b) => a + b, 0) / speeds.length : 0,
+        max_speed: speeds.length > 0 ? Math.max(...speeds) : 0,
         max_lat_g: latGs.length > 0 ? Math.max(...latGs.map(Math.abs)) : 0,
         tire_stress: stress,
         brake_energy: brakeEnergies.length > 0 ? brakeEnergies.reduce((a, b) => a + b, 0) : 0,
         sample_count: sectorPoints.length
       };
+
+      // Add track-specific aggregates
+      if (trackConfig?.features) {
+        const config = trackConfig.features;
+        
+        // Barber: corner count
+        if (config.corner_count_window) {
+          const highLatEvents = sectorPoints.filter(p => 
+            Math.abs(p.lateral_g) > (config.lateral_g_threshold || 0.9)
+          ).length;
+          baseSectorData.corner_count = highLatEvents;
+        }
+
+        // COTA: max speed back straight
+        if (config.max_speed_back_straight && sector.name === 'S3') {
+          baseSectorData.max_speed_back_straight = baseSectorData.max_speed;
+        }
+
+        // Sebring: vibration index
+        if (config.vibration_index) {
+          const accelValues = sectorPoints.map(p => 
+            Math.sqrt(p.accx_can * p.accx_can + p.accy_can * p.accy_can)
+          );
+          baseSectorData.vibration_index = this.computeVariance(accelValues);
+        }
+
+        // Sonoma: stress asymmetry
+        if (config.left_right_stress_asymmetry) {
+          const leftTurns = sectorPoints.filter(p => p.accy_can < -0.5);
+          const rightTurns = sectorPoints.filter(p => p.accy_can > 0.5);
+          baseSectorData.stress_asymmetry = Math.abs(
+            (leftTurns.length - rightTurns.length) / sectorPoints.length
+          );
+        }
+      }
+
+      sectorData[sector.name] = baseSectorData;
     }
 
     return sectorData;
@@ -162,7 +348,10 @@ class PreprocessorAgent {
       return { error: 'No points provided' };
     }
 
-    // Canonicalize and compute features
+    const normalizedTrack = this.normalizeTrack(track);
+    const trackConfig = this.getTrackConfig(track);
+
+    // Canonicalize and compute base features
     const canonicalized = points.map(p => {
       const canon = this.canonicalize(p);
       return this.computeDerivedFeatures(canon);
@@ -171,31 +360,45 @@ class PreprocessorAgent {
     // Sectorize
     const sectorized = canonicalized.map(p => ({
       ...p,
-      sector: this.getSector(p.track, p.lapdist_m)
+      sector: this.getSector(normalizedTrack, p.lapdist_m)
     }));
 
-    // Aggregate by sector
-    const sectorAggregates = this.aggregateSectorData(track, chassis, sectorized);
+    // Add track-specific features to each point
+    const enhanced = sectorized.map((p, idx) => {
+      const sectorPoints = sectorized.filter(sp => sp.sector === p.sector);
+      const trackFeatures = this.computeTrackSpecificFeatures(p, trackConfig, sectorPoints);
+      return {
+        ...p,
+        ...trackFeatures
+      };
+    });
+
+    // Aggregate by sector (with track-specific features)
+    const sectorAggregates = this.aggregateSectorData(track, chassis, enhanced);
 
     // Update ring buffer
-    const bufferKey = `${track}:${chassis}`;
+    const bufferKey = `${normalizedTrack}:${chassis}`;
     const existing = this.ringBuffer.get(bufferKey) || [];
-    const updated = [...existing, ...sectorized].slice(-this.maxBufferSize);
+    const updated = [...existing, ...enhanced].slice(-this.maxBufferSize);
     this.ringBuffer.set(bufferKey, updated);
 
     // Create aggregate window
     const aggregateWindow = {
       window_id: uuidv4(),
-      track,
+      track: normalizedTrack,
       chassis,
       timestamp: new Date().toISOString(),
-      point_count: sectorized.length,
+      point_count: enhanced.length,
       sectors: sectorAggregates,
-      recent_points: sectorized.slice(-100), // Keep last 100 for evidence
+      recent_points: enhanced.slice(-100), // Keep last 100 for evidence
       lap_range: {
-        min: Math.min(...sectorized.map(p => p.lap)),
-        max: Math.max(...sectorized.map(p => p.lap))
-      }
+        min: Math.min(...enhanced.map(p => p.lap)),
+        max: Math.max(...enhanced.map(p => p.lap))
+      },
+      track_config: trackConfig ? {
+        type: trackConfig.characteristics?.type,
+        pit_cost_seconds: trackConfig.characteristics?.pit_cost_seconds
+      } : null
     };
 
     // Publish to aggregates stream
@@ -215,6 +418,7 @@ class PreprocessorAgent {
   // Main agent loop
   async start() {
     await this.loadTrackSectors();
+    await this.loadTrackConfig();
     await this.register();
 
     // Send heartbeat every 10s

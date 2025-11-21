@@ -1,72 +1,33 @@
 // server/demo-from-file.js
+// Alternative demo server implementation (legacy/compatibility)
+// Note: Consider using demo-server.js instead, which uses centralized utilities
 
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
-
-const DEMO_DATA_PATH = process.env.DEMO_DATA_PATH || '/mnt/data/demo_data.json';
-const TRACK_SECTORS_PATH = process.env.TRACK_SECTORS_PATH || path.join(__dirname, '..', 'public', 'tracks', 'track_sectors.json');
-const PORT = process.env.PORT || 8081;
+const path = require('path');
+const fs = require('fs');
+const { DEMO_CONFIG } = require('./demo-config');
+const { loadAllDemoData, getDemoDataSummary } = require('./demo-loader');
 
 // Try to load demo data from multiple possible locations
 let telemetry = [];
 let trackData = {};
 
 function loadDemoData() {
-  // Try the specified path first
-  if (fs.existsSync(DEMO_DATA_PATH)) {
-    try {
-      const raw = JSON.parse(fs.readFileSync(DEMO_DATA_PATH, 'utf8'));
-      telemetry = Array.isArray(raw) ? raw : (raw.telemetry || raw.points || []);
-      console.log(`✓ Loaded ${telemetry.length} telemetry points from ${DEMO_DATA_PATH}`);
-    } catch (e) {
-      console.warn(`Failed to load ${DEMO_DATA_PATH}:`, e.message);
-    }
-  }
-
-  // Try local demo_data.json
-  const localDemoPath = path.join(__dirname, '..', 'demo_data.json');
-  if (telemetry.length === 0 && fs.existsSync(localDemoPath)) {
-    try {
-      const raw = JSON.parse(fs.readFileSync(localDemoPath, 'utf8'));
-      telemetry = Array.isArray(raw) ? raw : (raw.telemetry || raw.points || []);
-      console.log(`✓ Loaded ${telemetry.length} telemetry points from ${localDemoPath}`);
-    } catch (e) {
-      console.warn(`Failed to load ${localDemoPath}:`, e.message);
-    }
-  }
-
-  // Try track-specific demo files
-  const demoDataDir = path.join(__dirname, '..', 'public', 'demo_data');
-  if (fs.existsSync(demoDataDir)) {
-    try {
-      const files = fs.readdirSync(demoDataDir).filter(f => f.endsWith('_demo.json'));
-      for (const file of files) {
-        const trackId = file.replace('_demo.json', '');
-        const content = JSON.parse(fs.readFileSync(path.join(demoDataDir, file), 'utf8'));
-        trackData[trackId] = content;
-        // Extract telemetry from track demo files if main telemetry is empty
-        if (telemetry.length === 0 && content.races && content.races.length > 0) {
-          const raceTelemetry = content.races[0].telemetry_sample || [];
-          raceTelemetry.forEach(t => {
-            t.track = trackId;
-            t.chassis = t.vehicle_id || t.chassis_number || `GR86-DEMO-${trackId}`;
-          });
-          telemetry.push(...raceTelemetry);
-        }
-      }
-      console.log(`✓ Loaded ${Object.keys(trackData).length} track demo files`);
-    } catch (e) {
-      console.warn(`Failed to load track demo files:`, e.message);
-    }
-  }
-
-  if (telemetry.length === 0) {
-    console.error('No telemetry data found. Server will run but endpoints may return empty data.');
-    console.error('Tried:', DEMO_DATA_PATH, localDemoPath, demoDataDir);
+  console.log("Loading demo data (demo-from-file.js)...");
+  const results = loadAllDemoData();
+  
+  telemetry = results.telemetry;
+  trackData = results.trackData;
+  
+  const summary = getDemoDataSummary(results);
+  console.log(`✓ Loaded ${summary.telemetry_count} telemetry points`);
+  console.log(`✓ Loaded ${summary.tracks_available} track demo files`);
+  
+  if (summary.errors.length > 0) {
+    console.warn('Errors during loading:', summary.errors);
   }
 }
 
@@ -74,15 +35,15 @@ loadDemoData();
 
 // load track sectors (fallback to default later)
 let trackSectors = {};
-if (fs.existsSync(TRACK_SECTORS_PATH)) {
+if (fs.existsSync(DEMO_CONFIG.TRACK_SECTORS_PATH)) {
   try {
-    trackSectors = JSON.parse(fs.readFileSync(TRACK_SECTORS_PATH, 'utf8'));
-    console.log(`✓ Loaded track sectors from ${TRACK_SECTORS_PATH}`);
+    trackSectors = JSON.parse(fs.readFileSync(DEMO_CONFIG.TRACK_SECTORS_PATH, 'utf8'));
+    console.log(`✓ Loaded track sectors from ${DEMO_CONFIG.TRACK_SECTORS_PATH}`);
   } catch (e) {
     console.warn('Failed to load track_sectors.json:', e.message);
   }
 } else {
-  console.warn('track_sectors.json not found at', TRACK_SECTORS_PATH);
+  console.warn('track_sectors.json not found at', DEMO_CONFIG.TRACK_SECTORS_PATH);
 }
 
 const app = express();
@@ -90,7 +51,16 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/api/demo_data', (req, res) => {
-  res.json({ meta: { source: DEMO_DATA_PATH, count: telemetry.length }, telemetry });
+  const summary = getDemoDataSummary({ telemetry, trackData, sources: [], errors: [], warnings: [] });
+  res.json({ 
+    meta: { 
+      source: DEMO_CONFIG.DEMO_DATA_PATH, 
+      count: telemetry.length,
+      tracks_available: summary.tracks_available
+    }, 
+    telemetry: telemetry.slice(0, DEMO_CONFIG.MAX_TELEMETRY_RESPONSE),
+    tracks: trackData
+  });
 });
 
 app.get('/api/predict_demo/:track/:chassis', (req, res) => {
@@ -131,7 +101,16 @@ app.get('/api/predict_demo/:track/:chassis', (req, res) => {
   res.json(resp);
 });
 
-app.get('/api/health', (req, res) => res.json({ ok: true, demo_count: telemetry.length, time: new Date().toISOString() }));
+app.get('/api/health', (req, res) => {
+  const summary = getDemoDataSummary({ telemetry, trackData, sources: [], errors: [], warnings: [] });
+  res.json({ 
+    ok: true, 
+    demo_count: telemetry.length,
+    tracks_available: summary.tracks_available,
+    time: new Date().toISOString(),
+    demo_mode: true
+  });
+});
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server, path: '/ws/demo' });
@@ -264,6 +243,12 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(PORT, () => console.log(`Demo server running on http://localhost:${PORT} (demo file: ${DEMO_DATA_PATH})`));
+server.listen(DEMO_CONFIG.PORT, () => {
+  const summary = getDemoDataSummary({ telemetry, trackData, sources: [], errors: [], warnings: [] });
+  console.log(`Demo server running on http://localhost:${DEMO_CONFIG.PORT}`);
+  console.log(`  Telemetry points: ${summary.telemetry_count}`);
+  console.log(`  Tracks available: ${summary.tracks_available}`);
+  console.log(`  Demo file: ${DEMO_CONFIG.DEMO_DATA_PATH}`);
+});
 
 

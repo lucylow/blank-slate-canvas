@@ -4,71 +4,71 @@
 // Usage: DEMO_DATA_PATH=/path/to/demo_data.json node server/demo-server.js
 // Or: node server/demo-server.js (uses default paths)
 
-const path = require("path");
-const fs = require("fs");
 const http = require("http");
 const express = require("express");
 const WebSocket = require("ws");
 const cors = require("cors");
 const TelemetrySimulator = require("./telemetry-simulator");
+const { DEMO_CONFIG, normalizeTrackId } = require("./demo-config");
+const { loadAllDemoData, getDemoDataSummary } = require("./demo-loader");
 
-// Config
-const PORT = process.env.DEMO_PORT || process.env.PORT || 8081;
-const DEMO_DATA_PATH = process.env.DEMO_DATA_PATH || path.join(__dirname, "..", "demo_data.json");
-const DEMO_DATA_DIR = path.join(__dirname, "..", "public", "demo_data");
-const DEFAULT_TRACK = process.env.DEFAULT_TRACK || "sebring"; // Default track for demo
-
-// Load demo data
+// Load demo data using centralized loader
 let telemetry = [];
 let trackData = {};
 const simulator = new TelemetrySimulator();
 
 function loadDemoData() {
-  // Try to load from single demo_data.json file first
-  if (fs.existsSync(DEMO_DATA_PATH)) {
-    try {
-      const raw = JSON.parse(fs.readFileSync(DEMO_DATA_PATH, "utf8"));
-      // Normalize: ensure raw is an array of telemetry points
-      telemetry = Array.isArray(raw) ? raw : (raw.points || []);
-      console.log(`✓ Loaded ${telemetry.length} telemetry points from ${DEMO_DATA_PATH}`);
-    } catch (e) {
-      console.warn(`Failed to load ${DEMO_DATA_PATH}:`, e.message);
-    }
+  console.log("Loading demo data...");
+  const results = loadAllDemoData();
+  
+  telemetry = results.telemetry;
+  trackData = results.trackData;
+  
+  // Log summary
+  const summary = getDemoDataSummary(results);
+  console.log("=".repeat(60));
+  console.log("Demo Data Loading Summary:");
+  console.log(`  Telemetry points: ${summary.telemetry_count}`);
+  console.log(`  Tracks available: ${summary.tracks_available}`);
+  if (summary.track_ids.length > 0) {
+    console.log(`  Track IDs: ${summary.track_ids.join(", ")}`);
   }
-
-  // Also load track-specific demo files for /api/demo_data endpoint
-  if (fs.existsSync(DEMO_DATA_DIR)) {
-    try {
-      const files = fs.readdirSync(DEMO_DATA_DIR).filter(f => f.endsWith("_demo.json"));
-      for (const file of files) {
-        const trackId = file.replace("_demo.json", "");
-        const content = JSON.parse(fs.readFileSync(path.join(DEMO_DATA_DIR, file), "utf8"));
-        trackData[trackId] = content;
+  
+  if (summary.sources.length > 0) {
+    console.log("  Sources:");
+    summary.sources.forEach(source => {
+      if (source.type === 'primary' || source.type === 'fallback') {
+        console.log(`    - ${source.type}: ${source.path} (${source.count} points, ${source.format})`);
+      } else {
+        console.log(`    - ${source.type}: ${source.track} (${source.count} points)`);
       }
-      console.log(`✓ Loaded ${Object.keys(trackData).length} track demo files`);
-      
-      // Process default track data for WebSocket streaming
-      if (trackData[DEFAULT_TRACK]) {
-        simulator.loadTrackData(trackData[DEFAULT_TRACK]);
-        // Also populate legacy telemetry array for backward compatibility
-        telemetry = simulator.getAllPoints();
-        console.log(`✓ Loaded ${telemetry.length} processed telemetry points from ${DEFAULT_TRACK}`);
-      }
-    } catch (e) {
-      console.warn(`Failed to load track demo files:`, e.message);
+    });
+  }
+  
+  if (summary.warnings.length > 0) {
+    console.log("  Warnings:");
+    summary.warnings.forEach(w => console.log(`    ⚠ ${w}`));
+  }
+  
+  if (summary.errors.length > 0) {
+    console.log("  Errors:");
+    summary.errors.forEach(e => console.log(`    ✗ ${e}`));
+  }
+  
+  // Process default track data for WebSocket streaming
+  const defaultTrack = normalizeTrackId(DEMO_CONFIG.DEFAULT_TRACK);
+  if (trackData[defaultTrack]) {
+    try {
+      simulator.loadTrackData(trackData[defaultTrack]);
+      // Also populate legacy telemetry array for backward compatibility
+      telemetry = simulator.getAllPoints();
+      console.log(`✓ Processed ${telemetry.length} telemetry points from ${defaultTrack} for WebSocket streaming`);
+    } catch (error) {
+      console.warn(`Failed to process ${defaultTrack} for simulator:`, error.message);
     }
   }
-
-  // Fallback: use sample_laps.json if no demo data found
-  if (telemetry.length === 0) {
-const SAMPLE_PATH = path.join(__dirname, "sample_data", "sample_laps.json");
-    if (fs.existsSync(SAMPLE_PATH)) {
-      telemetry = JSON.parse(fs.readFileSync(SAMPLE_PATH, "utf8"));
-      console.log(`✓ Using fallback sample data: ${telemetry.length} points`);
-    } else {
-      console.warn("⚠ No demo data found. Server will run but endpoints may return empty data.");
-    }
-  }
+  
+  console.log("=".repeat(60));
 }
 
 loadDemoData();
@@ -80,18 +80,24 @@ const app = express();
 // CORS middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(require("path").join(__dirname, "..", "public")));
 
 // REST endpoint: Get full demo dataset
 app.get("/api/demo_data", (req, res) => {
+  const summary = getDemoDataSummary({ telemetry, trackData, sources: [], errors: [], warnings: [] });
   res.json({
     meta: {
-      source: DEMO_DATA_PATH,
+      source: DEMO_CONFIG.DEMO_DATA_PATH,
       count: telemetry.length,
       tracks_available: Object.keys(trackData).length,
-      loaded_at: new Date().toISOString()
+      track_ids: Object.keys(trackData).sort(),
+      loaded_at: new Date().toISOString(),
+      config: {
+        default_track: DEMO_CONFIG.DEFAULT_TRACK,
+        max_response_points: DEMO_CONFIG.MAX_TELEMETRY_RESPONSE
+      }
     },
-    telemetry: telemetry.slice(0, 1000), // Limit to first 1000 points for response size
+    telemetry: telemetry.slice(0, DEMO_CONFIG.MAX_TELEMETRY_RESPONSE),
     tracks: trackData
   });
 });
@@ -100,12 +106,18 @@ app.get("/api/demo_data", (req, res) => {
 app.get("/api/predict_demo/:track/:chassis", (req, res) => {
   const { track, chassis } = req.params;
 
+  // Normalize track ID
+  const trackId = normalizeTrackId(track);
+  if (!trackId) {
+    return res.status(400).json({ error: "Invalid track identifier" });
+  }
+
   // Get telemetry points for this track/chassis
-  const trackId = track.toLowerCase().replace(/\s+/g, "_");
+  const normalizedChassis = chassis ? chassis.toLowerCase().trim() : null;
   const points = telemetry.filter(p => {
-    const pTrack = (p.track || "").toLowerCase().replace(/\s+/g, "_");
+    const pTrack = normalizeTrackId(p.track);
     const pChassis = (p.chassis || p.vehicle_id || "").toLowerCase();
-    return pTrack === trackId && (pChassis.includes(chassis.toLowerCase()) || !chassis);
+    return pTrack === trackId && (!normalizedChassis || pChassis.includes(normalizedChassis));
   });
 
   // If no points found, try to get from track-specific demo files
@@ -113,7 +125,22 @@ app.get("/api/predict_demo/:track/:chassis", (req, res) => {
   if (points.length === 0 && trackData[trackId]) {
     const trackDemo = trackData[trackId];
     if (trackDemo.races && trackDemo.races.length > 0) {
-      trackTelemetry = trackDemo.races[0].telemetry_sample || [];
+      // Try to find matching chassis in races
+      for (const race of trackDemo.races) {
+        if (race.telemetry_sample && Array.isArray(race.telemetry_sample)) {
+          const racePoints = normalizedChassis
+            ? race.telemetry_sample.filter(p => {
+                const pChassis = (p.chassis || p.vehicle_id || "").toLowerCase();
+                return !normalizedChassis || pChassis.includes(normalizedChassis);
+              })
+            : race.telemetry_sample;
+          
+          if (racePoints.length > 0) {
+            trackTelemetry = racePoints;
+            break;
+          }
+        }
+      }
     }
   } else {
     trackTelemetry = points;
@@ -214,30 +241,41 @@ app.get("/api/health", (req, res) => {
 // API endpoint to switch active track for WebSocket streaming
 app.post("/api/set_track/:trackId", (req, res) => {
   const { trackId } = req.params;
-  const normalizedTrackId = trackId.toLowerCase();
+  const normalized = normalizeTrackId(trackId);
   
-  if (!trackData[normalizedTrackId]) {
+  if (!normalized) {
+    return res.status(400).json({
+      error: "Invalid track identifier",
+      provided: trackId
+    });
+  }
+  
+  if (!trackData[normalized]) {
     return res.status(404).json({
       error: "Track not found",
-      available_tracks: Object.keys(trackData)
+      track_id: normalized,
+      available_tracks: Object.keys(trackData).sort()
     });
   }
   
   try {
-    simulator.loadTrackData(trackData[normalizedTrackId]);
+    simulator.loadTrackData(trackData[normalized]);
     telemetry = simulator.getAllPoints(); // Update legacy array
     
     res.json({
       success: true,
-      track: normalizedTrackId,
-      track_name: trackData[normalizedTrackId].track_name,
+      track: normalized,
+      track_name: trackData[normalized].track_name || normalized,
+      location: trackData[normalized].location,
       vehicles: simulator.getVehicles(),
-      telemetry_points: telemetry.length
+      telemetry_points: telemetry.length,
+      races_available: trackData[normalized].races?.length || 0
     });
   } catch (error) {
     res.status(500).json({
       error: "Failed to load track",
-      message: error.message
+      message: error.message,
+      track_id: normalized
     });
   }
 });
@@ -287,7 +325,7 @@ function setupWebSocketReplay(wssInstance, pathName) {
       vehicleIndices.set('default', 0);
     }
 
-    let intervalMs = 80; // Default: 12.5 points/sec (10Hz with variation)
+    let intervalMs = DEMO_CONFIG.DEFAULT_INTERVAL_MS;
     let timer = null;
     let isPaused = false;
     let lastSendTime = Date.now();
@@ -375,13 +413,16 @@ function setupWebSocketReplay(wssInstance, pathName) {
         }
       };
       
-      // Use dynamic interval with slight variation for realism
+        // Use dynamic interval with slight variation for realism
       const scheduleNext = () => {
         if (ws.readyState !== WebSocket.OPEN || isPaused) return;
         
         // Add small random variation to interval (10-20Hz range)
         const variation = intervalMs * 0.1 * (Math.random() - 0.5); // ±10% variation
-        const nextInterval = Math.max(50, Math.min(100, intervalMs + variation));
+        const nextInterval = Math.max(
+          DEMO_CONFIG.MIN_INTERVAL_MS, 
+          Math.min(DEMO_CONFIG.MAX_INTERVAL_MS, intervalMs + variation)
+        );
         
         timer = setTimeout(() => {
           sendNextBatch();
@@ -400,14 +441,14 @@ function setupWebSocketReplay(wssInstance, pathName) {
         
         if (cmd.type === "set_speed" && cmd.intervalMs) {
           if (timer) clearTimeout(timer);
-          intervalMs = Math.max(40, Math.min(500, cmd.intervalMs)); // Clamp between 40-500ms
+          intervalMs = Math.max(DEMO_CONFIG.MIN_INTERVAL_MS, Math.min(DEMO_CONFIG.MAX_INTERVAL_MS, cmd.intervalMs));
           timer = null;
           startReplay();
         } else if (cmd.type === "set_track" && cmd.trackId) {
           // Switch to different track
-          const normalizedTrackId = cmd.trackId.toLowerCase();
-          if (trackData[normalizedTrackId]) {
-            simulator.loadTrackData(trackData[normalizedTrackId]);
+          const normalized = normalizeTrackId(cmd.trackId);
+          if (normalized && trackData[normalized]) {
+            simulator.loadTrackData(trackData[normalized]);
             // Reset all vehicle indices
             const newVehicles = simulator.getVehicles();
             vehicleIndices.clear();
@@ -416,14 +457,16 @@ function setupWebSocketReplay(wssInstance, pathName) {
             });
             ws.send(JSON.stringify({ 
               type: "track_changed", 
-              track: normalizedTrackId,
+              track: normalized,
+              track_name: trackData[normalized].track_name || normalized,
               vehicles: newVehicles 
             }));
           } else {
             ws.send(JSON.stringify({ 
               type: "error", 
-              message: `Track not found: ${normalizedTrackId}`,
-              available_tracks: Object.keys(trackData)
+              message: `Track not found: ${cmd.trackId}`,
+              track_id: normalized || cmd.trackId,
+              available_tracks: Object.keys(trackData).sort()
             }));
           }
         } else if (cmd.type === "pause") {
@@ -450,21 +493,28 @@ setupWebSocketReplay(wssDemo, "/ws/demo");
 
 
 
-server.listen(PORT, () => {
+server.listen(DEMO_CONFIG.PORT, () => {
+  const summary = getDemoDataSummary({ telemetry, trackData, sources: [], errors: [], warnings: [] });
   console.log("=".repeat(60));
-  console.log(`Demo server listening on http://localhost:${PORT}`);
+  console.log(`Demo server listening on http://localhost:${DEMO_CONFIG.PORT}`);
   console.log(`WebSocket endpoints:`);
-  console.log(`  - ws://localhost:${PORT}/ws`);
-  console.log(`  - ws://localhost:${PORT}/ws/demo`);
+  console.log(`  - ws://localhost:${DEMO_CONFIG.PORT}/ws`);
+  console.log(`  - ws://localhost:${DEMO_CONFIG.PORT}/ws/demo`);
   console.log(`REST endpoints:`);
   console.log(`  - GET /api/demo_data`);
   console.log(`  - GET /api/predict_demo/:track/:chassis`);
+  console.log(`  - GET /api/tracks`);
+  console.log(`  - POST /api/set_track/:trackId`);
   console.log(`  - GET /api/health`);
   console.log(`  - GET /health`);
-  console.log(`Loaded ${telemetry.length} telemetry points`);
-  console.log(`Loaded ${Object.keys(trackData).length} track demo files`);
+  console.log(`Data loaded:`);
+  console.log(`  - Telemetry points: ${summary.telemetry_count}`);
+  console.log(`  - Tracks available: ${summary.tracks_available}`);
+  if (summary.track_ids.length > 0) {
+    console.log(`  - Track IDs: ${summary.track_ids.join(", ")}`);
+  }
   if (simulator.getVehicles().length > 0) {
-    console.log(`Active track: ${DEFAULT_TRACK}`);
+    console.log(`Active track: ${DEMO_CONFIG.DEFAULT_TRACK}`);
     console.log(`Vehicles streaming: ${simulator.getVehicles().join(', ')}`);
   }
   console.log("=".repeat(60));
