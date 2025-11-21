@@ -49,6 +49,9 @@ app.add_middleware(
 # Include frontend integration router (SSE streaming, enhanced endpoints)
 app.include_router(frontend_router, tags=["Frontend Integration"])
 
+# Include anomaly detection WebSocket router
+app.include_router(anomaly_router, tags=["Anomaly Detection"])
+
 
 @app.get("/")
 async def root():
