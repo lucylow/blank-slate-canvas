@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BackendConfig } from '@/lib/types';
-
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+import { getBackendUrl } from '@/utils/backendUrl';
 
 export function useBackendConfig() {
   const [config, setConfig] = useState<BackendConfig | null>(null);
