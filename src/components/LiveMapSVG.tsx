@@ -24,11 +24,13 @@ export default function LiveMapSVG({
   const [pathData, setPathData] = useState<string>("M100,300 C300,50 900,50 1100,300 C900,550 300,550 100,300 Z");
   const [viewBox, setViewBox] = useState<string>("0 0 1200 600");
   const [svgUrl, setSvgUrl] = useState<string>("");
+  const [imageError, setImageError] = useState<boolean>(false);
 
   // Set SVG image URL when track changes
   useEffect(() => {
     if (track) {
       setSvgUrl(`/tracks/${track}.svg`);
+      setImageError(false);
       // Also load path for car positioning
       loadSvgPath(`/tracks/${track}.svg`, svgId).then((res) => {
         if (res && res.d) {
@@ -37,7 +39,12 @@ export default function LiveMapSVG({
             setViewBox(res.viewBox);
           }
         }
+      }).catch((err) => {
+        console.warn(`Failed to load track path: ${track}`, err);
       });
+    } else {
+      setSvgUrl("");
+      setImageError(false);
     }
   }, [track, svgId]);
 
@@ -56,41 +63,62 @@ export default function LiveMapSVG({
     // rotate to tangent (approx)
     const ahead = path.getPointAtLength(Math.min(len, pct*len + 3));
     const angle = Math.atan2(ahead.y - pos.y, ahead.x - pos.x) * 180 / Math.PI;
-    carRef.current.style.transform = `rotate(${angle}deg)`;
-    carInnerRef.current.style.transform = `rotate(${angle}deg)`;
+    carRef.current.setAttribute("transform", `rotate(${angle} ${pos.x} ${pos.y})`);
+    carInnerRef.current.setAttribute("transform", `rotate(${angle} ${pos.x} ${pos.y})`);
   }, [lapdist, totalMeters, pathData]);
 
+  const showImage = svgUrl && !imageError;
+  const showPath = !showImage;
+
   return (
-    <div className={className ?? "w-full h-[500px] bg-gradient-to-br from-card/50 via-card/30 to-card/20 rounded-md p-4 relative overflow-hidden"}>
+    <div className={className ?? "w-full h-[500px] bg-gradient-to-br from-card/90 via-card/70 to-card/50 rounded-md p-4 relative overflow-hidden border border-border/50"}>
       {/* Track map image as background */}
-      {svgUrl && (
+      {svgUrl && !imageError && (
         <img 
           src={svgUrl}
-          alt={`${track} track map`}
+          alt={`${track || 'track'} track map`}
           className="absolute inset-0 w-full h-full object-contain opacity-95"
           style={{ filter: 'brightness(0.95) contrast(1.05)' }}
+          onError={() => {
+            // Fallback if image fails to load
+            console.warn(`Failed to load track map: ${svgUrl}`);
+            setImageError(true);
+          }}
+          onLoad={() => {
+            setImageError(false);
+          }}
         />
       )}
       
-      {/* SVG overlay for car position indicator */}
+      {/* SVG overlay for car position indicator and track path */}
       <svg viewBox={viewBox} className="w-full h-full relative z-10" preserveAspectRatio="xMidYMid meet">
-        {/* Hidden track path for car positioning calculations */}
+        {/* Track path - visible if no image or image failed to load */}
         <path 
           ref={pathRef}
           id={svgId} 
           d={pathData} 
           fill="none" 
-          stroke="transparent" 
+          stroke={showPath ? "#334155" : "transparent"} 
           strokeWidth={6}
           strokeLinecap="round"
           strokeLinejoin="round"
+          opacity={showPath ? 0.6 : 0}
         />
-        {/* Car indicator overlay */}
-        <g>
-          <circle ref={carRef} r={12} fill="#EB0A1E" stroke="#fff" strokeWidth={2.5} opacity={0.95} />
-          <circle ref={carInnerRef} r={7} fill="#fff" opacity={0.9} />
-        </g>
+        {/* Car indicator overlay - only show if we have valid path data */}
+        {pathData && (
+          <g>
+            <circle ref={carRef} cx="0" cy="0" r={12} fill="#EB0A1E" stroke="#fff" strokeWidth={2.5} opacity={0.95} />
+            <circle ref={carInnerRef} cx="0" cy="0" r={7} fill="#fff" opacity={0.9} />
+          </g>
+        )}
       </svg>
+      
+      {/* Loading/placeholder text */}
+      {!track && (
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <p className="text-muted-foreground text-sm">Select a track to view map</p>
+        </div>
+      )}
     </div>
   );
 }
