@@ -91,7 +91,7 @@ export const useAgentSystem = () => {
         const data = JSON.parse(event.data);
         
         switch (data.type) {
-          case 'insight_update':
+          case 'insight_update': {
             const newInsight: Insight = {
               ...data.data,
               insight_id: data.data.insight_id || data.data.id,
@@ -104,6 +104,7 @@ export const useAgentSystem = () => {
               return updated;
             });
             break;
+          }
 
           case 'eda_result':
             console.log('EDA Result:', data.data);

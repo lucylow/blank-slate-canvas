@@ -10,7 +10,24 @@ export default defineConfig(({ mode }) => ({
     port: parseInt(process.env.PORT || "8080", 10),
     strictPort: false,
     proxy: {
-      // Forward /api/* to backend during dev
+      // Forward agent API routes to agent API server (port 3001)
+      '/api/agents': {
+        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      '/api/insights': {
+        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      '/api/telemetry': {
+        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      '/api/system': {
+        target: process.env.VITE_AGENT_API_URL || 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      // Forward other /api/* to backend during dev
       // Backend runs on port 8000 by default (pitwall-backend)
       '/api': {
         target: process.env.VITE_BACKEND_URL || 'http://localhost:8000',

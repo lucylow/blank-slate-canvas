@@ -37,7 +37,29 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ agents, insights }) =
     };
 
     // Update visualization
-    updateVisualization();
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw metrics visualization
+        const metrics = metricsRef.current;
+        
+        // Insights per minute gauge
+        drawGauge(ctx, 50, 50, 40, metrics.insightsPerMinute / 10, '#3B82F6', 'Insights/min');
+        
+        // Processing time gauge
+        drawGauge(ctx, 150, 50, 40, Math.min(1, metrics.avgProcessingTime / 1000), '#10B981', 'Processing');
+        
+        // Utilization gauge
+        drawGauge(ctx, 250, 50, 40, metrics.agentUtilization / 100, '#F59E0B', 'Utilization');
+      }
+    }
   }, [agents, insights]);
 
   const calculateAvgProcessingTime = (insights: Insight[]): number => {
@@ -63,31 +85,6 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ agents, insights }) =
     return (activeAgents / agents.length) * 100;
   };
 
-  const updateVisualization = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-
-    // Draw metrics visualization
-    const metrics = metricsRef.current;
-    
-    // Insights per minute gauge
-    drawGauge(ctx, 50, 50, 40, metrics.insightsPerMinute / 10, '#3B82F6', 'Insights/min');
-    
-    // Processing time gauge
-    drawGauge(ctx, 150, 50, 40, Math.min(1, metrics.avgProcessingTime / 1000), '#10B981', 'Processing');
-    
-    // Utilization gauge
-    drawGauge(ctx, 250, 50, 40, metrics.agentUtilization / 100, '#F59E0B', 'Utilization');
-  };
 
   const drawGauge = (
     ctx: CanvasRenderingContext2D,
