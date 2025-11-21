@@ -1,0 +1,22 @@
+# Example Dockerfile for Node.js agents (orchestrator, preprocessor, delivery)
+# Build: docker build -t pitwall/orchestrator -f agents/Dockerfile.example .
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY agents/package.json ./
+RUN npm install --production
+
+# Copy agent code
+COPY agents/orchestrator/ ./orchestrator/
+COPY agents/config/ ./config/
+COPY public/tracks/track_sectors.json ./public/tracks/
+
+# Expose port
+EXPOSE 3000
+
+# Run agent
+CMD ["node", "orchestrator/router.js"]
+
