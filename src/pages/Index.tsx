@@ -496,6 +496,17 @@ const Index = () => {
     "Indianapolis Motor Speedway": "Indy_Circuit_Map.pdf",
   };
 
+  // Track SVG image map references
+  const TRACK_SVG_MAP: Record<string, string> = {
+    "Circuit of the Americas": "cota.svg",
+    "Road America": "road_america.svg",
+    "Sebring International": "sebring.svg",
+    "Sonoma Raceway": "sonoma.svg",
+    "Barber Motorsports Park": "barber.svg",
+    "Virginia International": "virginia.svg",
+    "Indianapolis Motor Speedway": "indianapolis.svg",
+  };
+
   const tracks = [
     { name: "Circuit of the Americas", location: "Austin, Texas", length: "3.427 miles", turns: 20, id: "cota" },
     { name: "Road America", location: "Elkhart Lake, Wisconsin", length: "4.048 miles", turns: 14, id: "road-america" },
@@ -818,7 +829,15 @@ const Index = () => {
                 <div className="h-48 bg-gradient-to-br from-primary/30 via-primary/20 to-accent/50 flex items-center justify-center relative overflow-hidden">
                   {/* Animated background pattern */}
                   <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:20px_20px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <MapPin className="w-20 h-20 text-primary relative z-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 drop-shadow-lg" />
+                  {TRACK_SVG_MAP[track.name] ? (
+                    <img 
+                      src={`/tracks/${TRACK_SVG_MAP[track.name]}`}
+                      alt={`${track.name} track map`}
+                      className="w-full h-full object-contain p-4 relative z-10 group-hover:scale-110 transition-all duration-300 drop-shadow-lg"
+                    />
+                  ) : (
+                    <MapPin className="w-20 h-20 text-primary relative z-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 drop-shadow-lg" />
+                  )}
                 </div>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">{track.name}</h3>
