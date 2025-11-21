@@ -10,12 +10,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { TRACKS } from "@/components/TrackSelector";
 
-import { predictMultiple } from "@/api/pitwall";
+import { predictMultiple, TirePredictionResponse } from "@/api/pitwall";
 
 import { cn } from "@/lib/utils";
 
 export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassis?: string }) {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<(TirePredictionResponse | { error: string; track: string })[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {

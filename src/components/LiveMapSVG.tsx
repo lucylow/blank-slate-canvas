@@ -58,7 +58,7 @@ export default function LiveMapSVG({
       <svg viewBox={viewBox} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
         {/* Track path loaded from SVG file */}
         <path 
-          ref={pathRef as any}
+          ref={pathRef}
           id={svgId} 
           d={pathData} 
           fill="none" 
@@ -69,7 +69,7 @@ export default function LiveMapSVG({
         />
         {/* car indicator */}
         <g>
-          <circle ref={carRef as any} r={8} fill="#EB0A1E" stroke="#fff" strokeWidth={1.5} />
+          <circle ref={carRef} r={8} fill="#EB0A1E" stroke="#fff" strokeWidth={1.5} />
         </g>
       </svg>
     </div>

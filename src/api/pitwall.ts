@@ -144,7 +144,7 @@ export async function checkHealth(): Promise<HealthResponse> {
   try {
     const res = await client.get<HealthResponse>("/health");
     return res.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error("Health check failed: Backend may be unavailable");
   }
 }
@@ -156,13 +156,15 @@ export async function getTracks(): Promise<TrackList> {
   try {
     const res = await client.get<TrackList>("/api/tracks");
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Tracks API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Tracks API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -174,13 +176,15 @@ export async function getTrack(trackId: string): Promise<Track> {
   try {
     const res = await client.get<Track>(`/api/tracks/${encodeURIComponent(trackId)}`);
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Track API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Track API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -192,13 +196,15 @@ export async function getRaceInfo(trackId: string, raceNumber: number): Promise<
   try {
     const res = await client.get<RaceInfo>(`/api/tracks/${encodeURIComponent(trackId)}/races/${raceNumber}`);
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Race info API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Race info API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -218,13 +224,15 @@ export async function getLiveDashboard(
       params: { track, race, vehicle, lap }
     });
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Dashboard API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Dashboard API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -236,13 +244,15 @@ export async function analyzeTireWear(request: TireWearRequest): Promise<{ succe
   try {
     const res = await client.post("/api/analytics/tire-wear", request);
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Tire wear API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Tire wear API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -254,13 +264,15 @@ export async function analyzePerformance(request: PerformanceRequest): Promise<{
   try {
     const res = await client.post("/api/analytics/performance", request);
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Performance API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Performance API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -272,13 +284,15 @@ export async function optimizeStrategy(request: StrategyRequest): Promise<{ succ
   try {
     const res = await client.post("/api/analytics/strategy", request);
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Strategy API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Strategy API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -297,13 +311,15 @@ export async function getGapAnalysis(
       params: { track, race, vehicle, lap }
     });
     return res.data;
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Gap analysis API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Gap analysis API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -349,13 +365,15 @@ export async function predictTire(track: string, chassis: string): Promise<TireP
         demo: false
       }
     };
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Predict API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Predict API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {
-      throw new Error(`Request error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
     }
   }
 }
@@ -366,8 +384,8 @@ export async function predictTire(track: string, chassis: string): Promise<TireP
 export async function simulateStrategy(data: {
   track: string;
   chassis: string;
-  strategy: any;
-}): Promise<any> {
+  strategy: unknown;
+}): Promise<{ success: boolean; data: StrategyOptimization; timestamp: string }> {
   try {
     const normalizedTrack = data.track.toLowerCase().replace(/\s+/g, '_');
     
@@ -382,11 +400,13 @@ export async function simulateStrategy(data: {
     };
     
     return await optimizeStrategy(request);
-  } catch (error: any) {
-    if (error.response) {
-      throw new Error(`Simulate API error (${error.response.status}): ${error.response.data?.message || error.response.statusText}`);
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Simulate API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
     } else {
-      throw new Error(`Simulate error: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Simulate error: ${message}`);
     }
   }
 }

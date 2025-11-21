@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type WSMsg = any;
+type WSMsg = unknown;
 
 interface UseWebSocketOptions {
   batchMs?: number;
@@ -122,7 +122,7 @@ export function useWebSocket(url: string, opts: UseWebSocketOptions = {}) {
     };
   }, [url, batchMs, maxBuffer, maxMessages]);
 
-  const send = (payload: any) => {
+  const send = (payload: unknown) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       try {
         wsRef.current.send(JSON.stringify(payload));

@@ -6,7 +6,20 @@ import { http, HttpResponse } from 'msw';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || '';
 
 // Mock prediction data
-const mockPredictions: Record<string, any> = {
+const mockPredictions: Record<string, {
+  chassis: string;
+  track: string;
+  predicted_loss_per_lap_s: number;
+  laps_until_0_5s_loss: number;
+  recommended_pit_lap: number;
+  feature_scores: Array<{ name: string; score: number }>;
+  explanation: string[];
+  meta: {
+    model_version: string;
+    generated_at: string;
+    demo: boolean;
+  };
+}> = {
   cota: {
     chassis: "GR86-DEMO-01",
     track: "cota",
@@ -133,7 +146,7 @@ export const handlers = [
 
   // Simulate endpoint
   http.post(`${API_BASE}/simulate`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = await request.json() as { track?: string; chassis?: string; strategy?: unknown };
     
     return HttpResponse.json({
       track: body.track,
