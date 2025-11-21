@@ -4,6 +4,8 @@
 // Usage: DEMO_DATA_PATH=/path/to/demo_data.json node server/demo-server.js
 // Or: node server/demo-server.js (uses default paths)
 
+const path = require("path");
+const fs = require("fs");
 const http = require("http");
 const express = require("express");
 const WebSocket = require("ws");
@@ -15,7 +17,33 @@ const { loadAllDemoData, getDemoDataSummary } = require("./demo-loader");
 // Load demo data using centralized loader
 let telemetry = [];
 let trackData = {};
+let agentData = null;
 const simulator = new TelemetrySimulator();
+
+// Load AI agents demo data
+function loadAgentData() {
+  const agentDataPath = path.join(__dirname, "..", "public", "demo_data", "ai_agents_demo.json");
+  
+  // Also check if extracted from tar archive
+  const extractedPath = path.join(__dirname, "..", "demo_data", "ai_agents_demo.json");
+  
+  let filePath = agentDataPath;
+  if (!fs.existsSync(filePath) && fs.existsSync(extractedPath)) {
+    filePath = extractedPath;
+  }
+  
+  if (fs.existsSync(filePath)) {
+    try {
+      const content = fs.readFileSync(filePath, "utf8");
+      agentData = JSON.parse(content);
+      console.log(`✓ Loaded AI agents demo data: ${agentData.agents?.length || 0} agents, ${agentData.decisions?.length || 0} decisions`);
+    } catch (error) {
+      console.warn(`Failed to load AI agents demo data from ${filePath}:`, error.message);
+    }
+  } else {
+    console.warn(`AI agents demo data not found at ${filePath}`);
+  }
+}
 
 function loadDemoData() {
   console.log("Loading demo data...");
@@ -72,6 +100,7 @@ function loadDemoData() {
 }
 
 loadDemoData();
+loadAgentData();
 
 
 
@@ -231,7 +260,7 @@ app.get("/api/health", (req, res) => {
     status: "healthy",
     demo_count: telemetry.length,
     tracks_available: Object.keys(trackData).length,
-    active_track: simulator.currentTrack || DEFAULT_TRACK,
+    active_track: simulator.currentTrack || DEMO_CONFIG.DEFAULT_TRACK,
     active_vehicles: simulator.getVehicles(),
     time: new Date().toISOString(),
     demo_mode: true
@@ -292,7 +321,141 @@ app.get("/api/tracks", (req, res) => {
   res.json({
     tracks,
     total: tracks.length,
-    active_track: simulator.currentTrack || DEFAULT_TRACK
+    active_track: simulator.currentTrack || DEMO_CONFIG.DEFAULT_TRACK
+  });
+});
+
+// AI Agents API endpoints for demo mode
+app.get("/api/agents/status", (req, res) => {
+  if (!agentData) {
+    return res.status(503).json({
+      success: false,
+      error: "AI agents demo data not available",
+      agents: [],
+      queues: { tasksLength: 0, resultsLength: 0, inboxLengths: [] },
+      redis_available: false,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const agents = agentData.agents || [];
+  const queues = {
+    tasksLength: 0,
+    resultsLength: agentData.decisions?.length || 0,
+    inboxLengths: agents.map(agent => ({
+      agentId: agent.id,
+      length: 0
+    }))
+  };
+
+  res.json({
+    success: true,
+    agents: agents.map(agent => ({
+      id: agent.id,
+      type: agent.type,
+      status: agent.status,
+      registered_at: agent.registered_at,
+      tracks: agent.tracks || []
+    })),
+    queues,
+    redis_available: false,
+    demo_mode: true,
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/api/agents/decisions", (req, res) => {
+  const { track, chassis, limit = 50, decision_type } = req.query;
+
+  if (!agentData || !agentData.decisions) {
+    return res.json({
+      success: true,
+      decisions: [],
+      count: 0,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  let decisions = [...(agentData.decisions || [])];
+
+  // Apply filters
+  if (track) {
+    const normalizedTrack = normalizeTrackId(track);
+    decisions = decisions.filter(d => normalizeTrackId(d.track) === normalizedTrack);
+  }
+
+  if (chassis) {
+    const normalizedChassis = chassis.toLowerCase().trim();
+    decisions = decisions.filter(d => {
+      const dChassis = (d.chassis || "").toLowerCase();
+      return dChassis.includes(normalizedChassis);
+    });
+  }
+
+  if (decision_type) {
+    decisions = decisions.filter(d => d.decision_type === decision_type);
+  }
+
+  // Limit results
+  const limitNum = parseInt(limit, 10) || 50;
+  decisions = decisions.slice(0, limitNum);
+
+  res.json({
+    success: true,
+    decisions,
+    count: decisions.length,
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/api/agents/insights/:insight_id", (req, res) => {
+  const { insight_id } = req.params;
+
+  if (!agentData) {
+    return res.status(404).json({
+      success: false,
+      error: "AI agents demo data not available"
+    });
+  }
+
+  // Check insights array
+  if (agentData.insights) {
+    const insight = agentData.insights.find(i => i.insight_id === insight_id);
+    if (insight) {
+      return res.json({
+        success: true,
+        insight,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  // Check decisions array as fallback
+  if (agentData.decisions) {
+    const decision = agentData.decisions.find(d => d.decision_id === insight_id);
+    if (decision) {
+      return res.json({
+        success: true,
+        insight: {
+          decision_id: decision.decision_id,
+          agent_id: decision.agent_id,
+          agent_type: decision.agent_type,
+          decision_type: decision.decision_type,
+          action: decision.action,
+          confidence: decision.confidence,
+          risk_level: decision.risk_level,
+          reasoning: decision.reasoning || [],
+          evidence: decision.evidence || {},
+          alternatives: decision.alternatives || []
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  res.status(404).json({
+    success: false,
+    error: `Insight '${insight_id}' not found`
   });
 });
 
@@ -505,6 +668,9 @@ server.listen(DEMO_CONFIG.PORT, () => {
   console.log(`  - GET /api/predict_demo/:track/:chassis`);
   console.log(`  - GET /api/tracks`);
   console.log(`  - POST /api/set_track/:trackId`);
+  console.log(`  - GET /api/agents/status`);
+  console.log(`  - GET /api/agents/decisions`);
+  console.log(`  - GET /api/agents/insights/:insight_id`);
   console.log(`  - GET /api/health`);
   console.log(`  - GET /health`);
   console.log(`Data loaded:`);
