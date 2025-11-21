@@ -97,9 +97,9 @@ export function TireWearCard({ wear }: Props) {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Predicted Laps Remaining:</span>
               <span className="font-semibold">{wear.predicted_laps_remaining} laps</span>
-              {hasCI && wear.ci_lower!.predicted_laps_remaining !== undefined && (
+              {hasCI && wear.ci_lower?.predicted_laps_remaining !== undefined && (
                 <span className="text-xs text-muted-foreground">
-                  [{wear.ci_lower!.predicted_laps_remaining} - {wear.ci_upper!.predicted_laps_remaining}] laps
+                  [{wear.ci_lower?.predicted_laps_remaining} - {wear.ci_upper?.predicted_laps_remaining}] laps
                 </span>
               )}
             </div>
