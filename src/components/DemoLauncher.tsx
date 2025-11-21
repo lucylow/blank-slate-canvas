@@ -1,10 +1,12 @@
 // src/components/DemoLauncher.tsx
+
 import React from "react";
 import { motion } from "framer-motion";
 import { Play, ExternalLink, Terminal, Zap } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const DemoLauncher: React.FC = () => {
   return (
@@ -51,7 +53,7 @@ const DemoLauncher: React.FC = () => {
               className="border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105"
             >
               <a
-                href={`${import.meta.env.VITE_API_BASE_URL || ''}/predict_tire/road_america/GR86-DEMO-01`}
+                href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/dashboard/live?track=road_america&race=1&vehicle=7&lap=12`}
                 target="_blank"
                 rel="noreferrer"
               >

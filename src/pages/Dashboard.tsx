@@ -1,13 +1,17 @@
 import { useState } from 'react';
-import { useBackendConfig } from '@/hooks/useBackendConfig';
-import { useLiveStream } from '@/hooks/useLiveStream';
+
+import { Loader2, Wifi, WifiOff, AlertCircle } from 'lucide-react';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+
 import { TireWearCard } from '@/components/dashboard/TireWearCard';
 import { StrategyCard } from '@/components/dashboard/StrategyCard';
 import { PerformanceCard } from '@/components/dashboard/PerformanceCard';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Loader2, Wifi, WifiOff, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+import { useBackendConfig } from '@/hooks/useBackendConfig';
+import { useLiveStream } from '@/hooks/useLiveStream';
 
 export function Dashboard() {
   const { config, loading: configLoading, error: configError } = useBackendConfig();
