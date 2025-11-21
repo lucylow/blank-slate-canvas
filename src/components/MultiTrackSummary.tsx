@@ -78,7 +78,7 @@ export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassi
           <div className="space-y-3">
             {TRACKS.map((track, i) => {
               const trackData = data[i];
-              const lossPerLap = trackData?.predicted_loss_per_lap_s || 0;
+              const lossPerLap = ('predicted_loss_per_lap_s' in (trackData || {})) ? (trackData as any).predicted_loss_per_lap_s : 0;
               const percentage = Math.min(100, (lossPerLap / 1) * 100);
               
               return (
@@ -94,8 +94,8 @@ export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassi
                       {formatTrackName(trackData?.track || track)}
                     </span>
                     <span className="font-mono font-semibold text-foreground ml-2">
-                      {trackData?.predicted_loss_per_lap_s 
-                        ? `${trackData.predicted_loss_per_lap_s.toFixed(2)}s` 
+                      {('predicted_loss_per_lap_s' in (trackData || {}))
+                        ? `${(trackData as any).predicted_loss_per_lap_s.toFixed(2)}s`
                         : '—'}
                     </span>
                   </div>

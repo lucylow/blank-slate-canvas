@@ -8,9 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePrediction } from "@/hooks/usePrediction";
-import { TirePredictionResponse } from "@/api/pitwall";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
 
 type Props = { 
   track: string; 
@@ -25,25 +23,16 @@ export default function PredictionPanel({
   pollMs = 4000, 
   onExplain 
 }: Props) {
-  const { toast } = useToast();
   
   const { 
     data: prediction, 
     isLoading, 
     error,
     isFetching,
-    dataUpdatedAt 
   } = usePrediction(track, chassis, {
     refetchInterval: pollMs,
     staleTime: 3000,
     retry: 2,
-    onError: (err) => {
-      toast({
-        title: "Prediction Error",
-        description: err.message,
-        variant: "destructive",
-      });
-    },
   });
 
   const renderBars = (items: {name:string,score:number}[] = []) => {
@@ -88,13 +77,13 @@ export default function PredictionPanel({
               <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
             )}
           </CardTitle>
-          {prediction?.meta?.generated_at && (
+          {prediction && prediction.meta?.generated_at && (
             <Badge variant="outline" className="text-xs">
               <Clock className="w-3 h-3 mr-1" />
               {new Date(prediction.meta.generated_at).toLocaleTimeString()}
             </Badge>
           )}
-          {prediction?.meta?.model_version && (
+          {prediction && prediction.meta?.model_version && (
             <Badge variant="secondary" className="text-xs ml-2">
               v{prediction.meta.model_version}
             </Badge>
@@ -124,7 +113,7 @@ export default function PredictionPanel({
               Retry
             </Button>
           </div>
-        ) : (
+        ) : prediction ? (
           <>
             {/* Main Metrics */}
             <div className="grid grid-cols-1 gap-4">
@@ -134,15 +123,15 @@ export default function PredictionPanel({
                   Predicted loss per lap
                 </div>
                 <div className="text-3xl font-bold text-foreground mb-1">
-                  {prediction ? `${(prediction.predicted_loss_per_lap_s ?? 0).toFixed(2)}` : '—'}
+                  {`${(prediction.predicted_loss_per_lap_s ?? 0).toFixed(2)}`}
                   <span className="text-lg text-muted-foreground ml-1">s/lap</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Laps until 0.5s loss: <span className="font-semibold text-foreground">{prediction?.laps_until_0_5s_loss ?? '—'}</span>
+                  Laps until 0.5s loss: <span className="font-semibold text-foreground">{prediction.laps_until_0_5s_loss ?? '—'}</span>
                 </div>
               </div>
 
-              {prediction?.recommended_pit_lap && (
+              {prediction.recommended_pit_lap && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -157,7 +146,7 @@ export default function PredictionPanel({
             </div>
 
             {/* Top Features */}
-            {prediction?.explanation && (
+            {prediction.explanation && prediction.explanation.length > 0 && (
               <div className="space-y-2">
                 <div className="text-xs font-semibold text-foreground flex items-center gap-2">
                   <Target className="w-3 h-3 text-primary" />
@@ -179,7 +168,7 @@ export default function PredictionPanel({
             )}
 
             {/* Explain Button */}
-            {prediction?.explanation && onExplain && (
+            {prediction.explanation && prediction.explanation.length > 0 && onExplain && (
               <div className="pt-2">
                 <Button
                   variant="outline"
@@ -192,9 +181,8 @@ export default function PredictionPanel({
               </div>
             )}
           </>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
 }
-
