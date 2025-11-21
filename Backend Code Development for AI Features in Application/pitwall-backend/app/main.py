@@ -11,6 +11,7 @@ import pandas as pd
 
 from app.config import API_TITLE, API_VERSION, API_DESCRIPTION, CORS_ORIGINS, TRACKS
 from app.routes.frontend_integration import router as frontend_router
+from app.routes.anomaly_detection import router as anomaly_router
 from app.models.analytics import (
     DashboardData, TireWearRequest, PerformanceRequest, 
     StrategyRequest, StrategyOptimization
@@ -47,6 +48,9 @@ app.add_middleware(
 
 # Include frontend integration router (SSE streaming, enhanced endpoints)
 app.include_router(frontend_router, tags=["Frontend Integration"])
+
+# Include anomaly detection router (real-time anomaly detection)
+app.include_router(anomaly_router)
 
 
 @app.get("/")

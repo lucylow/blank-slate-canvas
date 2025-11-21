@@ -11,6 +11,7 @@ import pandas as pd
 
 from app.config import API_TITLE, API_VERSION, API_DESCRIPTION, CORS_ORIGINS, TRACKS
 from app.routes.frontend_integration import router as frontend_router
+from app.routes.anomaly_ws import router as anomaly_router
 from app.models.analytics import (
     DashboardData, TireWearRequest, PerformanceRequest, 
     StrategyRequest, StrategyOptimization

@@ -3,23 +3,47 @@ Configuration settings for PitWall AI Backend
 """
 import os
 from pathlib import Path
+from typing import List
 
 # Base directories
 BASE_DIR = Path(__file__).parent.parent
-DATA_DIR = os.getenv("DATA_DIR", "/home/ubuntu/race_data")
+DATA_DIR = os.getenv("DATA_DIR", os.getenv("DATA_DIR", "/app/data"))
 
 # API Configuration
 API_TITLE = "PitWall AI Backend"
 API_VERSION = "1.0.0"
 API_DESCRIPTION = "Real-time racing analytics and AI-powered strategy optimization for Toyota GR Cup"
 
-# CORS Configuration
-CORS_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://void-form-forge.lovable.app",
-    "*"  # Allow all for hackathon demo
-]
+# Environment Configuration
+PORT = int(os.getenv("PORT", "8000"))
+DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+DATA_ARCHIVE_URL = os.getenv("DATA_ARCHIVE_URL", "")
+
+# CORS Configuration - support environment variable
+ALLOWED_ORIGINS_ENV = os.getenv("ALLOWED_ORIGINS", "")
+if ALLOWED_ORIGINS_ENV:
+    CORS_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS_ENV.split(",")]
+else:
+    # Default origins
+    CORS_ORIGINS = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://*.lovable.app",
+        "https://void-form-forge.lovable.app",
+    ]
+    # For demo mode, allow all
+    if DEMO_MODE:
+        CORS_ORIGINS.append("*")
+
+# Realtime Configuration
+SSE_INTERVAL_MS = int(os.getenv("SSE_INTERVAL_MS", "1000"))
+USE_REDIS_PUBSUB = os.getenv("USE_REDIS_PUBSUB", "false").lower() == "true"
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+
+# Model Configuration
+AE_MODEL_PATH = os.getenv("AE_MODEL_PATH", "")
+AE_THRESHOLD = float(os.getenv("AE_THRESHOLD", "0.0005"))
 
 # Track Configuration
 TRACKS = {
@@ -99,5 +123,8 @@ FUEL_CONFIG = {
 CACHE_ENABLED = True
 CACHE_TTL_SECONDS = 300  # 5 minutes
 
-# Logging
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+# Data paths
+DATA_RAW_DIR = Path(DATA_DIR) / "raw"
+DATA_PRECOMPUTED_DIR = Path(DATA_DIR) / "precomputed"
+DATA_DEMO_SLICES_DIR = Path(DATA_DIR) / "demo_slices"
+DATA_MODELS_DIR = Path(DATA_DIR) / "models"
