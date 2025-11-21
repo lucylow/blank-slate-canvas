@@ -10,31 +10,31 @@ interface Agent {
   capacity?: number;
 }
 
-interface Insight {
+export interface Insight {
   insight_id: string;
-  decision_id?: string; // Alternative ID field from InsightDetail
+  decision_id?: string;
   track: string;
   chassis: string;
   created_at: string;
   priority?: 'critical' | 'high' | 'normal' | 'low';
   type?: string;
-  decision_type?: string; // From InsightDetail
-  agent_id?: string; // From InsightDetail
-  agent_type?: string; // From InsightDetail
-  action?: string; // From InsightDetail
-  confidence?: number; // From InsightDetail
-  risk_level?: string; // From InsightDetail
-  reasoning?: string[]; // From InsightDetail
-  evidence?: Record<string, unknown>; // From InsightDetail
+  decision_type?: string;
+  agent_id?: string;
+  agent_type?: string;
+  action?: string;
+  confidence?: number;
+  risk_level?: string;
+  reasoning?: string[];
+  evidence?: Record<string, unknown>;
   alternatives?: Array<{
     action: string;
     risk: string;
     rationale: string;
-  }>; // From InsightDetail
+  }>;
   predictions?: {
     predicted_loss_per_lap_seconds?: number;
     laps_until_0_5s_loss?: number;
-    [key: string]: unknown;
+    [key: string]: string | number | undefined;
   };
   explanation?: {
     top_features?: Array<{
