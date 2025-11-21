@@ -14,7 +14,300 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      api_logs: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          latency_ms: number | null
+          method: string
+          request_body: Json | null
+          response_code: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          latency_ms?: number | null
+          method: string
+          request_body?: Json | null
+          response_code?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          latency_ms?: number | null
+          method?: string
+          request_body?: Json | null
+          response_code?: number | null
+        }
+        Relationships: []
+      }
+      driver_profiles: {
+        Row: {
+          avg_lap_time: number | null
+          brake_aggression: number | null
+          car_number: number
+          coaching_tip: string | null
+          consistency_score: number | null
+          fastest_lap_time: number | null
+          id: string
+          peak_pace_lap: number | null
+          strongest_sector: string | null
+          throttle_smoothness: number | null
+          updated_at: string | null
+          weakest_sector: string | null
+        }
+        Insert: {
+          avg_lap_time?: number | null
+          brake_aggression?: number | null
+          car_number: number
+          coaching_tip?: string | null
+          consistency_score?: number | null
+          fastest_lap_time?: number | null
+          id?: string
+          peak_pace_lap?: number | null
+          strongest_sector?: string | null
+          throttle_smoothness?: number | null
+          updated_at?: string | null
+          weakest_sector?: string | null
+        }
+        Update: {
+          avg_lap_time?: number | null
+          brake_aggression?: number | null
+          car_number?: number
+          coaching_tip?: string | null
+          consistency_score?: number | null
+          fastest_lap_time?: number | null
+          id?: string
+          peak_pace_lap?: number | null
+          strongest_sector?: string | null
+          throttle_smoothness?: number | null
+          updated_at?: string | null
+          weakest_sector?: string | null
+        }
+        Relationships: []
+      }
+      driver_telemetry: {
+        Row: {
+          brake_pressure: number | null
+          car_number: number
+          created_at: string | null
+          id: string
+          lap_number: number
+          lateral_g: number | null
+          longitudinal_g: number | null
+          race_session_id: string | null
+          speed: number | null
+          steering_angle: number | null
+          throttle_position: number | null
+          timestamp: string | null
+          tire_pressure_fl: number | null
+          tire_pressure_fr: number | null
+          tire_pressure_rl: number | null
+          tire_pressure_rr: number | null
+          tire_temp_front_left: number | null
+          tire_temp_front_right: number | null
+          tire_temp_rear_left: number | null
+          tire_temp_rear_right: number | null
+        }
+        Insert: {
+          brake_pressure?: number | null
+          car_number: number
+          created_at?: string | null
+          id?: string
+          lap_number: number
+          lateral_g?: number | null
+          longitudinal_g?: number | null
+          race_session_id?: string | null
+          speed?: number | null
+          steering_angle?: number | null
+          throttle_position?: number | null
+          timestamp?: string | null
+          tire_pressure_fl?: number | null
+          tire_pressure_fr?: number | null
+          tire_pressure_rl?: number | null
+          tire_pressure_rr?: number | null
+          tire_temp_front_left?: number | null
+          tire_temp_front_right?: number | null
+          tire_temp_rear_left?: number | null
+          tire_temp_rear_right?: number | null
+        }
+        Update: {
+          brake_pressure?: number | null
+          car_number?: number
+          created_at?: string | null
+          id?: string
+          lap_number?: number
+          lateral_g?: number | null
+          longitudinal_g?: number | null
+          race_session_id?: string | null
+          speed?: number | null
+          steering_angle?: number | null
+          throttle_position?: number | null
+          timestamp?: string | null
+          tire_pressure_fl?: number | null
+          tire_pressure_fr?: number | null
+          tire_pressure_rl?: number | null
+          tire_pressure_rr?: number | null
+          tire_temp_front_left?: number | null
+          tire_temp_front_right?: number | null
+          tire_temp_rear_left?: number | null
+          tire_temp_rear_right?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_telemetry_race_session_id_fkey"
+            columns: ["race_session_id"]
+            isOneToOne: false
+            referencedRelation: "race_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pit_recommendations: {
+        Row: {
+          car_number: number
+          created_at: string | null
+          current_lap: number
+          explanation: string | null
+          id: string
+          probability: number | null
+          race_session_id: string | null
+          recommended_pit_lap: number
+          risk_level: string | null
+          time_saved_sec: number | null
+          window_end: number | null
+          window_start: number | null
+        }
+        Insert: {
+          car_number: number
+          created_at?: string | null
+          current_lap: number
+          explanation?: string | null
+          id?: string
+          probability?: number | null
+          race_session_id?: string | null
+          recommended_pit_lap: number
+          risk_level?: string | null
+          time_saved_sec?: number | null
+          window_end?: number | null
+          window_start?: number | null
+        }
+        Update: {
+          car_number?: number
+          created_at?: string | null
+          current_lap?: number
+          explanation?: string | null
+          id?: string
+          probability?: number | null
+          race_session_id?: string | null
+          recommended_pit_lap?: number
+          risk_level?: string | null
+          time_saved_sec?: number | null
+          window_end?: number | null
+          window_start?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pit_recommendations_race_session_id_fkey"
+            columns: ["race_session_id"]
+            isOneToOne: false
+            referencedRelation: "race_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      race_sessions: {
+        Row: {
+          conditions: string | null
+          created_at: string | null
+          date: string | null
+          id: string
+          total_laps: number
+          track_id: string
+          track_name: string
+          track_temp: number | null
+          weather_temp: number | null
+        }
+        Insert: {
+          conditions?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          total_laps: number
+          track_id: string
+          track_name: string
+          track_temp?: number | null
+          weather_temp?: number | null
+        }
+        Update: {
+          conditions?: string | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          total_laps?: number
+          track_id?: string
+          track_name?: string
+          track_temp?: number | null
+          weather_temp?: number | null
+        }
+        Relationships: []
+      }
+      tire_predictions: {
+        Row: {
+          car_number: number
+          confidence: number | null
+          created_at: string | null
+          id: string
+          lap_number: number
+          laps_until_cliff: number | null
+          race_session_id: string | null
+          sector_1_wear: number | null
+          sector_2_wear: number | null
+          sector_3_wear: number | null
+          top_factors: Json | null
+          wear_percent: number
+        }
+        Insert: {
+          car_number: number
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          lap_number: number
+          laps_until_cliff?: number | null
+          race_session_id?: string | null
+          sector_1_wear?: number | null
+          sector_2_wear?: number | null
+          sector_3_wear?: number | null
+          top_factors?: Json | null
+          wear_percent: number
+        }
+        Update: {
+          car_number?: number
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          lap_number?: number
+          laps_until_cliff?: number | null
+          race_session_id?: string | null
+          sector_1_wear?: number | null
+          sector_2_wear?: number | null
+          sector_3_wear?: number | null
+          top_factors?: Json | null
+          wear_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tire_predictions_race_session_id_fkey"
+            columns: ["race_session_id"]
+            isOneToOne: false
+            referencedRelation: "race_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
