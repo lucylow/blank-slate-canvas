@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const { 
   DEMO_CONFIG, 
   normalizeTrackId, 
@@ -12,7 +13,23 @@ const {
 } = require('./demo-config');
 
 /**
- * Load and validate a JSON file
+ * Check if a file is gzip compressed by reading the magic bytes
+ */
+function isGzipFile(filePath) {
+  try {
+    const fd = fs.openSync(filePath, 'r');
+    const buffer = Buffer.alloc(2);
+    fs.readSync(fd, buffer, 0, 2, 0);
+    fs.closeSync(fd);
+    // Gzip magic bytes: 0x1f 0x8b
+    return buffer[0] === 0x1f && buffer[1] === 0x8b;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Load and validate a JSON file (handles both plain JSON and gzip-compressed JSON)
  */
 function loadJsonFile(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -20,7 +37,16 @@ function loadJsonFile(filePath) {
   }
   
   try {
-    const content = fs.readFileSync(filePath, 'utf8');
+    let content;
+    
+    // Check if file is gzip compressed
+    if (isGzipFile(filePath)) {
+      const compressed = fs.readFileSync(filePath);
+      content = zlib.gunzipSync(compressed).toString('utf8');
+    } else {
+      content = fs.readFileSync(filePath, 'utf8');
+    }
+    
     const data = JSON.parse(content);
     return { success: true, data };
   } catch (error) {

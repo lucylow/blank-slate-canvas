@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import DemoLauncher from "@/components/DemoLauncher";
+import AIAgentResults from "@/components/AIAgentResults";
 
-import { checkHealth } from "@/api/pitwall";
+import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
+import { useQuery } from "@tanstack/react-query";
 
 /* ================================================================================
 
@@ -379,6 +381,15 @@ const Index = () => {
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
 
+  // Fetch AI agent status for showcase
+  const { data: agentStatus } = useQuery<AgentStatusResponse>({
+    queryKey: ['agentStatus'],
+    queryFn: getAgentStatus,
+    enabled: !isDemoMode,
+    refetchInterval: 30000,
+    retry: 1,
+  });
+
   // Smooth scroll handler for anchor links with header offset
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('#')) {
@@ -504,55 +515,55 @@ const Index = () => {
     {
       icon: <TrendingUp className="w-6 h-6" />,
       title: "Real-Time Analytics",
-      description: "Process live telemetry data to provide instant insights on car performance, tire wear, and race strategy.",
+      description: "AI agents process live telemetry data to provide instant insights on car performance, tire wear, and race strategy.",
       gradient: "from-blue-500/20 to-cyan-500/20"
     },
     {
       icon: <Target className="w-6 h-6" />,
       title: "Predictive Tire Models",
-      description: "AI algorithms forecast tire degradation and recommend optimal pit stop windows with 95% accuracy.",
+      description: "Predictor Agent forecasts tire degradation with 95% accuracy. Strategy Agent recommends optimal pit stop windows.",
       gradient: "from-primary/20 to-red-500/20"
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Driver Performance",
-      description: "Analyze driver inputs and provide actionable feedback to improve lap times and consistency.",
+      description: "Coach Agent analyzes driver inputs and provides actionable feedback to improve lap times and consistency.",
       gradient: "from-purple-500/20 to-pink-500/20"
     },
     {
       icon: <Zap className="w-6 h-6" />,
       title: "Strategy Optimization",
-      description: "Simulate race scenarios to determine the optimal strategy for qualifying and race conditions.",
+      description: "Simulator Agent runs race scenarios. Strategy Agent determines optimal strategy for qualifying and race conditions.",
       gradient: "from-yellow-500/20 to-orange-500/20"
     },
     {
       icon: <MapPin className="w-6 h-6" />,
       title: "Track-Specific Models",
-      description: "Custom AI models trained on data from all 7 GR Cup tracks for circuit-specific insights.",
+      description: "AI agents use custom models trained on data from all 7 GR Cup tracks for circuit-specific insights.",
       gradient: "from-green-500/20 to-emerald-500/20"
     },
     {
       icon: <Flag className="w-6 h-6" />,
       title: "Live Gap Analysis",
-      description: "Monitor real-time gaps to competitors and calculate overtaking opportunities.",
+      description: "Strategy Agent monitors real-time gaps to competitors and calculates overtaking opportunities.",
       gradient: "from-indigo-500/20 to-blue-500/20"
     },
     {
       icon: <Sparkles className="w-6 h-6" />,
       title: "Explainable AI & Trust",
-      description: "Research-backed confidence intervals, uncertainty bands, and feature attribution for transparent decision-making.",
+      description: "Explainer Agent provides research-backed confidence intervals, uncertainty bands, and feature attribution for transparent decisions.",
       gradient: "from-emerald-500/20 to-teal-500/20"
     },
     {
       icon: <Target className="w-6 h-6" />,
       title: "Driver Coaching Insights",
-      description: "Corner-by-corner analysis with anomaly detection (lockups, early lifts) and actionable coaching feedback.",
+      description: "Coach Agent performs corner-by-corner analysis. Anomaly Detective Agent detects lockups and early lifts.",
       gradient: "from-violet-500/20 to-purple-500/20"
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Competitor Modeling",
-      description: "Predict competitor pit timing and identify undercut/overcut windows for strategic advantage.",
+      description: "Strategy Agent predicts competitor pit timing and identifies undercut/overcut windows for strategic advantage.",
       gradient: "from-rose-500/20 to-pink-500/20"
     }
   ];
@@ -654,6 +665,19 @@ const Index = () => {
               Dashboard
               <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
                 location.pathname === '/dashboard' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+            <Link 
+              to="/agents" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/agents' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              AI Agents
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/agents' ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
             </Link>
             <Link 
@@ -781,6 +805,22 @@ const Index = () => {
                       transition={{ delay: 0.13 }}
                     >
                       <Link 
+                        to="/agents" 
+                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                          location.pathname === '/agents'
+                            ? 'text-primary bg-primary/10'
+                            : 'hover:text-primary hover:bg-accent/50'
+                        }`}
+                      >
+                        AI Agents
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.13 }}
+                    >
+                      <Link 
                         to="/about" 
                         className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
                           location.pathname === '/about'
@@ -843,9 +883,23 @@ const Index = () => {
               Real-time race strategy & tire intelligence for the GR Cup
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-            Predict tire loss, recommend pit windows, and get explainable radio-ready guidance — live.
+          <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed">
+            Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
           </p>
+          {agentStatus && agentStatus.agents.length > 0 && (
+            <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm font-medium text-primary">
+                  {agentStatus.agents.filter(a => a.status === 'active').length} AI Agents Active
+                </span>
+              </div>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-xs text-muted-foreground">
+                {agentStatus.agents.length} Total Agents
+              </span>
+            </div>
+          )}
           
           <div className="flex flex-col items-center gap-5 mb-12 max-w-2xl mx-auto">
             <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
@@ -880,25 +934,44 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/dashboard">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/comprehensive">
               <Button 
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
+                aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
+              >
+                View Comprehensive Dashboard
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link to="/dashboard">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="Run Demo - Opens interactive dashboard"
               >
                 Run Demo
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm"
-              aria-label="Watch 3-minute demo video"
-            >
-              Watch 3-min Video
-            </Button>
+            <Link to="/agents">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                aria-label="View AI Agents"
+              >
+                <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
+                AI Agents
+                {agentStatus && agentStatus.agents.length > 0 && (
+                  <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
+                    {agentStatus.agents.filter(a => a.status === 'active').length} active
+                  </span>
+                )}
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -906,6 +979,81 @@ const Index = () => {
       {/* Demo Launcher Section */}
       <section className="py-12 px-6">
         <DemoLauncher />
+      </section>
+
+      {/* AI Agents Showcase Section */}
+      <section className="py-24 px-6 bg-gradient-to-br from-primary/10 via-primary/5 to-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)]" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Autonomous AI Agent System</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Powered by 7 Specialized AI Agents
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
+              Our distributed multi-agent system works autonomously in real-time, each agent specializing in a specific aspect of race analytics and strategy.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto mb-8">
+              {['Strategy Agent', 'Coach Agent', 'Anomaly Detective', 'Predictor Agent', 'Simulator Agent', 'Explainer Agent', 'EDA Agent'].map((agent, idx) => (
+                <div key={idx} className="px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105">
+                  <span className="text-sm font-medium">{agent}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* AI Agent Results from demo_data.json */}
+          <div className="mb-12">
+            <AIAgentResults />
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Target className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Autonomous Decisions</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Strategy, Coach, and Anomaly agents make autonomous decisions with confidence scores, reasoning, and evidence in under 200ms.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Real-Time Processing</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Specialized agents process telemetry at 20Hz, with sub-200ms latency from data ingestion to decision delivery.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Explainable AI</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Every decision includes confidence scores, feature attribution, and human-readable explanations for transparent decision-making.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="text-center mt-8">
+            <Link to="/agents">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group">
+                View AI Agent Dashboard
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
@@ -919,7 +1067,7 @@ const Index = () => {
               Powerful Racing Intelligence
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              PitWall AI combines telemetry data, predictive modeling, and real-time analytics to give your team the competitive edge.
+              PitWall AI combines telemetry data, predictive modeling, and real-time analytics powered by our autonomous AI agent system to give your team the competitive edge.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1048,9 +1196,13 @@ const Index = () => {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Interactive Dashboard Preview
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Experience the power of PitWall AI with our real-time analytics dashboard.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
+              Experience the power of PitWall AI with our real-time analytics dashboard powered by autonomous AI agents.
             </p>
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span>All insights powered by our multi-agent AI system</span>
+            </div>
           </div>
           <Card className="overflow-hidden border-border/50 bg-card/60 backdrop-blur-md shadow-2xl shadow-primary/10 hover:shadow-primary/20 transition-all duration-300">
             <div className="bg-gradient-to-r from-card via-card/95 to-card border-b border-border/50 p-6">
@@ -1123,15 +1275,27 @@ const Index = () => {
               </Card>
             </div>
             <div className="p-6 border-t border-border/50 text-center bg-gradient-to-r from-card/50 via-card/30 to-card/50">
-              <Link to="/dashboard">
-                <Button 
-                  size="lg" 
-                  className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
-                >
-                  Open Full Dashboard
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link to="/comprehensive">
+                  <Button 
+                    size="lg" 
+                    className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
+                  >
+                    Open Comprehensive Dashboard
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link to="/dashboard">
+                  <Button 
+                    size="lg" 
+                    variant="outline"
+                    className="shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-105 group"
+                  >
+                    Standard Dashboard
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </Card>
         </div>

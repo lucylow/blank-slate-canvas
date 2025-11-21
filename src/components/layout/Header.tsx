@@ -1,14 +1,50 @@
-import { Clock, Wifi, WifiOff, Flag, MapPin, Play } from 'lucide-react';
+import { Clock, Wifi, WifiOff, Flag, MapPin, Play, Bot, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTelemetry } from '@/hooks/useTelemetry';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useDemoMode } from '@/hooks/useDemoMode';
+import { useQuery } from '@tanstack/react-query';
+import { getAgentStatus, type AgentStatusResponse } from '@/api/pitwall';
+
+// Navigation link component with active state
+function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+  
+  return (
+    <Link 
+      to={to} 
+      className={cn(
+        "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative group",
+        isActive 
+          ? "text-primary bg-primary/10" 
+          : "text-foreground/80 hover:text-foreground hover:bg-accent/50"
+      )}
+    >
+      {children}
+      {isActive && (
+        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+      )}
+    </Link>
+  );
+}
 
 export function Header() {
   const { currentLap, sessionTime, connectionStatus } = useTelemetry();
   const { isDemoMode } = useDemoMode();
+  const location = useLocation();
+  
+  // Fetch AI agent status
+  const { data: agentStatus } = useQuery<AgentStatusResponse>({
+    queryKey: ['agentStatus'],
+    queryFn: getAgentStatus,
+    refetchInterval: 30000,
+    retry: 1,
+  });
+  
+  const activeAgents = agentStatus?.agents.filter(a => a.status === 'active').length || 0;
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50 z-50 shadow-lg shadow-primary/5">
@@ -32,21 +68,32 @@ export function Header() {
 
         {/* Navigation Menu */}
         <nav className="hidden md:flex items-center space-x-1">
-          <Link to="/dashboard" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-            Dashboard
+          <NavLink to="/dashboard">Dashboard</NavLink>
+          <NavLink to="/tracks">Tracks</NavLink>
+          <NavLink to="/analytics">Analytics</NavLink>
+          <NavLink to="/pitwall">Strategy</NavLink>
+          <Link 
+            to="/agents" 
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 relative group flex items-center gap-2",
+              location.pathname === '/agents'
+                ? "text-primary bg-primary/10" 
+                : "text-foreground/80 hover:text-foreground hover:bg-accent/50"
+            )}
+          >
+            <Bot className="w-4 h-4" />
+            <span>AI Agents</span>
+            {activeAgents > 0 && (
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs bg-green-500/20 text-green-500 border-green-500/30">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse mr-1" />
+                {activeAgents}
+              </Badge>
+            )}
+            {location.pathname === '/agents' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+            )}
           </Link>
-          <Link to="/tracks" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-            Tracks
-          </Link>
-          <Link to="/analytics" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-            Analytics
-          </Link>
-          <Link to="/pitwall" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-            Strategy
-          </Link>
-          <Link to="/about" className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 rounded-lg transition-colors">
-            About
-          </Link>
+          <NavLink to="/about">About</NavLink>
         </nav>
 
         <div className="flex items-center space-x-2 sm:space-x-4">

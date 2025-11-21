@@ -1,6 +1,7 @@
 import { DashboardData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, Clock, TrendingUp, Target } from 'lucide-react';
+import { DemoButton } from '@/components/DemoButton';
 
 interface Props {
   performance: DashboardData['performance'];
@@ -11,10 +12,13 @@ export function PerformanceCard({ performance, meta }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-primary" />
-          Live Performance - Lap {meta.lap}/{meta.total_laps}
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-primary" />
+            Live Performance - Lap {meta.lap}/{meta.total_laps}
+          </CardTitle>
+          <DemoButton size="sm" variant="ghost" />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-6">

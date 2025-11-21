@@ -11,19 +11,52 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TRACKS } from "@/components/TrackSelector";
 
 import { predictMultiple, TirePredictionResponse } from "@/api/pitwall";
+import { predictDemo } from "@/api/demo";
+import { useDemoMode } from "@/hooks/useDemoMode";
 
 import { cn } from "@/lib/utils";
 
 export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassis?: string }) {
   const [data, setData] = useState<(TirePredictionResponse | { error: string; track: string })[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isDemoMode } = useDemoMode();
   
   useEffect(() => {
     let mounted = true;
     async function load() {
       setLoading(true);
       try {
-        const res = await predictMultiple(TRACKS, chassis);
+        let res: (TirePredictionResponse | { error: string; track: string })[];
+        
+        if (isDemoMode) {
+          // Use demo API for each track
+          const promises = TRACKS.map(async (track) => {
+            try {
+              const demoPred = await predictDemo(track, chassis);
+              // Convert demo response to TirePredictionResponse format
+              return {
+                chassis: demoPred.chassis,
+                track: demoPred.track,
+                predicted_loss_per_lap_s: demoPred.predicted_loss_per_lap_s,
+                laps_until_0_5s_loss: demoPred.laps_until_0_5s_loss,
+                recommended_pit_lap: demoPred.recommended_pit_lap,
+                feature_scores: demoPred.feature_scores,
+                explanation: demoPred.explanation,
+                meta: demoPred.meta
+              } as TirePredictionResponse;
+            } catch (e) {
+              return {
+                error: e instanceof Error ? e.message : String(e),
+                track: track,
+              };
+            }
+          });
+          res = await Promise.all(promises);
+        } else {
+          // Use real backend API
+          res = await predictMultiple(TRACKS, chassis);
+        }
+        
         if (!mounted) return;
         setData(res);
       } catch (error) {
@@ -38,7 +71,7 @@ export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassi
       mounted = false; 
       clearInterval(t); 
     };
-  }, [chassis]);
+  }, [chassis, isDemoMode]);
 
   const formatTrackName = (track: string) => {
     return track.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());

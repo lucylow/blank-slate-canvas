@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Gauge, Info, TrendingUp } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { DemoButton } from '@/components/DemoButton';
 
 interface Props { 
   wear: DashboardData['tire_wear']; 
@@ -34,6 +35,7 @@ export function TireWearCard({ wear }: Props) {
             Tire Wear Prediction
           </CardTitle>
           <div className="flex items-center gap-2">
+            <DemoButton size="sm" variant="ghost" />
             {wear.model_version && (
               <Badge variant="outline" className="text-xs">
                 {wear.model_version}

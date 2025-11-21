@@ -1,5 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import './RealTimeMetrics.css';
+import React, { useEffect, useRef, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { BarChart3, Zap, Clock, Activity } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Agent {
   id: string;
@@ -16,8 +19,7 @@ interface RealTimeMetricsProps {
 }
 
 const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ agents, insights }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const metricsRef = useRef({
+  const [metrics, setMetrics] = useState({
     insightsPerMinute: 0,
     avgProcessingTime: 0,
     agentUtilization: 0
@@ -30,36 +32,13 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ agents, insights }) =
       new Date(i.created_at).getTime() > lastMinute
     );
     
-    metricsRef.current = {
+    const newMetrics = {
       insightsPerMinute: recentInsights.length,
       avgProcessingTime: calculateAvgProcessingTime(insights),
       agentUtilization: calculateAgentUtilization(agents)
     };
-
-    // Update visualization
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const width = canvas.width;
-        const height = canvas.height;
-
-        // Clear canvas
-        ctx.clearRect(0, 0, width, height);
-
-        // Draw metrics visualization
-        const metrics = metricsRef.current;
-        
-        // Insights per minute gauge
-        drawGauge(ctx, 50, 50, 40, metrics.insightsPerMinute / 10, '#3B82F6', 'Insights/min');
-        
-        // Processing time gauge
-        drawGauge(ctx, 150, 50, 40, Math.min(1, metrics.avgProcessingTime / 1000), '#10B981', 'Processing');
-        
-        // Utilization gauge
-        drawGauge(ctx, 250, 50, 40, metrics.agentUtilization / 100, '#F59E0B', 'Utilization');
-      }
-    }
+    
+    setMetrics(newMetrics);
   }, [agents, insights]);
 
   const calculateAvgProcessingTime = (insights: Insight[]): number => {
@@ -85,75 +64,100 @@ const RealTimeMetrics: React.FC<RealTimeMetricsProps> = ({ agents, insights }) =
     return (activeAgents / agents.length) * 100;
   };
 
-
-  const drawGauge = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    radius: number,
-    value: number,
-    color: string,
-    label: string
-  ) => {
-    // Background circle
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = '#374151';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Value arc
-    ctx.beginPath();
-    ctx.arc(x, y, radius, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * value));
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Value text
-    ctx.fillStyle = 'white';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${Math.round(value * 100)}%`, x, y);
-
-    // Label
-    ctx.fillStyle = '#9CA3AF';
-    ctx.font = '10px Arial';
-    ctx.fillText(label, x, y + radius + 15);
-  };
-
   return (
-    <div className="real-time-metrics">
-      <h3>System Metrics</h3>
-      <div className="metrics-content">
-        <canvas 
-          ref={canvasRef}
-          width={350}
-          height={120}
-          className="metrics-canvas"
-        />
-        
-        <div className="metrics-text">
-          <div className="metric-item">
-            <span className="metric-label">Insights/Minute:</span>
-            <span className="metric-value">
-              {metricsRef.current.insightsPerMinute}
-            </span>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-5 w-5 text-primary" />
+          <CardTitle>System Metrics</CardTitle>
+        </div>
+        <CardDescription>
+          Real-time performance and utilization statistics
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Insights per Minute */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <Zap className="h-4 w-4 text-purple-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Insights/Minute</p>
+                  <p className="text-xs text-muted-foreground">Last 60 seconds</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{metrics.insightsPerMinute}</span>
+                <span className="text-sm text-muted-foreground">insights</span>
+              </div>
+              <Progress 
+                value={Math.min(100, (metrics.insightsPerMinute / 10) * 100)} 
+                className="h-2"
+              />
+            </div>
           </div>
-          <div className="metric-item">
-            <span className="metric-label">Avg Processing:</span>
-            <span className="metric-value">
-              {metricsRef.current.avgProcessingTime.toFixed(0)}ms
-            </span>
+
+          {/* Average Processing Time */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-green-500/10">
+                  <Clock className="h-4 w-4 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Avg Processing</p>
+                  <p className="text-xs text-muted-foreground">Time between insights</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">
+                  {metrics.avgProcessingTime > 0 ? metrics.avgProcessingTime.toFixed(0) : '0'}
+                </span>
+                <span className="text-sm text-muted-foreground">ms</span>
+              </div>
+              <Progress 
+                value={Math.min(100, (metrics.avgProcessingTime / 1000) * 100)} 
+                className="h-2"
+              />
+            </div>
           </div>
-          <div className="metric-item">
-            <span className="metric-label">Agent Utilization:</span>
-            <span className="metric-value">
-              {metricsRef.current.agentUtilization.toFixed(1)}%
-            </span>
+
+          {/* Agent Utilization */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <Activity className="h-4 w-4 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Agent Utilization</p>
+                  <p className="text-xs text-muted-foreground">Active agents</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">
+                  {metrics.agentUtilization.toFixed(1)}
+                </span>
+                <span className="text-sm text-muted-foreground">%</span>
+              </div>
+              <Progress 
+                value={metrics.agentUtilization} 
+                className="h-2"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

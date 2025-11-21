@@ -1,11 +1,12 @@
 // src/pages/PitWallDashboard.tsx
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Flag, Wifi, WifiOff, Activity, MapPin } from "lucide-react";
+import { Flag, Wifi, WifiOff, Activity, MapPin, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import TrackSelector, { TRACKS } from "@/components/TrackSelector";
 import LiveMapSVG from "@/components/LiveMapSVG";
@@ -14,6 +15,8 @@ import MultiTrackSummary from "@/components/MultiTrackSummary";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { AnomalyAlerts } from "@/components/anomaly/AnomalyAlerts";
 import RealTimeTimeSeriesChart from "@/components/pitwall/RealTimeTimeSeriesChart";
+import DemoButton, { type DemoData } from "@/components/pitwall/DemoButton";
+import AIAgentDecisions, { type AgentDecision } from "@/components/pitwall/AIAgentDecisions";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useDemoWs } from "@/hooks/useDemoWs";
@@ -23,7 +26,48 @@ import { getWsUrl } from "@/utils/wsUrl";
 
 export default function PitWallDashboard() {
   const [track, setTrack] = useState(TRACKS[0]);
-  const { isDemoMode } = useDemoMode();
+  const { isDemoMode, setIsDemoMode } = useDemoMode();
+  const [demoData, setDemoData] = useState<DemoData | null>(null);
+  const [agentDecisions, setAgentDecisions] = useState<AgentDecision[]>([]);
+  const [selectedDecision, setSelectedDecision] = useState<AgentDecision | null>(null);
+  
+  // Automatically enable demo mode when pitwall page loads
+  useEffect(() => {
+    // Enable demo mode on mount if not already set
+    // This ensures demo data is activated when visiting the pitwall page
+    setIsDemoMode(true);
+  }, [setIsDemoMode]);
+
+  // Handle demo data loading
+  const handleLoadDemo = (data: DemoData) => {
+    setDemoData(data);
+    // Convert demo decisions to AgentDecision format
+    if (data.decisions) {
+      const decisions: AgentDecision[] = data.decisions.map((d) => ({
+        decision_id: d.decision_id,
+        agent_id: d.agent_id,
+        agent_type: d.agent_type,
+        track: d.track,
+        chassis: d.chassis,
+        vehicle_number: d.vehicle_number,
+        timestamp: d.timestamp,
+        decision_type: d.decision_type as AgentDecision["decision_type"],
+        action: d.action,
+        confidence: d.confidence,
+        risk_level: d.risk_level as AgentDecision["risk_level"],
+        reasoning: d.reasoning,
+        evidence: d.evidence,
+      }));
+      setAgentDecisions(decisions);
+    }
+  };
+
+  // Filter decisions by current track
+  const filteredDecisions = useMemo(() => {
+    if (agentDecisions.length === 0) return [];
+    const trackId = track.id.toLowerCase();
+    return agentDecisions.filter((d) => d.track.toLowerCase() === trackId);
+  }, [agentDecisions, track]);
   
   // Use demo WebSocket when in demo mode, otherwise use regular WebSocket
   const demoWs = useDemoWs({
@@ -86,6 +130,7 @@ export default function PitWallDashboard() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4"
             >
+              <DemoButton onLoadDemo={handleLoadDemo} />
               <DemoModeToggle />
               <Badge 
                 variant={connected || isDemoMode ? "default" : "secondary"}
@@ -275,6 +320,44 @@ export default function PitWallDashboard() {
           >
             <MultiTrackSummary chassis="GR86-DEMO-01" />
             
+            {/* AI Agent Decisions */}
+            <AIAgentDecisions
+              decisions={filteredDecisions.length > 0 ? filteredDecisions : agentDecisions}
+              onDecisionClick={setSelectedDecision}
+              maxDisplay={5}
+            />
+            
+            {/* Agent Statistics */}
+            {demoData && demoData.meta && (
+              <Card className="bg-card/80 backdrop-blur-lg border-border/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">AI Agents Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Active Agents:</span>
+                    <span className="font-semibold">{demoData.meta.total_agents || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Total Decisions:</span>
+                    <span className="font-semibold">{demoData.meta.total_decisions || 0}</span>
+                  </div>
+                  {demoData.agents && (
+                    <div className="pt-2 border-t border-border">
+                      <div className="text-xs text-muted-foreground mb-1">Agent Types:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.from(new Set(demoData.agents.map(a => a.type))).map((type) => (
+                          <Badge key={type} variant="outline" className="text-xs">
+                            {type.replace("_", " ")}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            
             {/* Anomaly Detection Alerts */}
             {lastPoint && (
               <AnomalyAlerts
@@ -288,6 +371,114 @@ export default function PitWallDashboard() {
           </motion.aside>
         </div>
       </main>
+
+      {/* Decision Detail Modal */}
+      {selectedDecision && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-xl border border-border shadow-2xl"
+          >
+            <Card className="border-0">
+              <CardHeader className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border z-10">
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-xl">{selectedDecision.action}</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSelectedDecision(null)}
+                    className="h-8 w-8"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="outline">{selectedDecision.agent_type.replace("_", " ")}</Badge>
+                  <Badge variant="outline">{selectedDecision.track}</Badge>
+                  <Badge variant="outline">{selectedDecision.chassis}</Badge>
+                  <Badge variant="outline" className={selectedDecision.risk_level === "critical" ? "bg-red-500/20 text-red-400" : ""}>
+                    {selectedDecision.risk_level}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {/* Confidence */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Confidence</span>
+                    <span className="text-sm font-bold">{(selectedDecision.confidence * 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-3">
+                    <div
+                      className="bg-primary h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${selectedDecision.confidence * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Reasoning */}
+                {selectedDecision.reasoning && selectedDecision.reasoning.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Reasoning</h3>
+                    <ul className="space-y-2">
+                      {selectedDecision.reasoning.map((reason, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm">
+                          <span className="text-primary font-bold mt-0.5">{idx + 1}.</span>
+                          <span className="text-muted-foreground">{reason}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Evidence */}
+                {selectedDecision.evidence && Object.keys(selectedDecision.evidence).length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Evidence</h3>
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                      {Object.entries(selectedDecision.evidence).map(([key, value]) => (
+                        <div key={key} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground capitalize">
+                            {key.replace(/_/g, " ")}:
+                          </span>
+                          <span className="font-medium">
+                            {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Alternatives */}
+                {selectedDecision.alternatives && selectedDecision.alternatives.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Alternative Actions</h3>
+                    <div className="space-y-3">
+                      {selectedDecision.alternatives.map((alt, idx) => (
+                        <div key={idx} className="border border-border rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium">{alt.action}</span>
+                            <Badge variant="outline" className="text-xs">{alt.risk}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{alt.rationale}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Timestamp */}
+                <div className="text-xs text-muted-foreground pt-4 border-t border-border">
+                  Generated: {new Date(selectedDecision.timestamp).toLocaleString()}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

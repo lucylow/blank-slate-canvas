@@ -522,3 +522,417 @@ async def submit_telemetry(telemetry: Dict[str, Any]):
         logger.error(f"Error submitting telemetry: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ============================================================================
+# HUMAN-IN-THE-LOOP ENDPOINTS
+# ============================================================================
+
+@router.post("/decisions/{decision_id}/review")
+async def review_agent_decision(
+    decision_id: str,
+    review: Dict[str, Any]
+):
+    """
+    Human-in-the-loop: Review and approve/reject/modify an agent decision
+    
+    Request body:
+    {
+        "action": "approve" | "reject" | "modify",
+        "modified_action": "string (if action is modify)",
+        "feedback": "string (optional human feedback)",
+        "reviewer": "string (optional reviewer name)"
+    }
+    """
+    try:
+        import redis.asyncio as redis
+        redis_url = "redis://127.0.0.1:6379"
+        
+        action = review.get("action")
+        if action not in ["approve", "reject", "modify"]:
+            raise HTTPException(
+                status_code=400,
+                detail="action must be 'approve', 'reject', or 'modify'"
+            )
+        
+        # Get the original decision
+        try:
+            redis_client = await redis.from_url(redis_url, socket_connect_timeout=1)
+            await redis_client.ping()
+            
+            insight_key = f"insight:{decision_id}"
+            insight_data = await redis_client.hgetall(insight_key)
+            
+            if not insight_data:
+                # Try to find in results stream
+                results = await redis_client.xread(
+                    "BLOCK", 100, "COUNT", 100, "STREAMS", "results.stream", "0"
+                )
+                decision_found = False
+                if results:
+                    for stream_name, entries in results:
+                        for msg_id, fields in entries:
+                            result_json = fields.get(b"result")
+                            if result_json:
+                                decision = json.loads(result_json)
+                                if decision.get("decision_id") == decision_id:
+                                    decision_found = True
+                                    break
+                
+                if not decision_found:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"Decision '{decision_id}' not found"
+                    )
+            
+            # Store human review
+            review_data = {
+                "decision_id": decision_id,
+                "action": action,
+                "modified_action": review.get("modified_action"),
+                "feedback": review.get("feedback", ""),
+                "reviewer": review.get("reviewer", "unknown"),
+                "reviewed_at": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+            review_key = f"review:{decision_id}"
+            await redis_client.hset(
+                review_key,
+                mapping={
+                    "payload": json.dumps(review_data),
+                    "created_at": review_data["reviewed_at"]
+                }
+            )
+            
+            # Update decision status
+            status_key = f"decision_status:{decision_id}"
+            await redis_client.hset(
+                status_key,
+                mapping={
+                    "status": action,
+                    "reviewed_at": review_data["reviewed_at"],
+                    "reviewer": review_data["reviewer"]
+                }
+            )
+            
+            # Publish review event for real-time updates
+            await redis_client.publish(
+                "agent_reviews",
+                json.dumps({
+                    "type": "human_review",
+                    "decision_id": decision_id,
+                    "action": action,
+                    "timestamp": review_data["reviewed_at"]
+                })
+            )
+            
+            await redis_client.close()
+            
+            logger.info(f"Human review recorded: {decision_id} -> {action}")
+            
+            return {
+                "success": True,
+                "message": f"Decision {action}d successfully",
+                "review": review_data,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+        except Exception as e:
+            logger.warning(f"Redis not available, storing review in memory: {e}")
+            # Fallback to in-memory storage
+            if not hasattr(review_agent_decision, "_reviews"):
+                review_agent_decision._reviews = {}
+            
+            review_data = {
+                "decision_id": decision_id,
+                "action": action,
+                "modified_action": review.get("modified_action"),
+                "feedback": review.get("feedback", ""),
+                "reviewer": review.get("reviewer", "unknown"),
+                "reviewed_at": datetime.utcnow().isoformat()
+            }
+            
+            review_agent_decision._reviews[decision_id] = review_data
+            
+            return {
+                "success": True,
+                "message": f"Decision {action}d successfully (stored in memory)",
+                "review": review_data,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error reviewing decision: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/decisions/pending")
+async def get_pending_decisions(
+    track: Optional[str] = Query(None, description="Filter by track"),
+    chassis: Optional[str] = Query(None, description="Filter by chassis"),
+    risk_level: Optional[str] = Query(None, description="Filter by risk level"),
+    limit: int = Query(50, description="Maximum number of decisions to return")
+):
+    """
+    Get pending agent decisions that require human review
+    
+    Returns decisions that:
+    - Have not been reviewed yet
+    - Have high risk levels
+    - Have low confidence scores
+    """
+    try:
+        import redis.asyncio as redis
+        redis_url = "redis://127.0.0.1:6379"
+        
+        pending_decisions = []
+        
+        try:
+            redis_client = await redis.from_url(redis_url, socket_connect_timeout=1)
+            await redis_client.ping()
+            
+            # Read from results stream
+            results = await redis_client.xread(
+                "BLOCK", 100, "COUNT", limit * 2, "STREAMS", "results.stream", "0"
+            )
+            
+            if results:
+                for stream_name, entries in results:
+                    for msg_id, fields in entries:
+                        try:
+                            result_json = fields.get(b"result")
+                            if result_json:
+                                decision = json.loads(result_json)
+                                decision_id = decision.get("decision_id")
+                                
+                                # Check if decision has been reviewed
+                                status_key = f"decision_status:{decision_id}"
+                                status = await redis_client.hget(status_key, "status")
+                                
+                                if status:
+                                    continue  # Already reviewed
+                                
+                                # Apply filters
+                                if track and decision.get("track") != track:
+                                    continue
+                                if chassis and decision.get("chassis") != chassis:
+                                    continue
+                                if risk_level and decision.get("risk_level") != risk_level:
+                                    continue
+                                
+                                # Check if decision needs review (high risk or low confidence)
+                                needs_review = (
+                                    decision.get("risk_level") in ["critical", "aggressive"] or
+                                    decision.get("confidence", 1.0) < 0.7
+                                )
+                                
+                                if needs_review:
+                                    # Get full decision details
+                                    insight_key = f"insight:{decision_id}"
+                                    insight_data = await redis_client.hgetall(insight_key)
+                                    
+                                    full_decision = decision.copy()
+                                    if insight_data:
+                                        payload_json = insight_data.get(b"payload") or insight_data.get("payload")
+                                        if isinstance(payload_json, bytes):
+                                            payload_json = payload_json.decode()
+                                        if payload_json:
+                                            insight = json.loads(payload_json) if isinstance(payload_json, str) else payload_json
+                                            full_decision.update({
+                                                "reasoning": insight.get("reasoning", []),
+                                                "evidence": insight.get("evidence", {}),
+                                                "alternatives": insight.get("alternatives", [])
+                                            })
+                                    
+                                    pending_decisions.append(full_decision)
+                                    
+                        except Exception as e:
+                            logger.warning(f"Error parsing decision: {e}")
+                            continue
+            
+            await redis_client.close()
+            
+        except Exception as e:
+            logger.warning(f"Redis not available, returning mock pending decisions: {e}")
+            # Return mock pending decisions for demo
+            pending_decisions = [
+                {
+                    "decision_id": f"pending-{datetime.utcnow().timestamp()}",
+                    "agent_id": "strategy-01",
+                    "agent_type": "strategist",
+                    "track": track or "sebring",
+                    "chassis": chassis or "GR86-01",
+                    "action": "Recommend pit lap 15",
+                    "confidence": 0.65,
+                    "risk_level": "aggressive",
+                    "decision_type": "pit",
+                    "reasoning": [
+                        "Tire wear trending at 35.2%",
+                        "Remaining laps: 10 (sufficient for pit + 1-stop strategy)",
+                        "Gap to leader suggests undercut/overcut timing opportunity"
+                    ],
+                    "evidence": {
+                        "avg_wear_percent": 35.2,
+                        "lap_number": 12,
+                        "remaining_laps": 10
+                    },
+                    "created_at": datetime.utcnow().isoformat()
+                }
+            ]
+        
+        # Limit results
+        pending_decisions = pending_decisions[:limit]
+        
+        return {
+            "success": True,
+            "decisions": pending_decisions,
+            "count": len(pending_decisions),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting pending decisions: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/decisions/{decision_id}/review")
+async def get_decision_review(decision_id: str):
+    """
+    Get human review for a specific decision
+    """
+    try:
+        import redis.asyncio as redis
+        redis_url = "redis://127.0.0.1:6379"
+        
+        try:
+            redis_client = await redis.from_url(redis_url, socket_connect_timeout=1)
+            await redis_client.ping()
+            
+            review_key = f"review:{decision_id}"
+            review_data = await redis_client.hgetall(review_key)
+            
+            if not review_data:
+                # Check in-memory fallback
+                if hasattr(review_agent_decision, "_reviews") and decision_id in review_agent_decision._reviews:
+                    return {
+                        "success": True,
+                        "review": review_agent_decision._reviews[decision_id],
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Review for decision '{decision_id}' not found"
+                )
+            
+            payload_json = review_data.get(b"payload") or review_data.get("payload")
+            if isinstance(payload_json, bytes):
+                payload_json = payload_json.decode()
+            
+            review = json.loads(payload_json) if isinstance(payload_json, str) else payload_json
+            
+            await redis_client.close()
+            
+            return {
+                "success": True,
+                "review": review,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning(f"Error fetching review from Redis: {e}")
+            # Check in-memory fallback
+            if hasattr(review_agent_decision, "_reviews") and decision_id in review_agent_decision._reviews:
+                return {
+                    "success": True,
+                    "review": review_agent_decision._reviews[decision_id],
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+            
+            raise HTTPException(
+                status_code=404,
+                detail=f"Review for decision '{decision_id}' not found"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting decision review: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/reviews/history")
+async def get_review_history(
+    limit: int = Query(50, description="Maximum number of reviews to return"),
+    reviewer: Optional[str] = Query(None, description="Filter by reviewer")
+):
+    """
+    Get history of human reviews
+    """
+    try:
+        import redis.asyncio as redis
+        redis_url = "redis://127.0.0.1:6379"
+        
+        reviews = []
+        
+        try:
+            redis_client = await redis.from_url(redis_url, socket_connect_timeout=1)
+            await redis_client.ping()
+            
+            # Scan for all review keys
+            cursor = 0
+            pattern = "review:*"
+            
+            while True:
+                cursor, keys = await redis_client.scan(cursor, match=pattern, count=100)
+                
+                for key in keys:
+                    try:
+                        review_data = await redis_client.hgetall(key)
+                        payload_json = review_data.get(b"payload") or review_data.get("payload")
+                        if isinstance(payload_json, bytes):
+                            payload_json = payload_json.decode()
+                        
+                        review = json.loads(payload_json) if isinstance(payload_json, str) else payload_json
+                        
+                        if reviewer and review.get("reviewer") != reviewer:
+                            continue
+                        
+                        reviews.append(review)
+                    except Exception as e:
+                        logger.warning(f"Error parsing review: {e}")
+                        continue
+                
+                if cursor == 0:
+                    break
+            
+            await redis_client.close()
+            
+        except Exception as e:
+            logger.warning(f"Redis not available, checking in-memory reviews: {e}")
+            if hasattr(review_agent_decision, "_reviews"):
+                reviews = list(review_agent_decision._reviews.values())
+                if reviewer:
+                    reviews = [r for r in reviews if r.get("reviewer") == reviewer]
+        
+        # Sort by reviewed_at (most recent first)
+        reviews.sort(key=lambda x: x.get("reviewed_at", ""), reverse=True)
+        
+        # Limit results
+        reviews = reviews[:limit]
+        
+        return {
+            "success": True,
+            "reviews": reviews,
+            "count": len(reviews),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting review history: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+

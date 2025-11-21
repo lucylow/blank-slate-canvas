@@ -2,6 +2,7 @@ import { DashboardData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Lightbulb, CheckCircle2 } from 'lucide-react';
+import { DemoButton } from '@/components/DemoButton';
 
 interface Props { 
   strategy: DashboardData['strategy']; 
@@ -13,10 +14,13 @@ export function StrategyCard({ strategy }: Props) {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="w-5 h-5 text-primary" />
-          Strategy Recommendation
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-primary" />
+            Strategy Recommendation
+          </CardTitle>
+          <DemoButton size="sm" variant="ghost" />
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {recommended && (

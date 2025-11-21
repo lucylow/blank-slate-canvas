@@ -664,3 +664,148 @@ export async function submitTelemetryToAgents(telemetry: Record<string, unknown>
   }
 }
 
+// ============================================================================
+// HUMAN-IN-THE-LOOP API FUNCTIONS
+// ============================================================================
+
+export interface HumanReview {
+  decision_id: string;
+  action: 'approve' | 'reject' | 'modify';
+  modified_action?: string;
+  feedback?: string;
+  reviewer?: string;
+  reviewed_at: string;
+}
+
+export interface ReviewRequest {
+  action: 'approve' | 'reject' | 'modify';
+  modified_action?: string;
+  feedback?: string;
+  reviewer?: string;
+}
+
+export interface ReviewResponse {
+  success: boolean;
+  message: string;
+  review: HumanReview;
+  timestamp: string;
+}
+
+export interface PendingDecisionsResponse {
+  success: boolean;
+  decisions: AgentDecision[];
+  count: number;
+  timestamp: string;
+}
+
+export interface ReviewHistoryResponse {
+  success: boolean;
+  reviews: HumanReview[];
+  count: number;
+  timestamp: string;
+}
+
+/**
+ * Review an agent decision (approve/reject/modify)
+ */
+export async function reviewAgentDecision(
+  decisionId: string,
+  review: ReviewRequest
+): Promise<ReviewResponse> {
+  try {
+    const res = await client.post<ReviewResponse>(
+      `/api/agents/decisions/${encodeURIComponent(decisionId)}/review`,
+      review
+    );
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Review API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get pending decisions that require human review
+ */
+export async function getPendingDecisions(
+  track?: string,
+  chassis?: string,
+  riskLevel?: string,
+  limit: number = 50
+): Promise<PendingDecisionsResponse> {
+  try {
+    const params: Record<string, string | number> = { limit };
+    if (track) params.track = track;
+    if (chassis) params.chassis = chassis;
+    if (riskLevel) params.risk_level = riskLevel;
+    
+    const res = await client.get<PendingDecisionsResponse>("/api/agents/decisions/pending", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Pending decisions API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get review for a specific decision
+ */
+export async function getDecisionReview(decisionId: string): Promise<{ success: boolean; review: HumanReview; timestamp: string }> {
+  try {
+    const res = await client.get<{ success: boolean; review: HumanReview; timestamp: string }>(
+      `/api/agents/decisions/${encodeURIComponent(decisionId)}/review`
+    );
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Review fetch API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get review history
+ */
+export async function getReviewHistory(
+  limit: number = 50,
+  reviewer?: string
+): Promise<ReviewHistoryResponse> {
+  try {
+    const params: Record<string, string | number> = { limit };
+    if (reviewer) params.reviewer = reviewer;
+    
+    const res = await client.get<ReviewHistoryResponse>("/api/agents/reviews/history", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Review history API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+

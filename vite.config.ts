@@ -23,9 +23,21 @@ export default defineConfig(({ mode }) => ({
         target: process.env.VITE_BACKEND_URL || 'http://localhost:8000',
         changeOrigin: true,
       },
+      // Proxy realtime server API (pitwall-dist on port 8081)
+      '/api/realtime': {
+        target: process.env.VITE_REALTIME_URL || 'http://localhost:8081',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/realtime/, '/api'),
+      },
       // Proxy WebSocket connections (includes agent decisions WebSocket)
       '/ws': {
         target: process.env.VITE_BACKEND_WS_URL || 'ws://localhost:8000',
+        ws: true,
+        changeOrigin: true,
+      },
+      // Proxy realtime server WebSocket (pitwall-dist on port 8081)
+      '/ws/realtime': {
+        target: process.env.VITE_REALTIME_WS_URL || 'ws://localhost:8081',
         ws: true,
         changeOrigin: true,
       },

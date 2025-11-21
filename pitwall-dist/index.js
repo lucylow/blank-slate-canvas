@@ -34,6 +34,14 @@ worker.on('error', (err) => console.error('Aggregator worker error', err));
 worker.on('exit', (code) => console.log('Aggregator worker exit', code));
 
 const fastify = Fastify({ logger: false });
+
+// Register static file serving for public folder
+fastify.register(require('@fastify/static'), {
+  root: path.join(__dirname, 'public'),
+  prefix: '/public/',
+});
+
+// API routes
 fastify.get('/api/health', async (req, reply) => reply.send({ ok: true, now: new Date().toISOString(), demo: config.DEMO_DATA_PATH }));
 fastify.get('/api/recent/:n', async (req, reply) => {
   const n = Math.min(5000, parseInt(req.params.n || '200', 10));
@@ -106,7 +114,14 @@ if (fs.existsSync(config.DEMO_DATA_PATH)) {
   }, 100);
 }
 
-server.listen(config.HTTP_PORT, () => {
-  console.log(`Server listening on ${config.HTTP_PORT}; WS path ${config.WS_PATH}`);
-  console.log('Demo data docs (for reference):', config.DEMO_DATA_PATH);
+// Start server after Fastify is ready
+fastify.ready().then(() => {
+  server.listen(config.HTTP_PORT, () => {
+    console.log(`Server listening on ${config.HTTP_PORT}; WS path ${config.WS_PATH}`);
+    console.log('Demo data docs (for reference):', config.DEMO_DATA_PATH);
+    console.log('Static files served from:', path.join(__dirname, 'public'));
+  });
+}).catch((err) => {
+  console.error('Error starting server:', err);
+  process.exit(1);
 });

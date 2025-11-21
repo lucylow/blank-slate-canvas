@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TireWearCard } from '@/components/dashboard/TireWearCard';
 import { StrategyCard } from '@/components/dashboard/StrategyCard';
 import { PerformanceCard } from '@/components/dashboard/PerformanceCard';
+import { DemoButton } from '@/components/DemoButton';
 
 import { useBackendConfig } from '@/hooks/useBackendConfig';
 import { useLiveStream } from '@/hooks/useLiveStream';
@@ -67,6 +68,7 @@ export function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <DemoButton />
             <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
               connected 
                 ? 'bg-green-500/10 text-green-500 border border-green-500/20' 

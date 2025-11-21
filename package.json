@@ -12,7 +12,9 @@
     "demo-server": "node server/demo-server.js",
     "demo": "concurrently \"npm:demo-server\" \"npm:dev\"",
     "agent-api": "node server/agent-api-server.js",
-    "agent-api:dev": "nodemon server/agent-api-server.js"
+    "agent-api:dev": "nodemon server/agent-api-server.js",
+    "realtime-server": "node pitwall-dist/index.js",
+    "realtime:dev": "nodemon pitwall-dist/index.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -53,6 +55,10 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "express": "^4.18.2",
+    "fastify": "^4.24.3",
+    "@fastify/static": "^6.12.0",
+    "aws-sdk": "^2.1691.0",
+    "csv-parse": "^5.5.2",
     "framer-motion": "^12.23.24",
     "ioredis": "^5.3.2",
     "input-otp": "^1.4.2",
