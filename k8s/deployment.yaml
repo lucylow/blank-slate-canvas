@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pitwall-realtime
+  labels:
+    app: pitwall-realtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pitwall-realtime
+  template:
+    metadata:
+      labels:
+        app: pitwall-realtime
+    spec:
+      containers:
+        - name: server
+          image: <YOUR_REGISTRY>/pitwall-realtime:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: PORT
+              value: "8081"
+            - name: UDP_PORT
+              value: "20777"
+            - name: DEMO_DATA_PATH
+              value: "/data/demo_data.json"
+            - name: TRACK_SECTORS_PATH
+              value: "/data/track_sectors.json"
+            # AWS creds provided via secret in production
+          volumeMounts:
+            - name: demo-data
+              mountPath: /data
+      volumes:
+        - name: demo-data
+          # for testing on single-node k8s: hostPath; in cloud use PVC
+          hostPath:
+            path: /mnt/data
+            type: Directory
+

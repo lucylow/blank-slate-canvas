@@ -1,0 +1,142 @@
+{
+  "barber": {
+    "total_m": 3830,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 1277
+      },
+      {
+        "name": "S2",
+        "start_m": 1277,
+        "end_m": 2554
+      },
+      {
+        "name": "S3",
+        "start_m": 2554,
+        "end_m": 3830
+      }
+    ]
+  },
+  "cota": {
+    "total_m": 5514,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 1838
+      },
+      {
+        "name": "S2",
+        "start_m": 1838,
+        "end_m": 3676
+      },
+      {
+        "name": "S3",
+        "start_m": 3676,
+        "end_m": 5514
+      }
+    ]
+  },
+  "indianapolis": {
+    "total_m": 3930,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 1310
+      },
+      {
+        "name": "S2",
+        "start_m": 1310,
+        "end_m": 2620
+      },
+      {
+        "name": "S3",
+        "start_m": 2620,
+        "end_m": 3930
+      }
+    ]
+  },
+  "road_america": {
+    "total_m": 6515,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 2171
+      },
+      {
+        "name": "S2",
+        "start_m": 2171,
+        "end_m": 4343
+      },
+      {
+        "name": "S3",
+        "start_m": 4343,
+        "end_m": 6515
+      }
+    ]
+  },
+  "sebring": {
+    "total_m": 6020,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 2006
+      },
+      {
+        "name": "S2",
+        "start_m": 2006,
+        "end_m": 4012
+      },
+      {
+        "name": "S3",
+        "start_m": 4012,
+        "end_m": 6020
+      }
+    ]
+  },
+  "sonoma": {
+    "total_m": 3200,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 1066
+      },
+      {
+        "name": "S2",
+        "start_m": 1066,
+        "end_m": 2133
+      },
+      {
+        "name": "S3",
+        "start_m": 2133,
+        "end_m": 3200
+      }
+    ]
+  },
+  "virginia": {
+    "total_m": 6760,
+    "sectors": [
+      {
+        "name": "S1",
+        "start_m": 0,
+        "end_m": 2253
+      },
+      {
+        "name": "S2",
+        "start_m": 2253,
+        "end_m": 4506
+      },
+      {
+        "name": "S3",
+        "start_m": 4506,
+        "end_m": 6760
+      }
+    ]
+  }
+}

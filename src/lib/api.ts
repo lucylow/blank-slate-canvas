@@ -3,7 +3,7 @@
 
 import { getWsUrl } from '@/utils/wsUrl';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 // TypeScript interfaces matching backend API responses
 

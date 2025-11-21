@@ -53,7 +53,7 @@ const DemoLauncher: React.FC = () => {
               className="border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105"
             >
               <a
-                href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/dashboard/live?track=road_america&race=1&vehicle=7&lap=12`}
+                href={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/dashboard/live?track=road_america&race=1&vehicle=7&lap=12`}
                 target="_blank"
                 rel="noreferrer"
               >

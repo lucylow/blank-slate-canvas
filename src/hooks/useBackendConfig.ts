@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BackendConfig } from '@/lib/types';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 export function useBackendConfig() {
   const [config, setConfig] = useState<BackendConfig | null>(null);
@@ -9,6 +9,7 @@ export function useBackendConfig() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const API_URL = getBackendUrl() || (import.meta.env.DEV ? '/api' : '');
     if (!API_URL) {
       setLoading(false);
       return;

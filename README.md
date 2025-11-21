@@ -28,6 +28,19 @@ The demo includes:
 - Tire prediction API endpoint
 - Real-time strategy recommendations
 
+### Production Real-Time Server
+
+For production deployments with live TRD telemetry streams:
+
+```bash
+cd server/realtime
+npm install
+npm run build
+npm start
+```
+
+See [REALTIME_SERVER_INTEGRATION.md](./REALTIME_SERVER_INTEGRATION.md) for full documentation.
+
 ### What Judges Should Look For
 
 1. **Live Telemetry Visualization** — Watch real-time data flow through the dashboard

@@ -46,8 +46,8 @@ export function Dashboard() {
           <AlertTitle>Configuration Error</AlertTitle>
           <AlertDescription>
             <p className="mb-2">{configError}</p>
-            <p className="text-sm">Make sure your Python backend is running and the API URL is configured via <code className="bg-muted px-1 rounded">VITE_API_BASE_URL</code> environment variable.</p>
-            <p className="text-sm mt-2">Set <code className="bg-muted px-1 rounded">VITE_API_BASE_URL</code> to your backend URL (e.g., <code className="bg-muted px-1 rounded">https://your-backend.com</code>)</p>
+            <p className="text-sm">Make sure your Python backend is running and the API URL is configured via <code className="bg-muted px-1 rounded">VITE_BACKEND_URL</code> environment variable.</p>
+            <p className="text-sm mt-2">Set <code className="bg-muted px-1 rounded">VITE_BACKEND_URL</code> to your backend URL (e.g., <code className="bg-muted px-1 rounded">https://your-backend.com</code>)</p>
           </AlertDescription>
         </Alert>
       </div>

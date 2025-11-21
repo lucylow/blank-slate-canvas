@@ -1,42 +1,32 @@
 // src/utils/wsUrl.ts
 // Helper function to construct WebSocket URL with proper protocol and host detection
 
+import { getBackendWsUrl } from './backendUrl';
+
 export function getWsUrl(path = '/ws'): string {
-  if (typeof window === 'undefined') {
-    // SSR fallback (port 8000 for pitwall-backend)
-    return 'ws://localhost:8000/ws';
+  const baseWsUrl = getBackendWsUrl();
+  
+  // If we got a full URL, append the path
+  if (baseWsUrl.startsWith('ws://') || baseWsUrl.startsWith('wss://')) {
+    return baseWsUrl.endsWith(path) ? baseWsUrl : `${baseWsUrl}${baseWsUrl.endsWith('/') ? '' : '/'}${path.replace(/^\//, '')}`;
   }
-
-  const loc = window.location;
-
-  // In development, use localhost backend directly
-  if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
-    // Check if we should use the proxy (dev mode) or direct connection
-    // For dev, we can use the proxy if Vite is running, otherwise direct
-    if (import.meta.env.DEV && !import.meta.env.VITE_WS_BASE_URL) {
-      // Use proxy path in dev (Vite will proxy /ws to backend on port 8000)
-      return `${loc.protocol === 'https:' ? 'wss:' : 'ws:'}//${loc.host}${path}`;
-    }
-    // Direct connection to backend (port 8000 for pitwall-backend)
-    return `ws://localhost:8000${path}`;
-  }
-
-  // Production: derive from current host or use explicit env var
-  if (import.meta.env.VITE_WS_BASE_URL) {
-    const wsUrl = import.meta.env.VITE_WS_BASE_URL;
-    return wsUrl.endsWith(path) ? wsUrl : `${wsUrl}${wsUrl.endsWith('/') ? '' : '/'}${path.replace(/^\//, '')}`;
-  }
-
-  // Derive from HTTP API URL if provided
-  if (import.meta.env.VITE_API_BASE_URL) {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  
+  // If it's a relative path or empty, construct from current location
+  if (typeof window !== 'undefined') {
+    const loc = window.location;
     const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = apiUrl.replace(/^https?:/, protocol);
-    return `${wsUrl}${wsUrl.endsWith('/') ? '' : '/'}${path.replace(/^\//, '')}`;
+    
+    // If baseWsUrl is empty, use current host
+    if (!baseWsUrl) {
+      return `${protocol}//${loc.host}${path}`;
+    }
+    
+    // Otherwise use the base URL
+    return `${baseWsUrl}${baseWsUrl.endsWith('/') ? '' : '/'}${path.replace(/^\//, '')}`;
   }
-
-  // Fallback: use same host as frontend
-  const protocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${protocol}//${loc.host}${path}`;
+  
+  // SSR fallback
+  return 'ws://localhost:8000/ws';
 }
+
 

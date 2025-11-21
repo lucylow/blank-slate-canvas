@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DashboardData } from '@/lib/types';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 export function useLiveStream(
   track: string,
@@ -16,6 +16,7 @@ export function useLiveStream(
   useEffect(() => {
     if (!track || !race || !vehicle) return;
     
+    const API_URL = getBackendUrl() || (import.meta.env.DEV ? '/api' : '');
     if (!API_URL) {
       setError('API URL not configured');
       return;

@@ -3,7 +3,7 @@
 
 import { http, HttpResponse } from 'msw';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || '';
+const API_BASE = import.meta.env.VITE_BACKEND_URL || '';
 
 // Mock prediction data
 const mockPredictions: Record<string, {

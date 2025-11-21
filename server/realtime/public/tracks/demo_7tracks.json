@@ -1,0 +1,10 @@
+[
+  {"meta_time":"2025-11-20T00:00:00.000Z","track":"barber","chassis":"GR86-001","lap":1,"lapdist_m":100,"speed_kmh":120,"accx_can":0.02,"accy_can":0.9,"Steering_Angle":12,"pbrake_f":0,"rpm":6000},
+  {"meta_time":"2025-11-20T00:00:00.200Z","track":"cota","chassis":"GR86-002","lap":1,"lapdist_m":500,"speed_kmh":210,"accx_can":0.03,"accy_can":0.2,"Steering_Angle":2,"pbrake_f":0,"rpm":7000},
+  {"meta_time":"2025-11-20T00:00:00.400Z","track":"indianapolis","chassis":"GR86-003","lap":1,"lapdist_m":200,"speed_kmh":190,"accx_can":0.05,"accy_can":0.4,"Steering_Angle":-6,"pbrake_f":0,"rpm":6500},
+  {"meta_time":"2025-11-20T00:00:00.600Z","track":"road_america","chassis":"GR86-004","lap":1,"lapdist_m":800,"speed_kmh":260,"accx_can":0.01,"accy_can":0.1,"Steering_Angle":1,"pbrake_f":0,"rpm":7200},
+  {"meta_time":"2025-11-20T00:00:00.800Z","track":"sebring","chassis":"GR86-005","lap":1,"lapdist_m":300,"speed_kmh":160,"accx_can":0.4,"accy_can":0.6,"Steering_Angle":10,"pbrake_f":0.2,"rpm":5800},
+  {"meta_time":"2025-11-20T00:00:01.000Z","track":"sonoma","chassis":"GR86-006","lap":1,"lapdist_m":150,"speed_kmh":140,"accx_can":0.2,"accy_can":0.7,"Steering_Angle":18,"pbrake_f":0,"rpm":6100},
+  {"meta_time":"2025-11-20T00:00:01.200Z","track":"virginia","chassis":"GR86-007","lap":1,"lapdist_m":1200,"speed_kmh":230,"accx_can":0.05,"accy_can":0.25,"Steering_Angle":4,"pbrake_f":0,"rpm":7000}
+]
+
