@@ -1,0 +1,47 @@
+{
+  "tracks": [
+    {
+      "track_id": "barber",
+      "track_name": "Barber Motorsports Park",
+      "location": "Birmingham, AL",
+      "races_available": 0
+    },
+    {
+      "track_id": "cota",
+      "track_name": "Circuit of the Americas",
+      "location": "Austin, TX",
+      "races_available": 0
+    },
+    {
+      "track_id": "indianapolis",
+      "track_name": "Indianapolis Motor Speedway",
+      "location": "Indianapolis, IN",
+      "races_available": 0
+    },
+    {
+      "track_id": "road_america",
+      "track_name": "Road America",
+      "location": "Elkhart Lake, WI",
+      "races_available": 2
+    },
+    {
+      "track_id": "sebring",
+      "track_name": "Sebring International Raceway",
+      "location": "Sebring, FL",
+      "races_available": 2
+    },
+    {
+      "track_id": "sonoma",
+      "track_name": "Sonoma Raceway",
+      "location": "Sonoma, CA",
+      "races_available": 2
+    },
+    {
+      "track_id": "vir",
+      "track_name": "Virginia International Raceway",
+      "location": "Alton, VA",
+      "races_available": 2
+    }
+  ],
+  "total_tracks": 7
+}

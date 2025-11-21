@@ -1,0 +1,8 @@
+# This directory contains demo JSON files for frontend development
+# 
+# Files in this directory:
+# - tracks_index.json: Master index of all tracks
+# - {track_id}_demo.json: Demo data for each track (e.g., sebring_demo.json)
+#
+# See README.md for more information about using these files.
+
