@@ -1,0 +1,82 @@
+{
+  "indianapolis": {
+    "track_name": "Indianapolis Motor Speedway",
+    "n_samples": 0,
+    "note": "no telemetry samples found"
+  },
+  "cota": {
+    "track_name": "Circuit of the Americas",
+    "n_samples": 0,
+    "note": "no telemetry samples found"
+  },
+  "sebring": {
+    "n_samples": 200,
+    "n_vehicles": null,
+    "avg_speed_kmh": null,
+    "std_speed_kmh": null,
+    "avg_tire_temp": null,
+    "numeric_cols": [
+      "expire_at",
+      "lap",
+      "outing",
+      "telemetry_value",
+      "chassis"
+    ],
+    "cluster_info": null
+  },
+  "barber": {
+    "track_name": "Barber Motorsports Park",
+    "n_samples": 0,
+    "note": "no telemetry samples found"
+  },
+  "ai_agents": {
+    "track_name": "ai_agents",
+    "n_samples": 0,
+    "note": "no telemetry samples found"
+  },
+  "road_america": {
+    "n_samples": 200,
+    "n_vehicles": null,
+    "avg_speed_kmh": null,
+    "std_speed_kmh": null,
+    "avg_tire_temp": null,
+    "numeric_cols": [
+      "expire_at",
+      "lap",
+      "outing",
+      "telemetry_value",
+      "chassis"
+    ],
+    "cluster_info": null
+  },
+  "sonoma": {
+    "n_samples": 200,
+    "n_vehicles": null,
+    "avg_speed_kmh": null,
+    "std_speed_kmh": null,
+    "avg_tire_temp": null,
+    "numeric_cols": [
+      "expire_at",
+      "lap",
+      "outing",
+      "telemetry_value",
+      "chassis"
+    ],
+    "cluster_info": null
+  },
+  "vir": {
+    "n_samples": 200,
+    "n_vehicles": null,
+    "avg_speed_kmh": null,
+    "std_speed_kmh": null,
+    "avg_tire_temp": null,
+    "numeric_cols": [
+      "expire_at",
+      "lap",
+      "outing",
+      "telemetry_value",
+      "chassis"
+    ],
+    "cluster_info": null
+  }
+}

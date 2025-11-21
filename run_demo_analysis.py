@@ -11,6 +11,8 @@ Requirements (recommended):
 """
 
 import os, json, math, random, sys
+import gzip
+import tarfile
 from pathlib import Path
 import requests
 import numpy as np
@@ -29,8 +31,58 @@ def fetch_demo_bundle(raw_url=RAW_URL, target="demo_data.json"):
     return Path(target)
 
 def load_tracks_from_bundle(path: Path):
-    data = json.loads(path.read_text(encoding="utf-8"))
     tracks = []
+    
+    # Check if it's a tar.gz archive
+    try:
+        with tarfile.open(path, 'r:gz') as tar:
+            # Extract track JSON files from demo_data/ directory
+            track_files = [m for m in tar.getmembers() if m.name.endswith('_demo.json') and 'demo_data/' in m.name and not m.name.startswith('demo_data/._')]
+            
+            if track_files:
+                print(f"Found {len(track_files)} track files in tar archive")
+                for member in track_files:
+                    try:
+                        f = tar.extractfile(member)
+                        if f:
+                            data = json.load(f)
+                            tid = data.get("track_id") or member.name.replace('demo_data/', '').replace('_demo.json', '')
+                            track_name = data.get("track_name", tid)
+                            tracks.append({"track_id": tid, "track_name": track_name, "payload": data})
+                            print(f"  Loaded: {tid}")
+                    except Exception as e:
+                        print(f"  Warning: Failed to load {member.name}: {e}")
+                        continue
+                
+                if tracks:
+                    return tracks
+    except (tarfile.TarError, Exception) as e:
+        # Not a tar file, try regular JSON
+        pass
+    
+    # Try to read as regular JSON
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        # Try gzip decompression - read as binary first
+        try:
+            with open(path, 'rb') as f:
+                # Check if it's gzip by reading first 2 bytes
+                magic = f.read(2)
+                f.seek(0)
+                if magic == b'\x1f\x8b':  # gzip magic number
+                    with gzip.open(f, 'rt', encoding='utf-8', errors='replace') as gz:
+                        data = json.load(gz)
+                else:
+                    # Not gzip, try reading as text with error handling
+                    f.seek(0)
+                    content = f.read()
+                    data = json.loads(content.decode('utf-8', errors='replace'))
+        except Exception as e:
+            print(f"Failed to read {path}: {e}")
+            raise
+    
+    # Handle regular JSON structure
     if isinstance(data, dict) and "tracks" in data:
         for t in data["tracks"]:
             tid = t.get("track_id") or t.get("track") or t.get("track_name", "unknown")
@@ -42,6 +94,7 @@ def load_tracks_from_bundle(path: Path):
     else:
         # fallback: treat whole file as single track
         tracks.append({"track_id": "bundle", "track_name": "bundle", "payload": data})
+    
     return tracks
 
 def build_df_from_payload(payload):
@@ -90,15 +143,28 @@ def normalize_and_stats(df):
         df = df.rename(columns=rename_map)
     # coerce numeric
     for c in df.columns:
-        if df[c].dtype == object:
-            try:
+        try:
+            if df.dtypes[c] == 'object':
                 df[c] = pd.to_numeric(df[c], errors="ignore")
-            except Exception:
-                pass
+        except (KeyError, AttributeError, Exception):
+            pass
     numeric = df.select_dtypes(include=[np.number]).copy()
+    
+    # Get vehicle count
+    n_vehicles = None
+    try:
+        if 'chassis' in df.columns:
+            unique_vals = df['chassis'].unique()
+            n_vehicles = len(unique_vals) if hasattr(unique_vals, '__len__') else int(unique_vals) if isinstance(unique_vals, (int, np.integer)) else None
+        elif 'vehicle_id' in df.columns:
+            unique_vals = df['vehicle_id'].unique()
+            n_vehicles = len(unique_vals) if hasattr(unique_vals, '__len__') else int(unique_vals) if isinstance(unique_vals, (int, np.integer)) else None
+    except Exception:
+        n_vehicles = None
+    
     stats = {
         "n_samples": int(len(df)),
-        "n_vehicles": int(df['chassis'].nunique()) if 'chassis' in df.columns else (int(df['vehicle_id'].nunique()) if 'vehicle_id' in df.columns else None),
+        "n_vehicles": n_vehicles,
         "avg_speed_kmh": float(numeric['speed_kmh'].mean()) if 'speed_kmh' in numeric.columns else None,
         "std_speed_kmh": float(numeric['speed_kmh'].std()) if 'speed_kmh' in numeric.columns else None,
         "avg_tire_temp": float(numeric['tire_temp'].mean()) if 'tire_temp' in numeric.columns else None,
