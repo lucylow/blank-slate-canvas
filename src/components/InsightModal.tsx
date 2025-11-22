@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAgentStore } from '../stores/agentStore';
 
-const INSIGHTS_API = process.env.REACT_APP_INSIGHTS_API || import.meta.env.VITE_INSIGHTS_API || '/api/insights';
+const INSIGHTS_API = import.meta.env.VITE_INSIGHTS_API || '/api/insights';
 
 export const InsightModal: React.FC<{ id: string; onClose: () => void }> = ({ id, onClose }) => {
   const getInsight = useAgentStore((s) => s.getInsight);
