@@ -18,6 +18,7 @@ class TireWearData(BaseModel):
     ci_lower: Optional[Dict[str, float]] = Field(None, description="Lower confidence intervals for each tire")
     ci_upper: Optional[Dict[str, float]] = Field(None, description="Upper confidence intervals for each tire")
     top_features: Optional[Dict[str, float]] = Field(None, description="Top contributing features with importance scores")
+    sector_contributions: Optional[Dict[str, Dict[str, float]]] = Field(None, description="Sector-level contributions to tire wear (e.g., {'S1': {'contribution': 0.35, 'reason': 'high brake power'}})")
     model_version: Optional[str] = Field(None, description="Model version used for prediction")
 
 

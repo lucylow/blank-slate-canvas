@@ -1,0 +1,6 @@
+[
+  {"meta_time":"2025-11-01T10:05:00Z","track":"cota","chassis":"GR86-005","lap":8,"lapdist_m":200.5,"speed_kmh":215,"accx_can":0.15,"accy_can":1.2,"TireTempFL":88},
+  {"meta_time":"2025-11-01T10:05:01Z","track":"cota","chassis":"GR86-005","lap":8,"lapdist_m":350.6,"speed_kmh":218,"accx_can":0.18,"accy_can":1.4,"TireTempFL":92},
+  {"meta_time":"2025-11-01T10:05:02Z","track":"cota","chassis":"GR86-005","lap":9,"lapdist_m":100.2,"speed_kmh":220,"accx_can":0.20,"accy_can":1.5,"TireTempFL":95}
+]
+

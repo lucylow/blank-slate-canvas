@@ -1,0 +1,14 @@
+{
+  "tire-v1.0": {
+    "model_version": "tire-v1.0",
+    "trained_on": "2025-10-01",
+    "train_data_sha": "sha256:abcdef12345",
+    "metrics": {
+      "rmse_overall": 0.55
+    },
+    "artifact_path": "/app/models/tire-v1.0.pkl",
+    "git_commit": "abcde12345",
+    "notes": "Seeded model; replace with production artifact"
+  }
+}
+

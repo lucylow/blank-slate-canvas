@@ -184,14 +184,30 @@ try:
 except ImportError as e:
     logger.warning(f"Replay router not available: {e}")
 
-# Import and include new routers (will be created below)
+# Import and include models router
+try:
+    from app.routes.models import router as models_router
+    app.include_router(models_router, tags=["Models"])
+except ImportError as e:
+    logger.warning(f"Models router not available: {e}")
+
+# Import and include dataset router
+try:
+    from app.routes.dataset import router as dataset_router
+    app.include_router(dataset_router, tags=["Dataset"])
+except ImportError as e:
+    logger.warning(f"Dataset router not available: {e}")
+
+# Import and include new routers
 try:
     from app.routes import sse, ws, demo, api_models, insights
+    from app.routes import analytics as analytics_router
     app.include_router(sse.router, tags=["Realtime"])
     app.include_router(ws.router, tags=["Realtime"])
     app.include_router(demo.router, prefix="/demo", tags=["Demo"])
     app.include_router(api_models.router, prefix="/api/models", tags=["Models"])
     app.include_router(insights.router, prefix="/api", tags=["Insights"])
+    app.include_router(analytics_router.router, tags=["Analytics"])
 except ImportError as e:
     logger.warning(f"Some optional routers not available: {e}")
 

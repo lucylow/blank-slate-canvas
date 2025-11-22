@@ -4,10 +4,10 @@ Data loader for race telemetry and lap data
 import pandas as pd
 import os
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
 import logging
 
-from app.config import DATA_DIR, TRACKS
+from app.config import DATA_DIR, TRACKS, DATA_PRECOMPUTED_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -155,6 +155,38 @@ class DataLoader:
             return int(df['lap'].max())
         
         return 25  # Default assumption
+    
+    def list_precomputed_tracks(self) -> Dict[str, Dict[str, Any]]:
+        """
+        List metadata about precomputed tracks
+        
+        Returns dict mapping track names to metadata
+        """
+        tracks = {}
+        precomp_dir = Path(DATA_PRECOMPUTED_DIR)
+        
+        if not precomp_dir.exists():
+            return tracks
+        
+        for root, _, files in os.walk(precomp_dir):
+            for f in files:
+                if f.endswith(".parquet"):
+                    track = os.path.splitext(f)[0]
+                    try:
+                        import pandas as pd
+                        df = pd.read_parquet(os.path.join(root, f))
+                        tracks[track] = {
+                            "n_laps": int(df['lap'].nunique()) if 'lap' in df.columns else len(df),
+                            "n_drivers": int(df['driver'].nunique()) if 'driver' in df.columns else (
+                                len(df['chassis'].unique()) if 'chassis' in df.columns else None
+                            ),
+                            "date_min": str(df['meta_time'].min()) if 'meta_time' in df.columns else None,
+                            "date_max": str(df['meta_time'].max()) if 'meta_time' in df.columns else None
+                        }
+                    except Exception as e:
+                        logger.warning(f"Error reading precomputed track {f}: {e}")
+        
+        return tracks
 
 
 # Global data loader instance

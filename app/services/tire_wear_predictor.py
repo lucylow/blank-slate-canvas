@@ -4,7 +4,7 @@ Enhanced with bootstrap CI and explainability
 """
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional, Callable
+from typing import Dict, List, Tuple, Optional, Callable, Any
 import logging
 import random
 
@@ -251,6 +251,90 @@ class TireWearPredictor:
         sorted_features = sorted(importance_scores.items(), key=lambda x: -x[1])[:topk]
         return dict(sorted_features)
     
+    def sector_contributions(self, telemetry_df: pd.DataFrame, current_lap: int,
+                            vehicle_number: int, topk: int = 3) -> Dict[str, Dict[str, Any]]:
+        """
+        Calculate sector-level contributions to tire wear
+        
+        Returns: Dict mapping sector IDs (S1, S2, S3) to contribution info
+        {
+            "S1": {"contribution": 0.35, "reason": "high brake power"},
+            "S2": {"contribution": 0.28, "reason": "high lateral G"},
+            "S3": {"contribution": 0.37, "reason": "high speed"}
+        }
+        """
+        from app.utils.calculations import aggregate_lap_telemetry, calculate_tire_wear_factors
+        
+        # Get latest lap telemetry
+        latest_lap_telemetry = aggregate_lap_telemetry(telemetry_df, current_lap)
+        if not latest_lap_telemetry:
+            # Fallback to previous lap
+            for lap in range(current_lap - 1, 0, -1):
+                latest_lap_telemetry = aggregate_lap_telemetry(telemetry_df, lap)
+                if latest_lap_telemetry:
+                    break
+        
+        if not latest_lap_telemetry:
+            return {}
+        
+        # Calculate wear factors for the lap
+        wear_factors = calculate_tire_wear_factors(latest_lap_telemetry)
+        total_wear = wear_factors.get('total_wear', 0)
+        
+        # Estimate sector contributions based on telemetry characteristics
+        # In a real implementation, you'd have sector-specific telemetry
+        # For now, we estimate based on feature contributions
+        
+        sector_contribs = {}
+        
+        # Sector 1: Typically heavy braking zones
+        s1_brake = latest_lap_telemetry.get('heavy_braking_events', 0)
+        s1_long_g = abs(latest_lap_telemetry.get('avg_longitudinal_g', 0))
+        s1_contrib = (s1_brake * 0.05 + s1_long_g * 0.10) / (total_wear + 0.1)
+        
+        # Sector 2: Typically high-speed corners (lateral G)
+        s2_lateral_g = abs(latest_lap_telemetry.get('avg_lateral_g', 0))
+        s2_max_lateral = abs(latest_lap_telemetry.get('max_lateral_g', 0))
+        s2_cornering = latest_lap_telemetry.get('hard_cornering_events', 0)
+        s2_contrib = (s2_lateral_g * 0.15 + s2_max_lateral * 0.12 + s2_cornering * 0.08) / (total_wear + 0.1)
+        
+        # Sector 3: Typically high-speed straights
+        s3_speed = latest_lap_telemetry.get('avg_speed', 0)
+        s3_contrib = (s3_speed / 100.0 * 0.5) / (total_wear + 0.1)
+        
+        # Normalize contributions
+        total_contrib = s1_contrib + s2_contrib + s3_contrib
+        if total_contrib > 0:
+            s1_contrib = s1_contrib / total_contrib
+            s2_contrib = s2_contrib / total_contrib
+            s3_contrib = s3_contrib / total_contrib
+        
+        # Determine reasons
+        reasons = []
+        if s1_brake > 2 or s1_long_g > 0.8:
+            reasons.append("high brake power")
+        if s2_lateral_g > 1.0 or s2_max_lateral > 1.5:
+            reasons.append("high lateral G")
+        if s3_speed > 120:
+            reasons.append("high speed")
+        
+        sector_contribs["S1"] = {
+            "contribution": round(s1_contrib, 2),
+            "reason": "high brake power" if s1_brake > 2 or s1_long_g > 0.8 else "moderate braking"
+        }
+        sector_contribs["S2"] = {
+            "contribution": round(s2_contrib, 2),
+            "reason": "high lateral G" if s2_lateral_g > 1.0 or s2_max_lateral > 1.5 else "moderate cornering"
+        }
+        sector_contribs["S3"] = {
+            "contribution": round(s3_contrib, 2),
+            "reason": "high speed" if s3_speed > 120 else "moderate speed"
+        }
+        
+        # Return top k sectors by contribution
+        sorted_sectors = sorted(sector_contribs.items(), key=lambda x: -x[1]["contribution"])[:topk]
+        return dict(sorted_sectors)
+    
     def predict_tire_wear(self, telemetry_df: pd.DataFrame, current_lap: int, 
                          vehicle_number: int, include_ci: bool = True, 
                          include_explainability: bool = True) -> TireWearData:
@@ -316,11 +400,17 @@ class TireWearPredictor:
         
         # Calculate feature importance if requested
         top_features = None
+        sector_contributions = None
         if include_explainability:
             try:
                 top_features = self.ablation_importance(telemetry_df, current_lap, vehicle_number, topk=6)
             except Exception as e:
                 logger.warning(f"Failed to calculate feature importance: {e}")
+            
+            try:
+                sector_contributions = self.sector_contributions(telemetry_df, current_lap, vehicle_number, topk=3)
+            except Exception as e:
+                logger.warning(f"Failed to calculate sector contributions: {e}")
         
         return TireWearData(
             front_left=round(fl_wear, 1),
@@ -333,6 +423,7 @@ class TireWearPredictor:
             ci_lower=ci_lower,
             ci_upper=ci_upper,
             top_features=top_features,
+            sector_contributions=sector_contributions,
             model_version=self.model_version
         )
     

@@ -43,17 +43,22 @@ async def health() -> Dict[str, Any]:
     """
     Health check endpoint - returns 200 if service is running
     """
+    import os
     uptime = get_uptime_seconds()
     
     health_data = {
         "status": "ok",
+        "uptime_s": int(uptime),
         "uptime_seconds": round(uptime, 2),
         "timestamp": datetime.utcnow().isoformat() + "Z",
     }
     
-    # Add model version if model is loaded
+    # Add model version from environment or default
+    model_version = os.getenv("MODEL_VERSION", "tire-v1.0")
+    health_data["model_version"] = model_version
+    
+    # Add model loaded status
     if _model_loaded:
-        health_data["model_version"] = "1.0.0"  # Could be read from config or model metadata
         health_data["model_loaded"] = True
     
     logger.debug(f"Health check: {health_data}")

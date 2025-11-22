@@ -1,0 +1,21 @@
+{
+  "predictions": {
+    "pit_now_delta": -3.8,
+    "pit_now_risk": 22,
+    "stay_out_delta": 1.2,
+    "stay_out_risk": 35
+  },
+  "explanation": {
+    "top_features": [
+      {"name": "TireTempFL", "value": 0.45},
+      {"name": "sector2_stress", "value": 0.30},
+      {"name": "lap_speed_variance", "value": 0.25}
+    ],
+    "pred_median": 3.4,
+    "ci_5": 2.8,
+    "ci_95": 4.2,
+    "model_version": "tire-v1.0"
+  },
+  "model_version": "tire-v1.0"
+}
+

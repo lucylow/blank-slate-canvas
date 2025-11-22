@@ -1,0 +1,6 @@
+[
+  {"meta_time":"2025-11-01T10:10:00Z","track":"sonoma","chassis":"GR86-003","lap":15,"lapdist_m":150.0,"speed_kmh":180,"accx_can":-1.5,"accy_can":0.1,"TireTempFL":75},
+  {"meta_time":"2025-11-01T10:10:01Z","track":"sonoma","chassis":"GR86-003","lap":15,"lapdist_m":250.0,"speed_kmh":175,"accx_can":-1.8,"accy_can":0.15,"TireTempFL":78},
+  {"meta_time":"2025-11-01T10:10:02Z","track":"sonoma","chassis":"GR86-003","lap":16,"lapdist_m":50.0,"speed_kmh":170,"accx_can":-2.0,"accy_can":0.2,"TireTempFL":80}
+]
+

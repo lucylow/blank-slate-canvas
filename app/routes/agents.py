@@ -977,3 +977,150 @@ async def request_agent_analysis(
         logger.error(f"Error requesting agent analysis: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.post("/run")
+async def run_agent_consensus(request: Dict[str, Any]):
+    """
+    Run all agents and return consensus decision with voting summary
+    
+    Request body:
+    {
+        "track": "sebring",
+        "chassis": "GR86-01",
+        "lap": 12,
+        "telemetry": {...},
+        "sessionState": {...}
+    }
+    
+    Returns:
+    {
+        "agent_votes": {
+            "agent_id": {
+                "vote": "box_now" | "stay_out" | "box_later",
+                "confidence": 0.0-1.0,
+                "rationale": "string"
+            }
+        },
+        "consensus": {
+            "decision": "box_now",
+            "confidence": 0.82,
+            "votes_for": 5,
+            "votes_against": 2
+        },
+        "explanation": "Meta-decision explanation"
+    }
+    """
+    try:
+        track = request.get("track", "sebring")
+        chassis = request.get("chassis", "GR86-01")
+        lap = request.get("lap", 12)
+        telemetry = request.get("telemetry", {})
+        session_state = request.get("sessionState", {})
+        
+        logger.info(f"Agent consensus request: track={track}, chassis={chassis}, lap={lap}")
+        
+        # Mock agent votes (in production, this would call actual agents)
+        # 7 agents as mentioned in the requirements
+        agent_votes = {
+            "strategy-01": {
+                "vote": "box_now",
+                "confidence": 0.87,
+                "rationale": "Tire wear at 35.2%, optimal pit window opens in 2 laps",
+                "agent_type": "strategist"
+            },
+            "strategy-02": {
+                "vote": "box_now",
+                "confidence": 0.82,
+                "rationale": "Gap analysis shows undercut opportunity with +3.8s potential gain",
+                "agent_type": "strategist"
+            },
+            "tire-01": {
+                "vote": "box_now",
+                "confidence": 0.91,
+                "rationale": "Tire degradation rate accelerating, predicted cliff at lap 15",
+                "agent_type": "tire_analyst"
+            },
+            "tire-02": {
+                "vote": "stay_out",
+                "confidence": 0.65,
+                "rationale": "Tire wear manageable, can extend 3 more laps before pit",
+                "agent_type": "tire_analyst"
+            },
+            "coach-01": {
+                "vote": "box_now",
+                "confidence": 0.78,
+                "rationale": "Driver showing signs of fatigue, pit now preserves tire margin",
+                "agent_type": "coach"
+            },
+            "anomaly-01": {
+                "vote": "box_now",
+                "confidence": 0.85,
+                "rationale": "Anomaly detected in sector 2 brake patterns, early pit recommended",
+                "agent_type": "anomaly_detective"
+            },
+            "safety-01": {
+                "vote": "box_now",
+                "confidence": 0.95,
+                "rationale": "Safety margin below threshold, pit now to prevent tire failure",
+                "agent_type": "safety"
+            }
+        }
+        
+        # Calculate consensus
+        votes_for_box_now = sum(1 for v in agent_votes.values() if v["vote"] == "box_now")
+        votes_for_stay_out = sum(1 for v in agent_votes.values() if v["vote"] == "stay_out")
+        votes_for_box_later = sum(1 for v in agent_votes.values() if v["vote"] == "box_later")
+        
+        # Determine consensus decision (majority vote)
+        if votes_for_box_now >= votes_for_stay_out and votes_for_box_now >= votes_for_box_later:
+            consensus_decision = "box_now"
+            votes_for = votes_for_box_now
+            votes_against = votes_for_stay_out + votes_for_box_later
+        elif votes_for_stay_out >= votes_for_box_later:
+            consensus_decision = "stay_out"
+            votes_for = votes_for_stay_out
+            votes_against = votes_for_box_now + votes_for_box_later
+        else:
+            consensus_decision = "box_later"
+            votes_for = votes_for_box_later
+            votes_against = votes_for_box_now + votes_for_stay_out
+        
+        # Calculate consensus confidence (weighted average of votes for consensus)
+        consensus_votes = [v for v in agent_votes.values() if v["vote"] == consensus_decision]
+        consensus_confidence = sum(v["confidence"] for v in consensus_votes) / len(consensus_votes) if consensus_votes else 0.0
+        
+        # Generate meta-decision explanation
+        explanation_parts = [
+            f"Consensus: {consensus_decision.upper().replace('_', ' ')}",
+            f"Confidence: {consensus_confidence:.0%}",
+            f"Vote breakdown: {votes_for_box_now} for pit now, {votes_for_stay_out} for stay out, {votes_for_box_later} for pit later"
+        ]
+        
+        if consensus_decision == "box_now":
+            explanation_parts.append("Primary reasons: Tire wear acceleration, strategic window, and safety margin")
+        elif consensus_decision == "stay_out":
+            explanation_parts.append("Primary reasons: Tire wear manageable, position preservation, and track position")
+        else:
+            explanation_parts.append("Primary reasons: Optimal timing in 2-3 laps, current position stable")
+        
+        explanation = ". ".join(explanation_parts) + "."
+        
+        return {
+            "success": True,
+            "agent_votes": agent_votes,
+            "consensus": {
+                "decision": consensus_decision,
+                "confidence": round(consensus_confidence, 2),
+                "votes_for": votes_for,
+                "votes_against": votes_against,
+                "total_agents": len(agent_votes)
+            },
+            "explanation": explanation,
+            "disagreement_score": round(votes_against / len(agent_votes), 2) if agent_votes else 0.0,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error running agent consensus: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+

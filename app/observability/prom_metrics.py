@@ -32,6 +32,12 @@ sse_updates_sent = Counter(
     ["vehicle_id"]
 )
 
+stream_lag = Histogram(
+    "stream_lag_seconds",
+    "Stream lag in seconds (time between event generation and processing)",
+    buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0]
+)
+
 http_requests_total = Counter(
     "http_requests_total",
     "Total HTTP requests",
