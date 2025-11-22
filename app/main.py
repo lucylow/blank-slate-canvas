@@ -23,6 +23,13 @@ from app.routes.telemetry import router as telemetry_router
 from app.routes.agents import router as agents_router
 from app.observability.logger import setup_logging
 from app.observability.prom_metrics import get_metrics_response
+from prometheus_client import Gauge
+
+# Prometheus metrics for WebSocket connections (used by ws.py)
+WS_CONNECTIONS = Gauge(
+    "pitwall_ws_connections_active",
+    "Active WebSocket connections"
+)
 from app.models.analytics import (
     DashboardData, TireWearRequest, PerformanceRequest, 
     StrategyRequest, StrategyOptimization
