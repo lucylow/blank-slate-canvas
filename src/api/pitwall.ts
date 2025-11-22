@@ -809,3 +809,88 @@ export async function getReviewHistory(
   }
 }
 
+// ============================================================================
+// AGENT WORKFLOW & COLLABORATION API FUNCTIONS
+// ============================================================================
+
+export interface WorkflowNode {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  status?: string;
+}
+
+export interface WorkflowRequest {
+  workflow: WorkflowNode[];
+  track: string;
+  session: string;
+}
+
+export interface WorkflowResponse {
+  success: boolean;
+  results: Record<string, unknown>;
+  timestamp: string;
+}
+
+export interface AgentAnalysisRequest {
+  telemetry: Record<string, unknown>;
+  sessionState?: Record<string, unknown>;
+}
+
+export interface AgentAnalysisResponse {
+  success: boolean;
+  recommendation: string;
+  confidence: number;
+  decision_type?: string;
+  reasoning?: string[];
+  timestamp: string;
+}
+
+/**
+ * Execute agent workflow
+ */
+export async function executeAgentWorkflow(
+  request: WorkflowRequest
+): Promise<WorkflowResponse> {
+  try {
+    const res = await client.post<WorkflowResponse>("/api/agent-workflow", request);
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Workflow API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Request analysis from a specific agent
+ */
+export async function requestAgentAnalysis(
+  agentId: string,
+  request: AgentAnalysisRequest
+): Promise<AgentAnalysisResponse> {
+  try {
+    const res = await client.post<AgentAnalysisResponse>(
+      `/api/agents/${encodeURIComponent(agentId)}/analyze`,
+      request
+    );
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Agent analysis API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+

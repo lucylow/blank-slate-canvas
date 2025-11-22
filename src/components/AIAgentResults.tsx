@@ -33,177 +33,205 @@ interface AgentResult {
   timestamp: string;
 }
 
-// Mock results for all 7 AI agents based on demo_data.json
+// Mock results for all 7 AI agents based on demo_data.json processing pipeline
 const generateMockResults = (): AgentResult[] => {
-  const now = new Date().toISOString();
+  const baseTime = new Date("2025-11-20T15:30:45.123Z");
   
   return [
     {
-      agent_id: "strategy-01",
-      agent_type: "strategist",
-      agent_name: "Strategy Agent",
+      agent_id: "preprocessor-001",
+      agent_type: "preprocessor",
+      agent_name: "Preprocessor Agent",
       status: "completed",
       results: {
-        summary: "Analyzed race strategy for all 7 tracks. Identified optimal pit windows and undercut opportunities.",
+        summary: "Canonicalized 8,472 samples from demo_data.json. Mapped 12 sectors and derived lateral_g, longitudinal_g, tire_stress_inst, brake_energy_inst features.",
         key_metrics: {
-          "Optimal Pit Windows Identified": 14,
-          "Undercut Opportunities": 8,
-          "Strategy Confidence": "89%",
-          "Tracks Analyzed": 7
+          "Samples Processed": 8472,
+          "Sectors Mapped": 12,
+          "Derived Features": 4,
+          "Aggregate Windows": 12,
+          "Anomalies Detected": 3
         },
         insights: [
-          "Sebring: Optimal pit window laps 15-17 for maximum undercut advantage",
-          "COTA: Early pit on lap 12 recommended due to high tire degradation",
-          "Road America: Two-stop strategy optimal for 25-lap race"
+          "Canonicalized 8,472 telemetry samples from demo_data.json",
+          "Mapped 12 sectors across COTA track",
+          "Derived 4 new features: lateral_g, longitudinal_g, tire_stress_inst, brake_energy_inst",
+          "Sector 1: avg_speed 148.2 km/h, max_lat_g 1.8, tire_stress 124,000",
+          "Sector 2: avg_speed 132.1 km/h, max_lat_g 2.1, tire_stress 168,000 (high load)",
+          "Sector 3: avg_speed 220.5 km/h, max_lat_g 1.2, tire_stress 98,000"
         ],
-        confidence: 0.89,
-        processing_time_ms: 187
+        confidence: 0.98,
+        processing_time_ms: 1111
       },
-      timestamp: now
+      timestamp: new Date(baseTime.getTime() + 0).toISOString()
     },
     {
-      agent_id: "coach-01",
-      agent_type: "coach",
-      agent_name: "Coach Agent",
-      status: "completed",
-      results: {
-        summary: "Analyzed driver performance across 397 vehicles. Identified 23 coaching opportunities for lap time improvement.",
-        key_metrics: {
-          "Drivers Analyzed": 397,
-          "Coaching Opportunities": 23,
-          "Avg Improvement Potential": "0.15s/lap",
-          "Consistency Score": "87%"
-        },
-        insights: [
-          "Turn 11 COTA: 8m early braking detected, losing 0.15s per lap",
-          "Sector 2 VIR: Early throttle application could gain 0.6s",
-          "Barber Turn 5: Apex optimization needed, 0.3s improvement possible"
-        ],
-        confidence: 0.82,
-        processing_time_ms: 234
-      },
-      timestamp: now
-    },
-    {
-      agent_id: "anomaly-01",
-      agent_type: "anomaly_detective",
-      agent_name: "Anomaly Detective",
-      status: "completed",
-      results: {
-        summary: "Scanned 41.9M telemetry points. Detected 4 anomalies requiring attention.",
-        key_metrics: {
-          "Data Points Scanned": "41.9M",
-          "Anomalies Detected": 4,
-          "False Positive Rate": "4%",
-          "Detection Accuracy": "96%"
-        },
-        insights: [
-          "Front right tire temperature anomaly detected (15°C lower than expected)",
-          "Engine RPM spike detected in lap 12 - monitoring required",
-          "Brake pressure inconsistency in Turn 8 - possible sensor issue"
-        ],
-        confidence: 0.94,
-        processing_time_ms: 156
-      },
-      timestamp: now
-    },
-    {
-      agent_id: "predictor-01",
-      agent_type: "predictor",
-      agent_name: "Predictor Agent",
-      status: "completed",
-      results: {
-        summary: "Predicted tire degradation for all vehicles. Updated pit window recommendations based on accelerating wear.",
-        key_metrics: {
-          "Predictions Made": 2341,
-          "Accuracy": "91%",
-          "Tire Wear Predictions": 397,
-          "Pit Window Updates": 12
-        },
-        insights: [
-          "Tire degradation accelerating 12% faster than predicted - pit window moved earlier",
-          "Barber: Pit window revised from lap 16-18 to lap 14-15",
-          "Track temperature increase causing 3°C rise, accelerating wear"
-        ],
-        confidence: 0.91,
-        processing_time_ms: 203
-      },
-      timestamp: now
-    },
-    {
-      agent_id: "simulator-01",
-      agent_type: "simulator",
-      agent_name: "Simulator Agent",
-      status: "completed",
-      results: {
-        summary: "Ran 500 race scenario simulations. Identified optimal strategies for different race conditions.",
-        key_metrics: {
-          "Scenarios Simulated": 500,
-          "Strategy Options Evaluated": 4,
-          "Best Strategy Identified": "Two-stop with early pit",
-          "Simulation Accuracy": "87%"
-        },
-        insights: [
-          "Monte Carlo simulation: Two-stop strategy optimal for 85% of scenarios",
-          "Safety car scenarios favor early pit strategy",
-          "Traffic analysis shows undercut window in laps 14-16"
-        ],
-        confidence: 0.87,
-        processing_time_ms: 1247
-      },
-      timestamp: now
-    },
-    {
-      agent_id: "explainer-01",
-      agent_type: "explainer",
-      agent_name: "Explainer Agent",
-      status: "completed",
-      results: {
-        summary: "Generated explainable insights for all agent decisions. Provided confidence intervals and feature attribution.",
-        key_metrics: {
-          "Decisions Explained": 24,
-          "Confidence Intervals Generated": 24,
-          "Feature Attributions": 156,
-          "Explainability Score": "92%"
-        },
-        insights: [
-          "Strategy decisions: 89% confidence with ±2 lap window",
-          "Tire predictions: Feature attribution shows lateral G-forces as primary driver",
-          "Anomaly detection: Temperature delta of 15°C exceeds 3-sigma threshold"
-        ],
-        confidence: 0.92,
-        processing_time_ms: 98
-      },
-      timestamp: now
-    },
-    {
-      agent_id: "eda-01",
+      agent_id: "eda-001",
       agent_type: "eda",
       agent_name: "EDA Agent",
       status: "completed",
       results: {
-        summary: "Performed exploratory data analysis on 41.9M telemetry points. Identified patterns and correlations.",
+        summary: "Identified 3 driving style clusters using UMAP + HDBSCAN: conservative_smooth (856 samples), aggressive_late_apex (742 samples), unstable_entry (402 samples).",
         key_metrics: {
-          "Data Points Analyzed": "41.9M",
-          "Patterns Identified": 12,
-          "Correlations Found": 8,
-          "Data Quality Score": "94%"
+          "Clusters Found": 3,
+          "Samples Analyzed": 2000,
+          "Driving Styles": 3,
+          "Cluster Stability": "87%",
+          "Centroid Drift": 0.23
         },
         insights: [
-          "Strong correlation between lateral G-forces and tire wear (r=0.87)",
-          "Speed vs lap time correlation: r=0.92 across all tracks",
-          "Temperature patterns show 3°C increase during race duration"
+          "Cluster 0 - Conservative Smooth: avg_speed 135.2 km/h, max_lat_g 1.6",
+          "Cluster 1 - Aggressive Late Apex: avg_speed 152.8 km/h, max_lat_g 2.3 (high cornering loads)",
+          "Cluster 2 - Unstable Entry: avg_speed 128.5 km/h, max_lat_g 1.9 (mid-corner corrections)",
+          "Evidence sample: Lap 12, Sector 2 - late braking, high corner speed pattern detected",
+          "Drift metrics show stable clustering (87% stability, 0.23 centroid drift)"
         ],
-        confidence: 0.94,
-        processing_time_ms: 3456
+        confidence: 0.87,
+        processing_time_ms: 1112
       },
-      timestamp: now
+      timestamp: new Date(baseTime.getTime() + 1111).toISOString()
+    },
+    {
+      agent_id: "predictor-001",
+      agent_type: "predictor",
+      agent_name: "Predictor Agent",
+      status: "completed",
+      results: {
+        summary: "Predicted 0.321s/lap tire degradation loss. Tire cliff expected at Lap 18. Model confidence 78% (R²=0.89, MAE=0.08s).",
+        key_metrics: {
+          "Predicted Loss/Lap": "0.321s",
+          "Laps Until 0.5s Loss": 6.2,
+          "Model Confidence": "78%",
+          "R Squared": 0.89,
+          "MAE (seconds)": 0.08
+        },
+        insights: [
+          "Predicted tire degradation: 0.321s loss per lap",
+          "Tire cliff expected by Lap 18 (6.2 laps until 0.5s threshold)",
+          "Confidence interval: [0.285s, 0.357s]",
+          "Top feature importance: tire_stress_sector_1 (42%), brake_energy_sector_2 (31%)",
+          "Model trained on COTA data (v1.2), validated with 89% R² accuracy"
+        ],
+        confidence: 0.78,
+        processing_time_ms: 1112
+      },
+      timestamp: new Date(baseTime.getTime() + 2223).toISOString()
+    },
+    {
+      agent_id: "simulator-001",
+      agent_type: "simulator",
+      agent_name: "Simulator Agent",
+      status: "completed",
+      results: {
+        summary: "Recommended PIT_LAP_15 strategy with +3.3s expected gain. Analyzed 2 scenarios: pit_lap_15 (60% probability, 3600.23s) vs stay_out (40% probability, 3603.52s).",
+        key_metrics: {
+          "Strategy Recommended": "PIT_LAP_15",
+          "Expected Gain": "+3.3s",
+          "Scenarios Analyzed": 2,
+          "Best Strategy Probability": "60%",
+          "Tire Cliff Lap": 18
+        },
+        insights: [
+          "Optimal strategy: Pit stop on Lap 15 (+3.3s expected gain)",
+          "Scenario 1 (Pit Lap 15): 3600.23s total time, 60% probability, undercut opponent #4",
+          "Scenario 2 (Stay Out): 3603.52s total time, 40% probability, tire degradation risk in final laps",
+          "Tire cliff predicted at Lap 18 - pit before degradation",
+          "Undercut window: Laps 14-16 optimal for track position gain",
+          "Competitor strategies: opponent_4 (lap 16), opponent_7 (lap 14)"
+        ],
+        confidence: 0.82,
+        processing_time_ms: 1111
+      },
+      timestamp: new Date(baseTime.getTime() + 3335).toISOString()
+    },
+    {
+      agent_id: "explainer-001",
+      agent_type: "explainer",
+      agent_name: "Explainer Agent",
+      status: "completed",
+      results: {
+        summary: "Generated explainable insights with SHAP feature attribution. Top factors: tire_stress_sector_1 (21% impact), brake_energy_sector_2 (18% impact). Compiled evidence frames from Lap 12 sectors.",
+        key_metrics: {
+          "Feature Attributions": 4,
+          "Evidence Frames": 2,
+          "SHAP Values Computed": 4,
+          "Explanations Generated": 2,
+          "Radio Scripts": 1
+        },
+        insights: [
+          "Tire stress Sector 1: 168,000 (SHAP +0.21) - 34% above optimal, high impact",
+          "Brake energy Sector 2: 1.12 (SHAP +0.18) - thermal degradation risk, medium impact",
+          "Lateral G consistency: 0.87 (SHAP +0.12) - medium impact on wear",
+          "Evidence frame 1: Sector 1 high stress (142-145 km/h, 2.0-2.1 lateral G, 165-170k tire stress)",
+          "Evidence frame 2: Sector 2 high braking (85-90% brake, 210-195 km/h, 1.10-1.12 brake energy)",
+          "Radio script: 'Pit wall to driver: Elevated tire wear in Sector 1. Recommend pit Lap 15 for fresh rubber and undercut on car #4.'"
+        ],
+        confidence: 0.85,
+        processing_time_ms: 1111
+      },
+      timestamp: new Date(baseTime.getTime() + 4446).toISOString()
+    },
+    {
+      agent_id: "delivery-001",
+      agent_type: "delivery",
+      agent_name: "Delivery Agent",
+      status: "completed",
+      results: {
+        summary: "Delivered insights to 3 connected clients via WebSocket. Insight ID: insight-ab12cd34. Message delivery time: 45ms. All clients notified successfully.",
+        key_metrics: {
+          "Insights Delivered": 5,
+          "Clients Connected": 3,
+          "Delivery Time": "45ms",
+          "Message Types": 3,
+          "Storage Success": true
+        },
+        insights: [
+          "WebSocket broadcast: insight-ab12cd34 created (Priority: HIGH)",
+          "Summary: 'Predicted 0.32s/lap loss — pit window Lap 14-17'",
+          "Top features: tire_stress_sector_1 (168,000), brake_energy_sector_2 (1.12)",
+          "REST endpoint: /api/insights/insight-ab12cd34 (full evidence, attributions, simulations)",
+          "All 3 clients notified in 45ms",
+          "Storage persisted successfully for historical analysis"
+        ],
+        confidence: 0.99,
+        processing_time_ms: 223
+      },
+      timestamp: new Date(baseTime.getTime() + 5557).toISOString()
+    },
+    {
+      agent_id: "orchestrator-001",
+      agent_type: "orchestrator",
+      agent_name: "Orchestrator Agent",
+      status: "completed",
+      results: {
+        summary: "Orchestrated 7-agent pipeline processing. Total duration: 5.89s. System throughput: 51 insights/min. All 7 agents active, 0 failed tasks.",
+        key_metrics: {
+          "Agents Active": 7,
+          "Tasks Processed": 42,
+          "Total Duration": "5.89s",
+          "Throughput": "51 insights/min",
+          "Error Rate": "0%"
+        },
+        insights: [
+          "Pipeline execution: demo_data.json processing completed in 5.89s",
+          "Agent timings: preprocessor (1.111s), eda (1.112s), predictor (1.112s), simulator (1.111s), explainer (1.111s), delivery (0.223s)",
+          "Data flow: 8,472 input samples → 12 aggregate windows → 5 insights → 1 final recommendation",
+          "Routing: 7 tasks routed, 6 affinity matches, 1 load-balanced, 0 failed tasks",
+          "System metrics: 1,120ms avg processing time, 87% agent utilization, 0% error rate",
+          "Queue status: 3 tasks pending, 8 results ready, all agent inboxes healthy"
+        ],
+        confidence: 0.95,
+        processing_time_ms: 5890
+      },
+      timestamp: new Date(baseTime.getTime() + 5890).toISOString()
     }
   ];
 };
 
 const getAgentIcon = (type: string) => {
   switch (type) {
+    case "preprocessor":
+      return <Target className="w-5 h-5" />;
     case "strategist":
       return <Target className="w-5 h-5" />;
     case "coach":
@@ -218,6 +246,10 @@ const getAgentIcon = (type: string) => {
       return <Sparkles className="w-5 h-5" />;
     case "eda":
       return <BarChart3 className="w-5 h-5" />;
+    case "delivery":
+      return <TrendingUp className="w-5 h-5" />;
+    case "orchestrator":
+      return <Bot className="w-5 h-5" />;
     default:
       return <Bot className="w-5 h-5" />;
   }
@@ -238,6 +270,8 @@ const getStatusIcon = (status: string) => {
 
 const getAgentColor = (type: string) => {
   switch (type) {
+    case "preprocessor":
+      return "bg-indigo-500/20 text-indigo-400 border-indigo-500/30";
     case "strategist":
       return "bg-blue-500/20 text-blue-400 border-blue-500/30";
     case "coach":
@@ -252,6 +286,10 @@ const getAgentColor = (type: string) => {
       return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
     case "eda":
       return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+    case "delivery":
+      return "bg-green-500/20 text-green-400 border-green-500/30";
+    case "orchestrator":
+      return "bg-violet-500/20 text-violet-400 border-violet-500/30";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -301,13 +339,71 @@ export default function AIAgentResults() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsList className="grid w-full grid-cols-5 mb-6">
               <TabsTrigger value="all">All Agents</TabsTrigger>
+              <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+              <TabsTrigger value="analysis">Analysis</TabsTrigger>
               <TabsTrigger value="strategy">Strategy</TabsTrigger>
-              <TabsTrigger value="coach">Coach</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="delivery">Delivery</TabsTrigger>
             </TabsList>
             
+            <TabsContent value="pipeline" className="space-y-4">
+              <Card className="border-border/50 bg-gradient-to-br from-card/80 to-card/60">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-primary" />
+                    Processing Pipeline Timeline
+                  </h3>
+                  <div className="space-y-4">
+                    {results.map((result, index) => {
+                      const time = new Date(result.timestamp);
+                      const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+                      return (
+                        <div key={result.agent_id} className="flex items-start gap-4 p-4 bg-muted/30 rounded-lg border-l-4 border-primary">
+                          <div className="flex-shrink-0 w-24 text-xs font-mono text-muted-foreground pt-1">
+                            {timeStr}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className={`p-1.5 rounded ${getAgentColor(result.agent_type)}`}>
+                                {getAgentIcon(result.agent_type)}
+                              </div>
+                              <h4 className="font-semibold">{result.agent_name}</h4>
+                              <Badge variant="outline" className="text-xs">
+                                {result.results.processing_time_ms}ms
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{result.results.summary}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                      <p className="text-sm font-semibold text-primary mb-2">Pipeline Summary</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Total Duration: </span>
+                          <span className="font-bold">5.89s</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Input Samples: </span>
+                          <span className="font-bold">8,472</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Insights Generated: </span>
+                          <span className="font-bold">5</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Final Recommendations: </span>
+                          <span className="font-bold">1</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="all" className="space-y-4">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {results.map((result, index) => (
@@ -360,8 +456,13 @@ export default function AIAgentResults() {
               </div>
             </TabsContent>
 
-            <TabsContent value="strategy" className="space-y-4">
-              {results.filter(r => r.agent_type === "strategist" || r.agent_type === "simulator").map((result) => (
+            <TabsContent value="analysis" className="space-y-4">
+              {results.filter(r => 
+                r.agent_type === "preprocessor" || 
+                r.agent_type === "eda" || 
+                r.agent_type === "predictor" || 
+                r.agent_type === "explainer"
+              ).map((result) => (
                 <Card key={result.agent_id} className="border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-4">
@@ -402,8 +503,8 @@ export default function AIAgentResults() {
               ))}
             </TabsContent>
 
-            <TabsContent value="coach" className="space-y-4">
-              {results.filter(r => r.agent_type === "coach").map((result) => (
+            <TabsContent value="strategy" className="space-y-4">
+              {results.filter(r => r.agent_type === "simulator").map((result) => (
                 <Card key={result.agent_id} className="border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-4">
@@ -444,12 +545,10 @@ export default function AIAgentResults() {
               ))}
             </TabsContent>
 
-            <TabsContent value="analytics" className="space-y-4">
+            <TabsContent value="delivery" className="space-y-4">
               {results.filter(r => 
-                r.agent_type === "predictor" || 
-                r.agent_type === "anomaly_detective" || 
-                r.agent_type === "explainer" || 
-                r.agent_type === "eda"
+                r.agent_type === "delivery" || 
+                r.agent_type === "orchestrator"
               ).map((result) => (
                 <Card key={result.agent_id} className="border-border/50">
                   <CardContent className="p-6">

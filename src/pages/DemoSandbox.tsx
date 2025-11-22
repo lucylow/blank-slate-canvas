@@ -39,8 +39,8 @@ export default function DemoSandbox() {
       .then((r) => r.json())
       .then((j) => {
         setTracks(j || []);
-        if (j && j.length && !selected) {
-          setSelected(j[0].track_id || j[0].track_name);
+        if (j && j.length) {
+          setSelected((prev) => prev || j[0].track_id || j[0].track_name);
         }
       })
       .catch((e) => {

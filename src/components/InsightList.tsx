@@ -1,6 +1,6 @@
 // src/components/InsightList.tsx
 import React, { useCallback } from 'react';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { List, ListChildComponentProps } from 'react-window';
 import { useAgentStore } from '../stores/agentStore';
 import { InsightCard } from './InsightCard';
 

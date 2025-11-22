@@ -122,7 +122,9 @@ export class WSClient {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
-    try { this.ws?.close(); } catch {}
+    try { this.ws?.close(); } catch {
+      // Ignore errors when closing WebSocket
+    }
     this.stopHeartbeat();
   }
 

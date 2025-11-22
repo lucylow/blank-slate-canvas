@@ -21,6 +21,7 @@ import AgentDashboard from "./components/AgentDashboard/AgentDashboard";
 import AgentReviewDashboard from "./pages/AgentReviewDashboard";
 import DemoSandbox from "./pages/DemoSandbox";
 import AgentInsightsDashboard from "./pages/AgentInsightsDashboard";
+import AIAgentIntegration from "./pages/AIAgentIntegration";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,9 @@ const App = () => (
           
           {/* Agent Insights Dashboard - Live insights from Delivery agent */}
           <Route path="/agent-insights" element={<AgentInsightsDashboard />} />
+          
+          {/* AI Agent Integration - Three integration patterns showcase */}
+          <Route path="/agent-integration" element={<AIAgentIntegration />} />
           
           {/* 404 - Catch-all route */}
           <Route path="*" element={<NotFound />} />

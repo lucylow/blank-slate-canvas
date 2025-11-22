@@ -9,7 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import DemoLauncher from "@/components/DemoLauncher";
 import AIAgentResults from "@/components/AIAgentResults";
 import PDFReportGenerator from "@/components/PDFReportGenerator";
+import SebringPDFReportGenerator from "@/components/SebringPDFReportGenerator";
 import SonomaRaceResults from "@/components/SonomaRaceResults";
+import IndianapolisRaceResults from "@/components/IndianapolisRaceResults";
+import SebringRaceResults from "@/components/SebringRaceResults";
+import COTARaceResults from "@/components/COTARaceResults";
+import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
@@ -974,6 +979,17 @@ const Index = () => {
                 )}
               </Button>
             </Link>
+            <Link to="/agent-integration">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                aria-label="View AI Agent Integration Patterns"
+              >
+                <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
+                Agent Integration
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -1104,9 +1120,11 @@ const Index = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Comprehensive data and models for all 7 tracks in the Toyota GR Cup North America series.
             </p>
-            {/* PDF Report Generator for Barber Motorsports Park */}
-            <div className="mt-8 flex justify-center">
+            {/* PDF Report Generators */}
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
               <PDFReportGenerator />
+              <SebringPDFReportGenerator />
+              <COTAPDFReportGenerator />
             </div>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1200,6 +1218,45 @@ const Index = () => {
               </p>
             </div>
             <SonomaRaceResults />
+          </div>
+
+          {/* Indianapolis Race Results Section */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Indianapolis Motor Speedway - Real-Time Race Analysis
+              </h3>
+              <p className="text-muted-foreground">
+                Real-time data analysis dashboard with team performance, driver consistency, and advanced analytics
+              </p>
+            </div>
+            <IndianapolisRaceResults />
+          </div>
+
+          {/* Sebring Race Results Section */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Sebring International Raceway - Race Results
+              </h3>
+              <p className="text-muted-foreground">
+                Complete race results and analytics from the GR Cup event at Sebring International Raceway
+              </p>
+            </div>
+            <SebringRaceResults />
+          </div>
+
+          {/* Circuit of the Americas Race Results Section */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Circuit of the Americas - Race Results
+              </h3>
+              <p className="text-muted-foreground">
+                Complete race results and analytics from the GR Cup Race 1 at Circuit of the Americas
+              </p>
+            </div>
+            <COTARaceResults />
           </div>
         </div>
       </section>
