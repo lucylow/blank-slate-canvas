@@ -15,6 +15,7 @@ import IndianapolisRaceResults from "@/components/IndianapolisRaceResults";
 import SebringRaceResults from "@/components/SebringRaceResults";
 import COTARaceResults from "@/components/COTARaceResults";
 import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
+import GRCarComparison from "@/components/GRCarComparison";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
@@ -418,11 +419,11 @@ const Index = () => {
     }
   };
 
-  // Scroll spy to detect active section and show scroll-to-top button
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['features', 'tracks'];
-      const scrollPosition = window.scrollY + 100; // Offset for header
+      // Scroll spy to detect active section and show scroll-to-top button
+      useEffect(() => {
+        const handleScroll = () => {
+          const sections = ['features', 'gr-cars', 'tracks'];
+          const scrollPosition = window.scrollY + 100; // Offset for header
 
       // Show/hide scroll-to-top button
       setShowScrollTop(window.scrollY > 400);
@@ -635,6 +636,20 @@ const Index = () => {
                 activeSection === 'features' ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
             </a>
+            <a 
+              href="#gr-cars" 
+              onClick={(e) => handleAnchorClick(e, '#gr-cars')}
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                activeSection === 'gr-cars' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              GR Cars
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                activeSection === 'gr-cars' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </a>
             <Link 
               to="/tracks" 
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
@@ -758,10 +773,24 @@ const Index = () => {
                     >
                       Features
                     </motion.a>
-                    <motion.div
+                    <motion.a
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.07 }}
+                      href="#gr-cars" 
+                      onClick={(e) => handleAnchorClick(e, '#gr-cars')}
+                      className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                        activeSection === 'gr-cars'
+                          ? 'text-primary bg-primary/10'
+                          : 'hover:text-primary hover:bg-accent/50'
+                      }`}
+                    >
+                      GR Cars
+                    </motion.a>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.09 }}
                     >
                       <Link 
                         to="/tracks" 
@@ -1110,6 +1139,14 @@ const Index = () => {
         </div>
       </section>
 
+      {/* GR Car Comparison Section */}
+      <section id="gr-cars" className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <GRCarComparison />
+        </div>
+      </section>
+
       {/* Tracks Section */}
       <section id="tracks" className="py-24 px-6 relative scroll-mt-20">
         <div className="container mx-auto max-w-6xl">
@@ -1453,6 +1490,16 @@ const Index = () => {
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Analytics
                   </Link>
+                </li>
+                <li>
+                  <a 
+                    href="#gr-cars" 
+                    onClick={(e) => handleAnchorClick(e, '#gr-cars')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    GR Cars
+                  </a>
                 </li>
                 <li>
                   <Link to="/tracks" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
