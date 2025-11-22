@@ -936,3 +936,44 @@ async def get_review_history(
         logger.error(f"Error getting review history: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ============================================================================
+# AGENT ANALYSIS ENDPOINTS
+# ============================================================================
+
+@router.post("/{agent_id}/analyze")
+async def request_agent_analysis(
+    agent_id: str,
+    request: Dict[str, Any]
+):
+    """
+    Request analysis from a specific agent
+    
+    Request body:
+    {
+        "telemetry": {...},
+        "sessionState": {...}
+    }
+    """
+    try:
+        logger.info(f"Agent analysis request: agent_id={agent_id}")
+        
+        # In a real implementation, this would dispatch to the specific agent
+        # For now, return a mock response
+        return {
+            "success": True,
+            "recommendation": f"Agent {agent_id} recommendation based on telemetry",
+            "confidence": 0.85,
+            "decision_type": "strategy",
+            "reasoning": [
+                "Analysis of telemetry data",
+                "Considered session state",
+                "Applied agent-specific logic"
+            ],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error requesting agent analysis: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+

@@ -122,25 +122,51 @@ async def add_cors_headers(request: Request, call_next):
     # Check if we should allow this origin
     allow_origin = None
     
-    if "*" in cors_origins:
-        # Full wildcard - allow all
-        allow_origin = "*"
-    elif origin:
-        # Check explicit origins (handled by CORSMiddleware above)
-        # Check wildcard patterns
-        for pattern in wildcard_patterns:
-            if pattern.match(origin):
-                allow_origin = origin
-                break
+    # Handle OPTIONS preflight requests
+    if request.method == "OPTIONS":
+        # Check if origin should be allowed
+        if "*" in cors_origins:
+            # Full wildcard - but can't use "*" with credentials, so use origin if present
+            allow_origin = origin if origin else "*"
+        elif origin:
+            # Check explicit origins (handled by CORSMiddleware above)
+            # Check wildcard patterns
+            for pattern in wildcard_patterns:
+                if pattern.match(origin):
+                    allow_origin = origin
+                    break
+            # If not matched by wildcard, CORSMiddleware will handle it
+        
+        # Create response for OPTIONS request
+        if allow_origin:
+            from starlette.responses import Response
+            response = Response()
+            response.headers["Access-Control-Allow-Origin"] = allow_origin if allow_origin != "*" else (origin if origin else "*")
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+            if allow_origin != "*" and origin:
+                response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Max-Age"] = "86400"  # 24 hours
+            return response
     
+    # Handle actual requests
     response = await call_next(request)
     
-    # Add CORS headers if origin is allowed
-    if allow_origin:
-        response.headers["Access-Control-Allow-Origin"] = allow_origin
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
+    # Add CORS headers if origin is allowed (only if not already set by CORSMiddleware)
+    if origin and "Access-Control-Allow-Origin" not in response.headers:
+        if "*" in cors_origins:
+            # Full wildcard - use origin with credentials
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+        elif wildcard_patterns:
+            # Check wildcard patterns
+            for pattern in wildcard_patterns:
+                if pattern.match(origin):
+                    response.headers["Access-Control-Allow-Origin"] = origin
+                    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+                    response.headers["Access-Control-Allow-Headers"] = "*"
+                    response.headers["Access-Control-Allow-Credentials"] = "true"
+                    break
     
     return response
 

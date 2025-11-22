@@ -50,7 +50,12 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(), 
+    // Enable component tagger in development or when explicitly enabled
+    // Lovable Cloud handles component tagging in production automatically
+    (mode === "development" || process.env.VITE_ENABLE_COMPONENT_TAGGER === "true") && componentTagger()
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -61,11 +66,7 @@ export default defineConfig(({ mode }) => ({
     assetsDir: "assets",
     sourcemap: false,
     commonjsOptions: {
-      include: [/react-window/, /node_modules/],
       transformMixedEsModules: true,
     },
-  },
-  optimizeDeps: {
-    include: ['react-window'],
   },
 }));

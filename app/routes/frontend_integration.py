@@ -9,6 +9,7 @@ import json
 import logging
 from typing import Optional
 import pandas as pd
+from datetime import datetime
 
 from app.services.dashboard_builder import build_dashboard_payload, build_demo_payload
 from app.analytics.eval import evaluate_tire_wear_on_track, evaluate_all_tracks
@@ -38,7 +39,13 @@ async def api_dashboard_live(
     
     payload = await build_dashboard_payload(track, race, vehicle, lap, use_enhanced_predictor=enhanced)
     
-    if not payload.get("meta", {}).get("ok"):
+    # Check for error in meta (backward compatibility) or if payload lacks required fields
+    if payload.get("meta") and not payload.get("meta", {}).get("ok"):
+        error_msg = payload.get("meta", {}).get("error", "Unknown error")
+        raise HTTPException(status_code=503, detail=error_msg)
+    
+    # If payload is an error response without required fields, raise exception
+    if not payload.get("track") and payload.get("meta"):
         error_msg = payload.get("meta", {}).get("error", "Unknown error")
         raise HTTPException(status_code=503, detail=error_msg)
     
@@ -150,6 +157,46 @@ async def api_eval_tire_wear(
         return JSONResponse(result)
 
 
+@router.get("/analytics/eval/tire-wear")
+async def api_analytics_eval_tire_wear(
+    track: Optional[str] = Query(None, description="Track to evaluate (None = all tracks)"),
+    race: Optional[int] = Query(None, description="Race number"),
+    vehicle: Optional[int] = Query(None, description="Vehicle number"),
+    max_laps: int = Query(20, description="Maximum laps to evaluate")
+):
+    """
+    Evaluate tire wear prediction model (alias for /api/eval/tire-wear)
+    
+    Returns RMSE and MAE metrics per track or overall
+    Matches frontend API expectation
+    """
+    logger.info(f"Analytics evaluation request: track={track}, race={race}, vehicle={vehicle}")
+    
+    # Use defaults if not provided
+    race_val = race if race is not None else 1
+    vehicle_val = vehicle if vehicle is not None else 7
+    max_laps_val = max_laps if max_laps else 20
+    
+    if track:
+        # Evaluate single track
+        result = evaluate_tire_wear_on_track(track, race_val, vehicle_val, max_laps_val)
+        # Wrap in success response format expected by frontend
+        return JSONResponse({
+            "success": True,
+            "data": result,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+    else:
+        # Evaluate all tracks
+        result = evaluate_all_tracks(max_samples_per_track=max_laps_val)
+        # Wrap in success response format expected by frontend
+        return JSONResponse({
+            "success": True,
+            "data": result,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+
 @router.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -192,6 +239,42 @@ async def get_config():
             "split_delta_analysis": True
         }
     }
+
+
+@router.post("/agent-workflow")
+async def api_agent_workflow(request: dict):
+    """
+    Execute agent workflow
+    
+    Request body:
+    {
+        "workflow": [
+            {"id": "...", "type": "...", "position": {"x": 0, "y": 0}}
+        ],
+        "track": "string",
+        "session": "string"
+    }
+    """
+    try:
+        logger.info(f"Agent workflow request: track={request.get('track')}, session={request.get('session')}")
+        
+        # In a real implementation, this would execute the workflow
+        # For now, return a mock response matching frontend WorkflowResponse interface
+        return JSONResponse({
+            "success": True,
+            "results": {
+                "workflow_id": f"workflow-{datetime.utcnow().timestamp()}",
+                "status": "completed",
+                "steps_executed": len(request.get("workflow", [])),
+                "track": request.get("track"),
+                "session": request.get("session")
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error executing agent workflow: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/analytics/split-deltas", response_class=JSONResponse)

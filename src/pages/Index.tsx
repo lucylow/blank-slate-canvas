@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp } from "lucide-react";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -387,35 +387,71 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [healthCheckError, setHealthCheckError] = useState<string | null>(null);
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
 
-  // Fetch AI agent status for showcase
-  const { data: agentStatus } = useQuery<AgentStatusResponse>({
+  // Fetch AI agent status for showcase with error handling
+  const { data: agentStatus, error: agentStatusError } = useQuery<AgentStatusResponse>({
     queryKey: ['agentStatus'],
-    queryFn: getAgentStatus,
+    queryFn: async () => {
+      try {
+        return await getAgentStatus();
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to fetch agent status';
+        console.error('Agent status fetch error:', errorMessage);
+        throw error; // Re-throw to let React Query handle it
+      }
+    },
     enabled: !isDemoMode,
     refetchInterval: 30000,
     retry: 1,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Smooth scroll handler for anchor links with header offset
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('#')) {
-      e.preventDefault();
-      const element = document.querySelector(href);
-      if (element) {
-        const headerOffset = 80; // Height of fixed header
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+    try {
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        const element = document.querySelector(href);
+        if (element) {
+          const headerOffset = 80; // Height of fixed header
+          const rect = element.getBoundingClientRect();
+          
+          if (!rect || typeof rect.top !== 'number') {
+            console.warn('Unable to get element position for:', href);
+            return;
+          }
+          
+          const elementPosition = rect.top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-        setMobileMenuOpen(false);
-        // Update URL without triggering scroll
-        window.history.pushState(null, '', href);
+          window.scrollTo({
+            top: Math.max(0, offsetPosition),
+            behavior: 'smooth'
+          });
+          setMobileMenuOpen(false);
+          // Update URL without triggering scroll
+          try {
+            window.history.pushState(null, '', href);
+          } catch (historyError) {
+            console.warn('Failed to update browser history:', historyError);
+          }
+        } else {
+          console.warn('Anchor element not found:', href);
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleAnchorClick:', error);
+      // Fallback: try direct navigation
+      if (href.startsWith('#')) {
+        try {
+          window.location.hash = href;
+        } catch (fallbackError) {
+          console.error('Fallback navigation also failed:', fallbackError);
+        }
       }
     }
   };
@@ -423,41 +459,83 @@ const Index = () => {
       // Scroll spy to detect active section and show scroll-to-top button
       useEffect(() => {
         const handleScroll = () => {
-          const sections = ['features', 'gr-cars', 'tracks'];
-          const scrollPosition = window.scrollY + 100; // Offset for header
+          try {
+            const sections = ['features', 'gr-cars', 'tracks'];
+            const scrollY = window.scrollY;
+            
+            if (typeof scrollY !== 'number' || isNaN(scrollY)) {
+              console.warn('Invalid scroll position');
+              return;
+            }
+            
+            const scrollPosition = scrollY + 100; // Offset for header
 
-      // Show/hide scroll-to-top button
-      setShowScrollTop(window.scrollY > 400);
+            // Show/hide scroll-to-top button
+            setShowScrollTop(scrollY > 400);
 
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section);
-            break;
+            for (const section of sections) {
+              try {
+                const element = document.getElementById(section);
+                if (element) {
+                  const { offsetTop, offsetHeight } = element;
+                  if (
+                    typeof offsetTop === 'number' && 
+                    typeof offsetHeight === 'number' &&
+                    !isNaN(offsetTop) && 
+                    !isNaN(offsetHeight) &&
+                    scrollPosition >= offsetTop && 
+                    scrollPosition < offsetTop + offsetHeight
+                  ) {
+                    setActiveSection(section);
+                    break;
+                  }
+                }
+              } catch (sectionError) {
+                console.warn(`Error checking section ${section}:`, sectionError);
+              }
+            }
+
+            // Check if we're at the top
+            if (scrollY < 100) {
+              setActiveSection('');
+            }
+          } catch (error) {
+            console.error('Error in scroll handler:', error);
           }
+        };
+
+        try {
+          window.addEventListener('scroll', handleScroll, { passive: true });
+          handleScroll(); // Initial check
+        } catch (error) {
+          console.error('Error setting up scroll listener:', error);
         }
-      }
 
-      // Check if we're at the top
-      if (window.scrollY < 100) {
-        setActiveSection('');
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+        return () => {
+          try {
+            window.removeEventListener('scroll', handleScroll);
+          } catch (error) {
+            console.error('Error removing scroll listener:', error);
+          }
+        };
+      }, []);
 
   // Scroll to top handler
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    try {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } catch (error) {
+      console.error('Error scrolling to top:', error);
+      // Fallback to instant scroll
+      try {
+        window.scrollTo(0, 0);
+      } catch (fallbackError) {
+        console.error('Fallback scroll also failed:', fallbackError);
+      }
+    }
   };
 
   // Close mobile menu on route change
@@ -468,57 +546,128 @@ const Index = () => {
   // Keyboard navigation support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Close mobile menu on ESC
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
+      try {
+        // Close mobile menu on ESC
+        if (e.key === 'Escape' && mobileMenuOpen) {
+          setMobileMenuOpen(false);
+        }
+      } catch (error) {
+        console.error('Error in keyboard handler:', error);
       }
     };
 
     if (mobileMenuOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      // Prevent body scroll when menu is open
-      document.body.style.overflow = 'hidden';
+      try {
+        document.addEventListener('keydown', handleKeyDown);
+        // Prevent body scroll when menu is open
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        
+        return () => {
+          try {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.body.style.overflow = originalOverflow || '';
+          } catch (error) {
+            console.error('Error cleaning up keyboard listener:', error);
+            // Ensure overflow is reset even if removeEventListener fails
+            try {
+              document.body.style.overflow = '';
+            } catch (fallbackError) {
+              console.error('Failed to reset overflow:', fallbackError);
+            }
+          }
+        };
+      } catch (error) {
+        console.error('Error setting up keyboard listener:', error);
+      }
     } else {
-      document.body.style.overflow = '';
+      try {
+        document.body.style.overflow = '';
+      } catch (error) {
+        console.error('Error resetting body overflow:', error);
+      }
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      try {
+        document.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = '';
+      } catch (error) {
+        console.error('Error in cleanup:', error);
+      }
     };
   }, [mobileMenuOpen]);
 
   // Add smooth scroll CSS
   useEffect(() => {
-    document.documentElement.style.scrollBehavior = 'smooth';
-    return () => {
-      document.documentElement.style.scrollBehavior = 'auto';
-    };
+    try {
+      const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'smooth';
+      
+      return () => {
+        try {
+          document.documentElement.style.scrollBehavior = originalScrollBehavior || 'auto';
+        } catch (error) {
+          console.error('Error resetting scroll behavior:', error);
+        }
+      };
+    } catch (error) {
+      console.error('Error setting scroll behavior:', error);
+    }
   }, []);
 
   // Backend health check (demo or real backend) - silently check in background
   useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    
     const checkBackendHealth = async () => {
       try {
         if (isDemoMode) {
           // Check demo server health
           await checkDemoHealth();
+          setHealthCheckError(null); // Clear error on success
         } else {
           // Check real backend health
           await checkHealth();
+          setHealthCheckError(null); // Clear error on success
         }
       } catch (error) {
-        // Silently handle health check failures
-        console.debug('Backend health check failed:', error);
+        // Store error for potential UI display, but don't throw
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Backend health check failed';
+        
+        console.debug('Backend health check failed:', errorMessage);
+        setHealthCheckError(errorMessage);
+        
+        // Don't throw - health checks are background operations
+        // that shouldn't break the UI
       }
     };
 
-    // Check immediately and then every 10 seconds
-    checkBackendHealth();
-    const interval = setInterval(checkBackendHealth, 10000);
+    try {
+      // Check immediately and then every 10 seconds
+      checkBackendHealth();
+      intervalId = setInterval(checkBackendHealth, 10000);
+    } catch (error) {
+      console.error('Error setting up health check interval:', error);
+    }
 
-    return () => clearInterval(interval);
+    return () => {
+      if (intervalId) {
+        try {
+          clearInterval(intervalId);
+        } catch (error) {
+          console.error('Error clearing health check interval:', error);
+        }
+      }
+    };
   }, [isDemoMode]);
+
+  // Handle image loading errors
+  const handleImageError = (trackName: string) => {
+    setImageLoadErrors((prev) => new Set(prev).add(trackName));
+  };
 
   const features = [
     {
@@ -923,20 +1072,35 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed">
             Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
           </p>
-          {agentStatus && agentStatus.agents.length > 0 && (
-            <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-primary">
-                  {agentStatus.agents.filter(a => a.status === 'active').length} AI Agents Active
-                </span>
-              </div>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-xs text-muted-foreground">
-                {agentStatus.agents.length} Total Agents
+          {agentStatusError && !isDemoMode && (
+            <div className="mb-12 flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 max-w-md mx-auto">
+              <AlertCircle className="w-4 h-4 text-destructive" />
+              <span className="text-sm font-medium text-destructive">
+                Unable to load agent status
               </span>
             </div>
           )}
+          {(() => {
+            const agents = agentStatus?.agents;
+            if (agents && Array.isArray(agents) && agents.length > 0) {
+              const activeCount = agents.filter((a) => a?.status === 'active').length;
+              return (
+                <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-sm font-medium text-primary">
+                      {activeCount} AI Agents Active
+                    </span>
+                  </div>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-xs text-muted-foreground">
+                    {agents.length} Total Agents
+                  </span>
+                </div>
+              );
+            }
+            return null;
+          })()}
           
           <div className="flex flex-col items-center gap-5 mb-12 max-w-2xl mx-auto">
             <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
@@ -1012,11 +1176,18 @@ const Index = () => {
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
                 AI Agents
-                {agentStatus && agentStatus.agents.length > 0 && (
-                  <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
-                    {agentStatus.agents.filter(a => a.status === 'active').length} active
-                  </span>
-                )}
+                {(() => {
+                  const agents = agentStatus?.agents;
+                  if (agents && Array.isArray(agents) && agents.length > 0) {
+                    const activeCount = agents.filter((a) => a?.status === 'active').length;
+                    return (
+                      <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
+                        {activeCount} active
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
               </Button>
             </Link>
             <Link to="/agent-integration">
@@ -1036,7 +1207,9 @@ const Index = () => {
 
       {/* Demo Launcher Section */}
       <section className="py-12 px-6">
-        <DemoLauncher />
+        <React.Suspense fallback={<div className="text-center text-muted-foreground">Loading demo...</div>}>
+          <DemoLauncher />
+        </React.Suspense>
       </section>
 
       {/* AI Agents Showcase Section */}
@@ -1065,7 +1238,9 @@ const Index = () => {
           
           {/* AI Agent Results from demo_data.json */}
           <div className="mb-12">
-            <AIAgentResults />
+            <React.Suspense fallback={<div className="text-center text-muted-foreground py-8">Loading AI agent results...</div>}>
+              <AIAgentResults />
+            </React.Suspense>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -1231,7 +1406,7 @@ const Index = () => {
                       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                     />
                     
-                    {TRACK_SVG_MAP[track.name] ? (
+                    {TRACK_SVG_MAP[track.name] && !imageLoadErrors.has(track.name) ? (
                       <motion.img 
                         src={`/tracks/${TRACK_SVG_MAP[track.name]}`}
                         alt={`${track.name} track map`}
@@ -1241,6 +1416,19 @@ const Index = () => {
                         transition={{ duration: 0.5 }}
                         style={{
                           filter: 'brightness(0.95) contrast(1.05)',
+                        }}
+                        onError={() => handleImageError(track.name)}
+                        onLoad={(e) => {
+                          try {
+                            // Verify image loaded successfully
+                            const img = e.currentTarget;
+                            if (!img.complete || img.naturalWidth === 0) {
+                              handleImageError(track.name);
+                            }
+                          } catch (error) {
+                            console.error('Error validating image load:', error);
+                            handleImageError(track.name);
+                          }
                         }}
                       />
                     ) : (
@@ -1260,7 +1448,16 @@ const Index = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors group/link"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            try {
+                              e.stopPropagation();
+                            } catch (error) {
+                              console.error('Error stopping event propagation:', error);
+                            }
+                          }}
+                          onError={(e) => {
+                            console.error('PDF link error:', e);
+                          }}
                         >
                           <FileText className="w-4 h-4 group-hover/link:rotate-12 transition-transform" />
                           View Track Map

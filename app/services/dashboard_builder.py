@@ -186,8 +186,19 @@ async def build_dashboard_payload(
             }
         
         # ========== ASSEMBLE COMPLETE PAYLOAD ==========
-        
+        # Return format that matches frontend DashboardData interface
         payload = {
+            "track": TRACKS[track]["name"],
+            "race": race,
+            "vehicle_number": vehicle,
+            "lap": lap,
+            "total_laps": total_laps,
+            "tire_wear": tire_prediction,
+            "performance": performance_data,
+            "gap_analysis": gap_data,
+            "timestamp": datetime.utcnow().isoformat(),
+            "live_data": True,
+            # Include meta for backward compatibility
             "meta": {
                 "ok": True,
                 "track": TRACKS[track]["name"],
@@ -200,9 +211,6 @@ async def build_dashboard_payload(
                 "live_data": True,
                 "enhanced_features": use_enhanced_predictor
             },
-            "tire_wear": tire_prediction,
-            "performance": performance_data,
-            "gap_analysis": gap_data,
             "strategy": strategy_data
         }
         
