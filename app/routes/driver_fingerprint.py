@@ -262,7 +262,7 @@ async def compare_drivers(driver_id: str, baseline_driver_id: str):
         raise HTTPException(status_code=500, detail=str(error))
 
 
-@router.websocket("/ws/drivers/{driver_id}/fingerprint")
+@router.websocket("/{driver_id}/fingerprint/ws")
 async def ws_fingerprint(websocket: WebSocket, driver_id: str):
     """
     WebSocket endpoint for real-time driver fingerprint updates
@@ -282,7 +282,7 @@ async def ws_fingerprint(websocket: WebSocket, driver_id: str):
         await websocket.send_json({
             "type": "connected",
             "driver_id": driver_id,
-            "timestamp": json.dumps({"timestamp": "now"})
+            "timestamp": datetime.utcnow().isoformat()
         })
         
         # Keep connection alive and handle incoming messages
@@ -330,7 +330,7 @@ async def broadcast_fingerprint_update(driver_id: str, fingerprint: Dict, alerts
         "driver_id": driver_id,
         "fingerprint": fingerprint,
         "alerts": alerts or [],
-        "timestamp": json.dumps({"timestamp": "now"})
+        "timestamp": datetime.utcnow().isoformat()
     }
     
     disconnected = []
@@ -360,7 +360,7 @@ async def broadcast_coaching_alert(driver_id: str, alert: Dict):
         "type": "coaching_alert",
         "driver_id": driver_id,
         "alert": alert,
-        "timestamp": json.dumps({"timestamp": "now"})
+        "timestamp": datetime.utcnow().isoformat()
     }
     
     disconnected = []

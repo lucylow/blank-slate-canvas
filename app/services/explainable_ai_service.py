@@ -58,18 +58,23 @@ class ExplainableAIService:
     async def generate_explanation(
         self,
         prediction_type: str,
-        model: Any,
-        features: Dict[str, float],
-        prediction: float,
+        model: Optional[Any] = None,
+        features: Optional[Dict[str, float]] = None,
+        prediction: Optional[float] = None,
         baseline_data: Optional[Dict] = None
     ) -> Dict[str, Any]:
         """Generate SHAP-based explanation for a prediction"""
         explanation_id = f"explain_{uuid.uuid4()}"
         
+        if not features:
+            raise ValueError("features dictionary is required")
+        if prediction is None:
+            raise ValueError("prediction value is required")
+        
         try:
             # Calculate SHAP values
             shap_values = await self._calculate_shap_values(
-                model, features, baseline_data
+                model or {}, features, baseline_data
             )
             
             # Extract top 3 contributing features
@@ -102,7 +107,7 @@ class ExplainableAIService:
                 'confidence': confidence,
                 'shap_values': shap_values,
                 'generated_at': datetime.utcnow().isoformat(),
-                'model_version': getattr(model, 'version', '1.0')
+                'model_version': getattr(model, 'version', '1.0') if model else '1.0'
             }
             
         except Exception as error:

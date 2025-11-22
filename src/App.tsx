@@ -27,6 +27,8 @@ import AgentInsightsDashboard from "./pages/AgentInsightsDashboard";
 import AIAgentIntegration from "./pages/AIAgentIntegration";
 import GRTelemetryDashboard from "./pages/GRTelemetryDashboard";
 import AISummaryReports from "./pages/AISummaryReports";
+import PitWindowOptimization from "./pages/PitWindowOptimization";
+import LovableCloudConfig from "./pages/LovableCloudConfig";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,6 +109,9 @@ const App = () => (
                     
                     {/* AI Summary Reports - View and export AI-generated race analysis reports */}
                     <Route path="/ai-summaries" element={<AISummaryReports />} />
+                    
+                    {/* Pit Window Optimization - Monte Carlo simulation with traffic-aware recommendations */}
+                    <Route path="/pit-window" element={<PitWindowOptimization />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />

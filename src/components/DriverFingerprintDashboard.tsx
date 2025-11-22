@@ -34,7 +34,7 @@ export default function DriverFingerprintDashboard({
   // WebSocket for real-time updates
   const backendUrl = getBackendUrl();
   const wsUrl = backendUrl
-    ? backendUrl.replace(/^http/, "ws") + `/ws/drivers/${driverId}/fingerprint`
+    ? backendUrl.replace(/^http/, "ws") + `/api/drivers/${driverId}/fingerprint/ws`
     : "";
   const ws = useWebSocket(wsUrl);
 

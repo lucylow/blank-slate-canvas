@@ -5,9 +5,9 @@ from fastapi import APIRouter, HTTPException, Query, Body
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel
 import logging
+import asyncio
 
 from app.services.explainable_ai_service import ExplainableAIService
-from app.config import get_redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -205,8 +205,6 @@ async def batch_generate_explanations(request: BatchExplanationRequest):
                 detail="predictions array required"
             )
         
-        import asyncio
-        
         # Generate all explanations in parallel
         results = await asyncio.gather(*[
             generate_single_explanation(prediction, index)
@@ -228,9 +226,10 @@ async def batch_generate_explanations(request: BatchExplanationRequest):
         
         successful = sum(1 for r in processed_results if r.get("success", False))
         
+        import time
         return BatchExplanationResponse(
             success=True,
-            batch_id=f"batch_{int(asyncio.get_event_loop().time() * 1000)}",
+            batch_id=f"batch_{int(time.time() * 1000)}",
             results=processed_results,
             summary={
                 "total": len(processed_results),
@@ -280,40 +279,66 @@ async def generate_single_explanation(prediction: ExplanationRequest, index: int
 
 
 async def store_explanation(explanation: Dict[str, Any], request_id: Optional[str] = None):
-    """Store explanation in Redis"""
+    """Store explanation in Redis (if available) or in-memory"""
     try:
         storage_id = request_id or explanation.get('explanation_id')
         if not storage_id:
             return
         
-        redis_client = await get_redis_client()
-        if redis_client:
-            import json
-            await redis_client.hset(
-                f"explanation:{storage_id}",
-                mapping={
-                    "data": json.dumps(explanation),
-                    "created_at": explanation.get('generated_at', ''),
-                    "prediction_type": explanation.get('prediction_type', '')
-                }
-            )
-            await redis_client.expire(f"explanation:{storage_id}", 86400)  # 24 hours
+        # Try to get Redis client if available
+        try:
+            from app.config import get_redis_client
+            redis_client = await get_redis_client()
+            if redis_client:
+                import json
+                await redis_client.hset(
+                    f"explanation:{storage_id}",
+                    mapping={
+                        "data": json.dumps(explanation),
+                        "created_at": explanation.get('generated_at', ''),
+                        "prediction_type": explanation.get('prediction_type', '')
+                    }
+                )
+                await redis_client.expire(f"explanation:{storage_id}", 86400)  # 24 hours
+                return
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"Redis not available, using in-memory storage: {e}")
+        
+        # Fallback: store in-memory (for demo/testing)
+        if not hasattr(store_explanation, '_store'):
+            store_explanation._store = {}
+        store_explanation._store[storage_id] = explanation
+        
     except Exception as error:
-        logger.warning(f"Failed to store explanation in Redis: {error}")
+        logger.warning(f"Failed to store explanation: {error}")
 
 
 async def get_explanation_from_store(explanation_id: str) -> Optional[Dict[str, Any]]:
-    """Retrieve explanation from Redis"""
+    """Retrieve explanation from Redis (if available) or in-memory"""
     try:
-        redis_client = await get_redis_client()
-        if redis_client:
-            import json
-            data = await redis_client.hget(f"explanation:{explanation_id}", "data")
-            if data:
-                return json.loads(data)
+        # Try Redis first
+        try:
+            from app.config import get_redis_client
+            redis_client = await get_redis_client()
+            if redis_client:
+                import json
+                data = await redis_client.hget(f"explanation:{explanation_id}", "data")
+                if data:
+                    return json.loads(data)
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"Redis not available, checking in-memory: {e}")
+        
+        # Fallback: check in-memory store
+        if hasattr(store_explanation, '_store'):
+            return store_explanation._store.get(explanation_id)
+        
         return None
     except Exception as error:
-        logger.warning(f"Failed to retrieve explanation from Redis: {error}")
+        logger.warning(f"Failed to retrieve explanation: {error}")
         return None
 
 
@@ -401,8 +426,4 @@ def calculate_overall_coverage(explanations: List[Dict[str, Any]]) -> int:
     
     avg_coverage = total_coverage / len(explanations)
     return int(avg_coverage * 100)
-
-
-# Fix missing import
-import asyncio
 

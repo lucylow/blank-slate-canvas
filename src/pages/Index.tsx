@@ -985,6 +985,11 @@ const Index = () => {
             </Link>
           </nav>
           <div className="flex items-center gap-4">
+            {isLovableCloud() && (
+              <div className="hidden md:block">
+                <LovableCloudStatus compact={true} />
+              </div>
+            )}
             <Link to="/dashboard" className="hidden sm:block">
               <Button
                 className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50"

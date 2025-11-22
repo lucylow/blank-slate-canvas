@@ -21,6 +21,7 @@ from app.routes.anomaly_ws import router as anomaly_router
 from app.routes.health import router as health_router, set_model_loaded, set_db_available, set_cache_available
 from app.routes.telemetry import router as telemetry_router
 from app.routes.agents import router as agents_router
+from app.routes.explanations import router as explanations_router
 from app.observability.logger import setup_logging
 from app.observability.prom_metrics import get_metrics_response
 from prometheus_client import Gauge
@@ -183,6 +184,7 @@ app.include_router(anomaly_router, tags=["Realtime"])
 app.include_router(frontend_router, tags=["Frontend Integration"])
 app.include_router(telemetry_router, tags=["Telemetry"])
 app.include_router(agents_router, tags=["AI Agents"])
+app.include_router(explanations_router, tags=["Explainable AI"])
 
 # Import and include replay router
 try:

@@ -2,7 +2,7 @@
 
 ## ✅ Current Status
 
-All AI features are configured to work with Lovable Cloud. Here's what's been set up:
+All AI features are configured to work with Lovable Cloud with enhanced monitoring, health checks, and debugging capabilities. Here's what's been set up:
 
 ### 1. Main Backend API (Port 8000) ✅
 - **Status**: Fully configured for Lovable Cloud
@@ -110,6 +110,39 @@ Lovable Cloud should proxy the following routes:
 3. Configure proxy routes in Lovable Cloud dashboard
 4. Set environment variables if needed
 
+## 🆕 Enhanced Features
+
+### Health Monitoring & Status
+- **Real-time Health Checks**: Automatic backend health monitoring every 30 seconds
+- **Connection Status Component**: Visual indicator in the header showing backend status
+- **Latency Tracking**: Monitor API response times
+- **WebSocket Testing**: Automatic WebSocket connection validation
+
+### Configuration Status Page
+- **Access**: Navigate to `/lovable-config` in your application
+- **Features**:
+  - Real-time connection diagnostics
+  - Environment variable inspection
+  - Health status monitoring
+  - WebSocket connection testing
+  - Troubleshooting guide
+  - Copy-to-clipboard for configuration values
+
+### Enhanced Error Handling
+- **Exponential Backoff**: Smart retry logic with exponential backoff and jitter
+- **Health-Aware Retries**: Checks backend health before retrying failed requests
+- **Increased Retries**: 3 retries for Lovable Cloud (vs 2 for local)
+- **Request Tracing**: Unique request IDs for debugging
+- **Enhanced Timeouts**: 15s timeout for cloud environments
+
+### Utilities
+- **`lovableCloud.ts`**: Comprehensive utilities for:
+  - Health monitoring
+  - Connection diagnostics
+  - WebSocket testing
+  - Configuration inspection
+- **`LovableCloudStatus` Component**: Reusable status indicator component
+
 ## 📝 Summary
 
 **All AI features work with Lovable Cloud!** ✅
@@ -120,6 +153,17 @@ The codebase is configured to:
 - ✅ Handle WebSocket connections properly
 - ✅ Fall back gracefully when services are unavailable
 - ✅ Work in both development and production environments
+- ✅ **NEW**: Real-time health monitoring and status indicators
+- ✅ **NEW**: Enhanced error handling with smart retries
+- ✅ **NEW**: Configuration debugging page
+- ✅ **NEW**: Connection diagnostics and troubleshooting
 
 The only requirement is that Lovable Cloud is configured to proxy `/api/*` routes to your backend service(s).
+
+## 🚀 Quick Start
+
+1. **View Status**: Check the header for the connection status indicator (visible on Lovable Cloud)
+2. **Debug Issues**: Visit `/lovable-config` for detailed diagnostics
+3. **Monitor Health**: Health checks run automatically every 30 seconds
+4. **Troubleshoot**: Use the troubleshooting guide in the config page
 
