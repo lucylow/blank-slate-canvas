@@ -2,8 +2,11 @@
 Driver Fingerprint API Routes
 Endpoints for driver fingerprinting and coaching alerts
 """
+import asyncio
+import json
 import logging
-from fastapi import APIRouter, HTTPException, Query
+from datetime import datetime
+from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
 from typing import Optional, Dict, Any
 from pydantic import BaseModel
 
@@ -13,6 +16,9 @@ from app.services.coaching_alert_service import coaching_alert_service
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/drivers", tags=["Driver Fingerprint"])
+
+# WebSocket connections for driver fingerprints
+fingerprint_connections: Dict[str, list] = {}
 
 
 class TelemetryRequest(BaseModel):
@@ -58,6 +64,12 @@ async def process_telemetry(driver_id: str, request: TelemetryRequest):
         
         # Generate coaching plan
         coaching_plan = coaching_alert_service.generate_coaching_plan(driver_id, alerts, fingerprint)
+        
+        # Broadcast update via WebSocket
+        try:
+            await broadcast_fingerprint_update(driver_id, fingerprint, alerts)
+        except Exception as e:
+            logger.warning(f"Failed to broadcast fingerprint update: {e}")
         
         return {
             "success": True,
@@ -248,4 +260,121 @@ async def compare_drivers(driver_id: str, baseline_driver_id: str):
     except Exception as error:
         logger.error(f"Error comparing drivers: {error}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(error))
+
+
+@router.websocket("/ws/drivers/{driver_id}/fingerprint")
+async def ws_fingerprint(websocket: WebSocket, driver_id: str):
+    """
+    WebSocket endpoint for real-time driver fingerprint updates
+    
+    Sends fingerprint updates and coaching alerts as they are generated
+    """
+    await websocket.accept()
+    
+    if driver_id not in fingerprint_connections:
+        fingerprint_connections[driver_id] = []
+    fingerprint_connections[driver_id].append(websocket)
+    
+    logger.info(f"Driver fingerprint WebSocket connected: {driver_id}")
+    
+    try:
+        # Send initial connection confirmation
+        await websocket.send_json({
+            "type": "connected",
+            "driver_id": driver_id,
+            "timestamp": json.dumps({"timestamp": "now"})
+        })
+        
+        # Keep connection alive and handle incoming messages
+        while True:
+            try:
+                # Wait for messages (with timeout to allow periodic updates)
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=30.0)
+                # Handle incoming messages if needed
+                message = json.loads(data)
+                logger.debug(f"Received message from {driver_id}: {message}")
+            except asyncio.TimeoutError:
+                # Send periodic heartbeat
+                await websocket.send_json({
+                    "type": "heartbeat",
+                    "driver_id": driver_id
+                })
+            except json.JSONDecodeError:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Invalid JSON"
+                })
+    
+    except WebSocketDisconnect:
+        logger.info(f"Driver fingerprint WebSocket disconnected: {driver_id}")
+    except Exception as e:
+        logger.error(f"WebSocket error for {driver_id}: {e}", exc_info=True)
+    finally:
+        if driver_id in fingerprint_connections:
+            fingerprint_connections[driver_id].remove(websocket)
+            if not fingerprint_connections[driver_id]:
+                del fingerprint_connections[driver_id]
+
+
+async def broadcast_fingerprint_update(driver_id: str, fingerprint: Dict, alerts: list = None):
+    """
+    Broadcast fingerprint update to all connected clients for a driver
+    
+    This function should be called when a new fingerprint is generated
+    """
+    if driver_id not in fingerprint_connections:
+        return
+    
+    message = {
+        "type": "fingerprint_update",
+        "driver_id": driver_id,
+        "fingerprint": fingerprint,
+        "alerts": alerts or [],
+        "timestamp": json.dumps({"timestamp": "now"})
+    }
+    
+    disconnected = []
+    for ws in fingerprint_connections[driver_id]:
+        try:
+            await ws.send_json(message)
+        except Exception as e:
+            logger.warning(f"Error sending fingerprint update: {e}")
+            disconnected.append(ws)
+    
+    # Remove disconnected clients
+    for ws in disconnected:
+        fingerprint_connections[driver_id].remove(ws)
+    
+    if not fingerprint_connections[driver_id]:
+        del fingerprint_connections[driver_id]
+
+
+async def broadcast_coaching_alert(driver_id: str, alert: Dict):
+    """
+    Broadcast a coaching alert to all connected clients for a driver
+    """
+    if driver_id not in fingerprint_connections:
+        return
+    
+    message = {
+        "type": "coaching_alert",
+        "driver_id": driver_id,
+        "alert": alert,
+        "timestamp": json.dumps({"timestamp": "now"})
+    }
+    
+    disconnected = []
+    for ws in fingerprint_connections[driver_id]:
+        try:
+            await ws.send_json(message)
+        except Exception as e:
+            logger.warning(f"Error sending coaching alert: {e}")
+            disconnected.append(ws)
+    
+    # Remove disconnected clients
+    for ws in disconnected:
+        fingerprint_connections[driver_id].remove(ws)
+    
+    if not fingerprint_connections[driver_id]:
+        del fingerprint_connections[driver_id]
 
