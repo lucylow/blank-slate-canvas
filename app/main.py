@@ -207,8 +207,9 @@ except ImportError as e:
 
 # Import and include new routers
 try:
-    from app.routes import sse, ws, demo, api_models, insights
+    from app.routes import sse, ws, api_models, insights
     from app.routes import analytics as analytics_router
+    from app.routes import demo
     app.include_router(sse.router, tags=["Realtime"])
     app.include_router(ws.router, tags=["Realtime"])
     app.include_router(demo.router, prefix="/demo", tags=["Demo"])
@@ -217,6 +218,13 @@ try:
     app.include_router(analytics_router.router, tags=["Analytics"])
 except ImportError as e:
     logger.warning(f"Some optional routers not available: {e}")
+
+# Import and include driver fingerprint router
+try:
+    from app.routes import driver_fingerprint
+    app.include_router(driver_fingerprint.router, tags=["Driver Fingerprint"])
+except ImportError as e:
+    logger.warning(f"Driver fingerprint router not available: {e}")
 
 # Metrics endpoint - mount Prometheus ASGI app for better compatibility
 from prometheus_client import make_asgi_app

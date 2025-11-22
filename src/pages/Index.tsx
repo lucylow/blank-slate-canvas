@@ -869,7 +869,7 @@ const Index = () => {
           <div className="flex items-center gap-4">
             <Link to="/dashboard" className="hidden sm:block">
               <Button 
-                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50"
+                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50"
                 aria-label="View Dashboard - Opens interactive dashboard"
               >
                 View Dashboard
@@ -1139,7 +1139,7 @@ const Index = () => {
             <Link to="/comprehensive">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
               >
                 View Comprehensive Dashboard
@@ -1149,7 +1149,7 @@ const Index = () => {
             <Link to="/telemetry">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
               >
                 View Telemetry Comparison
@@ -1160,7 +1160,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="Run Demo - Opens interactive dashboard"
               >
                 Run Demo
@@ -1171,7 +1171,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agents"
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
@@ -1194,7 +1194,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agent Integration Patterns"
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
@@ -1668,7 +1668,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="secondary" 
-              className="text-lg px-8 py-6 bg-background text-foreground hover:bg-background/90 shadow-xl hover:scale-105 transition-all duration-300 group focus:outline-none focus:ring-3 focus:ring-primary-foreground/50"
+              className="text-lg px-8 py-6 bg-background text-foreground hover:bg-background/90 shadow-xl hover:scale-105 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
               aria-label="Join Hackathon"
             >
               Join Hackathon
@@ -1677,7 +1677,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-3 focus:ring-primary-foreground/50"
+              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
               aria-label="Contact Our Team"
             >
               Contact Our Team
@@ -1814,7 +1814,7 @@ const Index = () => {
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-3 focus:ring-primary/50"
+              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-5 h-5" />
