@@ -64,22 +64,49 @@ async def readiness(response: Response) -> Dict[str, Any]:
     """
     Readiness probe - returns 200 only if all required services are available
     """
+    import os
+    from app.config import DEMO_MODE, DATA_MODELS_DIR
+    
+    # Check model file exists
+    model_ok = False
+    model_path = os.getenv("MODEL_PATH", str(DATA_MODELS_DIR / "demo_tire_model.pkl"))
+    if os.path.exists(model_path):
+        model_ok = True
+    elif DATA_MODELS_DIR.exists():
+        # Check for any model file
+        for ext in [".pkl", ".h5", ".onnx"]:
+            if list(DATA_MODELS_DIR.glob(f"*{ext}")):
+                model_ok = True
+                break
+    
+    # Check Redis connectivity
+    redis_ok = False
+    try:
+        import redis
+        from app.config import REDIS_URL
+        r = redis.from_url(REDIS_URL, socket_connect_timeout=1)
+        r.ping()
+        redis_ok = True
+    except Exception:
+        redis_ok = False
+    
     checks = {
         "service": True,
         "model_loaded": _model_loaded,
+        "model_ok": model_ok,
         "db_available": _db_available,
         "cache_available": _cache_available,
+        "redis_ok": redis_ok,
     }
     
-    # For demo mode, we don't require DB/cache
-    from app.config import DEMO_MODE
+    # For demo mode, we don't require DB/cache/redis
     if DEMO_MODE:
         checks["demo_mode"] = True
         # In demo mode, we're ready if the service is running
         ready = checks["service"]
     else:
         # In production, require model and DB
-        ready = checks["service"] and checks["model_loaded"] and checks["db_available"]
+        ready = checks["service"] and (checks["model_loaded"] or checks["model_ok"]) and checks["db_available"]
     
     if not ready:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE

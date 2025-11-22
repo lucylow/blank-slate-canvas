@@ -1,0 +1,269 @@
+{
+  "sebring": {
+    "track_id": "sebring",
+    "track_name": "Sebring International Raceway",
+    "generated_at": "2025-02-14T00:00:00Z",
+    "source": "mocked (no overlap with demo_data.json)",
+    "summary_stats": {
+      "n_samples": 1488,
+      "n_vehicles": 30,
+      "avg_speed_kmh": 133.44,
+      "std_speed_kmh": 5.5,
+      "avg_tire_temp": 92.4
+    },
+    "top_insights": [
+      {
+        "id": "ins-1",
+        "title": "Consistent sector 3 slowdown",
+        "detail": "Multiple cars lose 0.8–1.2s in S3 during warm-up laps."
+      },
+      {
+        "id": "ins-2",
+        "title": "Tire degradation window",
+        "detail": "Tire surface temp rises by ~6–9°C over 8 laps; expected cliff at lap ~18."
+      }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "0",
+        "size": 892,
+        "centroid": { "speed_kmh": 130.77, "tire_temp": 87.78 }
+      },
+      {
+        "cluster_id": "1",
+        "size": 446,
+        "centroid": { "speed_kmh": 136.11, "tire_temp": 96.02 }
+      },
+      {
+        "cluster_id": "2",
+        "size": 148,
+        "centroid": { "speed_kmh": 143.12, "tire_temp": 103.40 }
+      }
+    ],
+    "recommendations": [
+      { "type": "pit_window", "recommended_lap": 17, "confidence": 0.74 },
+      { "type": "driver_coach", "message": "Brake 3m later in Sector 2 to carry speed", "confidence": 0.80 }
+    ],
+    "artifacts": {
+      "cluster_plot": "/mnt/data/ai_summary_reports/sebring_clusters.png",
+      "umap_html": "/mnt/data/ai_summary_reports/sebring_umap.html"
+    },
+    "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
+  },
+  "road_america": {
+    "track_id": "road_america",
+    "track_name": "Road America",
+    "generated_at": "2025-02-14T00:00:00Z",
+    "source": "mocked (no overlap with demo_data.json)",
+    "summary_stats": {
+      "n_samples": 1497,
+      "n_vehicles": 29,
+      "avg_speed_kmh": 133.51,
+      "std_speed_kmh": 4.5,
+      "avg_tire_temp": 95.4
+    },
+    "top_insights": [
+      { "id": "ins-1", "title": "Brake fade in long downhill zones", "detail": "Several vehicles show +7C caliper rise per lap." },
+      { "id": "ins-2", "title": "Late apex gains", "detail": "Cluster 1 drivers gaining ~0.4s via later turn-in at T5." }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "0",
+        "size": 898,
+        "centroid": { "speed_kmh": 130.84, "tire_temp": 90.63 }
+      },
+      {
+        "cluster_id": "1",
+        "size": 449,
+        "centroid": { "speed_kmh": 136.18, "tire_temp": 100.17 }
+      },
+      {
+        "cluster_id": "2",
+        "size": 150,
+        "centroid": { "speed_kmh": 143.19, "tire_temp": 106.85 }
+      }
+    ],
+    "recommendations": [
+      { "type": "pit_window", "recommended_lap": 18, "confidence": 0.72 },
+      { "type": "driver_coach", "message": "Smoother throttle pickup at corner exit", "confidence": 0.77 }
+    ],
+    "artifacts": {
+      "cluster_plot": "/mnt/data/ai_summary_reports/road_america_clusters.png",
+      "umap_html": "/mnt/data/ai_summary_reports/road_america_umap.html"
+    },
+    "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
+  },
+  "cota": {
+    "track_id": "cota",
+    "track_name": "Circuit of the Americas",
+    "generated_at": "2025-02-14T00:00:00Z",
+    "source": "mocked (no overlap with demo_data.json)",
+    "summary_stats": {
+      "n_samples": 1539,
+      "n_vehicles": 30,
+      "avg_speed_kmh": 134.31,
+      "std_speed_kmh": 5.5,
+      "avg_tire_temp": 93.0
+    },
+    "top_insights": [
+      { "id": "ins-1", "title": "High-speed esses consistency", "detail": "Cluster 0 drivers remain within ±0.03s delta in S1." },
+      { "id": "ins-2", "title": "Oversteer trend", "detail": "Rear slip angle increases 0.06°/lap under high load corners." }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "0",
+        "size": 923,
+        "centroid": { "speed_kmh": 131.62, "tire_temp": 88.35 }
+      },
+      {
+        "cluster_id": "1",
+        "size": 462,
+        "centroid": { "speed_kmh": 136.60, "tire_temp": 97.65 }
+      },
+      {
+        "cluster_id": "2",
+        "size": 154,
+        "centroid": { "speed_kmh": 144.25, "tire_temp": 104.16 }
+      }
+    ],
+    "recommendations": [
+      { "type": "pit_window", "recommended_lap": 17, "confidence": 0.76 },
+      { "type": "driver_coach", "message": "Earlier rotation before S-turn entries", "confidence": 0.71 }
+    ],
+    "artifacts": {
+      "cluster_plot": "/mnt/data/ai_summary_reports/cota_clusters.png",
+      "umap_html": "/mnt/data/ai_summary_reports/cota_umap.html"
+    },
+    "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
+  },
+  "sonoma": {
+    "track_id": "sonoma",
+    "track_name": "Sonoma Raceway",
+    "generated_at": "2025-02-14T00:00:00Z",
+    "source": "mocked (no overlap with demo_data.json)",
+    "summary_stats": {
+      "n_samples": 1398,
+      "n_vehicles": 29,
+      "avg_speed_kmh": 131.32,
+      "std_speed_kmh": 4.5,
+      "avg_tire_temp": 90.6
+    },
+    "top_insights": [
+      { "id": "ins-1", "title": "Hairpin braking variance", "detail": "Cluster spread of ±0.5s under heavy braking at T11." },
+      { "id": "ins-2", "title": "Grip loss on off-camber sections", "detail": "Rear traction drops 3% in S2." }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "0",
+        "size": 838,
+        "centroid": { "speed_kmh": 128.69, "tire_temp": 86.07 }
+      },
+      {
+        "cluster_id": "1",
+        "size": 419,
+        "centroid": { "speed_kmh": 133.23, "tire_temp": 93.13 }
+      },
+      {
+        "cluster_id": "2",
+        "size": 139,
+        "centroid": { "speed_kmh": 141.82, "tire_temp": 101.47 }
+      }
+    ],
+    "recommendations": [
+      { "type": "pit_window", "recommended_lap": 15, "confidence": 0.78 },
+      { "type": "driver_coach", "message": "Trail-brake slightly longer into T7", "confidence": 0.74 }
+    ],
+    "artifacts": {
+      "cluster_plot": "/mnt/data/ai_summary_reports/sonoma_clusters.png",
+      "umap_html": "/mnt/data/ai_summary_reports/sonoma_umap.html"
+    },
+    "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
+  },
+  "vir": {
+    "track_id": "vir",
+    "track_name": "VIR (Virginia International Raceway)",
+    "generated_at": "2025-02-14T00:00:00Z",
+    "source": "mocked (no overlap with demo_data.json)",
+    "summary_stats": {
+      "n_samples": 1392,
+      "n_vehicles": 28,
+      "avg_speed_kmh": 131.25,
+      "std_speed_kmh": 4.5,
+      "avg_tire_temp": 92.4
+    },
+    "top_insights": [
+      { "id": "ins-1", "title": "High-speed rolling pace", "detail": "Cluster 1 shows +2.1 km/h advantage in upper esses." },
+      { "id": "ins-2", "title": "Brake stability issues", "detail": "ABS cycles more frequently after lap 10." }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "0",
+        "size": 835,
+        "centroid": { "speed_kmh": 128.62, "tire_temp": 87.78 }
+      },
+      {
+        "cluster_id": "1",
+        "size": 417,
+        "centroid": { "speed_kmh": 133.15, "tire_temp": 96.02 }
+      },
+      {
+        "cluster_id": "2",
+        "size": 139,
+        "centroid": { "speed_kmh": 141.81, "tire_temp": 103.63 }
+      }
+    ],
+    "recommendations": [
+      { "type": "pit_window", "recommended_lap": 16, "confidence": 0.76 },
+      { "type": "driver_coach", "message": "Reduce steering input mid-esses to avoid scrubbing speed", "confidence": 0.73 }
+    ],
+    "artifacts": {
+      "cluster_plot": "/mnt/data/ai_summary_reports/vir_clusters.png",
+      "umap_html": "/mnt/data/ai_summary_reports/vir_umap.html"
+    },
+    "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
+  },
+  "barber": {
+    "track_id": "barber",
+    "track_name": "Barber Motorsports Park",
+    "generated_at": "2025-02-14T00:00:00Z",
+    "source": "mocked (no overlap with demo_data.json)",
+    "summary_stats": {
+      "n_samples": 1410,
+      "n_vehicles": 29,
+      "avg_speed_kmh": 132.25,
+      "std_speed_kmh": 5.0,
+      "avg_tire_temp": 92.4
+    },
+    "top_insights": [
+      { "id": "ins-1", "title": "Mid-corner stiffness variation", "detail": "Cars show 0.05–0.09° variance in roll stiffness." },
+      { "id": "ins-2", "title": "Acceleration delta", "detail": "Cluster 2 vehicles gain +0.3s out of T4 via earlier throttle application." }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "0",
+        "size": 846,
+        "centroid": { "speed_kmh": 129.61, "tire_temp": 87.78 }
+      },
+      {
+        "cluster_id": "1",
+        "size": 423,
+        "centroid": { "speed_kmh": 134.20, "tire_temp": 96.02 }
+      },
+      {
+        "cluster_id": "2",
+        "size": 141,
+        "centroid": { "speed_kmh": 142.83, "tire_temp": 103.63 }
+      }
+    ],
+    "recommendations": [
+      { "type": "pit_window", "recommended_lap": 17, "confidence": 0.74 },
+      { "type": "driver_coach", "message": "Open steering earlier in compression zones", "confidence": 0.78 }
+    ],
+    "artifacts": {
+      "cluster_plot": "/mnt/data/ai_summary_reports/barber_clusters.png",
+      "umap_html": "/mnt/data/ai_summary_reports/barber_umap.html"
+    },
+    "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
+  }
+}
+

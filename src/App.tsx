@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { DeliveryProvider } from "@/components/DeliveryProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { RouteLayout } from "@/components/layout/RouteLayout";
 
 import Index from "./pages/Index";
 import DashboardPage from "./pages/DashboardPage";
@@ -25,6 +26,7 @@ import DemoSandbox from "./pages/DemoSandbox";
 import AgentInsightsDashboard from "./pages/AgentInsightsDashboard";
 import AIAgentIntegration from "./pages/AIAgentIntegration";
 import GRTelemetryDashboard from "./pages/GRTelemetryDashboard";
+import AISummaryReports from "./pages/AISummaryReports";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,55 +58,60 @@ const App = () => (
             <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <ErrorBoundary>
-                <Routes>
-                  {/* Main landing page */}
-                  <Route path="/" element={<Index />} />
-                  
-                  {/* Dashboard - Main race dashboard with live data and telemetry */}
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  
-                  {/* Comprehensive Dashboard - All AI features integrated */}
-                  <Route path="/comprehensive" element={<ComprehensiveDashboard />} />
-                  
-                  {/* Strategy - Race strategy console (PitWall dashboard) */}
-                  <Route path="/pitwall" element={<PitWallDashboard />} />
-                  
-                  {/* Analytics - Performance metrics and analysis */}
-                  <Route path="/analytics" element={<Analytics />} />
-                  
-                  {/* AI Agents - Agent system dashboard */}
-                  <Route path="/agents" element={<AgentDashboard />} />
-                  
-                  {/* Human-in-the-Loop - Review agent decisions */}
-                  <Route path="/agents/review" element={<AgentReviewDashboard />} />
-                  
-                  {/* Demo Sandbox - Interactive demo with 7-track mock data */}
-                  <Route path="/demo" element={<DemoSandbox />} />
-                  
-                  {/* Track Map - Track information and visualization */}
-                  <Route path="/tracks" element={<Tracks />} />
-                  
-                  {/* About - Information about the app */}
-                  <Route path="/about" element={<About />} />
-                  
-                  {/* Settings - App configuration */}
-                  <Route path="/settings" element={<Settings />} />
-                  
-                  {/* Legacy route redirects */}
-                  <Route path="/home" element={<Index />} />
-                  
-                  {/* Agent Insights Dashboard - Live insights from Delivery agent */}
-                  <Route path="/agent-insights" element={<AgentInsightsDashboard />} />
-                  
-                  {/* AI Agent Integration - Three integration patterns showcase */}
-                  <Route path="/agent-integration" element={<AIAgentIntegration />} />
-                  
-                  {/* GR Telemetry Comparison - Speed and G-force comparison dashboard */}
-                  <Route path="/telemetry" element={<GRTelemetryDashboard />} />
-                  
-                  {/* 404 - Catch-all route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <RouteLayout>
+                  <Routes>
+                    {/* Main landing page */}
+                    <Route path="/" element={<Index />} />
+                    
+                    {/* Dashboard - Main race dashboard with live data and telemetry */}
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    
+                    {/* Comprehensive Dashboard - All AI features integrated */}
+                    <Route path="/comprehensive" element={<ComprehensiveDashboard />} />
+                    
+                    {/* Strategy - Race strategy console (PitWall dashboard) */}
+                    <Route path="/pitwall" element={<PitWallDashboard />} />
+                    
+                    {/* Analytics - Performance metrics and analysis */}
+                    <Route path="/analytics" element={<Analytics />} />
+                    
+                    {/* AI Agents - Agent system dashboard */}
+                    <Route path="/agents" element={<AgentDashboard />} />
+                    
+                    {/* Human-in-the-Loop - Review agent decisions */}
+                    <Route path="/agents/review" element={<AgentReviewDashboard />} />
+                    
+                    {/* Demo Sandbox - Interactive demo with 7-track mock data */}
+                    <Route path="/demo" element={<DemoSandbox />} />
+                    
+                    {/* Track Map - Track information and visualization */}
+                    <Route path="/tracks" element={<Tracks />} />
+                    
+                    {/* About - Information about the app */}
+                    <Route path="/about" element={<About />} />
+                    
+                    {/* Settings - App configuration */}
+                    <Route path="/settings" element={<Settings />} />
+                    
+                    {/* Legacy route redirects */}
+                    <Route path="/home" element={<Index />} />
+                    
+                    {/* Agent Insights Dashboard - Live insights from Delivery agent */}
+                    <Route path="/agent-insights" element={<AgentInsightsDashboard />} />
+                    
+                    {/* AI Agent Integration - Three integration patterns showcase */}
+                    <Route path="/agent-integration" element={<AIAgentIntegration />} />
+                    
+                    {/* GR Telemetry Comparison - Speed and G-force comparison dashboard */}
+                    <Route path="/telemetry" element={<GRTelemetryDashboard />} />
+                    
+                    {/* AI Summary Reports - View and export AI-generated race analysis reports */}
+                    <Route path="/ai-summaries" element={<AISummaryReports />} />
+                    
+                    {/* 404 - Catch-all route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </RouteLayout>
               </ErrorBoundary>
             </Suspense>
           </BrowserRouter>

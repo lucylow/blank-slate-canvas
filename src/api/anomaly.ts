@@ -36,7 +36,9 @@ export interface AnomalyStats {
   top_anomalous_sensors: Array<{ sensor: string; count: number }>;
 }
 
-const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+import { getBackendUrl } from '@/utils/backendUrl';
+
+const API_BASE = getBackendUrl() || '';
 
 /**
  * Detect anomalies in a single telemetry point

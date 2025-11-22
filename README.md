@@ -153,6 +153,77 @@ sequenceDiagram
     FE->>FE: Update UI state<br/>React Query cache
 ```
 
+### Network Topology
+
+```mermaid
+graph TB
+    subgraph "External Network"
+        A[Race Car Telemetry<br/>UDP Broadcast] --> B[Load Balancer<br/>NGINX/Traefik]
+        C[Web Clients<br/>Browser] --> B
+        D[S3 Bucket<br/>Historical Data] --> B
+    end
+    
+    subgraph "DMZ / Edge Layer"
+        B --> E[API Gateway<br/>Kong/Envoy]
+        B --> F[WebSocket Gateway<br/>Port 8081]
+    end
+    
+    subgraph "Application Layer"
+        E --> G[FastAPI Backend<br/>Port 8000<br/>3+ replicas]
+        E --> H[Node.js Real-Time<br/>Port 8081<br/>3+ replicas]
+        F --> H
+        
+        subgraph "Agent Cluster"
+            I[Orchestrator<br/>Port 9090]
+            J[Preprocessor Agent<br/>Pool]
+            K[Predictor Agent<br/>Pool]
+            L[EDA Agent<br/>Pool]
+            M[Simulator Agent<br/>Pool]
+            N[Explainer Agent<br/>Pool]
+            O[Delivery Agent<br/>Pool]
+            
+            I --> J
+            I --> K
+            I --> L
+            I --> M
+            I --> N
+            I --> O
+        end
+    end
+    
+    subgraph "Data Layer"
+        G --> P[Redis Cluster<br/>Streams + Cache]
+        H --> P
+        I --> P
+        J --> P
+        K --> P
+        L --> P
+        M --> P
+        N --> P
+        O --> P
+        
+        P --> Q[Redis Sentinel<br/>High Availability]
+        
+        R[PostgreSQL<br/>Metadata/Timeseries] --> G
+        S[TimescaleDB<br/>Historical Data] --> G
+    end
+    
+    subgraph "Monitoring Layer"
+        T[Prometheus<br/>Metrics Collection] --> G
+        T --> H
+        T --> P
+        U[Grafana<br/>Visualization] --> T
+        V[ELK Stack<br/>Log Aggregation] --> G
+        V --> H
+        V --> I
+    end
+    
+    style B fill:#ff6b6b
+    style E fill:#4ecdc4
+    style P fill:#ffe66d
+    style T fill:#95e1d3
+```
+
 ### Component Architecture
 
 #### Frontend Architecture
@@ -239,6 +310,197 @@ graph TB
     style H fill:#4ecdc4
     style M fill:#ffe66d
     style T fill:#95e1d3
+```
+
+### State Machine Diagrams
+
+#### Agent State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Initializing: Agent Start
+    Initializing --> Registering: Connect to Redis
+    Registering --> Idle: Registration Complete
+    
+    Idle --> Processing: Task Received
+    Processing --> Validating: Parse Task
+    Validating --> Processing: Valid Task
+    Validating --> Error: Invalid Task
+    
+    Processing --> Computing: Execute Logic
+    Computing --> ValidatingResult: Generate Output
+    ValidatingResult --> Publishing: Valid Result
+    ValidatingResult --> Error: Invalid Result
+    
+    Publishing --> Idle: Result Published
+    Error --> Retrying: Retryable Error
+    Error --> DeadLetter: Fatal Error
+    Retrying --> Processing: Retry Attempt
+    DeadLetter --> [*]: Agent Shutdown
+    
+    Idle --> Heartbeating: Every 5s
+    Heartbeating --> Idle: Heartbeat Sent
+    
+    note right of Idle
+        Default state
+        Waiting for tasks
+    end note
+    
+    note right of Error
+        Logs error
+        Updates metrics
+    end note
+```
+
+#### Telemetry Processing State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Buffering: UDP Packet Received
+    Buffering --> Aggregating: Batch Size ≥ 40<br/>OR 300ms elapsed
+    Aggregating --> Validating: Sector Window Complete
+    Validating --> Publishing: Valid Data
+    Validating --> Discarding: Invalid Data
+    
+    Publishing --> StreamAcknowledged: XADD Success
+    StreamAcknowledged --> Consuming: Consumer Reads
+    
+    Consuming --> FeatureEngineering: Telemetry Extracted
+    FeatureEngineering --> MLInference: Features Generated
+    MLInference --> InsightGeneration: Prediction Complete
+    InsightGeneration --> Broadcasting: Insight Formatted
+    
+    Broadcasting --> Delivered: WebSocket Sent
+    Delivered --> [*]: Complete
+    
+    Discarding --> [*]: Dropped
+    
+    note right of Buffering
+        Ring Buffer
+        Max 20k points
+    end note
+    
+    note right of MLInference
+        ONNX Runtime
+        <5ms latency
+    end note
+```
+
+### Data Transformation Pipeline
+
+```mermaid
+graph LR
+    subgraph "Raw Data Ingestion"
+        A[UDP Packet<br/>Binary Format] --> B[Parser<br/>JSON Conversion]
+        C[HTTP POST<br/>JSON] --> B
+        D[S3 CSV<br/>Historical] --> E[CSV Parser<br/>Pandas]
+        E --> B
+    end
+    
+    subgraph "Schema Validation"
+        B --> F[Pydantic Model<br/>Validation]
+        F --> G{Valid?}
+        G -->|Yes| H[Normalized Schema]
+        G -->|No| I[Error Log<br/>Discard]
+    end
+    
+    subgraph "Sector Aggregation"
+        H --> J[Time Window<br/>600ms]
+        J --> K[Sector Assignment<br/>Track-aware]
+        K --> L[Rolling Statistics<br/>Mean/Std/Max]
+        L --> M[Event Detection<br/>Braking/Cornering]
+    end
+    
+    subgraph "Feature Engineering"
+        M --> N[Cumulative Features<br/>G-forces, Energy]
+        N --> O[Statistical Features<br/>Avg, Std, Max]
+        O --> P[Temporal Features<br/>Lap, Age]
+        P --> Q[Context Features<br/>Track, Weather]
+    end
+    
+    subgraph "ML Pipeline"
+        Q --> R[Feature Vector<br/>20 dimensions]
+        R --> S[ONNX Model<br/>Inference]
+        S --> T[Prediction<br/>4 tires]
+        T --> U[Confidence<br/>Bootstrap CI]
+    end
+    
+    subgraph "Output Formatting"
+        U --> V[JSON Schema<br/>Standardized]
+        V --> W[Redis Stream<br/>Publish]
+        W --> X[WebSocket<br/>Broadcast]
+    end
+    
+    style F fill:#ff6b6b
+    style S fill:#4ecdc4
+    style W fill:#ffe66d
+    style X fill:#95e1d3
+```
+
+### Error Handling & Recovery Flow
+
+```mermaid
+sequenceDiagram
+    participant T as Telemetry Source
+    participant I as Ingestion Layer
+    participant R as Redis Streams
+    participant P as Processor
+    participant W as WebSocket
+    participant M as Monitoring
+    
+    T->>I: Send Telemetry
+    alt Normal Path
+        I->>I: Validate Schema
+        I->>R: XADD Success
+        R->>P: XREADGROUP
+        P->>P: Process Data
+        P->>R: XADD Insights
+        R->>W: Broadcast
+        W->>M: Log Success
+    else Validation Error
+        I->>I: Schema Invalid
+        I->>M: Log Error (discard)
+        Note over M: Error Counter++
+        M-->>I: Acknowledged
+    else Redis Connection Error
+        I->>I: Connection Lost
+        I->>I: Exponential Backoff
+        loop Retry (max 5)
+            I->>R: Reconnect
+            alt Success
+                R-->>I: Connected
+                I->>R: Resume Publishing
+            else Failure
+                I->>M: Alert Critical
+            end
+        end
+    else Processing Error
+        P->>P: Exception Caught
+        P->>R: XACK (nack)
+        P->>M: Log Error
+        R->>R: Add to Pending List
+        loop Retry Processing
+            R->>P: XCLAIM (retry)
+            alt Success
+                P->>R: XACK
+            else Max Retries
+                P->>R: XADD dead-letter
+                R->>M: Alert Failed
+            end
+        end
+    else WebSocket Error
+        W->>W: Client Disconnected
+        W->>W: Buffer Messages
+        W->>W: Wait for Reconnect
+        W->>M: Log Disconnect
+        alt Reconnect within 30s
+            W->>W: Reconnect Success
+            W->>W: Flush Buffer
+        else Timeout
+            W->>W: Clear Buffer
+            W->>M: Log Timeout
+        end
+    end
 ```
 
 ---
@@ -711,6 +973,206 @@ graph TB
 }
 ```
 
+### Agent Orchestration Sequence
+
+```mermaid
+sequenceDiagram
+    participant Client as Client Request
+    participant API as Agent API Server
+    participant Orch as Orchestrator Agent
+    participant Redis as Redis Streams
+    participant Pre as Preprocessor Agent
+    participant Pred as Predictor Agent
+    participant Expl as Explainer Agent
+    participant Del as Delivery Agent
+    participant WS as WebSocket Server
+    
+    Client->>API: POST /api/agents/task
+    API->>API: Validate Request
+    API->>Orch: Create Task (UUID)
+    Orch->>Redis: XADD tasks.stream<br/>{task_id, type, payload}
+    Orch->>Redis: HSET agent.registry<br/>{status: processing}
+    
+    Note over Redis,Pre: Task Distribution
+    Redis->>Pre: XREADGROUP<br/>agent:{id}:inbox
+    Pre->>Pre: Normalize Telemetry
+    Pre->>Redis: XADD results.stream<br/>{task_id, result}
+    
+    Redis->>Pred: XREADGROUP<br/>(Preprocessed Data)
+    Pred->>Pred: Feature Engineering<br/>(20 features)
+    Pred->>Pred: ONNX Inference<br/>(<5ms)
+    Pred->>Redis: XADD results.stream<br/>{task_id, predictions}
+    
+    Redis->>Expl: XREADGROUP<br/>(Predictions + Features)
+    Expl->>Expl: SHAP Analysis<br/>(Feature Importance)
+    Expl->>Expl: Generate Explanation<br/>(Top-3 evidence)
+    Expl->>Redis: XADD results.stream<br/>{task_id, explanation}
+    
+    Redis->>Orch: XREAD results.stream<br/>(Monitor completion)
+    Orch->>Orch: Aggregate Results<br/>(All agents complete)
+    
+    Orch->>Del: XREADGROUP<br/>(Final result)
+    Del->>Redis: XADD delivery.stream<br/>{task_id, formatted}
+    
+    Redis->>WS: Subscribe to delivery
+    WS->>Client: WebSocket Broadcast<br/>{type: insight_update, data}
+    
+    Orch->>Redis: HSET agent.registry<br/>{status: idle}
+    Orch->>API: Task Complete
+    API->>Client: 200 OK<br/>{task_id, status}
+    
+    Note over Orch,Redis: Error Handling
+    alt Agent Failure
+        Pred->>Pred: Exception Caught
+        Pred->>Redis: XADD errors.stream<br/>{task_id, error}
+        Redis->>Orch: Error Notification
+        Orch->>Orch: Retry Logic<br/>(Max 3 attempts)
+        alt Retry Success
+            Orch->>Redis: Re-queue Task
+        else Max Retries
+            Orch->>Redis: XADD dead-letter.stream
+            Orch->>API: Task Failed
+            API->>Client: 500 Error
+        end
+    end
+```
+
+### ML Inference Detailed Sequence
+
+```mermaid
+sequenceDiagram
+    participant Telemetry as Telemetry Processor
+    participant Agg as Sector Aggregator
+    participant FE as Feature Engineering
+    participant ONNX as ONNX Runtime
+    participant Model as XGBoost Model
+    participant Post as Post-Processor
+    participant Redis as Redis Cache
+    
+    Telemetry->>Agg: Raw Telemetry Points<br/>(9 channels × 50Hz)
+    Agg->>Agg: Rolling Window<br/>(50 points, 600ms)
+    Agg->>Agg: Sector Assignment<br/>(Track-aware)
+    Agg->>FE: Aggregated Sector Data
+    
+    Note over FE: Feature Engineering
+    FE->>FE: Cumulative G-forces<br/>Σ|accy_can|, Σ|accx_can|
+    FE->>FE: Braking Events<br/>Count(|accx| > 0.8G)
+    FE->>FE: Cornering Events<br/>Count(|accy| > 1.0G)
+    FE->>FE: Speed Statistics<br/>Mean, Std, Max
+    FE->>FE: Lap Context<br/>Lap number, Age
+    FE->>FE: Tire Load Distribution<br/>Front/Rear, Left/Right
+    
+    FE->>ONNX: Feature Vector<br/>(20 dimensions)
+    
+    Note over ONNX,Model: Model Inference
+    ONNX->>ONNX: Input Validation<br/>(Shape check)
+    ONNX->>Model: Forward Pass<br/>(XGBoost trees)
+    Model->>Model: Tree Traversal<br/>(Ensemble prediction)
+    Model->>ONNX: Raw Predictions<br/>(FL, FR, RL, RR wear %)
+    
+    ONNX->>Post: Tire Wear Predictions<br/>(4 values, 0-100%)
+    
+    Note over Post: Post-Processing
+    Post->>Post: Confidence Interval<br/>(Bootstrap sampling)
+    Post->>Post: Laps Remaining<br/>(Degradation model)
+    Post->>Post: Pit Window Calc<br/>(Optimal lap range)
+    Post->>Post: Feature Importance<br/>(SHAP values)
+    
+    Post->>Redis: Cache Result<br/>(TTL: 60s, key: {track}:{chassis}:{lap})
+    Post->>Redis: Publish Stream<br/>(live-insights.stream)
+    
+    Redis->>Redis: Update Metrics<br/>(Inference time, accuracy)
+```
+
+### WebSocket Connection Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Connecting: Client Initiates Connection
+    Connecting --> Authenticating: TCP Connection Established
+    Authenticating --> Subscribing: JWT Token Valid
+    
+    Subscribing --> Active: Subscription Complete
+    Authenticating --> Rejected: Invalid Token
+    Rejected --> [*]: Connection Closed
+    
+    Active --> Receiving: Telemetry Updates
+    Active --> Receiving: Insight Updates
+    Active --> Receiving: Agent Status Updates
+    
+    Receiving --> Processing: Message Received
+    Processing --> Updating: React State Update
+    Updating --> Active: UI Rendered
+    
+    Active --> Pinging: Keep-Alive (30s)
+    Pinging --> Active: Pong Received
+    Pinging --> Reconnecting: Pong Timeout (>5s)
+    
+    Reconnecting --> Reconnecting: Exponential Backoff<br/>1s, 2s, 4s, 8s
+    Reconnecting --> Connecting: Reconnect Attempt
+    Reconnecting --> Failed: Max Retries (5)
+    
+    Failed --> [*]: Connection Terminated
+    
+    Active --> Idle: No Messages (60s)
+    Idle --> Active: Message Received
+    Idle --> Reconnecting: Heartbeat Timeout
+    
+    Active --> Error: Network Error
+    Error --> Reconnecting: Error Recovery
+    
+    note right of Active
+        Normal operation
+        Receiving real-time updates
+    end note
+    
+    note right of Reconnecting
+        Auto-reconnect with
+        exponential backoff
+    end note
+```
+
+### Database Query Flow
+
+```mermaid
+sequenceDiagram
+    participant API as FastAPI Endpoint
+    participant Cache as Redis Cache
+    participant DB as PostgreSQL
+    participant TSDB as TimescaleDB
+    participant S3 as S3 Bucket
+    
+    API->>Cache: Check Cache<br/>(Key: {track}:{chassis}:{lap})
+    alt Cache Hit
+        Cache-->>API: Return Cached Data<br/>(TTL: 60s)
+        API->>API: Format Response
+    else Cache Miss
+        API->>DB: Query Metadata<br/>(SELECT race_info WHERE track=?)
+        DB-->>API: Race Metadata
+        
+        alt Historical Query
+            API->>TSDB: Query Time-Series<br/>(SELECT * FROM telemetry WHERE time > ?)
+            TSDB-->>API: Aggregated Data<br/>(Chunked query)
+        else Current Lap Query
+            API->>Cache: Get Live Data<br/>(telemetry.stream latest)
+            Cache-->>API: Latest Telemetry
+        end
+        
+        alt Large Dataset (>1M rows)
+            API->>S3: Get Pre-aggregated<br/>(Parquet file)
+            S3-->>API: Compressed Data
+            API->>API: Decompress & Parse
+        end
+        
+        API->>API: Aggregate Results
+        API->>Cache: Store in Cache<br/>(SETEX key 60 value)
+        API->>API: Format Response
+    end
+    
+    API->>API: Log Query Time<br/>(Prometheus metrics)
+    API-->>Client: Return JSON Response
+```
+
 ### Agent Registration
 
 Agents automatically register with the orchestrator on startup:
@@ -774,6 +1236,170 @@ graph TB
     style D fill:#4ecdc4
     style H fill:#ffe66d
     style O fill:#95e1d3
+```
+
+### Component Interaction Diagram
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        A[React App<br/>Port 5173] --> B[TelemetryProvider<br/>Context]
+        A --> C[StrategyProvider<br/>React Query]
+        B --> D[WebSocket Client<br/>Auto-reconnect]
+        C --> E[REST API Client<br/>Axios]
+    end
+    
+    subgraph "API Gateway Layer"
+        D --> F[WebSocket Server<br/>Port 8081<br/>Node.js]
+        E --> G[FastAPI Backend<br/>Port 8000<br/>Python]
+        
+        F --> H[Redis Client<br/>Pub/Sub]
+        G --> I[Redis Client<br/>Streams]
+    end
+    
+    subgraph "Processing Layer"
+        H --> J[Redis Streams<br/>telemetry.stream]
+        I --> J
+        
+        J --> K[Telemetry Processor<br/>Worker Pool]
+        K --> L[Feature Engineering<br/>20 features]
+        L --> M[ML Inference<br/>ONNX Runtime]
+        M --> N[Post-Processor<br/>Confidence, Pit Window]
+        
+        N --> O[Redis Cache<br/>live-insights]
+        N --> J
+    end
+    
+    subgraph "Agent System"
+        J --> P[Orchestrator<br/>Port 9090]
+        P --> Q[Preprocessor Agent<br/>Pool]
+        P --> R[Predictor Agent<br/>Pool]
+        P --> S[EDA Agent<br/>Pool]
+        P --> T[Simulator Agent<br/>Pool]
+        P --> U[Explainer Agent<br/>Pool]
+        P --> V[Delivery Agent<br/>Pool]
+        
+        Q --> W[Results Stream<br/>results.stream]
+        R --> W
+        S --> W
+        T --> W
+        U --> W
+        V --> W
+        
+        W --> F
+    end
+    
+    subgraph "Data Layer"
+        O --> X[Redis Cluster<br/>Cache + Streams]
+        W --> X
+        J --> X
+        
+        G --> Y[PostgreSQL<br/>Metadata]
+        G --> Z[TimescaleDB<br/>Time-Series]
+        M --> AA[S3<br/>ML Models]
+    end
+    
+    subgraph "Monitoring"
+        F --> AB[Prometheus<br/>Metrics]
+        G --> AB
+        K --> AB
+        P --> AB
+        
+        F --> AC[ELK Stack<br/>Logs]
+        G --> AC
+        P --> AC
+        
+        AB --> AD[Grafana<br/>Dashboards]
+        AC --> AE[Kibana<br/>Log Analysis]
+    end
+    
+    style A fill:#ff6b6b
+    style M fill:#4ecdc4
+    style P fill:#ffe66d
+    style X fill:#95e1d3
+```
+
+### Deployment Flow Diagram
+
+```mermaid
+graph TB
+    subgraph "Development"
+        A[Developer Push<br/>Git Commit] --> B[GitHub<br/>Repository]
+        B --> C[GitHub Actions<br/>CI Trigger]
+    end
+    
+    subgraph "CI Pipeline"
+        C --> D[Lint & Format<br/>ESLint, Black]
+        D --> E[Unit Tests<br/>Vitest, Pytest]
+        E --> F[Integration Tests<br/>Jest, Cypress]
+        F --> G[Code Coverage<br/>Threshold: 80%]
+        
+        G --> H{Tests Pass?}
+        H -->|No| I[Report Failure<br/>Block Merge]
+        H -->|Yes| J[Build Artifacts]
+    end
+    
+    subgraph "Build Stage"
+        J --> K[Docker Build<br/>Multi-stage]
+        K --> L[Frontend Build<br/>Vite Production]
+        K --> M[Backend Build<br/>Python Wheel]
+        K --> N[TypeScript Build<br/>tsc Compile]
+        
+        L --> O[Docker Image<br/>Frontend]
+        M --> P[Docker Image<br/>Backend]
+        N --> Q[Docker Image<br/>Realtime]
+    end
+    
+    subgraph "Security Scanning"
+        O --> R[Trivy Scan<br/>Vulnerabilities]
+        P --> R
+        Q --> R
+        
+        R --> S{Critical Issues?}
+        S -->|Yes| I
+        S -->|No| T[Security Sign-off]
+    end
+    
+    subgraph "Artifact Registry"
+        T --> U[Push to Registry<br/>Docker Hub/GCR]
+        U --> V[Tag Version<br/>Semantic Versioning]
+        V --> W[Helm Chart<br/>Update Values]
+    end
+    
+    subgraph "Staging Deployment"
+        W --> X[Deploy to Staging<br/>Kubernetes]
+        X --> Y[Blue-Green<br/>Zero Downtime]
+        Y --> Z[Smoke Tests<br/>Health Checks]
+        
+        Z --> AA{Staging OK?}
+        AA -->|No| AB[Rollback<br/>Previous Version]
+        AA -->|Yes| AC[Staging Complete]
+    end
+    
+    subgraph "Production Deployment"
+        AC --> AD[Manual Approval<br/>Gatekeeper]
+        AD --> AE[Deploy to Production<br/>Rolling Update]
+        AE --> AF[Health Check<br/>Readiness Probe]
+        
+        AF --> AG{Deployment OK?}
+        AG -->|No| AB
+        AG -->|Yes| AH[Production Live<br/>Monitor 5min]
+        
+        AH --> AI{No Errors?}
+        AI -->|Yes| AJ[Deployment Success]
+        AI -->|No| AB
+    end
+    
+    subgraph "Post-Deployment"
+        AJ --> AK[Notify Team<br/>Slack, Email]
+        AJ --> AL[Update Monitoring<br/>Dashboards]
+        AJ --> AM[Archive Build<br/>Artifact Retention]
+    end
+    
+    style C fill:#ff6b6b
+    style K fill:#4ecdc4
+    style R fill:#ffe66d
+    style AE fill:#95e1d3
 ```
 
 ### Kubernetes Deployment
@@ -900,6 +1526,252 @@ LOG_LEVEL=INFO
 REDIS_PASSWORD=***  # From secret
 AWS_REGION=us-east-1
 S3_BUCKET=pitwall-telemetry
+```
+
+### CI/CD Pipeline Architecture
+
+```mermaid
+graph LR
+    subgraph "Source Control"
+        A[Git Repository<br/>GitHub] --> B[GitHub Actions<br/>Workflow Trigger]
+        B --> C{Event Type}
+        C -->|Push to main| D[Production Build]
+        C -->|Pull Request| E[PR Build + Test]
+        C -->|Tag Release| F[Release Build]
+    end
+    
+    subgraph "Build Stage"
+        D --> G[Lint & Format<br/>ESLint, Black]
+        E --> G
+        F --> G
+        
+        G --> H[Unit Tests<br/>Vitest, Pytest]
+        H --> I[Integration Tests<br/>Jest, Pytest]
+        I --> J[E2E Tests<br/>Playwright]
+    end
+    
+    subgraph "Test Stage"
+        J --> K{All Tests Pass?}
+        K -->|Yes| L[Build Docker Images<br/>Multi-stage]
+        K -->|No| M[Report Failure<br/>Notify Team]
+    end
+    
+    subgraph "Build Artifacts"
+        L --> N[Frontend Image<br/>nginx:alpine]
+        L --> O[Backend Image<br/>python:3.11-slim]
+        L --> P[Realtime Image<br/>node:18-alpine]
+        L --> Q[Agent Images<br/>Per agent type]
+    end
+    
+    subgraph "Security Scanning"
+        N --> R[Vulnerability Scan<br/>Trivy]
+        O --> R
+        P --> R
+        Q --> R
+        
+        R --> S{No Critical Issues?}
+        S -->|Yes| T[Push to Registry<br/>Docker Hub/GCR]
+        S -->|No| M
+    end
+    
+    subgraph "Deployment Stage"
+        T --> U[Update K8s Manifests<br/>Helm Charts]
+        U --> V[Deploy to Staging<br/>Blue-Green]
+        V --> W[Smoke Tests<br/>Health Checks]
+        
+        W --> X{Staging OK?}
+        X -->|Yes| Y[Deploy to Production<br/>Rolling Update]
+        X -->|No| Z[Rollback<br/>Previous Version]
+        
+        Y --> AA[Production Health Check<br/>Monitoring]
+        AA --> AB{Deployment Success?}
+        AB -->|Yes| AC[Complete<br/>Notify Team]
+        AB -->|No| Z
+    end
+    
+    style B fill:#ff6b6b
+    style L fill:#4ecdc4
+    style R fill:#ffe66d
+    style Y fill:#95e1d3
+```
+
+### Security Architecture
+
+```mermaid
+graph TB
+    subgraph "Network Security Layer"
+        A[Internet Traffic] --> B[WAF<br/>Cloudflare/AWS WAF]
+        B --> C[DDoS Protection<br/>Rate Limiting]
+        C --> D[Load Balancer<br/>TLS Termination]
+    end
+    
+    subgraph "Authentication & Authorization"
+        D --> E[API Gateway<br/>Kong/Envoy]
+        E --> F[Auth Service<br/>JWT/OAuth2]
+        F --> G[Token Validation<br/>Redis Cache]
+        G --> H[RBAC<br/>Role-Based Access]
+    end
+    
+    subgraph "Application Security"
+        H --> I[FastAPI App<br/>Input Validation]
+        H --> J[Node.js App<br/>Helmet Security]
+        
+        I --> K[Pydantic Models<br/>Schema Validation]
+        J --> L[Express Security<br/>CORS, CSP]
+        
+        K --> M[SQL Injection<br/>Prevention]
+        L --> N[XSS Prevention<br/>Sanitization]
+    end
+    
+    subgraph "Data Security"
+        M --> O[Encrypted Storage<br/>TLS at Rest]
+        N --> O
+        
+        O --> P[Redis AUTH<br/>Password Protection]
+        O --> Q[PostgreSQL<br/>SSL Connections]
+        O --> R[S3 Encryption<br/>KMS Keys]
+    end
+    
+    subgraph "Secrets Management"
+        S[Vault/K8s Secrets<br/>Centralized] --> I
+        S --> J
+        S --> P
+        S --> Q
+        S --> R
+    end
+    
+    subgraph "Monitoring & Auditing"
+        T[Security Logs<br/>SIEM Integration] --> U[Audit Trail<br/>All API Calls]
+        T --> V[Threat Detection<br/>Anomaly Detection]
+        T --> W[Alert System<br/>PagerDuty/Slack]
+    end
+    
+    style B fill:#ff6b6b
+    style F fill:#4ecdc4
+    style S fill:#ffe66d
+    style T fill:#95e1d3
+```
+
+### Data Layer Architecture
+
+```mermaid
+graph TB
+    subgraph "Cache Layer (Redis)"
+        A[Redis Cluster<br/>3+ nodes] --> B[Streams<br/>telemetry.stream<br/>100k msg/sec]
+        A --> C[Cache<br/>Live Insights<br/>TTL: 60s]
+        A --> D[Session Store<br/>WebSocket Sessions<br/>TTL: 24h]
+        A --> E[Rate Limiting<br/>API Throttling<br/>Sliding Window]
+    end
+    
+    subgraph "Time-Series Data"
+        F[TimescaleDB<br/>Hypertables] --> G[Telemetry Data<br/>Chunked by time<br/>Compression: 90%]
+        F --> H[Race Results<br/>Aggregated<br/>Indexed by track]
+        F --> I[Metrics History<br/>Prometheus data<br/>Retention: 90d]
+    end
+    
+    subgraph "Relational Data (PostgreSQL)"
+        J[PostgreSQL<br/>Primary DB] --> K[Users & Auth<br/>JWT tokens<br/>ACID compliance]
+        J --> L[Race Metadata<br/>Tracks, Events<br/>Foreign keys]
+        J --> M[Agent Registry<br/>Status, Config<br/>JSON columns]
+    end
+    
+    subgraph "Object Storage (S3)"
+        N[S3 Bucket<br/>Versioned] --> O[Historical Telemetry<br/>Parquet format<br/>Lifecycle policies]
+        N --> P[ML Models<br/>ONNX files<br/>Versioned]
+        N --> Q[Race Videos<br/>MP4 format<br/>CDN-backed]
+    end
+    
+    subgraph "Data Flow"
+        B --> R[Real-Time Processing<br/>Stream Consumers]
+        R --> C
+        R --> F
+        
+        C --> S[FastAPI Backend<br/>Read Cache]
+        C --> T[WebSocket Server<br/>Broadcast]
+        
+        F --> U[Analytics Service<br/>Historical Queries]
+        J --> V[Metadata Service<br/>Race Info]
+        
+        O --> W[ETL Pipeline<br/>Batch Processing]
+        W --> F
+    end
+    
+    subgraph "Data Replication"
+        A --> X[Redis Replication<br/>Master-Slave<br/>Sentinel HA]
+        F --> Y[PostgreSQL Replication<br/>Streaming Replica<br/>Read Scaling]
+        N --> Z[S3 Replication<br/>Cross-Region<br/>DR Backup]
+    end
+    
+    style A fill:#ff6b6b
+    style F fill:#4ecdc4
+    style J fill:#ffe66d
+    style N fill:#95e1d3
+```
+
+### Performance Monitoring Architecture
+
+```mermaid
+graph TB
+    subgraph "Metrics Collection"
+        A[Application Metrics<br/>Prometheus Client] --> B[Custom Metrics<br/>Business Logic]
+        A --> C[System Metrics<br/>CPU, Memory, Disk]
+        A --> D[Network Metrics<br/>Latency, Throughput]
+        A --> E[Database Metrics<br/>Query Time, Connections]
+    end
+    
+    subgraph "Metrics Storage"
+        B --> F[Prometheus<br/>Time-Series DB<br/>15s scrape interval]
+        C --> F
+        D --> F
+        E --> F
+        
+        F --> G[PromQL Queries<br/>Aggregations]
+        G --> H[Recording Rules<br/>Pre-computed]
+    end
+    
+    subgraph "Logging Pipeline"
+        I[Application Logs<br/>Structured JSON] --> J[Fluentd/Fluent Bit<br/>Log Shipper]
+        J --> K[Elasticsearch<br/>Log Storage<br/>30d retention]
+        K --> L[Logstash<br/>Log Processing<br/>Parsing & Enrichment]
+        L --> K
+    end
+    
+    subgraph "Tracing"
+        M[OpenTelemetry<br/>Instrumentation] --> N[OTel Collector<br/>Trace Aggregation]
+        N --> O[Jaeger/Zipkin<br/>Trace Storage<br/>7d retention]
+        O --> P[Trace Analysis<br/>Performance Bottlenecks]
+    end
+    
+    subgraph "Visualization"
+        F --> Q[Grafana<br/>Dashboards]
+        K --> R[Kibana<br/>Log Analysis]
+        O --> S[Jaeger UI<br/>Trace Visualization]
+        
+        Q --> T[Custom Dashboards<br/>Real-Time Monitoring]
+        R --> U[Log Search<br/>ELK Queries]
+        S --> V[Service Map<br/>Dependency Graph]
+    end
+    
+    subgraph "Alerting"
+        Q --> W[Alert Manager<br/>Rule Evaluation]
+        W --> X{Threshold<br/>Exceeded?}
+        X -->|Yes| Y[Notification Channels<br/>PagerDuty, Slack, Email]
+        X -->|No| Z[Continue Monitoring]
+        
+        Y --> AA[On-Call Engineer<br/>Incident Response]
+    end
+    
+    subgraph "Performance Analysis"
+        T --> AB[APM Dashboard<br/>Application Performance]
+        AB --> AC[P50/P95/P99<br/>Latency Percentiles]
+        AB --> AD[Error Rates<br/>Success/Failure]
+        AB --> AE[Throughput<br/>Requests/Second]
+    end
+    
+    style F fill:#ff6b6b
+    style K fill:#4ecdc4
+    style O fill:#ffe66d
+    style Q fill:#95e1d3
 ```
 
 ### Monitoring & Observability
@@ -1255,6 +2127,87 @@ blank-slate-canvas/
 ├── Dockerfile                  # Python backend
 ├── Dockerfile.frontend         # Frontend build
 └── requirements.txt            # Python dependencies
+```
+
+### Testing Architecture
+
+```mermaid
+graph TB
+    subgraph "Unit Tests"
+        A[Frontend Unit Tests<br/>Vitest] --> B[Component Tests<br/>React Testing Library]
+        A --> C[Hook Tests<br/>Custom Hooks]
+        A --> D[Utility Tests<br/>Pure Functions]
+        
+        E[Backend Unit Tests<br/>Pytest] --> F[Service Tests<br/>Business Logic]
+        E --> G[Model Tests<br/>Pydantic Models]
+        E --> H[ML Model Tests<br/>ONNX Inference]
+    end
+    
+    subgraph "Integration Tests"
+        I[API Integration Tests<br/>Pytest + FastAPI] --> J[Endpoint Tests<br/>HTTP Client]
+        I --> K[Database Tests<br/>Test Containers]
+        I --> L[Redis Tests<br/>Fake Redis]
+        
+        M[Frontend Integration<br/>Vitest] --> N[Context Tests<br/>State Management]
+        M --> O[API Client Tests<br/>Mock Server]
+        M --> P[WebSocket Tests<br/>Mock Socket]
+    end
+    
+    subgraph "E2E Tests"
+        Q[Playwright Tests<br/>Browser Automation] --> R[User Flow Tests<br/>Critical Paths]
+        Q --> S[Cross-Browser Tests<br/>Chrome, Firefox, Safari]
+        Q --> T[Visual Regression<br/>Screenshot Diff]
+        
+        U[Cypress Tests<br/>Component E2E] --> V[Component Integration<br/>Full Render]
+        U --> W[Real API Tests<br/>Test Environment]
+    end
+    
+    subgraph "Performance Tests"
+        X[Load Testing<br/>k6/Gatling] --> Y[API Load Tests<br/>1000 req/s]
+        X --> Z[WebSocket Load Tests<br/>1000 connections]
+        X --> AA[Endurance Tests<br/>24h stability]
+        
+        AB[ML Inference Benchmarks<br/>PyTest-benchmark] --> AC[Latency Tests<br/>P50/P95/P99]
+        AB --> AD[Throughput Tests<br/>Predictions/sec]
+    end
+    
+    subgraph "Test Infrastructure"
+        B --> AE[Test Containers<br/>Docker Compose]
+        F --> AE
+        J --> AE
+        K --> AE
+        
+        AE --> AF[PostgreSQL Test DB<br/>Isolated]
+        AE --> AG[Redis Test Instance<br/>Isolated]
+        AE --> AH[Test Data Fixtures<br/>JSON/CSV]
+    end
+    
+    subgraph "CI Integration"
+        B --> AI[GitHub Actions<br/>CI Pipeline]
+        F --> AI
+        J --> AI
+        Q --> AI
+        X --> AI
+        
+        AI --> AJ{All Tests Pass?}
+        AJ -->|Yes| AK[Allow Merge]
+        AJ -->|No| AL[Block Merge<br/>Report Failure]
+    end
+    
+    subgraph "Test Coverage"
+        B --> AM[Coverage Report<br/>Vitest/Istanbul]
+        F --> AN[Coverage Report<br/>Pytest-cov]
+        
+        AM --> AO{Coverage > 80%?}
+        AN --> AO
+        AO -->|Yes| AI
+        AO -->|No| AL
+    end
+    
+    style A fill:#ff6b6b
+    style E fill:#4ecdc4
+    style Q fill:#ffe66d
+    style X fill:#95e1d3
 ```
 
 ### Testing

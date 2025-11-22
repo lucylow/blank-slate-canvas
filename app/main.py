@@ -177,11 +177,28 @@ app.include_router(frontend_router, tags=["Frontend Integration"])
 app.include_router(telemetry_router, tags=["Telemetry"])
 app.include_router(agents_router, tags=["AI Agents"])
 
-# Metrics endpoint
-@app.get("/metrics")
-async def metrics():
-    """Prometheus metrics endpoint"""
-    return get_metrics_response()
+# Import and include replay router
+try:
+    from app.routes.replay import router as replay_router
+    app.include_router(replay_router, tags=["Replay"])
+except ImportError as e:
+    logger.warning(f"Replay router not available: {e}")
+
+# Import and include new routers (will be created below)
+try:
+    from app.routes import sse, ws, demo, api_models, insights
+    app.include_router(sse.router, tags=["Realtime"])
+    app.include_router(ws.router, tags=["Realtime"])
+    app.include_router(demo.router, prefix="/demo", tags=["Demo"])
+    app.include_router(api_models.router, prefix="/api/models", tags=["Models"])
+    app.include_router(insights.router, prefix="/api", tags=["Insights"])
+except ImportError as e:
+    logger.warning(f"Some optional routers not available: {e}")
+
+# Metrics endpoint - mount Prometheus ASGI app for better compatibility
+from prometheus_client import make_asgi_app
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.get("/")
