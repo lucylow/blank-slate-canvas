@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useState, useMemo } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { motion } from 'framer-motion';
 import { useTelemetry } from '@/hooks/useTelemetry';
+import { CarTypeToggle, CarTypeLegend } from '@/components/CarTypeToggle';
+import { GR_CARS } from '@/constants/cars';
+import type { GRCarId } from '@/constants/cars';
 
 const chartConfigs = {
   speed: { color: '#3B82F6', label: 'Speed (km/h)' },
@@ -12,18 +15,91 @@ const chartConfigs = {
 };
 
 export function TelemetryCharts() {
-  const { telemetryData, selectedDriver } = useTelemetry();
+  const { 
+    telemetryData, 
+    selectedDriver, 
+    visibleCars,
+    toggleCarVisibility,
+    filteredTelemetryData 
+  } = useTelemetry();
   const [activeChart, setActiveChart] = useState('speed');
+  const [multiCarMode, setMultiCarMode] = useState(false);
 
-  const chartData = telemetryData.slice(-50);
+  // Group telemetry data by car type for multi-car visualization
+  const multiCarChartData = useMemo(() => {
+    if (!multiCarMode || !filteredTelemetryData.length) return [];
+
+    // Group data by timestamp and car type
+    const grouped: Record<number, Record<string, number>> = {};
+    
+    filteredTelemetryData.forEach((point) => {
+      const timestamp = Math.floor(point.timestamp / 1000) * 1000; // Round to nearest second
+      if (!grouped[timestamp]) {
+        grouped[timestamp] = { timestamp };
+      }
+      
+      if (point.carType) {
+        const carId = point.carType;
+        const key = `${activeChart}_${carId}`;
+        grouped[timestamp][key] = point[activeChart as keyof typeof point] as number;
+        // Also store car type for legend
+        grouped[timestamp][`carType_${carId}`] = 1;
+      }
+    });
+
+    return Object.values(grouped).slice(-50);
+  }, [filteredTelemetryData, activeChart, multiCarMode]);
+
+  // Single car mode chart data
+  const singleCarChartData = useMemo(() => {
+    if (multiCarMode) return [];
+    
+    const selectedData = selectedDriver
+      ? filteredTelemetryData.filter((point) => point.carNumber === selectedDriver.carNumber)
+      : filteredTelemetryData;
+    
+    return selectedData.slice(-50);
+  }, [filteredTelemetryData, selectedDriver, multiCarMode]);
+
+  const chartData = multiCarMode ? multiCarChartData : singleCarChartData;
 
   return (
     <div className="h-full flex flex-col p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">
-          Telemetry - Car #{selectedDriver?.carNumber || '23'}
+          {multiCarMode 
+            ? 'Multi-Car Telemetry Comparison'
+            : `Telemetry - Car #${selectedDriver?.carNumber || '23'}`
+          }
         </h2>
         
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setMultiCarMode(!multiCarMode)}
+            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+              multiCarMode 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-secondary text-secondary-foreground hover:bg-accent'
+            }`}
+          >
+            {multiCarMode ? 'Single Car' : 'Compare Cars'}
+          </button>
+        </div>
+      </div>
+
+      {multiCarMode && (
+        <div className="mb-4 space-y-2">
+          <CarTypeToggle
+            visibleCars={visibleCars}
+            onToggle={toggleCarVisibility}
+            variant="compact"
+            className="justify-center"
+          />
+          <CarTypeLegend className="justify-center text-xs" />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-4">
         <div className="flex space-x-2">
           {Object.entries(chartConfigs).map(([key, config]) => (
             <button
@@ -45,10 +121,19 @@ export function TelemetryCharts() {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>
-              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={chartConfigs[activeChart as keyof typeof chartConfigs].color} stopOpacity={0.3}/>
-                <stop offset="95%" stopColor={chartConfigs[activeChart as keyof typeof chartConfigs].color} stopOpacity={0}/>
-              </linearGradient>
+              {multiCarMode ? (
+                GR_CARS.filter(car => visibleCars[car.id]).map((car) => (
+                  <linearGradient key={car.id} id={`chartGradient_${car.id}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={car.color} stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor={car.color} stopOpacity={0}/>
+                  </linearGradient>
+                ))
+              ) : (
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={chartConfigs[activeChart as keyof typeof chartConfigs].color} stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor={chartConfigs[activeChart as keyof typeof chartConfigs].color} stopOpacity={0}/>
+                </linearGradient>
+              )}
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
@@ -56,6 +141,7 @@ export function TelemetryCharts() {
               stroke="hsl(var(--muted-foreground))"
               fontSize={11}
               tickLine={false}
+              tickFormatter={(value) => new Date(value).toLocaleTimeString()}
             />
             <YAxis 
               stroke="hsl(var(--muted-foreground))"
@@ -70,17 +156,41 @@ export function TelemetryCharts() {
                 color: 'hsl(var(--foreground))',
                 boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
               }}
+              labelFormatter={(value) => new Date(value).toLocaleTimeString()}
             />
-            <Line
-              type="monotone"
-              dataKey={activeChart}
-              stroke={chartConfigs[activeChart as keyof typeof chartConfigs].color}
-              strokeWidth={3}
-              dot={false}
-              activeDot={{ r: 6, strokeWidth: 2, fill: chartConfigs[activeChart as keyof typeof chartConfigs].color }}
-              fillOpacity={1}
-              fill="url(#chartGradient)"
-            />
+            {multiCarMode ? (
+              // Multi-car mode: show lines for each visible car
+              GR_CARS
+                .filter(car => visibleCars[car.id])
+                .map((car) => (
+                  <Line
+                    key={car.id}
+                    type="monotone"
+                    dataKey={`${activeChart}_${car.id}`}
+                    stroke={car.color}
+                    strokeWidth={2.5}
+                    name={`${car.shortName} ${chartConfigs[activeChart as keyof typeof chartConfigs].label.split(' ')[0]}`}
+                    dot={false}
+                    activeDot={{ r: 5, strokeWidth: 2, fill: car.color }}
+                    fillOpacity={0.6}
+                    fill={`url(#chartGradient_${car.id})`}
+                  />
+                ))
+            ) : (
+              // Single car mode: show one line
+              <Line
+                type="monotone"
+                dataKey={activeChart}
+                stroke={chartConfigs[activeChart as keyof typeof chartConfigs].color}
+                strokeWidth={3}
+                dot={false}
+                activeDot={{ r: 6, strokeWidth: 2, fill: chartConfigs[activeChart as keyof typeof chartConfigs].color }}
+                fillOpacity={1}
+                fill="url(#chartGradient)"
+                name={chartConfigs[activeChart as keyof typeof chartConfigs].label}
+              />
+            )}
+            {multiCarMode && <Legend />}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -104,13 +214,28 @@ export function TelemetryCharts() {
             <div className="h-12">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData.slice(-10)}>
-                  <Line
-                    type="monotone"
-                    dataKey={key}
-                    stroke={activeChart === key ? config.color : 'hsl(var(--muted-foreground))'}
-                    strokeWidth={activeChart === key ? 2 : 1.5}
-                    dot={false}
-                  />
+                  {multiCarMode ? (
+                    GR_CARS
+                      .filter(car => visibleCars[car.id])
+                      .map((car) => (
+                        <Line
+                          key={car.id}
+                          type="monotone"
+                          dataKey={`${key}_${car.id}`}
+                          stroke={activeChart === key ? car.color : 'hsl(var(--muted-foreground))'}
+                          strokeWidth={activeChart === key ? 2 : 1.5}
+                          dot={false}
+                        />
+                      ))
+                  ) : (
+                    <Line
+                      type="monotone"
+                      dataKey={key}
+                      stroke={activeChart === key ? config.color : 'hsl(var(--muted-foreground))'}
+                      strokeWidth={activeChart === key ? 2 : 1.5}
+                      dot={false}
+                    />
+                  )}
                 </LineChart>
               </ResponsiveContainer>
             </div>

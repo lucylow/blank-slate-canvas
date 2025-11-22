@@ -123,6 +123,28 @@ export interface StrategyRequest {
   tire_laps: number;
 }
 
+export interface SplitDeltaData {
+  lap: number;
+  ref_car: number;
+  compare_car: number;
+  delta_S1: number | null;
+  delta_S2: number | null;
+  delta_S3: number | null;
+}
+
+export interface SplitDeltaResponse {
+  delta_data: SplitDeltaData[];
+  meta: {
+    track: string;
+    race: number;
+    cars: number[];
+    ref_car: number;
+    total_records: number;
+    demo?: boolean;
+    message?: string;
+  };
+}
+
 // Legacy interface for backward compatibility
 export interface TirePredictionResponse {
   chassis: string;
@@ -234,6 +256,44 @@ export async function getLiveDashboard(
     if (error && typeof error === 'object' && 'response' in error) {
       const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
       throw new Error(`Dashboard API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get lap split deltas across cars for comparison
+ * Returns sector/lap split differences for each car compared to a reference car
+ */
+export async function getSplitDeltas(
+  track: string,
+  race: number,
+  cars: number[],
+  refCar?: number
+): Promise<SplitDeltaResponse> {
+  try {
+    const carsParam = cars.join(',');
+    const params: Record<string, string | number> = {
+      track,
+      race,
+      cars: carsParam
+    };
+    if (refCar !== undefined) {
+      params.ref_car = refCar;
+    }
+    
+    const res = await client.get<SplitDeltaResponse>("/api/analytics/split-deltas", {
+      params
+    });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Split deltas API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
     } else if (error && typeof error === 'object' && 'request' in error) {
       throw new Error("Network error: Backend server may be unavailable");
     } else {

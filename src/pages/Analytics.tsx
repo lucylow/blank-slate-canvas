@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LapTimeTrendsChart } from "@/components/analytics/LapTimeTrendsChart";
 import { TireWearDistributionChart } from "@/components/analytics/TireWearDistributionChart";
+import { LapSplitDeltaChart } from "@/components/analytics/LapSplitDeltaChart";
 import { getLiveDashboard, getTracks, getAgentStatus, type DashboardData, type TrackList, type AgentStatusResponse } from "@/api/pitwall";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
@@ -21,6 +22,7 @@ const Analytics = () => {
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
   const [selectedLap, setSelectedLap] = useState(12);
+  const [comparisonCars, setComparisonCars] = useState<number[]>([7, 13, 22]); // Default cars for comparison
   const [tracks, setTracks] = useState<TrackList | null>(null);
   const hasInitializedTracks = useRef(false);
 
@@ -610,6 +612,21 @@ const Analytics = () => {
               </Card>
             </motion.div>
           </div>
+
+          {/* Lap Split Delta Comparison Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mb-12"
+          >
+            <LapSplitDeltaChart
+              track={selectedTrack}
+              race={selectedRace}
+              cars={comparisonCars}
+              refCar={selectedVehicle}
+            />
+          </motion.div>
 
           {/* Enhanced Driver Performance Section */}
           <div className="grid lg:grid-cols-2 gap-6 mb-12">

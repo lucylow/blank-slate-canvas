@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef, useMemo } from 'react';
 import { telemetryWS, TelemetryPoint } from '@/lib/api';
 import { getSeedDrivers } from '@/lib/driverProfiles';
+import { GRCarId, DEFAULT_VISIBLE_CARS } from '@/constants/cars';
 
 interface TelemetryData {
   timestamp: number;
@@ -12,6 +13,8 @@ interface TelemetryData {
   lat: number;
   lng: number;
   lapDistance: number;
+  carType?: GRCarId;
+  carNumber?: string;
 }
 
 interface Driver {
@@ -21,6 +24,7 @@ interface Driver {
   gapToLeader: number;
   lastLapTime: number;
   bestLapTime: number;
+  carType?: GRCarId;
 }
 
 interface TelemetryContextType {
@@ -32,6 +36,11 @@ interface TelemetryContextType {
   sessionTime: string;
   connectionStatus: 'connected' | 'connecting' | 'disconnected';
   trackData: { name: string };
+  visibleCars: Record<GRCarId, boolean>;
+  setVisibleCars: (cars: Record<GRCarId, boolean>) => void;
+  toggleCarVisibility: (carId: GRCarId) => void;
+  filteredTelemetryData: TelemetryData[];
+  filteredDrivers: Driver[];
 }
 
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
@@ -57,7 +66,33 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(drivers[0]);
   const [currentLap, setCurrentLap] = useState(12);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
+  const [visibleCars, setVisibleCars] = useState<Record<GRCarId, boolean>>(DEFAULT_VISIBLE_CARS);
   const lastLapRef = useRef<number>(0);
+
+  // Filter telemetry data based on visible cars
+  const filteredTelemetryData = useMemo(() => {
+    if (!telemetryData.length) return [];
+    
+    return telemetryData.filter((point) => {
+      if (!point.carType) return true; // Show data without car type
+      return visibleCars[point.carType] !== false;
+    });
+  }, [telemetryData, visibleCars]);
+
+  // Filter drivers based on visible cars
+  const filteredDrivers = useMemo(() => {
+    return drivers.filter((driver) => {
+      if (!driver.carType) return true; // Show drivers without car type
+      return visibleCars[driver.carType] !== false;
+    });
+  }, [drivers, visibleCars]);
+
+  const toggleCarVisibility = (carId: GRCarId) => {
+    setVisibleCars((prev) => ({
+      ...prev,
+      [carId]: !prev[carId],
+    }));
+  };
 
   // Connect to WebSocket and handle telemetry data
   useEffect(() => {
@@ -98,7 +133,12 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
     currentLap,
     sessionTime: '45:23.456', // TODO: Calculate from telemetry data
     connectionStatus,
-    trackData: { name: 'Circuit of the Americas' } // TODO: Get from backend or config
+    trackData: { name: 'Circuit of the Americas' }, // TODO: Get from backend or config
+    visibleCars,
+    setVisibleCars,
+    toggleCarVisibility,
+    filteredTelemetryData,
+    filteredDrivers,
   };
 
   return (

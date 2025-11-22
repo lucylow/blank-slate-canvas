@@ -1,11 +1,14 @@
 // src/lib/driverProfiles.ts
 // Seed data for driver profiles based on GR Cup vehicle numbers
 
+import type { GRCarId } from '@/constants/cars';
+
 export interface DriverProfile {
   carNumber: string;
   chassisNumber: string;
   vehicleId: string;
   vehicleNumber: number;
+  carType?: GRCarId; // GR car type: supra, yaris, gr86, corolla
   driverName?: string;
   team?: string;
   position: number;
@@ -19,6 +22,7 @@ export interface DriverProfile {
 /**
  * Seed driver profiles based on actual GR Cup vehicle numbers from race data
  * Vehicle numbers extracted from telemetry data across multiple tracks
+ * Car types assigned to simulate different GR models in the field
  */
 export const DRIVER_PROFILES: DriverProfile[] = [
   {
@@ -26,6 +30,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-002-000',
     vehicleId: 'GR86-002-000',
     vehicleNumber: 0,
+    carType: 'gr86',
     driverName: 'Alex Chen',
     team: 'Velocity Racing',
     position: 1,
@@ -40,6 +45,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-002-2',
     vehicleId: 'GR86-002-2',
     vehicleNumber: 2,
+    carType: 'supra',
     driverName: 'Marcus Rodriguez',
     team: 'Precision Motorsports',
     position: 4,
@@ -54,6 +60,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-006-7',
     vehicleId: 'GR86-006-7',
     vehicleNumber: 7,
+    carType: 'yaris',
     driverName: 'Sarah Johnson',
     team: 'Elite Racing Team',
     position: 7,
@@ -68,6 +75,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-006-13',
     vehicleId: 'GR86-006-13',
     vehicleNumber: 13,
+    carType: 'gr86',
     driverName: 'James Mitchell',
     team: 'Apex Performance',
     position: 3,
@@ -82,6 +90,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-014-21',
     vehicleId: 'GR86-014-21',
     vehicleNumber: 21,
+    carType: 'corolla',
     driverName: 'David Kim',
     team: 'Speed Dynamics',
     position: 6,
@@ -96,6 +105,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-008-22',
     vehicleId: 'GR86-008-22',
     vehicleNumber: 22,
+    carType: 'gr86',
     driverName: 'Emma Thompson',
     team: 'Thunder Racing',
     position: 3,
@@ -110,6 +120,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-010-46',
     vehicleId: 'GR86-010-46',
     vehicleNumber: 46,
+    carType: 'supra',
     driverName: 'Ryan O\'Connor',
     team: 'Phoenix Motorsports',
     position: 5,
@@ -124,6 +135,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-012-47',
     vehicleId: 'GR86-012-47',
     vehicleNumber: 47,
+    carType: 'yaris',
     driverName: 'Michael Park',
     team: 'Summit Racing',
     position: 6,
@@ -138,6 +150,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-004-72',
     vehicleId: 'GR86-004-72',
     vehicleNumber: 72,
+    carType: 'corolla',
     driverName: 'Lisa Anderson',
     team: 'Velocity Racing',
     position: 6,
@@ -152,6 +165,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-004-78',
     vehicleId: 'GR86-004-78',
     vehicleNumber: 78,
+    carType: 'supra',
     driverName: 'Chris Martinez',
     team: 'Precision Motorsports',
     position: 2,
@@ -166,6 +180,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-018-88',
     vehicleId: 'GR86-018-88',
     vehicleNumber: 88,
+    carType: 'yaris',
     driverName: 'Jordan Taylor',
     team: 'Elite Racing Team',
     position: 8,
@@ -180,6 +195,7 @@ export const DRIVER_PROFILES: DriverProfile[] = [
     chassisNumber: 'GR86-020-111',
     vehicleId: 'GR86-020-111',
     vehicleNumber: 111,
+    carType: 'gr86',
     driverName: 'Taylor Williams',
     team: 'Apex Performance',
     position: 9,
@@ -378,6 +394,7 @@ export function toDriverFormat(profile: DriverProfile) {
     gapToLeader: profile.gapToLeader,
     lastLapTime: profile.lastLapTime,
     bestLapTime: profile.bestLapTime,
+    carType: profile.carType,
   };
 }
 

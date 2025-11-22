@@ -1,5 +1,6 @@
 import { useTelemetry } from '@/hooks/useTelemetry';
 import { Flag } from 'lucide-react';
+import { CarTypeBadge } from '@/components/CarTypeToggle';
 
 export function DriverList() {
   const { drivers, selectedDriver, setSelectedDriver } = useTelemetry();
@@ -32,9 +33,14 @@ export function DriverList() {
                 }`}>
                   P{driver.position}
                 </div>
-                <div className="text-sm">
-                  <div className={`font-bold ${selectedDriver?.carNumber === driver.carNumber ? 'text-primary' : 'text-foreground'}`}>
-                    Car #{driver.carNumber}
+                <div className="text-sm flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className={`font-bold ${selectedDriver?.carNumber === driver.carNumber ? 'text-primary' : 'text-foreground'}`}>
+                      Car #{driver.carNumber}
+                    </div>
+                    {(driver as any).carType && (
+                      <CarTypeBadge carId={(driver as any).carType} variant="compact" />
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground">Chassis {driver.chassisNumber}</div>
                 </div>

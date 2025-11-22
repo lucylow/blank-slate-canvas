@@ -1,19 +1,11 @@
 // src/components/InsightList.tsx
-import React, { useCallback } from 'react';
-import { List, ListChildComponentProps } from 'react-window';
+import React from 'react';
 import { useAgentStore } from '../stores/agentStore';
 import { InsightCard } from './InsightCard';
 
 export const InsightList: React.FC<{ onOpen: (id: string) => void }> = ({ onOpen }) => {
   const insightOrder = useAgentStore((s) => s.insightOrder);
   const insights = useAgentStore((s) => s.insights);
-
-  const Row = useCallback(({ index, style }: ListChildComponentProps) => {
-    const id = insightOrder[index];
-    const item = insights[id];
-    if (!item) return <div style={style} />;
-    return <div style={style}><InsightCard item={item} onOpen={onOpen} /></div>;
-  }, [insightOrder, insights, onOpen]);
 
   if (insightOrder.length === 0) {
     return (
@@ -24,8 +16,18 @@ export const InsightList: React.FC<{ onOpen: (id: string) => void }> = ({ onOpen
   }
 
   return (
-    <List height={600} width="100%" itemCount={insightOrder.length} itemSize={110}>
-      {Row}
-    </List>
+    <div className="h-[600px] overflow-y-auto">
+      <div className="space-y-2">
+        {insightOrder.map((id) => {
+          const item = insights[id];
+          if (!item) return null;
+          return (
+            <div key={id} className="mb-2">
+              <InsightCard item={item} onOpen={onOpen} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };

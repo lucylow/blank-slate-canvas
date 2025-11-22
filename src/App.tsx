@@ -22,6 +22,7 @@ import AgentReviewDashboard from "./pages/AgentReviewDashboard";
 import DemoSandbox from "./pages/DemoSandbox";
 import AgentInsightsDashboard from "./pages/AgentInsightsDashboard";
 import AIAgentIntegration from "./pages/AIAgentIntegration";
+import GRTelemetryDashboard from "./pages/GRTelemetryDashboard";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,9 @@ const App = () => (
           
           {/* AI Agent Integration - Three integration patterns showcase */}
           <Route path="/agent-integration" element={<AIAgentIntegration />} />
+          
+          {/* GR Telemetry Comparison - Speed and G-force comparison dashboard */}
+          <Route path="/telemetry" element={<GRTelemetryDashboard />} />
           
           {/* 404 - Catch-all route */}
           <Route path="*" element={<NotFound />} />
