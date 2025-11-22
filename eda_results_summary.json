@@ -11,7 +11,7 @@
   },
   "sebring": {
     "n_samples": 14,
-    "n_vehicles": null,
+    "n_vehicles": 1,
     "avg_speed_kmh": 173.505,
     "std_speed_kmh": 0.7000357133746885,
     "avg_throttle_pct": 99.99214285714287,
@@ -48,7 +48,7 @@
   },
   "road_america": {
     "n_samples": 28,
-    "n_vehicles": null,
+    "n_vehicles": 1,
     "avg_speed_kmh": 110.026,
     "std_speed_kmh": 14.42237255100561,
     "avg_throttle_pct": 60.185714285714276,
@@ -88,7 +88,7 @@
   },
   "sonoma": {
     "n_samples": 28,
-    "n_vehicles": null,
+    "n_vehicles": 1,
     "avg_speed_kmh": 105.72,
     "std_speed_kmh": 9.476214961681693,
     "avg_throttle_pct": 21.935357142857146,
@@ -128,7 +128,7 @@
   },
   "vir": {
     "n_samples": 28,
-    "n_vehicles": null,
+    "n_vehicles": 1,
     "avg_speed_kmh": 135.07999999999998,
     "std_speed_kmh": 1.2860015552090127,
     "avg_throttle_pct": 100.00821428571429,

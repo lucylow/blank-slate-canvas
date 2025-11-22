@@ -230,6 +230,14 @@ class VirginiaTrackAnalyzer:
         secs = seconds % 60
         return f"{mins}:{secs:05.2f}"
     
+    def _format_ordinal(self, n: int) -> str:
+        """Format number as ordinal (1st, 2nd, 3rd, etc.)"""
+        if 10 <= n % 100 <= 20:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+        return f"{n}{suffix}"
+    
     def calculate_features(self, results_df: pd.DataFrame) -> pd.DataFrame:
         """Calculate additional features for ML analysis"""
         df = results_df.copy()
@@ -311,6 +319,8 @@ class VirginiaTrackAnalyzer:
         cluster_profiles = {}
         for cluster_id in range(4):
             cluster_data = df_clustered[df_clustered['cluster'] == cluster_id]
+            if len(cluster_data) == 0:
+                continue
             cluster_profiles[cluster_id] = {
                 'count': len(cluster_data),
                 'avg_position': cluster_data['position'].mean(),
@@ -320,7 +330,17 @@ class VirginiaTrackAnalyzer:
                 'avg_consistency': cluster_data['consistency_score'].mean()
             }
         
-        return labels, cluster_profiles
+        # Sort clusters by average position to assign correct labels
+        sorted_clusters = sorted(cluster_profiles.items(), key=lambda x: x[1]['avg_position'])
+        cluster_labels = ['Elite Performers', 'Competitive Midfield', 'Backmarkers', 'DNF/Issues']
+        
+        # Update cluster profiles with correct labels
+        labeled_profiles = {}
+        for idx, (cluster_id, profile) in enumerate(sorted_clusters):
+            labeled_profiles[cluster_id] = profile
+            labeled_profiles[cluster_id]['label'] = cluster_labels[idx] if idx < len(cluster_labels) else f'Cluster {idx}'
+        
+        return labels, labeled_profiles
     
     def predict_final_position(self, df: pd.DataFrame) -> Dict:
         """Predict final position using Random Forest"""
@@ -462,16 +482,27 @@ class VirginiaTrackAnalyzer:
         """Generate comprehensive markdown report"""
         
         # Format cluster data
+        # Sort by average position for display
+        sorted_profiles = sorted(cluster_profiles.items(), key=lambda x: x[1]['avg_position'])
+        
+        # Create cluster display table
         cluster_table_rows = []
-        for cluster_id in sorted(cluster_profiles.keys()):
-            profile = cluster_profiles[cluster_id]
+        cluster_metrics_rows = []
+        for idx, (cluster_id, profile) in enumerate(sorted_profiles):
             drivers_str = ', '.join([f'#{d}' for d in profile['drivers'][:10]])
             if len(profile['drivers']) > 10:
                 drivers_str += f', ... ({len(profile["drivers"])} total)'
+            label = profile.get('label', f'Cluster {idx}')
             cluster_table_rows.append(
-                f"| **Cluster {cluster_id}** | {drivers_str} | {profile['avg_position']:.1f} | "
-                f"{'Elite Performers' if cluster_id == 0 else 'Competitive Midfield' if cluster_id == 1 else 'Backmarkers' if cluster_id == 2 else 'DNF/Issues'} |"
+                f"| **Cluster {cluster_id}** | {drivers_str} | {profile['avg_position']:.1f} | {label} |"
             )
+            # For metrics section, use position-based labels
+            if idx == 0:
+                cluster_metrics_rows.append(f"- Elite (Cluster {cluster_id}):   {profile['avg_speed']:.1f} kph avg speed | {profile['avg_lap_time']:.1f}s best lap | {profile['avg_consistency']:.2f} consistency")
+            elif idx == 1:
+                cluster_metrics_rows.append(f"- Midfield (Cluster {cluster_id}): {profile['avg_speed']:.1f} kph avg speed | {profile['avg_lap_time']:.1f}s best lap | {profile['avg_consistency']:.2f} consistency")
+            elif idx == 2:
+                cluster_metrics_rows.append(f"- Backmarkers (Cluster {cluster_id}): {profile['avg_speed']:.1f} kph avg speed | {profile['avg_lap_time']:.1f}s best lap | {profile['avg_consistency']:.2f} consistency")
         
         # Format feature importance
         feature_importance_rows = []
@@ -490,10 +521,13 @@ class VirginiaTrackAnalyzer:
         # Format anomalies
         anomaly_sections = []
         for anomaly in anomalies[:3]:
+            position_str = self._format_ordinal(anomaly['position'])
+            if anomaly['position'] > 20:
+                position_str += ' (DNF)'
             anomaly_sections.append(f"""
 #### 🚨 Driver #{anomaly['vehicle_number']}
 
-- **Position:** {anomaly['position']}{'th (DNF)' if anomaly['position'] > 20 else 'th'} | **Best Lap:** {anomaly['best_lap']} ({anomaly['best_lap_kph']:.1f} kph)
+- **Position:** {position_str} | **Best Lap:** {anomaly['best_lap']} ({anomaly['best_lap_kph']:.1f} kph)
 - **Anomaly Type:** {anomaly['anomaly_type']}
 - **Analysis:** {anomaly['analysis']}
 - **Potential Cause:** {'Setup issues or tire degradation problems' if 'Inconsistent' in anomaly['anomaly_type'] else 'Mechanical failure or incident' if 'Early' in anomaly['anomaly_type'] else 'Vehicle damage or setup issues'}
@@ -566,9 +600,7 @@ The AI analysis reveals four distinct performance clusters with clear strategic 
 
 ```python
 Cluster Performance Metrics:
-- Elite (Cluster 0):   {cluster_profiles[0]['avg_speed']:.1f} kph avg speed | {cluster_profiles[0]['avg_lap_time']:.1f}s best lap | {cluster_profiles[0]['avg_consistency']:.2f} consistency
-- Midfield (Cluster 1): {cluster_profiles[1]['avg_speed']:.1f} kph avg speed | {cluster_profiles[1]['avg_lap_time']:.1f}s best lap | {cluster_profiles[1]['avg_consistency']:.2f} consistency  
-- Backmarkers (Cluster 2): {cluster_profiles[2]['avg_speed']:.1f} kph avg speed | {cluster_profiles[2]['avg_lap_time']:.1f}s best lap | {cluster_profiles[2]['avg_consistency']:.2f} consistency
+{chr(10).join(cluster_metrics_rows[:3])}
 ```
 
 ### 1.3 Strategic Implications

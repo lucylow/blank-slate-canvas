@@ -29,18 +29,18 @@ The AI analysis reveals four distinct performance clusters with clear strategic 
 
 | Cluster | Drivers | Avg Position | Performance Profile |
 |---------|---------|--------------|---------------------|
-| **Cluster 0** | #3, #9, #12, #13, #14, #15, #16, #17, #18 | 13.1 | Elite Performers |
-| **Cluster 1** | #25, #26, #27, #28 | 25.5 | Competitive Midfield |
-| **Cluster 2** | #2, #4, #5, #6, #7, #8, #10, #11 | 4.5 | Backmarkers |
-| **Cluster 3** | #19, #20, #21, #22, #23, #24 | 22.5 | DNF/Issues |
+| **Cluster 2** | #2, #4, #5, #6, #7, #8, #10, #11 | 4.5 | Elite Performers |
+| **Cluster 0** | #3, #9, #12, #13, #14, #15, #16, #17, #18 | 13.1 | Competitive Midfield |
+| **Cluster 3** | #19, #20, #21, #22, #23, #24 | 22.5 | Backmarkers |
+| **Cluster 1** | #25, #26, #27, #28 | 25.5 | DNF/Issues |
 
 ### 1.2 Cluster Performance Characteristics
 
 ```python
 Cluster Performance Metrics:
-- Elite (Cluster 0):   147.4 kph avg speed | 131.1s best lap | 0.91 consistency
-- Midfield (Cluster 1): 146.0 kph avg speed | 134.0s best lap | 0.64 consistency  
-- Backmarkers (Cluster 2): 147.4 kph avg speed | 128.2s best lap | 0.59 consistency
+- Elite (Cluster 2):   147.4 kph avg speed | 128.2s best lap | 0.59 consistency
+- Midfield (Cluster 0): 147.4 kph avg speed | 131.1s best lap | 0.91 consistency
+- Backmarkers (Cluster 3): 145.8 kph avg speed | 133.9s best lap | 0.66 consistency
 ```
 
 ### 1.3 Strategic Implications
@@ -85,7 +85,7 @@ Final Position ≈ 0.81×(Best Lap Time) + 0.09×(Speed Efficiency)
 
 #### 🚨 Driver #7
 
-- **Position:** 1th | **Best Lap:** 2:07.18 (149.2 kph)
+- **Position:** 1st | **Best Lap:** 2:07.18 (149.2 kph)
 - **Anomaly Type:** Performance Anomaly
 - **Analysis:** Unusual performance pattern detected
 - **Potential Cause:** Vehicle damage or setup issues

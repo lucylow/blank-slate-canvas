@@ -197,8 +197,36 @@ def normalize_and_stats(df):
     if rename_map:
         df = df.rename(columns=rename_map)
     
-    # Coerce numeric columns
+    # Get vehicle count BEFORE coercing to numeric (since vehicle_id might be string)
+    n_vehicles = None
+    # Check for vehicle identifiers in the pivoted dataframe
+    # Try both string IDs (vehicle_id, original_vehicle_id) and numeric IDs (vehicle_number)
+    for veh_col in ['vehicle_id', 'original_vehicle_id', 'chassis', 'vehicle_number']:
+        if veh_col in df.columns:
+            try:
+                # Ensure we're getting a Series, not a DataFrame
+                if isinstance(df[veh_col], pd.Series):
+                    col_data = df[veh_col].dropna()
+                else:
+                    # If it's a DataFrame, take the first column
+                    col_data = df[veh_col].iloc[:, 0].dropna() if hasattr(df[veh_col], 'iloc') else df[veh_col].dropna()
+                
+                if len(col_data) > 0:
+                    # Use nunique() which returns an integer for a Series
+                    unique_count = col_data.nunique()
+                    if unique_count and unique_count > 0:
+                        n_vehicles = int(unique_count) if not isinstance(unique_count, (list, pd.Series)) else len(unique_count)
+                        break
+            except (ValueError, TypeError, AttributeError, KeyError):
+                # Silently continue - vehicle count is optional
+                continue
+    
+    # Coerce numeric columns (but skip vehicle_id columns to preserve them)
+    vehicle_cols = ['vehicle_id', 'original_vehicle_id', 'chassis', 'vehicle_number']
     for c in df.columns:
+        # Skip vehicle ID columns when coercing to numeric
+        if c in vehicle_cols:
+            continue
         try:
             if c in df.dtypes.index and df.dtypes[c] == 'object':
                 df[c] = pd.to_numeric(df[c], errors="ignore")
@@ -206,34 +234,6 @@ def normalize_and_stats(df):
             pass
     
     numeric = df.select_dtypes(include=[np.number]).copy()
-    
-    # Get vehicle count - try multiple column names (before numeric coercion)
-    # We need to check this before converting to numeric, as vehicle_id might be a string
-    n_vehicles = None
-    try:
-        # Check original df before numeric conversion for string vehicle IDs
-        for veh_col in ['vehicle_id', 'vehicle_number', 'original_vehicle_id', 'chassis']:
-            if veh_col in df.columns:
-                # Get unique values - handle both string and numeric IDs
-                unique_vals = df[veh_col].dropna()
-                if len(unique_vals) > 0:
-                    # Convert to unique set
-                    unique_set = unique_vals.unique()
-                    n_vehicles = len(unique_set) if hasattr(unique_set, '__len__') else 1
-                    if n_vehicles is not None and n_vehicles > 0:
-                        break
-    except Exception:
-        n_vehicles = None
-    
-    # Also check numeric columns for vehicle_number (integer)
-    if n_vehicles is None:
-        try:
-            if 'vehicle_number' in numeric.columns:
-                unique_vals = numeric['vehicle_number'].dropna().unique()
-                if len(unique_vals) > 0:
-                    n_vehicles = len(unique_vals) if hasattr(unique_vals, '__len__') else 1
-        except Exception:
-            pass
     
     # Extract stats from pivoted data
     def safe_mean(series):
