@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Strategy {
   id: string;
@@ -8,6 +8,11 @@ interface Strategy {
   riskLevel: 'Low' | 'Medium' | 'High';
   keyMetrics: { label: string; value: string | number }[];
   visualDataUrl?: string; // URL to chart/image explaining strategy
+}
+
+interface ErrorState {
+  hasError: boolean;
+  message: string;
 }
 
 const mockStrategies: Strategy[] = [
@@ -191,31 +196,159 @@ const mockStrategies: Strategy[] = [
 ];
 
 export const RaceStrategiesPage: React.FC = () => {
-  const [selectedStrategyId, setSelectedStrategyId] = useState<string>(mockStrategies[0].id);
+  const [error, setError] = useState<ErrorState>({ hasError: false, message: '' });
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  
+  // Safe initialization with error handling
+  const getInitialStrategyId = (): string => {
+    try {
+      if (!mockStrategies || mockStrategies.length === 0) {
+        throw new Error('No strategies available');
+      }
+      return mockStrategies[0].id;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize strategies';
+      setError({ hasError: true, message: errorMessage });
+      return '';
+    }
+  };
+
+  const [selectedStrategyId, setSelectedStrategyId] = useState<string>(getInitialStrategyId());
+
+  // Validate strategies on mount
+  useEffect(() => {
+    try {
+      if (!mockStrategies || mockStrategies.length === 0) {
+        setError({ hasError: true, message: 'No strategies available to display' });
+        return;
+      }
+
+      // Validate strategy data integrity
+      const invalidStrategies = mockStrategies.filter(
+        (strategy) =>
+          !strategy.id ||
+          !strategy.name ||
+          !strategy.description ||
+          !Array.isArray(strategy.keyMetrics) ||
+          strategy.keyMetrics.length === 0
+      );
+
+      if (invalidStrategies.length > 0) {
+        console.warn('Invalid strategies detected:', invalidStrategies);
+        setError({
+          hasError: true,
+          message: `Found ${invalidStrategies.length} invalid strategy(s). Some data may not display correctly.`,
+        });
+      }
+
+      // Validate selected strategy exists
+      if (selectedStrategyId && !mockStrategies.find((s) => s.id === selectedStrategyId)) {
+        setError({
+          hasError: true,
+          message: `Selected strategy "${selectedStrategyId}" not found. Resetting to first available strategy.`,
+        });
+        setSelectedStrategyId(mockStrategies[0].id);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError({ hasError: true, message: errorMessage });
+    }
+  }, []);
 
   const selectedStrategy = mockStrategies.find((s) => s.id === selectedStrategyId);
+
+  const handleStrategySelect = (id: string) => {
+    try {
+      if (!id) {
+        throw new Error('Strategy ID is required');
+      }
+
+      const strategy = mockStrategies.find((s) => s.id === id);
+      if (!strategy) {
+        throw new Error(`Strategy with ID "${id}" not found`);
+      }
+
+      setSelectedStrategyId(id);
+      setError({ hasError: false, message: '' });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to select strategy';
+      setError({ hasError: true, message: errorMessage });
+      console.error('Error selecting strategy:', err);
+    }
+  };
+
+  const handleImageError = (strategyId: string, imageUrl: string) => {
+    try {
+      setImageErrors((prev) => new Set(prev).add(strategyId));
+      console.warn(`Failed to load image for strategy "${strategyId}": ${imageUrl}`);
+    } catch (err) {
+      console.error('Error handling image error:', err);
+    }
+  };
+
+  // Early return if no strategies available
+  if (!mockStrategies || mockStrategies.length === 0) {
+    return (
+      <div className="max-w-6xl mx-auto p-8 bg-gray-900 text-white rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold mb-6">Strategies to Win the Race</h1>
+        <div className="bg-red-900/50 border border-red-500 rounded-md p-4">
+          <h2 className="text-xl font-semibold mb-2 text-red-300">Error Loading Strategies</h2>
+          <p className="text-red-200">
+            {error.message || 'No strategies are currently available. Please try again later.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-gray-900 text-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-6">Strategies to Win the Race</h1>
 
+      {/* Error Banner */}
+      {error.hasError && (
+        <div className="mb-6 bg-yellow-900/50 border border-yellow-500 rounded-md p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-1 text-yellow-300">Warning</h3>
+              <p className="text-yellow-200 text-sm">{error.message}</p>
+            </div>
+            <button
+              onClick={() => setError({ hasError: false, message: '' })}
+              className="text-yellow-300 hover:text-yellow-100 ml-4"
+              aria-label="Dismiss warning"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Strategy Selector */}
       <div className="mb-8 flex flex-wrap gap-4">
-        {mockStrategies.map(({ id, name, riskLevel }) => (
-          <button
-            key={id}
-            onClick={() => setSelectedStrategyId(id)}
-            className={`px-5 py-3 rounded-md font-semibold ${
-              selectedStrategyId === id
-                ? 'bg-indigo-600 hover:bg-indigo-700'
-                : 'bg-gray-700 hover:bg-gray-600'
-            }`}
-            aria-pressed={selectedStrategyId === id}
-          >
-            {name} ({riskLevel} Risk)
-          </button>
-        ))}
-                          </div>
+        {mockStrategies.map(({ id, name, riskLevel }) => {
+          if (!id || !name) {
+            console.warn('Invalid strategy data:', { id, name, riskLevel });
+            return null;
+          }
+
+          return (
+            <button
+              key={id}
+              onClick={() => handleStrategySelect(id)}
+              className={`px-5 py-3 rounded-md font-semibold transition-colors ${
+                selectedStrategyId === id
+                  ? 'bg-indigo-600 hover:bg-indigo-700'
+                  : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+              aria-pressed={selectedStrategyId === id}
+              disabled={!id}
+            >
+              {name} ({riskLevel || 'Unknown'} Risk)
+            </button>
+          );
+        })}
+      </div>
 
       {/* Selected Strategy Details */}
       {selectedStrategy && (

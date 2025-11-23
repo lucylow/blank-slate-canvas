@@ -34,6 +34,7 @@ import PostEventAnalysis from "./pages/PostEventAnalysis";
 import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
 import RaceStoryGenerator from "./pages/RaceStoryGenerator";
 import PredictiveExplanatory from "./pages/PredictiveExplanatory";
+import CoachingPage from "./pages/CoachingPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -132,6 +133,9 @@ const App = () => (
                     
                     {/* Predictive & Explanatory A.I. - Unified telemetry and coaching with driver analysis */}
                     <Route path="/predictive-ai" element={<PredictiveExplanatory />} />
+                    
+                    {/* Coaching Dashboard - Comprehensive coaching tools and analytics */}
+                    <Route path="/coaching" element={<CoachingPage />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />
