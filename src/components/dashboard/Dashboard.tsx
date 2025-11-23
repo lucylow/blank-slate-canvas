@@ -24,7 +24,7 @@ export function Dashboard() {
     retry: 1,
   });
   
-  const activeAgents = agentStatus?.agents.filter(a => a.status === 'active').length || 0;
+  const activeAgents = agentStatus?.agents?.filter(a => a.status === 'active').length || 0;
 
   // Calculate quick stats
   const totalDrivers = drivers.length;

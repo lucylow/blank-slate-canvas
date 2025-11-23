@@ -44,7 +44,7 @@ export function Header() {
     retry: 1,
   });
   
-  const activeAgents = agentStatus?.agents.filter(a => a.status === 'active').length || 0;
+  const activeAgents = agentStatus?.agents?.filter(a => a.status === 'active').length || 0;
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50 z-50 shadow-lg shadow-primary/5">

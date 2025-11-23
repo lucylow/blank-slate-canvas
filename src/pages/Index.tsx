@@ -41,6 +41,8 @@ import {
 import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useQuery } from "@tanstack/react-query";
+import { isLovableCloud } from "@/utils/backendUrl";
+import { LovableCloudStatus } from "@/components/LovableCloudStatus";
 
 /* ================================================================================
 
