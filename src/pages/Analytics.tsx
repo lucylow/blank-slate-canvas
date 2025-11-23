@@ -1340,13 +1340,14 @@ const Analytics = () => {
                         <p className="text-xs mt-1 text-center">Tire wear data is missing or incomplete</p>
                       </div>
                     </CardContent>
-                  </Card>
-                </motion.div>
+                    </Card>
+                  </motion.div>
+                )
               )
-            )}
+            }
+            </div>
           </div>
         </div>
-      </div>
     </main>
   );
 };
