@@ -37,6 +37,68 @@ import { useQuery } from "@tanstack/react-query";
 import { generateMockAgentStatusResponse } from "@/lib/mockDemoData";
 import { telemetryWS } from "@/lib/api";
 
+// New API imports
+import { 
+  performAIAnalytics, 
+  analyzeRaceData, 
+  getRealTimeAIAnalytics,
+  type AIAnalyticsResponse,
+  type RaceDataAnalytics 
+} from "@/api/aiAnalytics";
+import { 
+  detectAnomaly, 
+  getAnomalyStats, 
+  detectAnomaliesBatch,
+  checkAnomalyHealth,
+  AnomalyWebSocket,
+  type AnomalyDetectionResult,
+  type AnomalyStats 
+} from "@/api/anomaly";
+import { 
+  processTelemetry, 
+  getFingerprint, 
+  getAlerts, 
+  getCoachingPlan,
+  compareDrivers,
+  type DriverFingerprint,
+  type CoachingAlert,
+  type CoachingPlan 
+} from "@/api/driverFingerprint";
+import { 
+  callCoaching, 
+  callPitWindow, 
+  callPredictTireWear,
+  getEdgeFunctionMetrics,
+  testEdgeFunction,
+  type CoachingOutput,
+  type PitWindowOutput,
+  type TireWearOutput 
+} from "@/api/edgeFunctions";
+import { 
+  getCurrentF1Season, 
+  getF1Season, 
+  getF1Race,
+  getF1StrategyComparison,
+  getF1DriverStandings,
+  getF1Circuits,
+  getOpenF1Sessions,
+  getOpenF1LapTimes,
+  type F1Race,
+  type F1RaceResult 
+} from "@/api/f1Benchmarking";
+import { 
+  sendSlackMessage, 
+  sendSlackNotification,
+  sendRaceAlert,
+  sendTelemetryAlert,
+  sendLapTimeNotification,
+  sendPitStopNotification,
+  sendTireWearAlert,
+  getMockMessages,
+  isSlackMockMode,
+  type SlackWebhookResponse 
+} from "@/api/slack";
+
 /* ================================================================================
 
 PITBULL A.I. - MOCK DATA INTEGRATION OUTPUT
@@ -479,7 +541,7 @@ const Index = () => {
   // Scroll spy to detect active section and show scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'data-analytics-apis', 'gr-cars', 'tracks'];
+      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'data-analytics-apis', 'anomaly-detection', 'driver-fingerprinting', 'edge-functions', 'f1-benchmarking', 'slack-integration', 'gr-cars', 'tracks'];
       const scrollPosition = window.scrollY + 100; // Offset for header
 
       // Show/hide scroll-to-top button
@@ -2518,6 +2580,541 @@ const Index = () => {
               </CardContent>
             </Card>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Anomaly Detection Section */}
+      <section id="anomaly-detection" className="py-24 px-6 bg-gradient-to-b from-background via-red-500/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl mb-6 shadow-xl shadow-red-500/20">
+              <AlertCircle className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Real-Time Anomaly Detection
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              AI-powered anomaly detection for telemetry data with real-time alerts and ML-based pattern recognition
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <Card className="border-border/50 hover:border-red-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <AlertCircle className="w-6 h-6 text-red-500" />
+                  <h3 className="text-xl font-bold">Critical Alerts</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Detect critical sensor anomalies in real-time with configurable thresholds and rate-of-change monitoring.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Threshold-based detection</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Rate-of-change monitoring</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>ML-based pattern detection</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-red-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Activity className="w-6 h-6 text-red-500" />
+                  <h3 className="text-xl font-bold">Batch Analysis</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Analyze entire race sessions with batch processing and automatic model retraining.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Full race analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Anomaly statistics</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Top anomalous sensors</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-red-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Wifi className="w-6 h-6 text-red-500" />
+                  <h3 className="text-xl font-bold">WebSocket Stream</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Real-time anomaly alerts via WebSocket for live race monitoring and instant notifications.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Live anomaly stream</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Per-vehicle monitoring</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Automatic reconnection</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              onClick={async () => {
+                try {
+                  const health = await checkAnomalyHealth();
+                  alert(`Anomaly Detection Service: ${health.status}\nPyOD Available: ${health.pyod_available}`);
+                } catch (error) {
+                  console.error('Anomaly health check failed:', error);
+                }
+              }}
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+            >
+              Check Service Health
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Driver Fingerprinting Section */}
+      <section id="driver-fingerprinting" className="py-24 px-6 bg-gradient-to-b from-background via-purple-500/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-6 shadow-xl shadow-purple-500/20">
+              <Users className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Driver Fingerprinting & Coaching
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              AI-powered driver analysis with personalized coaching plans and performance insights
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Target className="w-6 h-6 text-purple-500" />
+                  <h3 className="text-lg font-bold">Fingerprinting</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Generate unique driver fingerprints from telemetry data including braking consistency, throttle smoothness, and cornering style.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <AlertCircle className="w-6 h-6 text-purple-500" />
+                  <h3 className="text-lg font-bold">Coaching Alerts</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Real-time coaching alerts with priority levels (critical, high, medium, low) and improvement area identification.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Award className="w-6 h-6 text-purple-500" />
+                  <h3 className="text-lg font-bold">Coaching Plans</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Personalized weekly coaching plans with specific drills, priority areas, and progress metrics.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <TrendingUp className="w-6 h-6 text-purple-500" />
+                  <h3 className="text-lg font-bold">Driver Comparison</h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Compare drivers with teammates or baseline drivers to identify performance differences and improvement opportunities.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Features: Braking consistency, throttle smoothness, cornering style, lap consistency, tire stress index, overall score
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Edge Functions Section */}
+      <section id="edge-functions" className="py-24 px-6 bg-gradient-to-b from-background via-blue-500/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-6 shadow-xl shadow-blue-500/20">
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Edge Functions
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Low-latency edge functions for real-time coaching, pit window optimization, and tire wear prediction
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <Card className="border-border/50 hover:border-blue-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Brain className="w-6 h-6 text-blue-500" />
+                  <h3 className="text-xl font-bold">Coaching Function</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Real-time coaching advice based on telemetry windows with priority levels and confidence scores.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Telemetry window analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Priority-based alerts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Evidence-based recommendations</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-blue-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Clock className="w-6 h-6 text-blue-500" />
+                  <h3 className="text-xl font-bold">Pit Window Function</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Optimize pit stop timing with scenario analysis and expected time gains.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Optimal window calculation</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Multiple scenario analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Expected gain prediction</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-blue-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Flame className="w-6 h-6 text-blue-500" />
+                  <h3 className="text-xl font-bold">Tire Wear Prediction</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Predict tire degradation with temperature mapping and confidence scores.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Loss per lap prediction</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Laps until threshold</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Temperature mapping</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button 
+              onClick={async () => {
+                try {
+                  const metrics = await getEdgeFunctionMetrics();
+                  console.log('Edge Function Metrics:', metrics);
+                  alert(`Edge Functions Status:\n${Object.keys(metrics).length} functions available`);
+                } catch (error) {
+                  console.error('Failed to get edge function metrics:', error);
+                }
+              }}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+            >
+              View Function Metrics
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* F1 Benchmarking Section */}
+      <section id="f1-benchmarking" className="py-24 px-6 bg-gradient-to-b from-background via-orange-500/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-6 shadow-xl shadow-orange-500/20">
+              <Flag className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              F1 Benchmarking Integration
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Compare GR Cup performance with F1 data using free APIs: Ergast, OpenF1, and F1API.dev
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <Card className="border-border/50 hover:border-orange-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <BarChart3 className="w-6 h-6 text-orange-500" />
+                  <h3 className="text-xl font-bold">Race Data</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Access comprehensive F1 race data including qualifying, lap times, and pit stops.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Season calendars</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Race results & standings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Circuit information</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-orange-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Activity className="w-6 h-6 text-orange-500" />
+                  <h3 className="text-xl font-bold">Telemetry Data</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Real-time F1 telemetry from OpenF1 API for strategy comparison and analysis.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Session data</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Lap time telemetry</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Car telemetry & stints</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-orange-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Target className="w-6 h-6 text-orange-500" />
+                  <h3 className="text-xl font-bold">Strategy Comparison</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Compare pit stop strategies, tire degradation, and lap time patterns with F1 data.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Pit stop analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Tire strategy comparison</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Lap time patterns</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Free APIs: No API keys required • Ergast F1 API • OpenF1 • F1API.dev
+            </p>
+            <Button 
+              onClick={async () => {
+                try {
+                  const season = await getCurrentF1Season();
+                  alert(`Current F1 Season: ${season.count} races available`);
+                } catch (error) {
+                  console.error('Failed to fetch F1 season:', error);
+                }
+              }}
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+            >
+              View Current Season
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Slack Integration Section */}
+      <section id="slack-integration" className="py-24 px-6 bg-gradient-to-b from-background via-green-500/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl mb-6 shadow-xl shadow-green-500/20">
+              <Bot className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Slack Notifications
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Real-time race alerts and notifications via Slack webhooks with rich formatting and mock mode support
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <Card className="border-border/50 hover:border-green-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Flag className="w-6 h-6 text-green-500" />
+                  <h3 className="text-xl font-bold">Race Alerts</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Send formatted race alerts with event details, vehicle information, and custom fields.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Rich block formatting</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Custom attachments</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-green-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Activity className="w-6 h-6 text-green-500" />
+                  <h3 className="text-xl font-bold">Telemetry Alerts</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Real-time telemetry alerts with severity levels (info, warning, critical) and metric values.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Severity-based colors</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Lap time notifications</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 hover:border-green-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <AlertCircle className="w-6 h-6 text-green-500" />
+                  <h3 className="text-xl font-bold">Pit & Tire Alerts</h3>
+                </div>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Pit stop and tire wear alerts with detailed information and recommended actions.
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Pit stop notifications</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Tire wear alerts</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              {isSlackMockMode() ? 'Mock Mode: Messages stored in localStorage' : 'Production Mode: Messages sent to Slack'}
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button 
+                onClick={async () => {
+                  try {
+                    const result = await sendRaceAlert('GR Cup Race', 'Lap 10 Completed', {
+                      'Leader': 'Car #7',
+                      'Gap': '+2.5s'
+                    });
+                    alert(`Slack message ${result.success ? 'sent' : 'failed'}: ${result.message || result.error}`);
+                  } catch (error) {
+                    console.error('Failed to send Slack message:', error);
+                  }
+                }}
+                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+              >
+                Test Race Alert
+              </Button>
+              <Button 
+                onClick={() => {
+                  const messages = getMockMessages(10);
+                  console.log('Mock messages:', messages);
+                  alert(`${messages.length} mock messages stored`);
+                }}
+                variant="outline"
+              >
+                View Mock Messages
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 

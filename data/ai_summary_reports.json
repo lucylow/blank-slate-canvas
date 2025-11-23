@@ -146,36 +146,250 @@
       "n_vehicles": 29,
       "avg_speed_kmh": 131.32,
       "std_speed_kmh": 4.5,
-      "avg_tire_temp": 90.6
+      "avg_tire_temp": 90.6,
+      "total_laps_analyzed": 48,
+      "fastest_lap_time": "1:38.452",
+      "avg_lap_time": "1:40.123",
+      "track_length_miles": 2.52,
+      "elevation_change_ft": 174
+    },
+    "track_characteristics": {
+      "layout_type": "Technical road course with elevation changes",
+      "primary_challenges": ["Elevation changes", "Off-camber corners", "Tight hairpins", "Blind apexes"],
+      "overtaking_zones": ["Turn 2 (uphill braking)", "Turn 7 (carousel entry)", "Turn 11 (hairpin)"],
+      "critical_sections": ["Sector 1 (T1-T4): High-speed entry and elevation", "Sector 2 (T5-T9): Technical off-camber sequence", "Sector 3 (T10-T12): Tight hairpin and final complex"]
     },
     "top_insights": [
-      { "id": "ins-1", "title": "Hairpin braking variance", "detail": "Cluster spread of ±0.5s under heavy braking at T11." },
-      { "id": "ins-2", "title": "Grip loss on off-camber sections", "detail": "Rear traction drops 3% in S2." }
+      {
+        "id": "ins-1",
+        "title": "Hairpin braking variance at Turn 11",
+        "detail": "Significant performance spread of ±0.5s under heavy braking at T11 hairpin. Cluster 2 drivers (top performers) brake 8-12 meters later than Cluster 0, maintaining 15-20 km/h higher entry speed. Analysis shows optimal brake pressure curve: 85% initial, trailing to 45% at turn-in point. Drivers who maintain trail-braking through 40% of corner radius gain 0.2-0.3s per lap.",
+        "impact": "high",
+        "affected_vehicles": 18
+      },
+      {
+        "id": "ins-2",
+        "title": "Grip loss on off-camber sections in Sector 2",
+        "detail": "Rear traction drops 3-5% consistently in S2, particularly through Turns 6-8. Off-camber nature of Turn 7 (carousel) causes 0.15-0.25° additional slip angle compared to on-camber corners. Tire surface temperature differential between inside and outside edges reaches 8-12°C in these sections. Cluster 1 drivers compensate by using 5-8% less steering input and relying more on throttle modulation.",
+        "impact": "high",
+        "affected_vehicles": 24
+      },
+      {
+        "id": "ins-3",
+        "title": "Elevation change impact on Turn 2 braking zone",
+        "detail": "Uphill braking into Turn 2 creates unique load transfer dynamics. Top performers (Cluster 2) show 12-15% higher brake pressure application compared to flat sections, with peak deceleration reaching 1.8g. Vehicles that maintain brake bias at 58-62% front show superior stability. Entry speed variance of ±8 km/h directly correlates with 0.3-0.5s lap time difference.",
+        "impact": "medium",
+        "affected_vehicles": 29
+      },
+      {
+        "id": "ins-4",
+        "title": "Sector 1 exit speed critical for lap time",
+        "detail": "Speed carried through Turn 4 onto the back straight determines 40% of overall lap time variance. Cluster 2 drivers exit T4 at 142-148 km/h vs 135-140 km/h for Cluster 0, translating to 0.4-0.6s advantage by Turn 7. Key factor is early throttle application (60% throttle at 30% corner exit) combined with minimal steering correction.",
+        "impact": "high",
+        "affected_vehicles": 22
+      },
+      {
+        "id": "ins-5",
+        "title": "Tire degradation pattern shows two-stage drop",
+        "detail": "Tire performance follows distinct two-stage degradation: gradual 2-3% loss per lap from laps 1-12, then accelerated 5-7% loss from laps 13-18. Surface temperature rises from 88°C (lap 1) to 102°C (lap 15), with inside edge showing 6-8°C higher than outside. Optimal pit window identified at lap 15-16 before performance cliff at lap 18-19.",
+        "impact": "high",
+        "affected_vehicles": 27
+      },
+      {
+        "id": "ins-6",
+        "title": "Turn 7 carousel entry technique variance",
+        "detail": "The off-camber Turn 7 carousel shows largest driver technique spread. Top performers use late apex strategy (apex at 65% of corner), maintaining 5-8 km/h higher mid-corner speed. Cluster 0 drivers apex too early (40-45%), causing understeer and requiring 0.2-0.3s correction. Optimal line uses 70% of track width on entry, 85% at exit.",
+        "impact": "medium",
+        "affected_vehicles": 19
+      },
+      {
+        "id": "ins-7",
+        "title": "Sector 3 consistency determines race position",
+        "detail": "Final sector (T10-T12) shows highest correlation with race finishing position (R²=0.73). Drivers with Sector 3 consistency within ±0.15s maintain positions, while variance >0.25s leads to position loss. Turn 11 hairpin exit speed directly impacts Turn 12 entry, with optimal sequence showing 0.8-1.2s total sector time for top performers.",
+        "impact": "high",
+        "affected_vehicles": 26
+      },
+      {
+        "id": "ins-8",
+        "title": "Weather sensitivity in morning sessions",
+        "detail": "Track temperature below 25°C causes 2-4% grip reduction, particularly affecting Turn 2 and Turn 11 braking zones. Cold track conditions show 0.3-0.5s slower lap times until lap 8-10 when rubber builds. Humidity above 65% correlates with 1-2% additional tire temperature, requiring earlier pit window consideration.",
+        "impact": "medium",
+        "affected_vehicles": 15
+      }
     ],
+    "sector_analysis": {
+      "sector_1": {
+        "turns": "T1-T4",
+        "avg_time": "28.45s",
+        "fastest_time": "27.89s",
+        "key_characteristics": "High-speed entry from start/finish, critical elevation change at T2, technical T3-T4 complex",
+        "performance_factors": {
+          "braking_zone_t2": "Uphill braking requires 12-15% higher pressure, optimal entry speed 165-170 km/h",
+          "elevation_impact": "174ft elevation change affects aero balance, requires 3-5% more downforce",
+          "exit_speed_t4": "Critical for back straight, optimal exit 142-148 km/h"
+        },
+        "time_gain_potential": "0.4-0.6s"
+      },
+      "sector_2": {
+        "turns": "T5-T9",
+        "avg_time": "43.12s",
+        "fastest_time": "42.34s",
+        "key_characteristics": "Technical off-camber sequence, Turn 7 carousel is most challenging, elevation undulation",
+        "performance_factors": {
+          "off_camber_t7": "3-5% grip loss, requires 5-8% less steering input, optimal apex at 65% of corner",
+          "tire_temp_differential": "8-12°C inside/outside edge temp difference causes handling variance",
+          "throttle_modulation": "Cluster 1 drivers use progressive throttle (40%→60%→85%) vs binary on/off"
+        },
+        "time_gain_potential": "0.5-0.7s"
+      },
+      "sector_3": {
+        "turns": "T10-T12",
+        "avg_time": "28.56s",
+        "fastest_time": "28.12s",
+        "key_characteristics": "Tight hairpin at T11, final complex at T12, critical for race position",
+        "performance_factors": {
+          "hairpin_braking": "8-12m later braking for top performers, 85%→45% brake pressure curve optimal",
+          "trail_braking": "Maintaining 40% brake through 40% of corner radius gains 0.2-0.3s",
+          "exit_sequence": "T11 exit speed directly impacts T12 entry, optimal sequence 0.8-1.2s total"
+        },
+        "time_gain_potential": "0.3-0.5s"
+      }
+    },
+    "tire_wear_analysis": {
+      "degradation_pattern": "Two-stage: gradual 2-3% per lap (laps 1-12), accelerated 5-7% per lap (laps 13-18)",
+      "temperature_progression": {
+        "lap_1": "88°C surface, 85°C inside edge, 82°C outside edge",
+        "lap_8": "94°C surface, 91°C inside edge, 88°C outside edge",
+        "lap_15": "102°C surface, 108°C inside edge, 96°C outside edge",
+        "lap_18": "108°C surface, 115°C inside edge, 100°C outside edge"
+      },
+      "wear_indicators": {
+        "performance_cliff": "Lap 18-19 shows 5-7% performance drop",
+        "optimal_window": "Laps 15-16 before significant degradation",
+        "pressure_evolution": "Starts at 22.5 PSI, rises to 24.8 PSI by lap 15"
+      },
+      "track_specific_factors": {
+        "elevation_impact": "Uphill sections increase load, causing 2-3% additional wear",
+        "off_camber_corners": "T7 carousel shows 15-20% higher inside edge wear",
+        "braking_zones": "T2 and T11 heavy braking zones show 8-12% front tire wear concentration"
+      }
+    },
+    "driver_performance_patterns": {
+      "cluster_0_characteristics": {
+        "description": "Conservative driving style, early braking, lower entry speeds",
+        "avg_lap_time": "1:41.234",
+        "strengths": ["Consistency", "Tire preservation", "Low error rate"],
+        "weaknesses": ["Entry speed", "Braking points", "Throttle application"],
+        "improvement_potential": "0.8-1.2s per lap"
+      },
+      "cluster_1_characteristics": {
+        "description": "Balanced approach, good technique, moderate aggression",
+        "avg_lap_time": "1:39.856",
+        "strengths": ["Sector 2 performance", "Throttle modulation", "Tire management"],
+        "weaknesses": ["Sector 1 exit speed", "Turn 11 braking", "Consistency"],
+        "improvement_potential": "0.4-0.6s per lap"
+      },
+      "cluster_2_characteristics": {
+        "description": "Aggressive, late braking, high entry speeds, optimal technique",
+        "avg_lap_time": "1:38.452",
+        "strengths": ["All sectors", "Braking technique", "Throttle application", "Line selection"],
+        "weaknesses": ["Tire wear management (slight)", "Risk management"],
+        "improvement_potential": "0.1-0.3s per lap"
+      }
+    },
     "clusters": [
       {
         "cluster_id": "0",
         "size": 838,
-        "centroid": { "speed_kmh": 128.69, "tire_temp": 86.07 }
+        "centroid": { "speed_kmh": 128.69, "tire_temp": 86.07 },
+        "description": "Conservative drivers, 60% of field",
+        "avg_consistency": "±0.28s",
+        "tire_management": "Excellent"
       },
       {
         "cluster_id": "1",
         "size": 419,
-        "centroid": { "speed_kmh": 133.23, "tire_temp": 93.13 }
+        "centroid": { "speed_kmh": 133.23, "tire_temp": 93.13 },
+        "description": "Balanced performers, 30% of field",
+        "avg_consistency": "±0.19s",
+        "tire_management": "Good"
       },
       {
         "cluster_id": "2",
         "size": 139,
-        "centroid": { "speed_kmh": 141.82, "tire_temp": 101.47 }
+        "centroid": { "speed_kmh": 141.82, "tire_temp": 101.47 },
+        "description": "Top performers, 10% of field",
+        "avg_consistency": "±0.12s",
+        "tire_management": "Moderate"
       }
     ],
     "recommendations": [
-      { "type": "pit_window", "recommended_lap": 15, "confidence": 0.78 },
-      { "type": "driver_coach", "message": "Trail-brake slightly longer into T7", "confidence": 0.74 }
+      {
+        "type": "pit_window",
+        "recommended_lap": 15,
+        "confidence": 0.78,
+        "rationale": "Two-stage degradation pattern shows optimal window at lap 15-16, before performance cliff at lap 18-19. Tire temperature reaches 102°C at lap 15, with inside edge at 108°C. Waiting beyond lap 16 risks 5-7% performance loss and potential position loss.",
+        "alternative_windows": [
+          { "lap": 14, "confidence": 0.65, "note": "Early but safe, preserves tire life" },
+          { "lap": 16, "confidence": 0.72, "note": "Maximum tire usage, slight risk" }
+        ]
+      },
+      {
+        "type": "driver_coach",
+        "message": "Trail-brake slightly longer into T7 carousel, maintaining 40% brake pressure through 40% of corner radius. This will improve entry speed by 3-5 km/h and reduce understeer in off-camber section.",
+        "confidence": 0.74,
+        "expected_gain": "0.2-0.3s per lap",
+        "sector": "Sector 2"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Brake 8-12 meters later into Turn 11 hairpin, using progressive brake pressure curve: 85% initial, trailing to 45% at turn-in. Maintain trail-braking through 40% of corner radius.",
+        "confidence": 0.81,
+        "expected_gain": "0.3-0.4s per lap",
+        "sector": "Sector 3"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Focus on Turn 4 exit speed - apply 60% throttle at 30% corner exit, minimize steering correction. Target exit speed 142-148 km/h for optimal back straight performance.",
+        "confidence": 0.76,
+        "expected_gain": "0.2-0.3s per lap",
+        "sector": "Sector 1"
+      },
+      {
+        "type": "setup",
+        "message": "Consider 58-62% front brake bias for Turn 2 uphill braking zone. Slight increase in front downforce (3-5%) may help with elevation changes and off-camber sections.",
+        "confidence": 0.68,
+        "expected_gain": "0.1-0.2s per lap"
+      },
+      {
+        "type": "tire_management",
+        "message": "Monitor inside edge tire temperature in Sector 2 - differential above 10°C indicates excessive wear. Reduce steering input by 5-8% in off-camber corners to preserve tire life.",
+        "confidence": 0.71,
+        "expected_gain": "Extended tire life by 2-3 laps"
+      }
     ],
+    "weather_impact": {
+      "temperature_effects": {
+        "below_25c": "2-4% grip reduction, 0.3-0.5s slower until lap 8-10",
+        "25_35c": "Optimal conditions, baseline performance",
+        "above_35c": "1-2% grip loss, 2-3°C higher tire temps, earlier pit window"
+      },
+      "humidity_effects": {
+        "below_50": "Baseline tire temperature",
+        "50_65": "1-2% additional tire temperature",
+        "above_65": "2-3% additional tire temperature, consider earlier pit window"
+      },
+      "wind_effects": {
+        "headwind_back_straight": "3-5 km/h speed reduction, affects Turn 7 entry",
+        "crosswind_sector_2": "Requires 2-3% steering correction in off-camber sections"
+      }
+    },
     "artifacts": {
       "cluster_plot": "/mnt/data/ai_summary_reports/sonoma_clusters.png",
-      "umap_html": "/mnt/data/ai_summary_reports/sonoma_umap.html"
+      "umap_html": "/mnt/data/ai_summary_reports/sonoma_umap.html",
+      "sector_analysis_plot": "/mnt/data/ai_summary_reports/sonoma_sectors.png",
+      "tire_wear_plot": "/mnt/data/ai_summary_reports/sonoma_tire_wear.png",
+      "elevation_profile": "/mnt/data/ai_summary_reports/sonoma_elevation.png"
     },
     "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
   },
