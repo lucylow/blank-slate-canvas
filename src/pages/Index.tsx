@@ -900,7 +900,7 @@ const Index = () => {
                       <Link 
                         to="/f1-benchmarking"
                         onClick={() => {
-                          setIsMobileMenuOpen(false);
+                          setMobileMenuOpen(false);
                           trackLinkClick('F1 Benchmarking', '/f1-benchmarking', { location: 'mobile-menu' });
                         }}
                         className="block py-2 px-4 hover:bg-accent rounded-lg transition-colors"

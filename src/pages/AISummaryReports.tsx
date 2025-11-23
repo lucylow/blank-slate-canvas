@@ -67,68 +67,461 @@ const MOCK_REPORT_CONTENT: Record<string, string> = {
             background: #0a0a0a; 
             color: #fff;
             line-height: 1.6;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
           }
           h1 { color: #EB0A1E; border-bottom: 2px solid #EB0A1E; padding-bottom: 10px; }
-          h2 { color: #EB0A1E; margin-top: 30px; }
+          h2 { color: #EB0A1E; margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+          h3 { color: #EB0A1E; margin-top: 20px; font-size: 1.1em; }
           .stat { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .insight { background: #1a1a1a; padding: 15px; border-left: 4px solid #EB0A1E; margin: 15px 0; }
           .cluster { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .recommendation { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .meta { color: #888; font-size: 0.9em; }
+          .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0; }
+          .metric-item { background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #333; }
+          .metric-label { color: #888; font-size: 0.85em; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .metric-value { color: #fff; font-size: 1.3em; font-weight: bold; font-family: 'Courier New', monospace; }
+          .metric-sub { color: #aaa; font-size: 0.8em; margin-top: 4px; }
+          .section { margin: 30px 0; }
+          .highlight { background: #2a1a1a; border-left: 4px solid #EB0A1E; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          .warning { background: #2a1a1a; border-left: 4px solid #ffa500; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          .success { background: #1a2a1a; border-left: 4px solid #00ff00; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          table { width: 100%; border-collapse: collapse; margin: 15px 0; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+          th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+          th { background: #252525; color: #EB0A1E; font-weight: bold; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+          tr:hover { background: #252525; }
+          .confidence { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.85em; font-weight: bold; margin-left: 8px; }
+          .confidence-high { background: #00ff00; color: #000; }
+          .confidence-medium { background: #ffa500; color: #000; }
+          .confidence-low { background: #ff4444; color: #fff; }
+          .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-left: 6px; }
+          .badge-success { background: #00ff00; color: #000; }
+          .badge-warning { background: #ffa500; color: #000; }
+          .badge-danger { background: #ff4444; color: #fff; }
+          .badge-info { background: #4488ff; color: #fff; }
         </style>
       </head>
       <body>
-        <h1>Sebring International Raceway - AI Summary Report</h1>
-        <p class="meta">Generated: 2025-02-14 | Source: EDA Cluster Agent v0.9 / Predictor Agent v1.2</p>
+        <h1>Sebring International Raceway - Comprehensive AI Intelligence Report</h1>
+        <p class="meta">Generated: 2025-02-14 14:32:18 UTC | Source: EDA Cluster Agent v0.9 / Predictor Agent v1.2 / Strategy Agent v1.5 / Coach Agent v1.3</p>
         
-        <h2>Summary Statistics</h2>
-        <div class="stat">
-          <strong>Total Samples:</strong> 1,488<br>
-          <strong>Vehicles Analyzed:</strong> 30<br>
-          <strong>Average Speed:</strong> 133.44 km/h<br>
-          <strong>Speed Std Dev:</strong> 5.5 km/h<br>
-          <strong>Average Tire Temperature:</strong> 92.4°C
+        <div class="section">
+          <h2>Executive Summary</h2>
+          <div class="highlight">
+            <strong>Key Finding:</strong> Analysis of 1,488 telemetry samples across 30 vehicles reveals significant performance optimization opportunities, particularly in Sector 3 where consistent 0.8-1.2s losses occur during warm-up phases. Tire degradation modeling indicates optimal pit window at Lap 17-18 with 87% confidence. Driver clustering identifies three distinct performance profiles with Cluster 1 showing optimal balance between speed and tire management.
+          </div>
         </div>
-        
-        <h2>Top Insights</h2>
-        <div class="insight">
-          <strong>Consistent Sector 3 Slowdown</strong><br>
-          Multiple cars lose 0.8–1.2s in S3 during warm-up laps. This suggests a need for improved tire warm-up strategy or setup adjustments for the final sector.
+
+        <div class="section">
+          <h2>Comprehensive Performance Statistics</h2>
+          <div class="metric-grid">
+            <div class="metric-item">
+              <div class="metric-label">Total Telemetry Samples</div>
+              <div class="metric-value">1,488,563</div>
+              <div class="metric-sub">Across 30 vehicles, 45.6 min race</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Vehicles Analyzed</div>
+              <div class="metric-value">30</div>
+              <div class="metric-sub">100% field coverage</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Average Speed</div>
+              <div class="metric-value">133.44 km/h</div>
+              <div class="metric-sub">Std Dev: 5.5 km/h</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Best Lap Time</div>
+              <div class="metric-value">2:03.847</div>
+              <div class="metric-sub">Car #13, Lap 8</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Average Lap Time</div>
+              <div class="metric-value">2:05.234</div>
+              <div class="metric-sub">±0.312s consistency</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Average Tire Temperature</div>
+              <div class="metric-value">92.4°C</div>
+              <div class="metric-sub">Peak: 103.4°C (Cluster 2)</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Tire Degradation Rate</div>
+              <div class="metric-value">0.047s/lap</div>
+              <div class="metric-sub">Predicted cliff: Lap 18.2</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Brake Temperature Avg</div>
+              <div class="metric-value">487°C</div>
+              <div class="metric-sub">Peak: 623°C (Turn 17)</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Fuel Consumption</div>
+              <div class="metric-value">3.2 L/lap</div>
+              <div class="metric-sub">Estimated range: 24.5 laps</div>
+            </div>
+          </div>
         </div>
-        <div class="insight">
-          <strong>Tire Degradation Window</strong><br>
-          Tire surface temp rises by ~6–9°C over 8 laps; expected cliff at lap ~18. Recommend pit window analysis around lap 17-18.
+
+        <div class="section">
+          <h2>Sector Performance Analysis</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Sector</th>
+                <th>Best Time</th>
+                <th>Average Time</th>
+                <th>Std Dev</th>
+                <th>Improvement Potential</th>
+                <th>Consistency Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sector 1</strong></td>
+                <td>26.850s</td>
+                <td>26.961s</td>
+                <td>0.089s</td>
+                <td>0.111s <span class="badge badge-info">High</span></td>
+                <td>99.2%</td>
+              </tr>
+              <tr>
+                <td><strong>Sector 2</strong></td>
+                <td>42.980s</td>
+                <td>43.160s</td>
+                <td>0.124s</td>
+                <td>0.180s <span class="badge badge-warning">Medium</span></td>
+                <td>98.8%</td>
+              </tr>
+              <tr>
+                <td><strong>Sector 3</strong></td>
+                <td>29.050s</td>
+                <td>29.163s</td>
+                <td>0.156s</td>
+                <td>0.113s <span class="badge badge-danger">Critical</span></td>
+                <td>99.5%</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="warning">
+            <strong>⚠️ Sector 3 Performance Gap:</strong> Analysis reveals consistent 0.8-1.2s losses in Sector 3 during warm-up laps (Laps 1-3). This represents the largest single-lap time loss opportunity. Root cause analysis suggests tire warm-up strategy and potential setup adjustments for the final sector's technical sections.
+          </div>
         </div>
-        
-        <h2>Driver Clusters</h2>
-        <div class="cluster">
-          <strong>Cluster 0 (892 samples)</strong><br>
-          Average Speed: 130.77 km/h | Tire Temp: 87.78°C<br>
-          <em>Conservative driving style, lower tire temperatures</em>
+
+        <div class="section">
+          <h2>Detailed Driver Cluster Intelligence</h2>
+          <div class="cluster">
+            <h3>Cluster 0: Conservative Performance Profile (892 samples, 60.0%)</h3>
+            <div class="metric-grid">
+              <div class="metric-item">
+                <div class="metric-label">Average Speed</div>
+                <div class="metric-value">130.77 km/h</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Tire Temperature</div>
+                <div class="metric-value">87.78°C</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Lap Time Avg</div>
+                <div class="metric-value">2:06.123</div>
+              </div>
+            </div>
+            <p><strong>Characteristics:</strong> Conservative driving style with lower tire temperatures. Excellent tire preservation but sacrificing 2.3s per lap on average. Best suited for endurance racing or when tire conservation is critical.</p>
+            <p><strong>Key Metrics:</strong> Brake pressure avg: 45.2 bar | Throttle application: 78% avg | Steering angle variance: ±2.1°</p>
+          </div>
+          <div class="cluster">
+            <h3>Cluster 1: Optimal Performance Profile (446 samples, 30.0%)</h3>
+            <div class="metric-grid">
+              <div class="metric-item">
+                <div class="metric-label">Average Speed</div>
+                <div class="metric-value">136.11 km/h</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Tire Temperature</div>
+                <div class="metric-value">96.02°C</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Lap Time Avg</div>
+                <div class="metric-value">2:04.456</div>
+              </div>
+            </div>
+            <p><strong>Characteristics:</strong> Aggressive driving style with optimal tire management. Best balance between speed and tire preservation. This cluster represents the target performance profile.</p>
+            <p><strong>Key Metrics:</strong> Brake pressure avg: 52.8 bar | Throttle application: 89% avg | Steering angle variance: ±1.8° | Tire wear rate: 0.041s/lap</p>
+            <div class="success">
+              <strong>✓ Recommended Profile:</strong> Drivers should aim to match Cluster 1 characteristics for optimal race performance.
+            </div>
+          </div>
+          <div class="cluster">
+            <h3>Cluster 2: Maximum Performance Profile (148 samples, 10.0%)</h3>
+            <div class="metric-grid">
+              <div class="metric-item">
+                <div class="metric-label">Average Speed</div>
+                <div class="metric-value">143.12 km/h</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Tire Temperature</div>
+                <div class="metric-value">103.40°C</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Lap Time Avg</div>
+                <div class="metric-value">2:03.234</div>
+              </div>
+            </div>
+            <p><strong>Characteristics:</strong> Maximum performance driving with high tire stress. Fastest lap times but unsustainable tire degradation rate of 0.062s/lap. Suitable only for qualifying or short sprint scenarios.</p>
+            <p><strong>Key Metrics:</strong> Brake pressure avg: 61.3 bar | Throttle application: 96% avg | Steering angle variance: ±2.4° | Tire wear rate: 0.062s/lap <span class="badge badge-danger">High</span></p>
+            <div class="warning">
+              <strong>⚠️ Sustainability Warning:</strong> Cluster 2 performance is unsustainable beyond 8-10 laps. Tire degradation accelerates significantly after Lap 10.
+            </div>
+          </div>
         </div>
-        <div class="cluster">
-          <strong>Cluster 1 (446 samples)</strong><br>
-          Average Speed: 136.11 km/h | Tire Temp: 96.02°C<br>
-          <em>Aggressive driving style, optimal tire management</em>
+
+        <div class="section">
+          <h2>Tire Degradation Intelligence</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Tire Position</th>
+                <th>Current Wear %</th>
+                <th>Degradation Rate</th>
+                <th>Predicted Cliff Lap</th>
+                <th>Temperature Avg</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Front Left</strong></td>
+                <td>68%</td>
+                <td>0.043s/lap</td>
+                <td>Lap 19.2</td>
+                <td>91.2°C</td>
+                <td><span class="badge badge-success">Optimal</span></td>
+              </tr>
+              <tr>
+                <td><strong>Front Right</strong></td>
+                <td>72%</td>
+                <td>0.047s/lap</td>
+                <td>Lap 18.5</td>
+                <td>93.8°C</td>
+                <td><span class="badge badge-warning">Monitor</span></td>
+              </tr>
+              <tr>
+                <td><strong>Rear Left</strong></td>
+                <td>76%</td>
+                <td>0.052s/lap</td>
+                <td>Lap 17.8</td>
+                <td>95.4°C</td>
+                <td><span class="badge badge-warning">Critical</span></td>
+              </tr>
+              <tr>
+                <td><strong>Rear Right</strong></td>
+                <td>71%</td>
+                <td>0.045s/lap</td>
+                <td>Lap 19.0</td>
+                <td>92.1°C</td>
+                <td><span class="badge badge-success">Optimal</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="highlight">
+            <strong>AI Prediction Model:</strong> Based on physics-informed ML analysis, tire performance will degrade significantly after Lap 18.2. The rear left tire shows the highest degradation rate (0.052s/lap) and is predicted to reach critical wear threshold at Lap 17.8. <strong>Recommended pit window: Lap 17-18</strong> with 87% confidence.
+          </div>
+          <div class="metric-grid">
+            <div class="metric-item">
+              <div class="metric-label">Laps Until 0.5s Loss</div>
+              <div class="metric-value">10.6 laps</div>
+              <div class="metric-sub">From current position</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Optimal Pit Lap</div>
+              <div class="metric-value">Lap 17</div>
+              <div class="metric-sub">Confidence: 87%</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Tire Life Remaining</div>
+              <div class="metric-value">28%</div>
+              <div class="metric-sub">At optimal performance</div>
+            </div>
+          </div>
         </div>
-        <div class="cluster">
-          <strong>Cluster 2 (148 samples)</strong><br>
-          Average Speed: 143.12 km/h | Tire Temp: 103.40°C<br>
-          <em>Maximum performance, high tire stress</em>
+
+        <div class="section">
+          <h2>Strategic Intelligence & Recommendations</h2>
+          
+          <div class="recommendation">
+            <h3>1. Pit Window Optimization <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommended Pit Lap:</strong> Lap 17 (Confidence: 87%)</p>
+            <p><strong>Reasoning:</strong> Tire degradation modeling indicates performance cliff at Lap 18.2. Pitting on Lap 17 provides optimal balance between tire life and track position. Analysis of competitor pit windows suggests minimal traffic impact at this lap.</p>
+            <p><strong>Expected Impact:</strong> Maintain competitive pace, avoid tire degradation penalty of 0.8-1.2s per lap after cliff point.</p>
+            <p><strong>Risk Assessment:</strong> Low risk. Early pit (Lap 16) risks undercut opportunity loss. Late pit (Lap 19+) risks significant tire degradation penalty.</p>
+            <p><strong>Alternative Strategy:</strong> If leading by >5s, consider extending to Lap 18 for track position advantage.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>2. Sector 2 Braking Optimization <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Brake 3.2m later in Sector 2 to carry additional speed through Turn 5-7 complex</p>
+            <p><strong>Confidence:</strong> 82%</p>
+            <p><strong>Data Support:</strong> Cluster 1 drivers show 0.3-0.5s improvement with later braking points. Analysis of 446 samples indicates optimal braking point is 3.2m later than current average.</p>
+            <p><strong>Expected Improvement:</strong> 0.3-0.5s per lap improvement potential</p>
+            <p><strong>Implementation:</strong> Focus on Turn 5 entry. Current braking point: 145m marker. Recommended: 141.8m marker.</p>
+            <p><strong>Risk:</strong> Low. Requires driver confidence but data shows consistent gains across Cluster 1 profile.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>3. Sector 3 Warm-up Strategy <span class="confidence confidence-medium">MEDIUM CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Implement aggressive tire warm-up protocol for Sector 3 during first 3 laps</p>
+            <p><strong>Confidence:</strong> 74%</p>
+            <p><strong>Data Support:</strong> Analysis reveals consistent 0.8-1.2s losses in Sector 3 during warm-up phase. This represents largest single-lap time loss opportunity.</p>
+            <p><strong>Expected Improvement:</strong> 0.8-1.2s per lap during warm-up phase, 0.3-0.4s per lap after tires are up to temperature</p>
+            <p><strong>Implementation:</strong> Increase tire temperature by 4-6°C through more aggressive cornering in Sectors 1-2 during warm-up laps. Consider setup adjustment: reduce rear wing by 1 click for better Sector 3 performance.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>4. Driver Consistency Coaching <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Focus on matching Cluster 1 performance profile characteristics</p>
+            <p><strong>Confidence:</strong> 89%</p>
+            <p><strong>Key Focus Areas:</strong></p>
+            <ul>
+              <li>Throttle application: Increase from current 78% to target 89% (Cluster 1 average)</li>
+              <li>Brake pressure: Optimize to 52.8 bar average (currently 45.2 bar)</li>
+              <li>Steering consistency: Reduce variance from ±2.1° to ±1.8°</li>
+            </ul>
+            <p><strong>Expected Impact:</strong> 1.7s per lap improvement potential by matching Cluster 1 profile</p>
+          </div>
         </div>
-        
-        <h2>AI Recommendations</h2>
-        <div class="recommendation">
-          <strong>Pit Window Optimization</strong><br>
-          Recommended pit lap: 17 (Confidence: 74%)<br>
-          Based on tire degradation patterns and temperature analysis.
+
+        <div class="section">
+          <h2>Competitor Analysis & Strategy</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Car #</th>
+                <th>Last Pit</th>
+                <th>Predicted Next Pit</th>
+                <th>Gap</th>
+                <th>Strategy Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>P1</td>
+                <td>#13</td>
+                <td>Lap 12</td>
+                <td>Lap 20-21</td>
+                <td>Leader</td>
+                <td><span class="badge badge-success">Low</span></td>
+              </tr>
+              <tr>
+                <td>P2</td>
+                <td>#22</td>
+                <td>Lap 11</td>
+                <td>Lap 19-20</td>
+                <td>+1.24s</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+              </tr>
+              <tr>
+                <td>P3</td>
+                <td>#7</td>
+                <td>Lap 13</td>
+                <td>Lap 21-22</td>
+                <td>+2.18s</td>
+                <td><span class="badge badge-info">Undercut Opportunity</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="highlight">
+            <strong>Strategic Opportunity:</strong> P2 (Car #22) predicted to pit Lap 19-20. Early pit on Lap 17 provides undercut opportunity with estimated 0.8s advantage. Monitor P2 tire degradation closely - if they extend beyond Lap 20, undercut becomes highly favorable.
+          </div>
         </div>
-        <div class="recommendation">
-          <strong>Driver Coaching</strong><br>
-          Brake 3m later in Sector 2 to carry speed (Confidence: 80%)<br>
-          Analysis shows potential for 0.3-0.5s improvement with later braking point.
+
+        <div class="section">
+          <h2>Weather & Track Conditions Impact</h2>
+          <div class="metric-grid">
+            <div class="metric-item">
+              <div class="metric-label">Track Temperature</div>
+              <div class="metric-value">42°C</div>
+              <div class="metric-sub">Peak: 48°C (Lap 12)</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Air Temperature</div>
+              <div class="metric-value">28°C</div>
+              <div class="metric-sub">Stable throughout race</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Humidity</div>
+              <div class="metric-value">65%</div>
+              <div class="metric-sub">Moderate</div>
+            </div>
+          </div>
+          <p><strong>Impact Analysis:</strong> High track temperature (42-48°C) accelerates tire degradation by approximately 12% compared to baseline. This factor is already incorporated into the Lap 17 pit recommendation. Track grip remains consistent throughout race duration.</p>
+        </div>
+
+        <div class="section">
+          <h2>Risk Assessment Matrix</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Risk Factor</th>
+                <th>Severity</th>
+                <th>Probability</th>
+                <th>Mitigation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Tire Degradation Cliff</td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>87%</td>
+                <td>Pit before Lap 18</td>
+              </tr>
+              <tr>
+                <td>Rear Left Tire Failure</td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>23%</td>
+                <td>Monitor closely, pit early if degradation accelerates</td>
+              </tr>
+              <tr>
+                <td>Brake Fade (Turn 17)</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+                <td>34%</td>
+                <td>Reduce brake pressure by 5% in Turn 17</td>
+              </tr>
+              <tr>
+                <td>Traffic Impact (Pit Window)</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+                <td>28%</td>
+                <td>Lap 17 pit minimizes traffic risk</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <h2>Performance Prediction Model</h2>
+          <div class="highlight">
+            <strong>Lap Time Forecast (Next 5 Laps):</strong><br>
+            Lap 14: 2:04.892 (predicted) | Lap 15: 2:05.234 | Lap 16: 2:05.567 | Lap 17: 2:05.901 | Lap 18: 2:06.456 (degradation impact)
+          </div>
+          <p><strong>Model Confidence:</strong> 84% | <strong>Based on:</strong> Historical degradation patterns, current tire wear, track temperature, and driver performance profile</p>
+        </div>
+
+        <div class="section">
+          <h2>Action Items Summary</h2>
+          <ol>
+            <li><strong>IMMEDIATE:</strong> Prepare for pit stop on Lap 17. Confirm pit crew readiness and tire set selection.</li>
+            <li><strong>HIGH PRIORITY:</strong> Coach driver on Sector 2 braking optimization (3.2m later braking point).</li>
+            <li><strong>MEDIUM PRIORITY:</strong> Implement Sector 3 warm-up strategy for next race session.</li>
+            <li><strong>MONITOR:</strong> Rear left tire degradation rate. If exceeds 0.055s/lap, consider early pit on Lap 16.</li>
+            <li><strong>STRATEGIC:</strong> Monitor P2 pit window. If they pit after Lap 20, undercut opportunity becomes highly favorable.</li>
+          </ol>
+        </div>
+
+        <div class="section">
+          <p class="meta" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333;">
+            Report generated by PitWall A.I. Multi-Agent System | Model Version: v1.2.3 | Data Processing Time: 2.34s | Confidence Score: 87%
+          </p>
         </div>
       </body>
     </html>
@@ -214,63 +607,436 @@ const MOCK_REPORT_CONTENT: Record<string, string> = {
             background: #0a0a0a; 
             color: #fff;
             line-height: 1.6;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
           }
           h1 { color: #EB0A1E; border-bottom: 2px solid #EB0A1E; padding-bottom: 10px; }
-          h2 { color: #EB0A1E; margin-top: 30px; }
+          h2 { color: #EB0A1E; margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+          h3 { color: #EB0A1E; margin-top: 20px; font-size: 1.1em; }
           .stat { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .insight { background: #1a1a1a; padding: 15px; border-left: 4px solid #EB0A1E; margin: 15px 0; }
           .cluster { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .recommendation { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .meta { color: #888; font-size: 0.9em; }
+          .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0; }
+          .metric-item { background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #333; }
+          .metric-label { color: #888; font-size: 0.85em; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .metric-value { color: #fff; font-size: 1.3em; font-weight: bold; font-family: 'Courier New', monospace; }
+          .metric-sub { color: #aaa; font-size: 0.8em; margin-top: 4px; }
+          .section { margin: 30px 0; }
+          .highlight { background: #2a1a1a; border-left: 4px solid #EB0A1E; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          .warning { background: #2a1a1a; border-left: 4px solid #ffa500; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          .success { background: #1a2a1a; border-left: 4px solid #00ff00; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          table { width: 100%; border-collapse: collapse; margin: 15px 0; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+          th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+          th { background: #252525; color: #EB0A1E; font-weight: bold; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+          tr:hover { background: #252525; }
+          .confidence { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.85em; font-weight: bold; margin-left: 8px; }
+          .confidence-high { background: #00ff00; color: #000; }
+          .confidence-medium { background: #ffa500; color: #000; }
+          .confidence-low { background: #ff4444; color: #fff; }
+          .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-left: 6px; }
+          .badge-success { background: #00ff00; color: #000; }
+          .badge-warning { background: #ffa500; color: #000; }
+          .badge-danger { background: #ff4444; color: #fff; }
+          .badge-info { background: #4488ff; color: #fff; }
         </style>
       </head>
       <body>
-        <h1>Circuit of the Americas - AI Summary Report</h1>
-        <p class="meta">Generated: 2025-02-14 | Source: EDA Cluster Agent v0.9 / Predictor Agent v1.2</p>
+        <h1>Circuit of the Americas - Comprehensive AI Intelligence Report</h1>
+        <p class="meta">Generated: 2025-02-14 15:18:42 UTC | Source: EDA Cluster Agent v0.9 / Predictor Agent v1.2 / Strategy Agent v1.5 / Coach Agent v1.3</p>
         
-        <h2>Summary Statistics</h2>
-        <div class="stat">
-          <strong>Total Samples:</strong> 1,539<br>
-          <strong>Vehicles Analyzed:</strong> 30<br>
-          <strong>Average Speed:</strong> 134.31 km/h<br>
-          <strong>Speed Std Dev:</strong> 5.5 km/h<br>
-          <strong>Average Tire Temperature:</strong> 93.0°C
+        <div class="section">
+          <h2>Executive Summary</h2>
+          <div class="highlight">
+            <strong>Key Finding:</strong> Analysis of 1,539 telemetry samples across 30 vehicles reveals exceptional consistency in Sector 1 (high-speed esses) with ±0.03s delta, indicating optimal setup and driver technique. However, rear slip angle analysis shows concerning oversteer trend (+0.06°/lap) requiring setup attention. Tire degradation modeling indicates optimal pit window at Lap 17 with 84% confidence. The technical esses section (S1) represents a key competitive advantage area.
+          </div>
         </div>
-        
-        <h2>Top Insights</h2>
-        <div class="insight">
-          <strong>High-Speed Esses Consistency</strong><br>
-          Cluster 0 drivers remain within ±0.03s delta in S1. Excellent consistency through the technical esses section.
+
+        <div class="section">
+          <h2>Comprehensive Performance Statistics</h2>
+          <div class="metric-grid">
+            <div class="metric-item">
+              <div class="metric-label">Total Telemetry Samples</div>
+              <div class="metric-value">1,539,234</div>
+              <div class="metric-sub">Across 30 vehicles, 48.2 min race</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Vehicles Analyzed</div>
+              <div class="metric-value">30</div>
+              <div class="metric-sub">100% field coverage</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Average Speed</div>
+              <div class="metric-value">134.31 km/h</div>
+              <div class="metric-sub">Std Dev: 5.5 km/h</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Best Lap Time</div>
+              <div class="metric-value">2:12.456</div>
+              <div class="metric-sub">Car #22, Lap 9</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Average Lap Time</div>
+              <div class="metric-value">2:14.123</div>
+              <div class="metric-sub">±0.287s consistency</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Average Tire Temperature</div>
+              <div class="metric-value">93.0°C</div>
+              <div class="metric-sub">Peak: 104.2°C (Cluster 2)</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Tire Degradation Rate</div>
+              <div class="metric-value">0.051s/lap</div>
+              <div class="metric-sub">Predicted cliff: Lap 17.8</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Brake Temperature Avg</div>
+              <div class="metric-value">512°C</div>
+              <div class="metric-sub">Peak: 678°C (Turn 1)</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Fuel Consumption</div>
+              <div class="metric-value">3.4 L/lap</div>
+              <div class="metric-sub">Estimated range: 23.2 laps</div>
+            </div>
+          </div>
         </div>
-        <div class="insight">
-          <strong>Oversteer Trend</strong><br>
-          Rear slip angle increases 0.06°/lap under high load corners. Monitor rear tire wear and consider setup adjustments.
+
+        <div class="section">
+          <h2>Sector Performance Analysis</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Sector</th>
+                <th>Best Time</th>
+                <th>Average Time</th>
+                <th>Std Dev</th>
+                <th>Improvement Potential</th>
+                <th>Consistency Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sector 1 (Esses)</strong></td>
+                <td>28.234s</td>
+                <td>28.267s</td>
+                <td>0.023s</td>
+                <td>0.033s <span class="badge badge-success">Excellent</span></td>
+                <td>99.9%</td>
+              </tr>
+              <tr>
+                <td><strong>Sector 2</strong></td>
+                <td>45.123s</td>
+                <td>45.456s</td>
+                <td>0.134s</td>
+                <td>0.333s <span class="badge badge-warning">Medium</span></td>
+                <td>98.7%</td>
+              </tr>
+              <tr>
+                <td><strong>Sector 3</strong></td>
+                <td>40.234s</td>
+                <td>40.567s</td>
+                <td>0.156s</td>
+                <td>0.333s <span class="badge badge-info">Opportunity</span></td>
+                <td>98.6%</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="success">
+            <strong>✓ Sector 1 Excellence:</strong> Exceptional consistency in the high-speed esses section with ±0.03s delta. This represents best-in-class performance and should be maintained. The technical nature of this section provides significant competitive advantage when executed consistently.
+          </div>
+          <div class="warning">
+            <strong>⚠️ Oversteer Trend Detected:</strong> Rear slip angle analysis shows progressive increase of 0.06°/lap under high-load corners (Turns 3, 6, 12, 19). This indicates rear tire wear acceleration and potential setup imbalance. Monitor closely and consider rear wing adjustment.
+          </div>
         </div>
-        
-        <h2>Driver Clusters</h2>
-        <div class="cluster">
-          <strong>Cluster 0 (923 samples)</strong><br>
-          Average Speed: 131.62 km/h | Tire Temp: 88.35°C
+
+        <div class="section">
+          <h2>Detailed Driver Cluster Intelligence</h2>
+          <div class="cluster">
+            <h3>Cluster 0: Steady Performance Profile (923 samples, 60.0%)</h3>
+            <div class="metric-grid">
+              <div class="metric-item">
+                <div class="metric-label">Average Speed</div>
+                <div class="metric-value">131.62 km/h</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Tire Temperature</div>
+                <div class="metric-value">88.35°C</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Lap Time Avg</div>
+                <div class="metric-value">2:15.234</div>
+              </div>
+            </div>
+            <p><strong>Characteristics:</strong> Steady pace with excellent tire preservation. Sector 1 consistency is exceptional (±0.03s), demonstrating strong technical driving skills. Best suited for long stints and tire conservation strategies.</p>
+            <p><strong>Key Metrics:</strong> Brake pressure avg: 48.3 bar | Throttle application: 81% avg | Steering angle variance: ±1.9° | Sector 1 consistency: 99.9%</p>
+          </div>
+          <div class="cluster">
+            <h3>Cluster 1: Fast Pace Profile (462 samples, 30.0%)</h3>
+            <div class="metric-grid">
+              <div class="metric-item">
+                <div class="metric-label">Average Speed</div>
+                <div class="metric-value">136.60 km/h</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Tire Temperature</div>
+                <div class="metric-value">97.65°C</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Lap Time Avg</div>
+                <div class="metric-value">2:13.567</div>
+              </div>
+            </div>
+            <p><strong>Characteristics:</strong> Fast pace with optimal tire management. Maintains excellent Sector 1 performance while pushing harder in Sectors 2-3. This cluster represents the target performance profile for competitive racing.</p>
+            <p><strong>Key Metrics:</strong> Brake pressure avg: 54.2 bar | Throttle application: 91% avg | Steering angle variance: ±2.0° | Tire wear rate: 0.048s/lap</p>
+            <div class="success">
+              <strong>✓ Recommended Profile:</strong> Cluster 1 demonstrates optimal balance between speed and tire preservation. Target this profile for race performance.
+            </div>
+          </div>
+          <div class="cluster">
+            <h3>Cluster 2: Peak Performance Profile (154 samples, 10.0%)</h3>
+            <div class="metric-grid">
+              <div class="metric-item">
+                <div class="metric-label">Average Speed</div>
+                <div class="metric-value">144.25 km/h</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Tire Temperature</div>
+                <div class="metric-value">104.16°C</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Lap Time Avg</div>
+                <div class="metric-value">2:11.890</div>
+              </div>
+            </div>
+            <p><strong>Characteristics:</strong> Maximum performance driving with high tire stress. Fastest lap times but unsustainable tire degradation rate of 0.068s/lap. Oversteer trend more pronounced (+0.08°/lap). Suitable only for qualifying or short sprint scenarios.</p>
+            <p><strong>Key Metrics:</strong> Brake pressure avg: 63.8 bar | Throttle application: 97% avg | Steering angle variance: ±2.6° | Tire wear rate: 0.068s/lap <span class="badge badge-danger">High</span> | Rear slip angle: +0.08°/lap</p>
+            <div class="warning">
+              <strong>⚠️ Sustainability Warning:</strong> Cluster 2 performance shows accelerated rear tire wear and oversteer progression. Unsustainable beyond 7-9 laps. Oversteer trend requires immediate setup attention.
+            </div>
+          </div>
         </div>
-        <div class="cluster">
-          <strong>Cluster 1 (462 samples)</strong><br>
-          Average Speed: 136.60 km/h | Tire Temp: 97.65°C
+
+        <div class="section">
+          <h2>Tire Degradation Intelligence</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Tire Position</th>
+                <th>Current Wear %</th>
+                <th>Degradation Rate</th>
+                <th>Predicted Cliff Lap</th>
+                <th>Temperature Avg</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Front Left</strong></td>
+                <td>71%</td>
+                <td>0.049s/lap</td>
+                <td>Lap 18.5</td>
+                <td>92.3°C</td>
+                <td><span class="badge badge-success">Optimal</span></td>
+              </tr>
+              <tr>
+                <td><strong>Front Right</strong></td>
+                <td>69%</td>
+                <td>0.047s/lap</td>
+                <td>Lap 19.2</td>
+                <td>91.8°C</td>
+                <td><span class="badge badge-success">Optimal</span></td>
+              </tr>
+              <tr>
+                <td><strong>Rear Left</strong></td>
+                <td>78%</td>
+                <td>0.056s/lap</td>
+                <td>Lap 17.2</td>
+                <td>96.4°C</td>
+                <td><span class="badge badge-warning">Critical</span></td>
+              </tr>
+              <tr>
+                <td><strong>Rear Right</strong></td>
+                <td>76%</td>
+                <td>0.054s/lap</td>
+                <td>Lap 17.6</td>
+                <td>95.1°C</td>
+                <td><span class="badge badge-warning">Critical</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="highlight">
+            <strong>AI Prediction Model:</strong> Rear tire degradation is accelerating faster than front tires (0.056s/lap vs 0.049s/lap), consistent with oversteer trend analysis. Performance cliff predicted at Lap 17.8. <strong>Recommended pit window: Lap 17</strong> with 84% confidence. Rear tire temperatures 3-4°C higher than front, indicating setup imbalance.
+          </div>
+          <div class="metric-grid">
+            <div class="metric-item">
+              <div class="metric-label">Laps Until 0.5s Loss</div>
+              <div class="metric-value">9.8 laps</div>
+              <div class="metric-sub">From current position</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Optimal Pit Lap</div>
+              <div class="metric-value">Lap 17</div>
+              <div class="metric-sub">Confidence: 84%</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Tire Life Remaining</div>
+              <div class="metric-value">24%</div>
+              <div class="metric-sub">At optimal performance</div>
+            </div>
+          </div>
         </div>
-        <div class="cluster">
-          <strong>Cluster 2 (154 samples)</strong><br>
-          Average Speed: 144.25 km/h | Tire Temp: 104.16°C
+
+        <div class="section">
+          <h2>Strategic Intelligence & Recommendations</h2>
+          
+          <div class="recommendation">
+            <h3>1. Pit Window Optimization <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommended Pit Lap:</strong> Lap 17 (Confidence: 84%)</p>
+            <p><strong>Reasoning:</strong> Rear tire degradation modeling indicates performance cliff at Lap 17.8. Pitting on Lap 17 provides optimal balance and avoids rear tire degradation penalty. Analysis accounts for oversteer trend acceleration.</p>
+            <p><strong>Expected Impact:</strong> Maintain competitive pace, avoid 0.9-1.3s per lap degradation penalty after cliff point.</p>
+            <p><strong>Risk Assessment:</strong> Low risk. Early pit (Lap 16) risks undercut opportunity. Late pit (Lap 18+) risks significant rear tire degradation and oversteer issues.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>2. Setup Adjustment: Rear Wing Configuration <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Increase rear wing by 1-2 clicks to reduce oversteer trend and rear tire degradation</p>
+            <p><strong>Confidence:</strong> 86%</p>
+            <p><strong>Data Support:</strong> Rear slip angle increasing 0.06°/lap indicates setup imbalance. Rear tire temperatures 3-4°C higher than front, and rear tire degradation rate 14% faster than front.</p>
+            <p><strong>Expected Impact:</strong> Reduce rear tire degradation rate by 8-12%, extend tire life by 1-2 laps, improve rear stability in high-load corners.</p>
+            <p><strong>Trade-off:</strong> Potential 0.1-0.2s per lap loss in top speed, but gain in tire life and consistency more than compensates.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>3. S-Turn Entry Rotation Optimization <span class="confidence confidence-medium">MEDIUM CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Earlier rotation before S-turn entries (Turns 3-6, 12-15) to improve mid-corner speed</p>
+            <p><strong>Confidence:</strong> 71%</p>
+            <p><strong>Data Support:</strong> Cluster 1 drivers show 0.2-0.4s improvement with earlier rotation technique. Analysis of 462 samples indicates optimal rotation point is 0.3-0.5s earlier than current average.</p>
+            <p><strong>Expected Improvement:</strong> 0.2-0.4s per lap improvement potential in S-turn sections</p>
+            <p><strong>Implementation:</strong> Focus on Turn 3-6 complex. Begin rotation 0.3s earlier, maintain throttle through rotation phase.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>4. Maintain Sector 1 Excellence <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Continue current Sector 1 (esses) technique - it represents competitive advantage</p>
+            <p><strong>Confidence:</strong> 95%</p>
+            <p><strong>Data Support:</strong> Sector 1 consistency of ±0.03s is exceptional and best-in-class. This technical section provides significant competitive advantage.</p>
+            <p><strong>Action:</strong> No changes needed. Maintain current approach and setup for Sector 1.</p>
+          </div>
         </div>
-        
-        <h2>AI Recommendations</h2>
-        <div class="recommendation">
-          <strong>Pit Window Optimization</strong><br>
-          Recommended pit lap: 17 (Confidence: 76%)
+
+        <div class="section">
+          <h2>Competitor Analysis & Strategy</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Car #</th>
+                <th>Last Pit</th>
+                <th>Predicted Next Pit</th>
+                <th>Gap</th>
+                <th>Strategy Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>P1</td>
+                <td>#13</td>
+                <td>Lap 11</td>
+                <td>Lap 19-20</td>
+                <td>Leader</td>
+                <td><span class="badge badge-success">Low</span></td>
+              </tr>
+              <tr>
+                <td>P2</td>
+                <td>#22</td>
+                <td>Lap 12</td>
+                <td>Lap 20-21</td>
+                <td>+0.89s</td>
+                <td><span class="badge badge-info">Target</span></td>
+              </tr>
+              <tr>
+                <td>P3</td>
+                <td>#7</td>
+                <td>Lap 10</td>
+                <td>Lap 18-19</td>
+                <td>+2.34s</td>
+                <td><span class="badge badge-warning">Monitor</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="highlight">
+            <strong>Strategic Opportunity:</strong> P2 (Car #22) predicted to pit Lap 20-21. Early pit on Lap 17 provides strong undercut opportunity with estimated 1.1s advantage. P3 (Car #7) pitting earlier (Lap 18-19) may create traffic window - monitor closely.
+          </div>
         </div>
-        <div class="recommendation">
-          <strong>Driver Coaching</strong><br>
-          Earlier rotation before S-turn entries (Confidence: 71%)
+
+        <div class="section">
+          <h2>Risk Assessment Matrix</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Risk Factor</th>
+                <th>Severity</th>
+                <th>Probability</th>
+                <th>Mitigation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Rear Tire Degradation Cliff</td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>84%</td>
+                <td>Pit before Lap 18, adjust rear wing</td>
+              </tr>
+              <tr>
+                <td>Oversteer Progression</td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>67%</td>
+                <td>Increase rear wing 1-2 clicks</td>
+              </tr>
+              <tr>
+                <td>Brake Fade (Turn 1)</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+                <td>41%</td>
+                <td>Reduce brake pressure by 6% in Turn 1</td>
+              </tr>
+              <tr>
+                <td>Traffic Impact (Pit Window)</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+                <td>32%</td>
+                <td>Lap 17 pit minimizes traffic risk</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <h2>Performance Prediction Model</h2>
+          <div class="highlight">
+            <strong>Lap Time Forecast (Next 5 Laps):</strong><br>
+            Lap 14: 2:13.890 (predicted) | Lap 15: 2:14.234 | Lap 16: 2:14.567 | Lap 17: 2:14.901 | Lap 18: 2:15.678 (degradation impact)
+          </div>
+          <p><strong>Model Confidence:</strong> 84% | <strong>Based on:</strong> Historical degradation patterns, current tire wear, oversteer trend, track temperature, and driver performance profile</p>
+        </div>
+
+        <div class="section">
+          <h2>Action Items Summary</h2>
+          <ol>
+            <li><strong>IMMEDIATE:</strong> Prepare for pit stop on Lap 17. Confirm pit crew readiness and tire set selection.</li>
+            <li><strong>HIGH PRIORITY:</strong> Adjust rear wing by 1-2 clicks to address oversteer trend and rear tire degradation.</li>
+            <li><strong>HIGH PRIORITY:</strong> Monitor rear tire degradation closely. If exceeds 0.060s/lap, consider early pit on Lap 16.</li>
+            <li><strong>MEDIUM PRIORITY:</strong> Coach driver on earlier rotation technique for S-turn entries (Turns 3-6, 12-15).</li>
+            <li><strong>MAINTAIN:</strong> Continue current Sector 1 (esses) technique - it's providing competitive advantage.</li>
+            <li><strong>STRATEGIC:</strong> Monitor P2 pit window. Early pit on Lap 17 provides strong undercut opportunity.</li>
+          </ol>
+        </div>
+
+        <div class="section">
+          <p class="meta" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333;">
+            Report generated by PitWall A.I. Multi-Agent System | Model Version: v1.2.3 | Data Processing Time: 2.67s | Confidence Score: 84%
+          </p>
         </div>
       </body>
     </html>
@@ -927,6 +1693,7 @@ export default function AISummaryReports() {
           </CardContent>
         </Card>
       </div>
+      </section>
 
       {/* Enhanced Data Analysis Charts Section */}
       {selected && chartData && (
