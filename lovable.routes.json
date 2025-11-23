@@ -46,6 +46,16 @@
       "component": "RaceStoryGenerator"
     },
     {
+      "path": "/race-story-page",
+      "name": "Race Story Page",
+      "component": "RaceStoryPage"
+    },
+    {
+      "path": "/pre-event-analysis",
+      "name": "Pre-Event Analysis",
+      "component": "PreEventAnalysis"
+    },
+    {
       "path": "/post-event-analysis",
       "name": "Post-Event Analysis",
       "component": "PostEventAnalysis"
@@ -64,6 +74,11 @@
       "path": "/coaching",
       "name": "Coaching Dashboard",
       "component": "CoachingPage"
+    },
+    {
+      "path": "/f1-benchmarking",
+      "name": "F1 Benchmarking",
+      "component": "F1Benchmarking"
     },
     {
       "path": "/demo",
@@ -91,6 +106,11 @@
       "component": "AgentInsightsDashboard"
     },
     {
+      "path": "/live-insights",
+      "name": "Live Insights Dashboard",
+      "component": "LiveInsightsDashboard"
+    },
+    {
       "path": "/agent-integration",
       "name": "AI Agent Integration",
       "component": "AIAgentIntegration"
@@ -101,6 +121,36 @@
       "component": "GRTelemetryDashboard"
     },
     {
+      "path": "/gemini-features",
+      "name": "Gemini AI Features",
+      "component": "GeminiFeaturesPage"
+    },
+    {
+      "path": "/google-maps",
+      "name": "Google Maps Integration",
+      "component": "GoogleMapsPage"
+    },
+    {
+      "path": "/ai-analytics",
+      "name": "AI Data Analytics",
+      "component": "AIDataAnalyticsPage"
+    },
+    {
+      "path": "/anomaly-detection",
+      "name": "Anomaly Detection",
+      "component": "AnomalyDetectionPage"
+    },
+    {
+      "path": "/driver-fingerprinting",
+      "name": "Driver Fingerprinting",
+      "component": "DriverFingerprintingPage"
+    },
+    {
+      "path": "/slack-integration",
+      "name": "Slack Integration",
+      "component": "SlackIntegrationPage"
+    },
+    {
       "path": "/about",
       "name": "About",
       "component": "About"
@@ -109,7 +159,11 @@
       "path": "/settings",
       "name": "Settings",
       "component": "Settings"
+    },
+    {
+      "path": "/lovable-config",
+      "name": "Lovable Cloud Config",
+      "component": "LovableCloudConfig"
     }
   ]
 }
-

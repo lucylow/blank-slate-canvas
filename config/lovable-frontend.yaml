@@ -42,6 +42,14 @@ routes:
     name: Race Story Generator
     description: Broadcast & Debrief - Automatically identifies key race moments
     
+  - path: /race-story-page
+    name: Race Story Page
+    description: Alternative race story page
+    
+  - path: /pre-event-analysis
+    name: Pre-Event Analysis
+    description: Track analysis, weather forecasts, and strategy planning
+    
   - path: /post-event-analysis
     name: Post-Event Analysis
     description: Comprehensive race analysis and comparisons
@@ -57,6 +65,10 @@ routes:
   - path: /coaching
     name: Coaching Dashboard
     description: Comprehensive coaching tools and analytics
+    
+  - path: /f1-benchmarking
+    name: F1 Benchmarking
+    description: Compare GR Cup strategies with F1 historical data
     
   - path: /demo
     name: Demo Sandbox
@@ -78,6 +90,10 @@ routes:
     name: Agent Insights
     description: Live insights from Delivery agent
     
+  - path: /live-insights
+    name: Live Insights Dashboard
+    description: Real-time insights dashboard
+    
   - path: /agent-integration
     name: AI Agent Integration
     description: Three integration patterns showcase
@@ -86,9 +102,29 @@ routes:
     name: GR Telemetry
     description: Speed and G-force comparison dashboard
     
-  - path: /edge-functions
-    name: Edge Functions
-    description: Real-time analytics functions dashboard
+  - path: /gemini-features
+    name: Gemini AI Features
+    description: Showcase, Multimodal, and Zip Matcher
+    
+  - path: /google-maps
+    name: Google Maps Integration
+    description: Complete Maps Platform integration
+    
+  - path: /ai-analytics
+    name: AI Data Analytics
+    description: Advanced AI-powered race data analysis
+    
+  - path: /anomaly-detection
+    name: Anomaly Detection
+    description: Real-time telemetry anomaly detection
+    
+  - path: /driver-fingerprinting
+    name: Driver Fingerprinting
+    description: AI-powered driver analysis and coaching
+    
+  - path: /slack-integration
+    name: Slack Integration
+    description: Real-time race alerts and notifications
     
   - path: /about
     name: About
@@ -97,4 +133,8 @@ routes:
   - path: /settings
     name: Settings
     description: App configuration
+    
+  - path: /lovable-config
+    name: Lovable Cloud Config
+    description: Configuration and debugging page
 
