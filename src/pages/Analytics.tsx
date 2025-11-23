@@ -59,6 +59,7 @@ const Analytics = () => {
   const { data: agentStatus } = useQuery<AgentStatusResponse>({
     queryKey: ['agentStatus'],
     queryFn: getAgentStatus,
+    enabled: !isDemoMode,
     refetchInterval: 30000,
     retry: 1,
   });

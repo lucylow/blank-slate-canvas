@@ -79,12 +79,12 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-secondary/30 overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-secondary/30">
       {/* Quick Stats Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="px-6 py-4 border-b border-border/50 bg-card/40 backdrop-blur-sm"
+        className="px-6 py-4 border-b border-border/50 bg-card/40 backdrop-blur-sm flex-shrink-0"
       >
         <div className="flex items-center justify-between mb-3">
           <div>
@@ -141,13 +141,13 @@ export function Dashboard() {
       </motion.div>
 
       {/* Main Dashboard Grid */}
-      <div className="flex-1 p-4 md:p-6 overflow-auto">
-        <div className="grid grid-cols-12 grid-rows-6 gap-4 h-full max-h-full">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div className="grid grid-cols-12 gap-4 auto-rows-fr min-h-[800px]">
           {/* Track Map - Top Left */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="col-span-12 md:col-span-4 row-span-3 bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <TrackMap />
@@ -158,7 +158,7 @@ export function Dashboard() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="col-span-12 md:col-span-4 row-span-3 bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <DriverList />
@@ -169,7 +169,7 @@ export function Dashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="col-span-12 md:col-span-4 row-span-3 bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <StrategyConsole />
@@ -180,7 +180,7 @@ export function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="col-span-12 row-span-3 bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 min-h-[500px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <TelemetryCharts />

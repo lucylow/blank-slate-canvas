@@ -1,5 +1,5 @@
 import React from 'react';
-import AppNav from '@/components/Nav/AppNav';
+import { TopNav } from './TopNav';
 import { CommandPalette } from '@/components/Nav/CommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -26,12 +26,13 @@ export function AppLayout({
   });
 
   return (
-    <>
-      <AppNav isAdmin={isAdmin} carOptions={carOptions}>
+    <div className="min-h-screen bg-background">
+      <TopNav />
+      <main className="pt-20">
         {children}
-      </AppNav>
+      </main>
       <CommandPalette />
-    </>
+    </div>
   );
 }
 

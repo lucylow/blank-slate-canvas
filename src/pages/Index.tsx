@@ -10,13 +10,12 @@ import {
   Users,
   ArrowRight,
   Sparkles,
-  Menu,
-  X,
   FileText,
   ExternalLink,
   ArrowUp,
   AlertCircle,
 } from "lucide-react";
+import { TopNav } from "@/components/layout/TopNav";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,8 +40,6 @@ import {
 import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useQuery } from "@tanstack/react-query";
-import { isLovableCloud } from "@/utils/backendUrl";
-import { LovableCloudStatus } from "@/components/LovableCloudStatus";
 
 /* ================================================================================
 
@@ -405,7 +402,6 @@ DATA INTEGRATION COMPLETE
 ================================================================================ */
 
 const Index = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [healthCheckError, setHealthCheckError] = useState<string | null>(null);
@@ -463,7 +459,6 @@ const Index = () => {
             top: Math.max(0, offsetPosition),
             behavior: "smooth",
           });
-          setMobileMenuOpen(false);
           // Update URL without triggering scroll
           try {
             window.history.pushState(null, "", href);
@@ -569,65 +564,6 @@ const Index = () => {
     }
   };
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
-  // Keyboard navigation support
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      try {
-        // Close mobile menu on ESC
-        if (e.key === "Escape" && mobileMenuOpen) {
-          setMobileMenuOpen(false);
-        }
-      } catch (error) {
-        console.error("Error in keyboard handler:", error);
-      }
-    };
-
-    if (mobileMenuOpen) {
-      try {
-        document.addEventListener("keydown", handleKeyDown);
-        // Prevent body scroll when menu is open
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-          try {
-            document.removeEventListener("keydown", handleKeyDown);
-            document.body.style.overflow = originalOverflow || "";
-          } catch (error) {
-            console.error("Error cleaning up keyboard listener:", error);
-            // Ensure overflow is reset even if removeEventListener fails
-            try {
-              document.body.style.overflow = "";
-            } catch (fallbackError) {
-              console.error("Failed to reset overflow:", fallbackError);
-            }
-          }
-        };
-      } catch (error) {
-        console.error("Error setting up keyboard listener:", error);
-      }
-    } else {
-      try {
-        document.body.style.overflow = "";
-      } catch (error) {
-        console.error("Error resetting body overflow:", error);
-      }
-    }
-
-    return () => {
-      try {
-        document.removeEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = "";
-      } catch (error) {
-        console.error("Error in cleanup:", error);
-      }
-    };
-  }, [mobileMenuOpen]);
 
   // Add smooth scroll CSS
   useEffect(() => {
@@ -845,337 +781,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
-              <Flag className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <div className="text-2xl font-bold tracking-tight">
-              PitWall
-              <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                AI
-              </span>
-            </div>
-          </Link>
-          <nav
-            className="hidden md:flex items-center gap-8"
-            role="navigation"
-            aria-label="Main navigation"
-          >
-            <a
-              href="#features"
-              onClick={(e) => handleAnchorClick(e, "#features")}
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                activeSection === "features"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              Features
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  activeSection === "features"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </a>
-            <a
-              href="#gr-cars"
-              onClick={(e) => handleAnchorClick(e, "#gr-cars")}
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                activeSection === "gr-cars"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              GR Cars
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  activeSection === "gr-cars"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </a>
-            <Link
-              to="/tracks"
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === "/tracks"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              Tracks
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  location.pathname === "/tracks"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </Link>
-            <Link
-              to="/analytics"
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === "/analytics"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              Analytics
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  location.pathname === "/analytics"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </Link>
-            <Link
-              to="/dashboard"
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === "/dashboard"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              Dashboard
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  location.pathname === "/dashboard"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </Link>
-            <Link
-              to="/agents"
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === "/agents"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              AI Agents
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  location.pathname === "/agents"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </Link>
-            <Link
-              to="/about"
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === "/about"
-                  ? "text-primary"
-                  : "hover:text-primary"
-              }`}
-            >
-              About
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                  location.pathname === "/about"
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
-                }`}
-              ></span>
-            </Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            {isLovableCloud() && (
-              <div className="hidden md:block">
-                <LovableCloudStatus compact={true} />
-              </div>
-            )}
-            <Link to="/dashboard" className="hidden sm:block">
-              <Button
-                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                aria-label="View Dashboard - Opens interactive dashboard"
-              >
-                View Dashboard
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </Button>
-          </div>
-
-          {/* Mobile Menu */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
-              <>
-                {/* Backdrop */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-                  onClick={() => setMobileMenuOpen(false)}
-                  aria-hidden="true"
-                />
-                {/* Menu */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-2xl md:hidden z-50"
-                >
-                  <nav
-                    className="container mx-auto px-6 py-4 flex flex-col gap-1"
-                    role="navigation"
-                    aria-label="Mobile navigation"
-                  >
-                    <motion.a
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 }}
-                      href="#features"
-                      onClick={(e) => handleAnchorClick(e, "#features")}
-                      className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                        activeSection === "features"
-                          ? "text-primary bg-primary/10"
-                          : "hover:text-primary hover:bg-accent/50"
-                      }`}
-                    >
-                      Features
-                    </motion.a>
-                    <motion.a
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.07 }}
-                      href="#gr-cars"
-                      onClick={(e) => handleAnchorClick(e, "#gr-cars")}
-                      className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
-                        activeSection === "gr-cars"
-                          ? "text-primary bg-primary/10"
-                          : "hover:text-primary hover:bg-accent/50"
-                      }`}
-                    >
-                      GR Cars
-                    </motion.a>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.09 }}
-                    >
-                      <Link
-                        to="/tracks"
-                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
-                          location.pathname === "/tracks"
-                            ? "text-primary bg-primary/10"
-                            : "hover:text-primary hover:bg-accent/50"
-                        }`}
-                      >
-                        Tracks
-                      </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.09 }}
-                    >
-                      <Link
-                        to="/analytics"
-                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
-                          location.pathname === "/analytics"
-                            ? "text-primary bg-primary/10"
-                            : "hover:text-primary hover:bg-accent/50"
-                        }`}
-                      >
-                        Analytics
-                      </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.11 }}
-                    >
-                      <Link
-                        to="/dashboard"
-                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
-                          location.pathname === "/dashboard"
-                            ? "text-primary bg-primary/10"
-                            : "hover:text-primary hover:bg-accent/50"
-                        }`}
-                      >
-                        Dashboard
-                      </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.13 }}
-                    >
-                      <Link
-                        to="/agents"
-                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
-                          location.pathname === "/agents"
-                            ? "text-primary bg-primary/10"
-                            : "hover:text-primary hover:bg-accent/50"
-                        }`}
-                      >
-                        AI Agents
-                      </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.13 }}
-                    >
-                      <Link
-                        to="/about"
-                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
-                          location.pathname === "/about"
-                            ? "text-primary bg-primary/10"
-                            : "hover:text-primary hover:bg-accent/50"
-                        }`}
-                      >
-                        About
-                      </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.15 }}
-                      className="mt-2 pt-2 border-t border-border/50"
-                    >
-                      <Link to="/dashboard" className="block">
-                        <Button
-                          className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
-                          aria-label="View Dashboard - Opens interactive dashboard"
-                        >
-                          View Dashboard
-                        </Button>
-                      </Link>
-                    </motion.div>
-                  </nav>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
-      </header>
+      {/* Unified Top Navigation */}
+      <TopNav
+        showHomePageLinks={true}
+        activeSection={activeSection}
+        onAnchorClick={handleAnchorClick}
+      />
 
       {/* Hero Section */}
       <section
-        className="pt-32 pb-24 px-6 relative overflow-hidden"
+        className="pt-32 pb-24 px-6 relative overflow-hidden mt-20"
         role="main"
         aria-label="Hero section"
       >

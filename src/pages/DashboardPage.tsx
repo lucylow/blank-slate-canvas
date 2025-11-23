@@ -34,9 +34,9 @@ const DashboardPage = () => {
   return (
     <TelemetryProvider>
       <StrategyProviderWrapper>
-        <div className="h-full flex flex-col">
+        <div className="min-h-screen flex flex-col">
           {/* Status Bar */}
-          <div className="px-6 pt-4 pb-2 flex items-center justify-end border-b border-border/50">
+          <div className="px-6 pt-4 pb-2 flex items-center justify-end border-b border-border/50 flex-shrink-0">
             {backendStatus === 'disconnected' && !isDemoMode && (
               <Alert variant="destructive" className="py-2 px-4">
                 <AlertCircle className="h-4 w-4" />
@@ -52,7 +52,7 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
             <Dashboard />
           </div>
         </div>
