@@ -211,8 +211,10 @@ const Analytics = () => {
 
     // Position prediction insight - safely check if performance exists
     if (dashboardData.performance?.predicted_finish && dashboardData.performance?.position) {
-      const predictedFinish = dashboardData.performance.predicted_finish.replace('P', '');
-      const currentPos = parseInt(predictedFinish) || dashboardData.performance.position;
+      const predictedFinishStr = typeof dashboardData.performance.predicted_finish === 'string' 
+        ? dashboardData.performance.predicted_finish.replace('P', '') 
+        : String(dashboardData.performance.predicted_finish).replace('P', '');
+      const currentPos = parseInt(predictedFinishStr) || dashboardData.performance.position;
       if (currentPos < dashboardData.performance.position) {
         insights.push({
           type: "success",
@@ -613,7 +615,12 @@ const Analytics = () => {
                       </div>
                       <p className="text-2xl font-bold flex items-center gap-2">
                         {dashboardData.performance?.predicted_finish || "P" + (dashboardData.performance?.position || "N/A")}
-                        {dashboardData.performance?.predicted_finish && dashboardData.performance?.position && parseInt(dashboardData.performance.predicted_finish.replace('P', '')) < dashboardData.performance.position && (
+                        {dashboardData.performance?.predicted_finish && dashboardData.performance?.position && (() => {
+                          const predictedFinishStr = typeof dashboardData.performance.predicted_finish === 'string' 
+                            ? dashboardData.performance.predicted_finish.replace('P', '') 
+                            : String(dashboardData.performance.predicted_finish).replace('P', '');
+                          return parseInt(predictedFinishStr) < dashboardData.performance.position;
+                        })() && (
                           <ArrowUpRight className="w-5 h-5 text-green-500" />
                         )}
                       </p>

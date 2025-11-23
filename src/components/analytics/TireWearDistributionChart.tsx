@@ -31,6 +31,10 @@ export function TireWearDistributionChart() {
     const trackMap = new Map<string, number[]>();
 
     for (const record of tireWear) {
+      if (!record || !record.track_name || typeof record.tire_wear !== 'number') {
+        continue; // Skip invalid records
+      }
+      
       const trackName = record.track_name;
       if (!trackMap.has(trackName)) {
         trackMap.set(trackName, []);

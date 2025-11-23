@@ -27,6 +27,10 @@ export function LapTimeTrendsChart() {
     const lapMap = new Map<number, Map<string, number[]>>();
 
     for (const record of lapTimes) {
+      if (!record || typeof record.lap !== 'number' || !record.track_name || typeof record.lap_time !== 'number') {
+        continue; // Skip invalid records
+      }
+      
       const lap = record.lap;
       const trackName = record.track_name;
 
@@ -48,7 +52,9 @@ export function LapTimeTrendsChart() {
     const allTracks = new Set<string>();
 
     for (const record of lapTimes) {
-      allTracks.add(record.track_name);
+      if (record && record.track_name) {
+        allTracks.add(record.track_name);
+      }
     }
 
     for (const lap of allLaps) {

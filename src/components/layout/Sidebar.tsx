@@ -18,7 +18,16 @@ import {
   Brain,
   Globe,
   AlertCircle,
-  Bot
+  Bot,
+  ClipboardList,
+  Activity,
+  Gauge,
+  Network,
+  MessageSquare,
+  Repeat,
+  Gauge as GaugeIcon,
+  Layers,
+  Sparkles as SparklesIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
@@ -55,23 +64,34 @@ export function Sidebar() {
         { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
         { icon: Map, label: 'Track Map', to: '/tracks' },
         { icon: TrendingUp, label: 'Analytics', to: '/analytics' },
+        { icon: Activity, label: 'Live Insights', to: '/live-insights' },
+        { icon: Layers, label: 'Comprehensive', to: '/comprehensive' },
       ],
     },
     {
       title: 'Strategy & AI',
       items: [
-        { icon: Target, label: 'Strategy', to: '/pitwall' },
+        { icon: ClipboardList, label: 'Race Strategies', to: '/strategies' },
+        { icon: Target, label: 'Strategy Console', to: '/pitwall' },
         { icon: BrainCircuit, label: 'Predictive AI', to: '/predictive-ai' },
         { icon: FileText, label: 'AI Summaries', to: '/ai-summaries' },
         { icon: Sparkles, label: 'Race Story', to: '/race-story' },
+        { icon: Bot, label: 'AI Agents', to: '/agents' },
+        { icon: Network, label: 'Agent Integration', to: '/agent-integration' },
+        { icon: Brain, label: 'Agent Insights', to: '/agent-insights' },
       ],
     },
     {
       title: 'Tools',
       items: [
+        { icon: ClipboardList, label: 'Pre-Event Analysis', to: '/pre-event-analysis' },
         { icon: BarChart3, label: 'Post-Event Analysis', to: '/post-event-analysis' },
         { icon: Zap, label: 'Pit Window', to: '/pit-window' },
         { icon: Users, label: 'Cars & Drivers', to: '/gr-cars-drivers' },
+        { icon: Users, label: 'Coaching', to: '/coaching' },
+        { icon: Gauge, label: 'Telemetry', to: '/telemetry' },
+        { icon: TrendingUp, label: 'F1 Benchmarking', to: '/f1-benchmarking' },
+        { icon: Network, label: 'Edge Functions', to: '/edge-functions' },
       ],
     },
     {
@@ -82,7 +102,7 @@ export function Sidebar() {
         { icon: BarChart3, label: 'AI Analytics', to: '/ai-analytics' },
         { icon: AlertCircle, label: 'Anomaly Detection', to: '/anomaly-detection' },
         { icon: Users, label: 'Driver Fingerprinting', to: '/driver-fingerprinting' },
-        { icon: Bot, label: 'Slack Integration', to: '/slack-integration' },
+        { icon: MessageSquare, label: 'Slack Integration', to: '/slack-integration' },
       ],
     },
     {

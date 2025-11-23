@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { grCarComparisonData, grCars, trackPerformanceData } from '@/lib/grCarData';
 import type { TrackId } from '@/lib/grCarTypes';
+import GRCarAIAnalysis from '@/components/GRCarAIAnalysis';
 
 interface GRCarComparisonProps {
   selectedTrack?: TrackId;
@@ -103,10 +104,11 @@ const GRCarComparison: React.FC<GRCarComparisonProps> = ({
       </div>
 
       <Tabs defaultValue="specs" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
           <TabsTrigger value="specs">Specifications</TabsTrigger>
           <TabsTrigger value="track">Track Performance</TabsTrigger>
           <TabsTrigger value="matrix">Track Matrix</TabsTrigger>
+          <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
         </TabsList>
 
         {/* Specifications Tab */}
@@ -326,6 +328,11 @@ const GRCarComparison: React.FC<GRCarComparisonProps> = ({
               })}
             </div>
           )}
+        </TabsContent>
+
+        {/* AI Analysis Tab */}
+        <TabsContent value="ai-analysis" className="space-y-4">
+          <GRCarAIAnalysis selectedTrack={selectedTrack} />
         </TabsContent>
       </Tabs>
 

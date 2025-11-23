@@ -31,6 +31,7 @@ import AISummaryReports from "./pages/AISummaryReports";
 import PitWindowOptimization from "./pages/PitWindowOptimization";
 import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
 import PostEventAnalysis from "./pages/PostEventAnalysis";
+import PreEventAnalysis from "./pages/PreEventAnalysis";
 import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
 import RaceStoryGenerator from "./pages/RaceStoryGenerator";
 import PredictiveExplanatory from "./pages/PredictiveExplanatory";
@@ -112,6 +113,9 @@ const App = () => (
                     <Route path="/race-story-page" element={<RaceStoryPage />} />
                     
                     {/* ========== TOOLS ========== */}
+                    {/* Pre-Event Analysis - Track analysis, weather forecasts, and strategy planning */}
+                    <Route path="/pre-event-analysis" element={<PreEventAnalysis />} />
+                    
                     {/* Post-Event Analysis - Comprehensive race analysis and comparisons */}
                     <Route path="/post-event-analysis" element={<PostEventAnalysis />} />
                     
