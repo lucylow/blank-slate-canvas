@@ -11,6 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { TelemetryProvider } from '@/hooks/useTelemetry';
 import { StrategyProviderWrapper } from '@/hooks/StrategyProviderWrapper';
 
+// Dashboard component requires both TelemetryProvider and StrategyProvider
+// StrategyProviderWrapper must be inside TelemetryProvider since it uses useTelemetry()
+
 const DashboardPage = () => {
   const { isDemoMode, setIsDemoMode } = useDemoMode();
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
@@ -88,7 +91,9 @@ const DashboardPage = () => {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
+          {/* TelemetryProvider must wrap StrategyProviderWrapper since StrategyProviderWrapper uses useTelemetry() */}
           <TelemetryProvider>
+            {/* StrategyProviderWrapper provides StrategyProvider context to Dashboard */}
             <StrategyProviderWrapper>
               <Dashboard />
             </StrategyProviderWrapper>
