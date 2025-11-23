@@ -88,7 +88,9 @@ export function LapTimeTrendsChart() {
   const tracks = useMemo(() => {
     const trackSet = new Set<string>();
     for (const record of lapTimes) {
-      trackSet.add(record.track_name);
+      if (record && record.track_name) {
+        trackSet.add(record.track_name);
+      }
     }
     return Array.from(trackSet);
   }, [lapTimes]);
