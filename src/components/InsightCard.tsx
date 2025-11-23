@@ -17,3 +17,4 @@ export const InsightCard: React.FC<Props> = React.memo(({ item, onOpen }) => {
   );
 });
 
+

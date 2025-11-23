@@ -15,7 +15,11 @@ const pdfParse = require('pdf-parse');
 const puppeteer = require('puppeteer');
 
 const APP_ROOT = path.resolve(__dirname, "../..");
-const REPORTS_DIR = process.env.REPORTS_DIR || path.join(APP_ROOT, 'ai_summary_reports');
+// Check for reports in multiple locations: env var, reports/, or ai_summary_reports/
+const REPORTS_DIR = process.env.REPORTS_DIR || 
+  (fssync.existsSync(path.join(APP_ROOT, 'reports')) 
+    ? path.join(APP_ROOT, 'reports')
+    : path.join(APP_ROOT, 'ai_summary_reports'));
 const PORT = process.env.PORT || 8001;
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true });
 const app = express();

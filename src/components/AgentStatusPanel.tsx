@@ -18,3 +18,4 @@ export const AgentStatusPanel = () => {
     </div>
   );
 };
+

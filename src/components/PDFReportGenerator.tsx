@@ -41,3 +41,4 @@ export const PDFReportGenerator: React.FC = () => {
 };
 
 export default PDFReportGenerator;
+

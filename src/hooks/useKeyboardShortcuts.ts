@@ -74,3 +74,4 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   }, [selectedCar, setSelectedCar, setCommandPaletteOpen, carOptions, onPitWindowOpen, onPlayPause]);
 }
 
+

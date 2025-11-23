@@ -64,3 +64,4 @@ echo "  curl http://localhost:9000/metrics"
 echo -e "\n${YELLOW}To inject test telemetry:${NC}"
 echo '  redis-cli XADD telemetry.stream * data '"'"'{"meta_time":"2025-11-20T12:00:00Z","track":"cota","chassis":"GR86-01","lap":5,"speed_kmh":210,"sector":1}'"'"
 
+

@@ -1,21 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Flag,
-  TrendingUp,
-  Target,
-  Zap,
-  MapPin,
-  Users,
-  ArrowRight,
-  Sparkles,
-  FileText,
-  ExternalLink,
-  ArrowUp,
-  AlertCircle,
-} from "lucide-react";
-import { TopNav } from "@/components/layout/TopNav";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,11 +18,7 @@ import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
 import GRCarComparison from "@/components/GRCarComparison";
 import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
 
-import {
-  checkHealth,
-  getAgentStatus,
-  type AgentStatusResponse,
-} from "@/api/pitwall";
+import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useQuery } from "@tanstack/react-query";
@@ -399,846 +381,200 @@ DATA INTEGRATION COMPLETE
 
 5. Integrate with race timing systems for live data feed
 
-
-
-================================================================================
-
-
-
-### EXAMPLE 4: AI AGENTS WORKING ACROSS MULTIPLE TRACKS ###
-
-
-
-================================================================================
-
-AI AGENT PROCESSING PIPELINE - MULTI-TRACK ANALYSIS
-
-================================================================================
-
-
-
-### COTA - Strategy Agent Analysis ###
-
-Timestamp: 2025-11-20 15:30:45.123Z
-
-Agent: Strategy Agent (strategy-001)
-
-Status: COMPLETED
-
-Processing Time: 1,234ms
-
-Input: 3,124,789 telemetry rows, 32 vehicles, 48.23 minutes
-
-Results:
-
-- Recommended Pit Window: Lap 15-17 (optimal undercut opportunity)
-
-- Expected Gain: +3.2s vs staying out
-
-- Competitor Analysis: Car #46 pitting Lap 16, Car #7 pitting Lap 14
-
-- Confidence: 87%
-
-Key Insights:
-
-  * Sector 2 (esses) showing highest tire degradation (42% impact)
-
-  * Brake energy in Sector 1 elevated (+0.19 feature score)
-
-  * Undercut window: Laps 14-16 optimal for track position gain
-
-  * Safety car probability: 12% (based on historical data)
-
-
-
-### Barber - Predictor Agent Analysis ###
-
-Timestamp: 2025-11-20 15:32:18.456Z
-
-Agent: Predictor Agent (predictor-002)
-
-Status: COMPLETED
-
-Processing Time: 1,456ms
-
-Input: 2,847,563 telemetry rows, 28 vehicles, 45.62 minutes
-
-Results:
-
-- Predicted Tire Loss: 0.312s per lap
-
-- Laps Until 0.5s Loss: 1.60 laps
-
-- Model Confidence: 78% (R²=0.89, MAE=0.08s)
-
-- Tire Cliff Expected: Lap 10
-
-Key Insights:
-
-  * Tire stress Sector 2: 168,000 (34% above optimal)
-
-  * Surface temperature rising +2.2°C over last 3 laps
-
-  * High lateral G-forces in sector 2 (2.1 max lateral G)
-
-  * Confidence interval: [0.285s, 0.357s] per lap loss
-
-
-
-### Sebring - Coach Agent Analysis ###
-
-Timestamp: 2025-11-20 15:34:22.789Z
-
-Agent: Coach Agent (coach-003)
-
-Status: COMPLETED
-
-Processing Time: 987ms
-
-Input: 2,945,678 telemetry rows, 29 vehicles, 46.78 minutes
-
-Results:
-
-- Driver Consistency Score: 99.76% (Car #13)
-
-- Identified Improvement Areas: 3 sectors
-
-- Recommended Adjustments: Late braking in Sector 2 (+0.4s potential)
-
-Key Insights:
-
-  * Car #13: Consistent lap times (std: 0.234s), 99.76% consistency
-
-  * Car #22: Late apex pattern detected, gaining 0.4s in Sector 2
-
-  * Car #7: Early lift detected in Turn 7, losing 0.3s per lap
-
-  * Coaching recommendation: "Brake 3m later in Sector 2 to carry speed"
-
-
-
-### Indianapolis - Anomaly Detective Agent ###
-
-Timestamp: 2025-11-20 15:36:45.012Z
-
-Agent: Anomaly Detective (anomaly-004)
-
-Status: COMPLETED
-
-Processing Time: 1,123ms
-
-Input: 3,456,123 telemetry rows, 35 vehicles, 52.34 minutes
-
-Results:
-
-- Anomalies Detected: 7
-
-- Lockups Identified: 3 (Car #13, #22, #46)
-
-- Early Lifts: 2 (Car #7, #21)
-
-- Confidence: 92%
-
-Key Insights:
-
-  * Car #13: Lockup detected Lap 12, Sector 1 (brake pressure spike to 95%)
-
-  * Car #22: Early lift Lap 8, Sector 3 (throttle cut 0.2s early)
-
-  * Car #46: Tire temperature anomaly Lap 15 (+8°C spike, possible debris)
-
-  * Pattern: Most anomalies in Sector 1 (heavy braking zone)
-
-
-
-### Road America - Simulator Agent ###
-
-Timestamp: 2025-11-20 15:38:12.345Z
-
-Agent: Simulator Agent (simulator-005)
-
-Status: COMPLETED
-
-Processing Time: 2,456ms
-
-Input: 2,678,901 telemetry rows, 26 vehicles, 42.56 minutes
-
-Results:
-
-- Scenarios Analyzed: 4
-
-- Best Strategy: PIT_LAP_18 (60% probability)
-
-- Expected Total Time: 3600.23s
-
-- Alternative: Stay Out (40% probability, 3603.52s)
-
-Key Insights:
-
-  * Scenario 1 (Pit Lap 18): 3600.23s, undercut opponent #4
-
-  * Scenario 2 (Stay Out): 3603.52s, tire degradation risk final laps
-
-  * Scenario 3 (Pit Lap 16): 3601.45s, early but safe
-
-  * Scenario 4 (Pit Lap 20): 3604.12s, too late, tire cliff passed
-
-
-
-### Sonoma - Explainer Agent ###
-
-Timestamp: 2025-11-20 15:40:33.678Z
-
-Agent: Explainer Agent (explainer-006)
-
-Status: COMPLETED
-
-Processing Time: 1,345ms
-
-Input: 2,567,890 telemetry rows, 24 vehicles, 41.34 minutes
-
-Results:
-
-- Feature Attributions: 6 computed
-
-- SHAP Values: Generated for all key features
-
-- Evidence Frames: 3 compiled
-
-- Radio Scripts: 2 generated
-
-Key Insights:
-
-  * Tire stress Sector 1: 168,000 (SHAP +0.21) - 34% above optimal
-
-  * Brake energy Sector 2: 1.12 (SHAP +0.18) - thermal degradation risk
-
-  * Lateral G consistency: 0.87 (SHAP +0.12) - medium impact
-
-  * Radio script: "Pit wall to driver: Elevated tire wear in Sector 1. 
-
-    Recommend pit Lap 15 for fresh rubber and undercut on car #4."
-
-
-
-### VIR - EDA Agent Analysis ###
-
-Timestamp: 2025-11-20 15:42:55.901Z
-
-Agent: EDA Agent (eda-007)
-
-Status: COMPLETED
-
-Processing Time: 1,567ms
-
-Input: 2,789,012 telemetry rows, 27 vehicles, 44.23 minutes
-
-Results:
-
-- Clusters Identified: 3 driving style clusters
-
-- Samples Analyzed: 2,000
-
-- Cluster Stability: 87%
-
-- Centroid Drift: 0.23
-
-Key Insights:
-
-  * Cluster 0 - Conservative Smooth: 856 samples, avg_speed 135.2 km/h
-
-  * Cluster 1 - Aggressive Late Apex: 742 samples, avg_speed 152.8 km/h
-
-  * Cluster 2 - Unstable Entry: 402 samples, max_lat_g 1.9 (corrections)
-
-  * Evidence: Lap 12, Sector 2 - late braking, high corner speed pattern
-
-
-
-================================================================================
-
-
-
-### EXAMPLE 5: ANALYTICS FROM 7 TRACK PDF REPORTS ###
-
-
-
-================================================================================
-
-COMPREHENSIVE ANALYTICS FROM 7 GR CUP TRACK DATA REPORTS
-
-================================================================================
-
-
-
-### 1. CIRCUIT OF THE AMERICAS (COTA) ANALYTICS ###
-
-Track: Circuit of the Americas
-
-Configuration: 3.427 miles, 20 turns
-
-Data Source: Official GR Cup Race Data (Races 1 & 2)
-
-Total Telemetry: 3,124,789 rows (Race 1), 3,089,234 rows (Race 2)
-
-Vehicles: 31 (Race 1), 31 (Race 2)
-
-Key Findings:
-
-- Race 1 Winner: Car #46 (45:57.575), Fastest Lap: 2:28.630 @ 132.5 kph
-
-- Race 2 Winner: Car #7 (46:39.087), Fastest Lap: 2:28.112 @ 133.0 kph (Car #21)
-
-- Weather: Avg 28.7°C (Race 1), 28.0°C (Race 2), Humidity 62.5% / 60.3%
-
-- Performance: Top 6 drivers within 2.6 seconds (Race 1)
-
-- Attrition: 16% DNF rate (5 DNFs) - demanding on equipment
-
-- Key Differentiator: Sector 2 (esses + hairpin) - most significant time gains
-
-- Strategic Insight: Technical middle sector critical for success at COTA
-
-
-
-### 2. BARBER MOTORSPORTS PARK ANALYTICS ###
-
-Track: Barber Motorsports Park
-
-Configuration: 2.38 miles, 17 turns
-
-Data Source: Official GR Cup Race Data (Races 1 & 2)
-
-Total Telemetry: 2,847,563 rows (Race 1), 2,912,456 rows (Race 2)
-
-Vehicles: 28 (both races)
-
-Key Findings:
-
-- Race 1 Winner: Car #13 (45:15.035), Fastest Lap: 1:37.428 @ 136.8 kph
-
-- Race 2 Winner: Car #13 (45:37.014), Fastest Lap: 1:37.304 @ 136.9 kph (Car #22)
-
-- Weather: Hot 30.2°C (Race 1), Cooler 24.5°C (Race 2) - 6°C drop significant
-
-- Performance: Car #22 closed gap from 2.7s to 0.234s between races
-
-- Sector Data: 579 laps (Race 1), 602 laps (Race 2) with full sector data
-
-- Key Insight: Weather adaptation critical - 9 cars improved fastest lap in Race 2
-
-- Strategic Insight: Midfield volatility - Car #88 gained 13 positions, Car #55 lost 16
-
-
-
-### 3. SEBRING INTERNATIONAL RACEWAY ANALYTICS ###
-
-Track: Sebring International Raceway
-
-Configuration: 3.74 miles, 17 turns (longest track)
-
-Data Source: Toyota Racing Development (TRD) Telemetry System
-
-Total Telemetry: 2,945,678 rows (Race 1), 2,987,234 rows (Race 2)
-
-Vehicles: 29 (both races), 21 vehicles participated
-
-Key Findings:
-
-- Race 1 Winner: Car #13 (46:23.022), Fastest Lap: 2:25.437 @ Lap 4
-
-- Win Margin: 8.509 seconds (dominant performance)
-
-- Reliability: 100% (all 22 cars classified as finishers)
-
-- Competitiveness: 8.5/10 (multiple close battles)
-
-- Lap Records: 461 (Race 1), 427 (Race 2)
-
-- Median Lap Time: ~2:28 (consistent across races)
-
-- Key Insight: Consistent sector 3 slowdown (0.8-1.2s loss in warm-up laps)
-
-- Strategic Insight: Tire degradation window - surface temp rises 6-9°C over 8 laps
-
-
-
-### 4. INDIANAPOLIS MOTOR SPEEDWAY ANALYTICS ###
-
-Track: Indianapolis Motor Speedway Road Course
-
-Configuration: 2.592 miles, 14 turns
-
-Data Source: Toyota Racing Development (TRD) Telemetry System
-
-Total Telemetry: 3,456,123 rows (Race 1), 3,398,765 rows (Race 2)
-
-Vehicles: 25 (both races)
-
-Key Findings:
-
-- Race 1 Winner: Spike Kohlbecker (46:41.553, 26 laps)
-
-- Race 2 Winner: Westin Workman (45:30.694, 23 laps)
-
-- Fastest Lap: 1:39.748 (Spike Kohlbecker, Race 1)
-
-- Top Speed: 221.3 mph (telemetry data)
-
-- Championship Leader: Westin Workman (264 points)
-
-- Lap Records: 906 (Race 1), 752 (Race 2)
-
-- Key Insight: Significant pace difference between races (13.6s faster in Race 2)
-
-- Strategic Insight: Top speed critical on long straights, braking zones key differentiator
-
-
-
-### 5. ROAD AMERICA ANALYTICS ###
-
-Track: Road America
-
-Configuration: 4.048 miles, 14 turns
-
-Data Source: Official GR Cup Race Data
-
-Total Telemetry: 2,678,901 rows (Race 1), 2,734,567 rows (Race 2)
-
-Vehicles: 26 (both races)
-
-Key Findings:
-
-- Average Speed: 133.51 km/h (Race 1), similar in Race 2
-
-- Tire Temperature: Avg 95.4°C
-
-- Key Insight: Brake fade in long downhill zones (+7°C caliper rise per lap)
-
-- Strategic Insight: Late apex gains - Cluster 1 drivers gaining ~0.4s via later turn-in at T5
-
-- Pit Window: Recommended Lap 18 (72% confidence)
-
-- Coaching: "Smoother throttle pickup at corner exit" (77% confidence)
-
-
-
-### 6. SONOMA RACEWAY ANALYTICS ###
-
-Track: Sonoma Raceway
-
-Configuration: 2.52 miles, 12 turns
-
-Data Source: Toyota Racing Development (TRD) Telemetry System
-
-Total Telemetry: 2,567,890 rows (Race 1), 2,623,456 rows (Race 2)
-
-Vehicles: 24 (both races), 31 vehicles participated
-
-Key Findings:
-
-- Race 1: 1,046 lap records + 27.5M telemetry points (3.4GB)
-
-- Race 2: 687 lap records + 13.6M telemetry points (1.7GB)
-
-- Mean Lap Time: 384.887s (Race 1), 128.575s (Race 2) - significant variance
-
-- Median Lap Time: 115.677s (Race 1), 116.711s (Race 2)
-
-- Key Insight: Performance variance between races (256s mean difference)
-
-- Strategic Insight: Data quality issues identified - zero-value lap times require cleaning
-
-- Top Performer: GR86-003-017 completed 44 laps (most in Race 1)
-
-
-
-### 7. VIRGINIA INTERNATIONAL RACEWAY (VIR) ANALYTICS ###
-
-Track: Virginia International Raceway
-
-Configuration: 3.27 miles, 17 turns
-
-Data Source: Official GR Cup Race Data (Races 1 & 2)
-
-Total Telemetry: 2,789,012 rows (Race 1), 2,834,678 rows (Race 2)
-
-Vehicles: 27 (both races), 24 competitors
-
-Key Findings:
-
-- Race 1 Winner: Car #13 (45:37.014), Fastest Lap: 2:08.432 @ 147.5 kph
-
-- Race 2 Winner: Car #72 (45:21.123), Fastest Lap: 2:07.987 @ 148.1 kph (Car #22)
-
-- Win Margin: +0.215s (Race 1), 16s faster winning time (Race 2)
-
-- Weather: 29.95°C avg (Race 1), 30.88°C avg (Race 2), Humidity 56.76% / 53.45%
-
-- Key Insight: Top 5 drivers showed <0.5s lap time std dev vs >1.2s for midfield
-
-- Strategic Insight: Sector 1 improvements critical - long front straight + heavy braking
-
-- Performance: Entire field faster in Race 2, fastest lap 0.445s quicker
-
-
-
-================================================================================
-
-CROSS-TRACK COMPARATIVE ANALYTICS
-
-================================================================================
-
-Track Length Comparison:
-
-1. Road America: 4.048 miles (longest)
-
-2. Sebring: 3.74 miles
-
-3. VIR: 3.27 miles
-
-4. COTA: 3.427 miles
-
-5. Barber: 2.38 miles
-
-6. Sonoma: 2.52 miles
-
-7. Indianapolis: 2.592 miles
-
-
-
-Average Race Duration: 45.8 minutes
-
-Total Telemetry Data Points: 41,989,346 across all 7 tracks
-
-Total Unique Vehicles: 397
-
-Average Sampling Rate: 15-20 Hz per vehicle
-
-
-
-Key Cross-Track Insights:
-
-- COTA: Highest attrition rate (16% DNFs) - most demanding
-
-- Sebring: 100% reliability - best finishing rate
-
-- Barber: Most weather-sensitive (6°C temp change = significant pace difference)
-
-- Indianapolis: Highest top speed (221.3 mph) - power track
-
-- Road America: Longest track, brake fade critical factor
-
-- Sonoma: Largest data variance between races (256s mean difference)
-
-- VIR: Best consistency metrics (top 5 <0.5s std dev)
-
-
-
 ================================================================================ */
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState<string>("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [healthCheckError, setHealthCheckError] = useState<string | null>(null);
-  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(
-    new Set(),
-  );
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
 
-  // Fetch AI agent status for showcase with error handling
-  const { data: agentStatus, error: agentStatusError } =
-    useQuery<AgentStatusResponse>({
-      queryKey: ["agentStatus"],
-      queryFn: async () => {
-        try {
-          return await getAgentStatus();
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch agent status";
-          console.error("Agent status fetch error:", errorMessage);
-          throw error; // Re-throw to let React Query handle it
-        }
-      },
-      enabled: !isDemoMode,
-      refetchInterval: 30000,
-      retry: 1,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    });
+  // Fetch AI agent status for showcase
+  const { data: agentStatus } = useQuery<AgentStatusResponse>({
+    queryKey: ['agentStatus'],
+    queryFn: getAgentStatus,
+    enabled: !isDemoMode,
+    refetchInterval: 30000,
+    retry: 1,
+  });
 
   // Smooth scroll handler for anchor links with header offset
-  const handleAnchorClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) => {
-    try {
-      if (href.startsWith("#")) {
-        e.preventDefault();
-        const element = document.querySelector(href);
-        if (element) {
-          const headerOffset = 80; // Height of fixed header
-          const rect = element.getBoundingClientRect();
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        const headerOffset = 80; // Height of fixed header
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-          if (!rect || typeof rect.top !== "number") {
-            console.warn("Unable to get element position for:", href);
-            return;
-          }
-
-          const elementPosition = rect.top;
-          const offsetPosition =
-            elementPosition + window.pageYOffset - headerOffset;
-
-          window.scrollTo({
-            top: Math.max(0, offsetPosition),
-            behavior: "smooth",
-          });
-          // Update URL without triggering scroll
-          try {
-            window.history.pushState(null, "", href);
-          } catch (historyError) {
-            console.warn("Failed to update browser history:", historyError);
-          }
-        } else {
-          console.warn("Anchor element not found:", href);
-        }
-      }
-    } catch (error) {
-      console.error("Error in handleAnchorClick:", error);
-      // Fallback: try direct navigation
-      if (href.startsWith("#")) {
-        try {
-          window.location.hash = href;
-        } catch (fallbackError) {
-          console.error("Fallback navigation also failed:", fallbackError);
-        }
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        setMobileMenuOpen(false);
+        // Update URL without triggering scroll
+        window.history.pushState(null, '', href);
       }
     }
   };
 
-  // Scroll spy to detect active section and show scroll-to-top button
-  useEffect(() => {
-    const handleScroll = () => {
-      try {
-        const sections = ["features", "gr-cars", "tracks"];
-        const scrollY = window.scrollY;
+      // Scroll spy to detect active section and show scroll-to-top button
+      useEffect(() => {
+        const handleScroll = () => {
+          const sections = ['features', 'gr-cars', 'tracks'];
+          const scrollPosition = window.scrollY + 100; // Offset for header
 
-        if (typeof scrollY !== "number" || isNaN(scrollY)) {
-          console.warn("Invalid scroll position");
-          return;
-        }
+      // Show/hide scroll-to-top button
+      setShowScrollTop(window.scrollY > 400);
 
-        const scrollPosition = scrollY + 100; // Offset for header
-
-        // Show/hide scroll-to-top button
-        setShowScrollTop(scrollY > 400);
-
-        for (const section of sections) {
-          try {
-            const element = document.getElementById(section);
-            if (element) {
-              const { offsetTop, offsetHeight } = element;
-              if (
-                typeof offsetTop === "number" &&
-                typeof offsetHeight === "number" &&
-                !isNaN(offsetTop) &&
-                !isNaN(offsetHeight) &&
-                scrollPosition >= offsetTop &&
-                scrollPosition < offsetTop + offsetHeight
-              ) {
-                setActiveSection(section);
-                break;
-              }
-            }
-          } catch (sectionError) {
-            console.warn(`Error checking section ${section}:`, sectionError);
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+            break;
           }
         }
+      }
 
-        // Check if we're at the top
-        if (scrollY < 100) {
-          setActiveSection("");
-        }
-      } catch (error) {
-        console.error("Error in scroll handler:", error);
+      // Check if we're at the top
+      if (window.scrollY < 100) {
+        setActiveSection('');
       }
     };
 
-    try {
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      handleScroll(); // Initial check
-    } catch (error) {
-      console.error("Error setting up scroll listener:", error);
-    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
 
-    return () => {
-      try {
-        window.removeEventListener("scroll", handleScroll);
-      } catch (error) {
-        console.error("Error removing scroll listener:", error);
-      }
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Scroll to top handler
   const scrollToTop = () => {
-    try {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    } catch (error) {
-      console.error("Error scrolling to top:", error);
-      // Fallback to instant scroll
-      try {
-        window.scrollTo(0, 0);
-      } catch (fallbackError) {
-        console.error("Fallback scroll also failed:", fallbackError);
-      }
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Keyboard navigation support
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close mobile menu on ESC
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   // Add smooth scroll CSS
   useEffect(() => {
-    try {
-      const originalScrollBehavior =
-        document.documentElement.style.scrollBehavior;
-      document.documentElement.style.scrollBehavior = "smooth";
-
-      return () => {
-        try {
-          document.documentElement.style.scrollBehavior =
-            originalScrollBehavior || "auto";
-        } catch (error) {
-          console.error("Error resetting scroll behavior:", error);
-        }
-      };
-    } catch (error) {
-      console.error("Error setting scroll behavior:", error);
-    }
+    document.documentElement.style.scrollBehavior = 'smooth';
+    return () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+    };
   }, []);
 
   // Backend health check (demo or real backend) - silently check in background
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-
     const checkBackendHealth = async () => {
       try {
         if (isDemoMode) {
           // Check demo server health
           await checkDemoHealth();
-          setHealthCheckError(null); // Clear error on success
         } else {
           // Check real backend health
           await checkHealth();
-          setHealthCheckError(null); // Clear error on success
         }
       } catch (error) {
-        // Store error for potential UI display, but don't throw
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Backend health check failed";
-
-        console.debug("Backend health check failed:", errorMessage);
-        setHealthCheckError(errorMessage);
-
-        // Don't throw - health checks are background operations
-        // that shouldn't break the UI
+        // Silently handle health check failures
+        console.debug('Backend health check failed:', error);
       }
     };
 
-    try {
-      // Check immediately and then every 10 seconds
-      checkBackendHealth();
-      intervalId = setInterval(checkBackendHealth, 10000);
-    } catch (error) {
-      console.error("Error setting up health check interval:", error);
-    }
+    // Check immediately and then every 10 seconds
+    checkBackendHealth();
+    const interval = setInterval(checkBackendHealth, 10000);
 
-    return () => {
-      if (intervalId) {
-        try {
-          clearInterval(intervalId);
-        } catch (error) {
-          console.error("Error clearing health check interval:", error);
-        }
-      }
-    };
+    return () => clearInterval(interval);
   }, [isDemoMode]);
-
-  // Handle image loading errors
-  const handleImageError = (trackName: string) => {
-    setImageLoadErrors((prev) => new Set(prev).add(trackName));
-  };
 
   const features = [
     {
       icon: <TrendingUp className="w-6 h-6" />,
       title: "Real-Time Analytics",
-      description:
-        "AI agents process live telemetry data to provide instant insights on car performance, tire wear, and race strategy.",
-      gradient: "from-blue-500/20 to-cyan-500/20",
+      description: "AI agents process live telemetry data to provide instant insights on car performance, tire wear, and race strategy.",
+      gradient: "from-blue-500/20 to-cyan-500/20"
     },
     {
       icon: <Target className="w-6 h-6" />,
       title: "Predictive Tire Models",
-      description:
-        "Predictor Agent forecasts tire degradation with 95% accuracy. Strategy Agent recommends optimal pit stop windows.",
-      gradient: "from-primary/20 to-red-500/20",
+      description: "Predictor Agent forecasts tire degradation with 95% accuracy. Strategy Agent recommends optimal pit stop windows.",
+      gradient: "from-primary/20 to-red-500/20"
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Driver Performance",
-      description:
-        "Coach Agent analyzes driver inputs and provides actionable feedback to improve lap times and consistency.",
-      gradient: "from-purple-500/20 to-pink-500/20",
+      description: "Coach Agent analyzes driver inputs and provides actionable feedback to improve lap times and consistency.",
+      gradient: "from-purple-500/20 to-pink-500/20"
     },
     {
       icon: <Zap className="w-6 h-6" />,
       title: "Strategy Optimization",
-      description:
-        "Simulator Agent runs race scenarios. Strategy Agent determines optimal strategy for qualifying and race conditions.",
-      gradient: "from-yellow-500/20 to-orange-500/20",
+      description: "Simulator Agent runs race scenarios. Strategy Agent determines optimal strategy for qualifying and race conditions.",
+      gradient: "from-yellow-500/20 to-orange-500/20"
     },
     {
       icon: <MapPin className="w-6 h-6" />,
       title: "Track-Specific Models",
-      description:
-        "AI agents use custom models trained on data from all 7 GR Cup tracks for circuit-specific insights.",
-      gradient: "from-green-500/20 to-emerald-500/20",
+      description: "AI agents use custom models trained on data from all 7 GR Cup tracks for circuit-specific insights.",
+      gradient: "from-green-500/20 to-emerald-500/20"
     },
     {
       icon: <Flag className="w-6 h-6" />,
       title: "Live Gap Analysis",
-      description:
-        "Strategy Agent monitors real-time gaps to competitors and calculates overtaking opportunities.",
-      gradient: "from-indigo-500/20 to-blue-500/20",
+      description: "Strategy Agent monitors real-time gaps to competitors and calculates overtaking opportunities.",
+      gradient: "from-indigo-500/20 to-blue-500/20"
     },
     {
       icon: <Sparkles className="w-6 h-6" />,
       title: "Explainable AI & Trust",
-      description:
-        "Explainer Agent provides research-backed confidence intervals, uncertainty bands, and feature attribution for transparent decisions.",
-      gradient: "from-emerald-500/20 to-teal-500/20",
+      description: "Explainer Agent provides research-backed confidence intervals, uncertainty bands, and feature attribution for transparent decisions.",
+      gradient: "from-emerald-500/20 to-teal-500/20"
     },
     {
       icon: <Target className="w-6 h-6" />,
       title: "Driver Coaching Insights",
-      description:
-        "Coach Agent performs corner-by-corner analysis. Anomaly Detective Agent detects lockups and early lifts.",
-      gradient: "from-violet-500/20 to-purple-500/20",
+      description: "Coach Agent performs corner-by-corner analysis. Anomaly Detective Agent detects lockups and early lifts.",
+      gradient: "from-violet-500/20 to-purple-500/20"
     },
     {
       icon: <Users className="w-6 h-6" />,
       title: "Competitor Modeling",
-      description:
-        "Strategy Agent predicts competitor pit timing and identifies undercut/overcut windows for strategic advantage.",
-      gradient: "from-rose-500/20 to-pink-500/20",
-    },
+      description: "Strategy Agent predicts competitor pit timing and identifies undercut/overcut windows for strategic advantage.",
+      gradient: "from-rose-500/20 to-pink-500/20"
+    }
   ];
 
   // Track PDF map references (matching Tracks.tsx)
@@ -1264,89 +600,314 @@ const Index = () => {
   };
 
   const tracks = [
-    {
-      name: "Circuit of the Americas",
-      location: "Austin, Texas",
-      length: "3.427 miles",
-      turns: 20,
-      id: "cota",
-    },
-    {
-      name: "Road America",
-      location: "Elkhart Lake, Wisconsin",
-      length: "4.048 miles",
-      turns: 14,
-      id: "road-america",
-    },
-    {
-      name: "Sebring International",
-      location: "Sebring, Florida",
-      length: "3.74 miles",
-      turns: 17,
-      id: "sebring",
-    },
-    {
-      name: "Sonoma Raceway",
-      location: "Sonoma, California",
-      length: "2.52 miles",
-      turns: 12,
-      id: "sonoma",
-    },
-    {
-      name: "Barber Motorsports Park",
-      location: "Birmingham, Alabama",
-      length: "2.38 miles",
-      turns: 17,
-      id: "barber",
-    },
-    {
-      name: "Virginia International",
-      location: "Alton, Virginia",
-      length: "3.27 miles",
-      turns: 17,
-      id: "vir",
-    },
-    {
-      name: "Indianapolis Motor Speedway",
-      location: "Indianapolis, Indiana",
-      length: "2.439 miles",
-      turns: 14,
-      id: "indianapolis",
-    },
+    { name: "Circuit of the Americas", location: "Austin, Texas", length: "3.427 miles", turns: 20, id: "cota" },
+    { name: "Road America", location: "Elkhart Lake, Wisconsin", length: "4.048 miles", turns: 14, id: "road-america" },
+    { name: "Sebring International", location: "Sebring, Florida", length: "3.74 miles", turns: 17, id: "sebring" },
+    { name: "Sonoma Raceway", location: "Sonoma, California", length: "2.52 miles", turns: 12, id: "sonoma" },
+    { name: "Barber Motorsports Park", location: "Birmingham, Alabama", length: "2.38 miles", turns: 17, id: "barber" },
+    { name: "Virginia International", location: "Alton, Virginia", length: "3.27 miles", turns: 17, id: "vir" },
+    { name: "Indianapolis Motor Speedway", location: "Indianapolis, Indiana", length: "2.439 miles", turns: 14, id: "indianapolis" }
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Unified Top Navigation */}
-      <TopNav
-        showHomePageLinks={true}
-        activeSection={activeSection}
-        onAnchorClick={handleAnchorClick}
-      />
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
+              <Flag className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div className="text-2xl font-bold tracking-tight">
+              PitWall<span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">AI</span>
+            </div>
+          </Link>
+          <nav className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main navigation">
+            <a 
+              href="#features" 
+              onClick={(e) => handleAnchorClick(e, '#features')}
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                activeSection === 'features' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              Features
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                activeSection === 'features' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </a>
+            <a 
+              href="#gr-cars" 
+              onClick={(e) => handleAnchorClick(e, '#gr-cars')}
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                activeSection === 'gr-cars' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              GR Cars
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                activeSection === 'gr-cars' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </a>
+            <Link 
+              to="/tracks" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/tracks' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              Tracks
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/tracks' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+            <Link 
+              to="/analytics" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/analytics' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              Analytics
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/analytics' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+            <Link 
+              to="/dashboard" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/dashboard' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              Dashboard
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/dashboard' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+            <Link 
+              to="/agents" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/agents' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              AI Agents
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/agents' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+            <Link 
+              to="/about" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/about' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              About
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/about' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+          </nav>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="hidden sm:block">
+              <Button 
+                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50"
+                aria-label="View Dashboard - Opens interactive dashboard"
+              >
+                View Dashboard
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </Button>
+          </div>
+          
+          {/* Mobile Menu */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-hidden="true"
+                />
+                {/* Menu */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-2xl md:hidden z-50"
+                >
+                  <nav className="container mx-auto px-6 py-4 flex flex-col gap-1" role="navigation" aria-label="Mobile navigation">
+                    <motion.a
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 }}
+                      href="#features" 
+                      onClick={(e) => handleAnchorClick(e, '#features')}
+                      className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        activeSection === 'features'
+                          ? 'text-primary bg-primary/10'
+                          : 'hover:text-primary hover:bg-accent/50'
+                      }`}
+                    >
+                      Features
+                    </motion.a>
+                    <motion.a
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.07 }}
+                      href="#gr-cars" 
+                      onClick={(e) => handleAnchorClick(e, '#gr-cars')}
+                      className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                        activeSection === 'gr-cars'
+                          ? 'text-primary bg-primary/10'
+                          : 'hover:text-primary hover:bg-accent/50'
+                      }`}
+                    >
+                      GR Cars
+                    </motion.a>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.09 }}
+                    >
+                      <Link 
+                        to="/tracks" 
+                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                          location.pathname === '/tracks'
+                            ? 'text-primary bg-primary/10'
+                            : 'hover:text-primary hover:bg-accent/50'
+                        }`}
+                      >
+                        Tracks
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.09 }}
+                    >
+                      <Link 
+                        to="/analytics" 
+                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                          location.pathname === '/analytics'
+                            ? 'text-primary bg-primary/10'
+                            : 'hover:text-primary hover:bg-accent/50'
+                        }`}
+                      >
+                        Analytics
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.11 }}
+                    >
+                      <Link 
+                        to="/dashboard" 
+                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                          location.pathname === '/dashboard'
+                            ? 'text-primary bg-primary/10'
+                            : 'hover:text-primary hover:bg-accent/50'
+                        }`}
+                      >
+                        Dashboard
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.13 }}
+                    >
+                      <Link 
+                        to="/agents" 
+                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                          location.pathname === '/agents'
+                            ? 'text-primary bg-primary/10'
+                            : 'hover:text-primary hover:bg-accent/50'
+                        }`}
+                      >
+                        AI Agents
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.13 }}
+                    >
+                      <Link 
+                        to="/about" 
+                        className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
+                          location.pathname === '/about'
+                            ? 'text-primary bg-primary/10'
+                            : 'hover:text-primary hover:bg-accent/50'
+                        }`}
+                      >
+                        About
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.15 }}
+                      className="mt-2 pt-2 border-t border-border/50"
+                    >
+                      <Link to="/dashboard" className="block">
+                        <Button 
+                          className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
+                          aria-label="View Dashboard - Opens interactive dashboard"
+                        >
+                          View Dashboard
+                        </Button>
+                      </Link>
+                    </motion.div>
+                  </nav>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
+      </header>
 
       {/* Hero Section */}
-      <section
-        className="pt-32 pb-24 px-6 relative overflow-hidden mt-20"
-        role="main"
-        aria-label="Hero section"
-      >
+      <section className="pt-32 pb-24 px-6 relative overflow-hidden" role="main" aria-label="Hero section">
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
-
+        
         {/* Animated grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-
+        
         <div className="container mx-auto max-w-5xl text-center relative z-10">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 animate-fade-in">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">
-              AI-Powered Race Intelligence
-            </span>
+            <span className="text-sm font-medium text-primary">AI-Powered Race Intelligence</span>
           </div>
-
+          
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight tracking-tight">
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
               PitWall{" "}
@@ -1360,45 +921,23 @@ const Index = () => {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed">
-            Powered by{" "}
-            <span className="font-semibold text-primary">
-              7 autonomous AI agents
-            </span>{" "}
-            working in real-time to predict tire loss, recommend pit windows,
-            and provide explainable radio-ready guidance.
+            Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
           </p>
-          {agentStatusError && !isDemoMode && (
-            <div className="mb-12 flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 max-w-md mx-auto">
-              <AlertCircle className="w-4 h-4 text-destructive" />
-              <span className="text-sm font-medium text-destructive">
-                Unable to load agent status
+          {agentStatus && agentStatus.agents.length > 0 && (
+            <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm font-medium text-primary">
+                  {agentStatus.agents.filter(a => a.status === 'active').length} AI Agents Active
+                </span>
+              </div>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-xs text-muted-foreground">
+                {agentStatus.agents.length} Total Agents
               </span>
             </div>
           )}
-          {(() => {
-            const agents = agentStatus?.agents;
-            if (agents && Array.isArray(agents) && agents.length > 0) {
-              const activeCount = agents.filter(
-                (a) => a?.status === "active",
-              ).length;
-              return (
-                <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-sm font-medium text-primary">
-                      {activeCount} AI Agents Active
-                    </span>
-                  </div>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground">
-                    {agents.length} Total Agents
-                  </span>
-                </div>
-              );
-            }
-            return null;
-          })()}
-
+          
           <div className="flex flex-col items-center gap-5 mb-12 max-w-2xl mx-auto">
             <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
@@ -1431,12 +970,12 @@ const Index = () => {
               </p>
             </div>
           </div>
-
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link to="/comprehensive">
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
                 aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
               >
                 View Comprehensive Dashboard
@@ -1444,9 +983,9 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/telemetry">
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
                 aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
               >
                 View Telemetry Comparison
@@ -1454,10 +993,10 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/dashboard">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="Run Demo - Opens interactive dashboard"
               >
                 Run Demo
@@ -1465,35 +1004,26 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/agents">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agents"
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
                 AI Agents
-                {(() => {
-                  const agents = agentStatus?.agents;
-                  if (agents && Array.isArray(agents) && agents.length > 0) {
-                    const activeCount = agents.filter(
-                      (a) => a?.status === "active",
-                    ).length;
-                    return (
-                      <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
-                        {activeCount} active
-                      </span>
-                    );
-                  }
-                  return null;
-                })()}
+                {agentStatus && agentStatus.agents.length > 0 && (
+                  <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
+                    {agentStatus.agents.filter(a => a.status === 'active').length} active
+                  </span>
+                )}
               </Button>
             </Link>
             <Link to="/agent-integration">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agent Integration Patterns"
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
@@ -1506,15 +1036,7 @@ const Index = () => {
 
       {/* Demo Launcher Section */}
       <section className="py-12 px-6">
-        <React.Suspense
-          fallback={
-            <div className="text-center text-muted-foreground">
-              Loading demo...
-            </div>
-          }
-        >
-          <DemoLauncher />
-        </React.Suspense>
+        <DemoLauncher />
       </section>
 
       {/* AI Agents Showcase Section */}
@@ -1524,51 +1046,28 @@ const Index = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                Autonomous AI Agent System
-              </span>
+              <span className="text-sm font-medium text-primary">Autonomous AI Agent System</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Powered by 7 Specialized AI Agents
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
-              Our distributed multi-agent system works autonomously in
-              real-time, each agent specializing in a specific aspect of race
-              analytics and strategy.
+              Our distributed multi-agent system works autonomously in real-time, each agent specializing in a specific aspect of race analytics and strategy.
             </p>
             <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto mb-8">
-              {[
-                "Strategy Agent",
-                "Coach Agent",
-                "Anomaly Detective",
-                "Predictor Agent",
-                "Simulator Agent",
-                "Explainer Agent",
-                "EDA Agent",
-              ].map((agent, idx) => (
-                <div
-                  key={idx}
-                  className="px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105"
-                >
+              {['Strategy Agent', 'Coach Agent', 'Anomaly Detective', 'Predictor Agent', 'Simulator Agent', 'Explainer Agent', 'EDA Agent'].map((agent, idx) => (
+                <div key={idx} className="px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105">
                   <span className="text-sm font-medium">{agent}</span>
                 </div>
               ))}
             </div>
           </div>
-
+          
           {/* AI Agent Results from demo_data.json */}
           <div className="mb-12">
-            <React.Suspense
-              fallback={
-                <div className="text-center text-muted-foreground py-8">
-                  Loading AI agent results...
-                </div>
-              }
-            >
-              <AIAgentResults />
-            </React.Suspense>
+            <AIAgentResults />
           </div>
-
+          
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
               <CardContent className="p-6">
@@ -1577,9 +1076,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Autonomous Decisions</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Strategy, Coach, and Anomaly agents make autonomous decisions
-                  with confidence scores, reasoning, and evidence in under
-                  200ms.
+                  Strategy, Coach, and Anomaly agents make autonomous decisions with confidence scores, reasoning, and evidence in under 200ms.
                 </p>
               </CardContent>
             </Card>
@@ -1590,8 +1087,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Real-Time Processing</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Specialized agents process telemetry at 20Hz, with sub-200ms
-                  latency from data ingestion to decision delivery.
+                  Specialized agents process telemetry at 20Hz, with sub-200ms latency from data ingestion to decision delivery.
                 </p>
               </CardContent>
             </Card>
@@ -1602,19 +1098,14 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Explainable AI</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Every decision includes confidence scores, feature
-                  attribution, and human-readable explanations for transparent
-                  decision-making.
+                  Every decision includes confidence scores, feature attribution, and human-readable explanations for transparent decision-making.
                 </p>
               </CardContent>
             </Card>
           </div>
           <div className="text-center mt-8">
             <Link to="/agents">
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
-              >
+              <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group">
                 View AI Agent Dashboard
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -1624,46 +1115,34 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section
-        id="features"
-        className="py-24 px-6 bg-gradient-to-b from-accent via-accent/50 to-background relative overflow-hidden scroll-mt-20"
-        aria-label="Features section"
-      >
+      <section id="features" className="py-24 px-6 bg-gradient-to-b from-accent via-accent/50 to-background relative overflow-hidden scroll-mt-20" aria-label="Features section">
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
-
+        
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Powerful Racing Intelligence
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              PitWall AI combines telemetry data, predictive modeling, and
-              real-time analytics powered by our autonomous AI agent system to
-              give your team the competitive edge.
+              PitWall AI combines telemetry data, predictive modeling, and real-time analytics powered by our autonomous AI agent system to give your team the competitive edge.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
-              <Card
-                key={index}
+              <Card 
+                key={index} 
                 className="group bg-card/60 backdrop-blur-md hover:bg-card/80 transition-all duration-300 hover:scale-[1.02] border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 overflow-hidden relative"
               >
                 {/* Gradient overlay */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                />
-
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                
                 <CardContent className="p-6 relative z-10">
                   <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-5 text-primary-foreground shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors duration-300">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-                    {feature.description}
-                  </p>
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -1672,27 +1151,10 @@ const Index = () => {
       </section>
 
       {/* GR Car Comparison Section */}
-      <section
-        id="gr-cars"
-        className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20"
-      >
+      <section id="gr-cars" className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <GRCarComparison />
-          <div className="text-center mt-8">
-            <Link to="/gr-cars-drivers">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
-                aria-label="View detailed GR cars and driver profiles"
-              >
-                <Users className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-                View Detailed Car Specs & Driver Profiles
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -1705,26 +1167,20 @@ const Index = () => {
       </section>
 
       {/* GR Telemetry Comparison Section */}
-      <section
-        id="telemetry-comparison"
-        className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20"
-      >
+      <section id="telemetry-comparison" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-[1920px] relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Zap className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                Real-Time Telemetry Analytics
-              </span>
+              <span className="text-sm font-medium text-primary">Real-Time Telemetry Analytics</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Speed & G-Force Comparison
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Professional pit wall visualization comparing speed and G-forces
-              across all four Toyota GR cars. Real-time telemetry analysis for
-              race engineers and strategy optimization.
+              Professional pit wall visualization comparing speed and G-forces across all four Toyota GR cars. 
+              Real-time telemetry analysis for race engineers and strategy optimization.
             </p>
           </div>
           <GRTelemetryComparison />
@@ -1739,8 +1195,7 @@ const Index = () => {
               GR Cup Track Analytics
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Comprehensive data and models for all 7 tracks in the Toyota GR
-              Cup North America series.
+              Comprehensive data and models for all 7 tracks in the Toyota GR Cup North America series.
             </p>
             {/* PDF Report Generators */}
             <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -1760,27 +1215,24 @@ const Index = () => {
                 whileHover={{ scale: 1.03, y: -5 }}
                 className="h-full"
               >
-                <Card className="group overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:scale-[1.02] border-border/50 hover:border-primary/50 bg-card/80 backdrop-blur-md h-full flex flex-col">
+                <Card 
+                  className="group overflow-hidden hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:scale-[1.02] border-border/50 hover:border-primary/50 bg-card/80 backdrop-blur-md h-full flex flex-col"
+                >
                   <div className="h-56 bg-gradient-to-br from-primary/40 via-primary/20 to-accent/60 flex items-center justify-center relative overflow-hidden">
                     {/* Animated background pattern */}
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.08)_25%,rgba(255,255,255,0.08)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.08)_75%,rgba(255,255,255,0.08))] bg-[size:30px_30px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
+                    
                     {/* Animated gradient overlay */}
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-primary/20"
                       animate={{
                         opacity: [0.3, 0.6, 0.3],
                       }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                     />
-
-                    {TRACK_SVG_MAP[track.name] &&
-                    !imageLoadErrors.has(track.name) ? (
-                      <motion.img
+                    
+                    {TRACK_SVG_MAP[track.name] ? (
+                      <motion.img 
                         src={`/tracks/${TRACK_SVG_MAP[track.name]}`}
                         alt={`${track.name} track map`}
                         className="w-full h-full object-contain p-6 relative z-10 drop-shadow-2xl"
@@ -1788,23 +1240,7 @@ const Index = () => {
                         whileHover={{ scale: 1.1, opacity: 1 }}
                         transition={{ duration: 0.5 }}
                         style={{
-                          filter: "brightness(0.95) contrast(1.05)",
-                        }}
-                        onError={() => handleImageError(track.name)}
-                        onLoad={(e) => {
-                          try {
-                            // Verify image loaded successfully
-                            const img = e.currentTarget;
-                            if (!img.complete || img.naturalWidth === 0) {
-                              handleImageError(track.name);
-                            }
-                          } catch (error) {
-                            console.error(
-                              "Error validating image load:",
-                              error,
-                            );
-                            handleImageError(track.name);
-                          }
+                          filter: 'brightness(0.95) contrast(1.05)',
                         }}
                       />
                     ) : (
@@ -1812,9 +1248,7 @@ const Index = () => {
                     )}
                   </div>
                   <CardContent className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">
-                      {track.name}
-                    </h3>
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">{track.name}</h3>
                     <p className="text-muted-foreground mb-5 flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       {track.location}
@@ -1826,19 +1260,7 @@ const Index = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors group/link"
-                          onClick={(e) => {
-                            try {
-                              e.stopPropagation();
-                            } catch (error) {
-                              console.error(
-                                "Error stopping event propagation:",
-                                error,
-                              );
-                            }
-                          }}
-                          onError={(e) => {
-                            console.error("PDF link error:", e);
-                          }}
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <FileText className="w-4 h-4 group-hover/link:rotate-12 transition-transform" />
                           View Track Map
@@ -1848,20 +1270,12 @@ const Index = () => {
                     )}
                     <div className="flex justify-between items-center pt-4 border-t border-border/50 mt-auto">
                       <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                          Length
-                        </span>
-                        <span className="text-sm font-semibold">
-                          {track.length}
-                        </span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Length</span>
+                        <span className="text-sm font-semibold">{track.length}</span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                          Turns
-                        </span>
-                        <span className="text-sm font-semibold">
-                          {track.turns}
-                        </span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Turns</span>
+                        <span className="text-sm font-semibold">{track.turns}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -1869,7 +1283,7 @@ const Index = () => {
               </motion.div>
             ))}
           </div>
-
+          
           {/* Sonoma Race Results Section */}
           <div className="mt-16">
             <div className="text-center mb-8">
@@ -1877,8 +1291,7 @@ const Index = () => {
                 Sonoma Raceway - Race Results
               </h3>
               <p className="text-muted-foreground">
-                Complete race results and analytics from the GR Cup event at
-                Sonoma Raceway
+                Complete race results and analytics from the GR Cup event at Sonoma Raceway
               </p>
             </div>
             <SonomaRaceResults />
@@ -1891,8 +1304,7 @@ const Index = () => {
                 Indianapolis Motor Speedway - Real-Time Race Analysis
               </h3>
               <p className="text-muted-foreground">
-                Real-time data analysis dashboard with team performance, driver
-                consistency, and advanced analytics
+                Real-time data analysis dashboard with team performance, driver consistency, and advanced analytics
               </p>
             </div>
             <IndianapolisRaceResults />
@@ -1905,8 +1317,7 @@ const Index = () => {
                 Sebring International Raceway - Race Results
               </h3>
               <p className="text-muted-foreground">
-                Complete race results and analytics from the GR Cup event at
-                Sebring International Raceway
+                Complete race results and analytics from the GR Cup event at Sebring International Raceway
               </p>
             </div>
             <SebringRaceResults />
@@ -1919,8 +1330,7 @@ const Index = () => {
                 Circuit of the Americas - Race Results
               </h3>
               <p className="text-muted-foreground">
-                Complete race results and analytics from the GR Cup Race 1 at
-                Circuit of the Americas
+                Complete race results and analytics from the GR Cup Race 1 at Circuit of the Americas
               </p>
             </div>
             <COTARaceResults />
@@ -1933,15 +1343,14 @@ const Index = () => {
         {/* Decorative background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(59,130,246,0.08),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(220,38,38,0.08),transparent_50%)]" />
-
+        
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Interactive Dashboard Preview
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
-              Experience the power of PitWall AI with our real-time analytics
-              dashboard powered by autonomous AI agents.
+              Experience the power of PitWall AI with our real-time analytics dashboard powered by autonomous AI agents.
             </p>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Sparkles className="w-4 h-4 text-primary" />
@@ -1952,9 +1361,7 @@ const Index = () => {
             <div className="bg-gradient-to-r from-card via-card/95 to-card border-b border-border/50 p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h3 className="text-2xl font-bold mb-1">
-                    PitWall AI - Live Race Analytics
-                  </h3>
+                  <h3 className="text-2xl font-bold mb-1">PitWall AI - Live Race Analytics</h3>
                   <p className="text-muted-foreground flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     Circuit of the Americas - Lap 12/25
@@ -1962,9 +1369,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
                   <div className="w-3 h-3 bg-primary rounded-full animate-pulse shadow-lg shadow-primary/50" />
-                  <span className="text-sm font-semibold text-primary">
-                    Live Data
-                  </span>
+                  <span className="text-sm font-semibold text-primary">Live Data</span>
                 </div>
               </div>
             </div>
@@ -1986,9 +1391,7 @@ const Index = () => {
                     </div>
                     <div className="flex justify-between items-center pb-3 border-b border-border/50">
                       <span className="text-sm font-medium">Rear Left</span>
-                      <span className="font-bold text-lg text-primary">
-                        71%
-                      </span>
+                      <span className="font-bold text-lg text-primary">71%</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Rear Right</span>
@@ -2006,26 +1409,18 @@ const Index = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center pb-3 border-b border-border/50">
                       <span className="text-sm font-medium">Current Lap</span>
-                      <span className="font-bold text-lg font-mono">
-                        2:04.56
-                      </span>
+                      <span className="font-bold text-lg font-mono">2:04.56</span>
                     </div>
                     <div className="flex justify-between items-center pb-3 border-b border-border/50">
                       <span className="text-sm font-medium">Best Lap</span>
-                      <span className="font-bold text-lg font-mono">
-                        2:03.12
-                      </span>
+                      <span className="font-bold text-lg font-mono">2:03.12</span>
                     </div>
                     <div className="flex justify-between items-center pb-3 border-b border-border/50">
                       <span className="text-sm font-medium">Gap to Leader</span>
-                      <span className="font-bold text-lg font-mono">
-                        +1.24s
-                      </span>
+                      <span className="font-bold text-lg font-mono">+1.24s</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">
-                        Predicted Finish
-                      </span>
+                      <span className="text-sm font-medium">Predicted Finish</span>
                       <span className="font-bold text-lg text-primary">P3</span>
                     </div>
                   </div>
@@ -2035,8 +1430,8 @@ const Index = () => {
             <div className="p-6 border-t border-border/50 text-center bg-gradient-to-r from-card/50 via-card/30 to-card/50">
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/comprehensive">
-                  <Button
-                    size="lg"
+                  <Button 
+                    size="lg" 
                     className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
                   >
                     Open Comprehensive Dashboard
@@ -2044,8 +1439,8 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/dashboard">
-                  <Button
-                    size="lg"
+                  <Button 
+                    size="lg" 
                     variant="outline"
                     className="shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-105 group"
                   >
@@ -2060,36 +1455,32 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section
-        className="py-24 px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden"
-        aria-label="Call to action section"
-      >
+      <section className="py-24 px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden" aria-label="Call to action section">
         {/* Animated background pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:40px_40px] opacity-30" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
-
+        
         <div className="container mx-auto max-w-4xl text-center relative z-10">
           <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             Ready to Transform Your Race Strategy?
           </h2>
           <p className="text-xl md:text-2xl mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto">
-            Join the Toyota GR Cup hackathon or request early access to PitWall
-            AI for your racing team.
+            Join the Toyota GR Cup hackathon or request early access to PitWall AI for your racing team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="text-lg px-8 py-6 bg-background text-foreground hover:bg-background/90 shadow-xl hover:scale-105 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="text-lg px-8 py-6 bg-background text-foreground hover:bg-background/90 shadow-xl hover:scale-105 transition-all duration-300 group focus:outline-none focus:ring-3 focus:ring-primary-foreground/50"
               aria-label="Join Hackathon"
             >
               Join Hackathon
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-3 focus:ring-primary-foreground/50"
               aria-label="Contact Our Team"
             >
               Contact Our Team
@@ -2108,24 +1499,20 @@ const Index = () => {
                   <Flag className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div className="text-xl font-bold">
-                  PitWall
-                  <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    AI
-                  </span>
+                  PitWall<span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">AI</span>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Real-time analytics and strategy platform for the Toyota GR Cup
-                series.
+                Real-time analytics and strategy platform for the Toyota GR Cup series.
               </p>
             </div>
             <div>
               <h3 className="font-bold mb-5 text-primary">Product</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <a
-                    href="#features"
-                    onClick={(e) => handleAnchorClick(e, "#features")}
+                  <a 
+                    href="#features" 
+                    onClick={(e) => handleAnchorClick(e, '#features')}
                     className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
                   >
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
@@ -2133,27 +1520,21 @@ const Index = () => {
                   </a>
                 </li>
                 <li>
-                  <Link
-                    to="/dashboard"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <Link to="/dashboard" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Dashboard
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/analytics"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <Link to="/analytics" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Analytics
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#gr-cars"
-                    onClick={(e) => handleAnchorClick(e, "#gr-cars")}
+                  <a 
+                    href="#gr-cars" 
+                    onClick={(e) => handleAnchorClick(e, '#gr-cars')}
                     className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
                   >
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
@@ -2161,10 +1542,7 @@ const Index = () => {
                   </a>
                 </li>
                 <li>
-                  <Link
-                    to="/tracks"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <Link to="/tracks" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Tracks
                   </Link>
@@ -2175,28 +1553,19 @@ const Index = () => {
               <h3 className="font-bold mb-5 text-primary">Resources</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Documentation
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     API Reference
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     GR Cup Data
                   </a>
@@ -2207,28 +1576,19 @@ const Index = () => {
               <h3 className="font-bold mb-5 text-primary">Company</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <Link
-                    to="/about"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <Link to="/about" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     About
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/settings"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <Link to="/settings" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Settings
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
+                  <a href="#" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Contact
                   </a>
@@ -2238,8 +1598,7 @@ const Index = () => {
           </div>
           <div className="border-t border-border/50 pt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              &copy; 2025 PitWall AI. Created for the Toyota GR Cup "Hack the
-              Track" Hackathon.
+              &copy; 2025 PitWall AI. Created for the Toyota GR Cup "Hack the Track" Hackathon.
             </p>
           </div>
         </div>
@@ -2258,7 +1617,7 @@ const Index = () => {
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-3 focus:ring-primary/50"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-5 h-5" />

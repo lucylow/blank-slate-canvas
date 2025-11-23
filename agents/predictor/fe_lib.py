@@ -107,35 +107,134 @@ def resample_uniform(samples, freq_hz=10):
 
 def aggregate_per_sector(samples, track_sectors, track):
     """
+    Enhanced aggregation with advanced features for pre-event predictions.
     samples: list of canonicalized points (dicts)
-    Returns: dict keyed by sector index -> aggregates
+    Returns: dict keyed by sector index -> aggregates with enhanced metrics
     """
     # compute derived for each sample
     for s in samples:
         s['_derived'] = compute_derived(s)
         s['_sector'] = sectorize_point(track_sectors, track, s['lapdist_m'])
-    # group
+    # group with enhanced tracking
     groups = {}
     for s in samples:
         idx = s['_sector']
-        if idx not in groups: groups[idx] = {'n':0,'speed_sum':0,'max_lat':0,'tire_stress':0,'brake_energy':0,'samples':[]}
+        if idx not in groups: 
+            groups[idx] = {
+                'n':0, 'speed_sum':0, 'speed_sq_sum':0, 'speed_list':[],
+                'max_lat':0, 'lat_g_list':[], 'lat_g_sum':0,
+                'tire_stress':0, 'max_tire_stress':0, 'tire_stress_list':[],
+                'brake_energy':0, 'brake_count':0, 'brake_intensity_sum':0,
+                'long_g_sum':0, 'long_g_list':[],
+                'throttle_sum':0, 'throttle_list':[],
+                'rpm_sum':0, 'rpm_list':[],
+                'samples':[]
+            }
         g = groups[idx]
         g['n'] += 1
-        g['speed_sum'] += s.get('speed_kmh',0.0)
-        g['max_lat'] = max(g['max_lat'], abs(s['_derived']['lateral_g']))
-        g['tire_stress'] += s['_derived']['inst_tire_stress']
+        speed = s.get('speed_kmh',0.0)
+        g['speed_sum'] += speed
+        g['speed_sq_sum'] += speed * speed
+        g['speed_list'].append(speed)
+        
+        lat_g = abs(s['_derived']['lateral_g'])
+        g['max_lat'] = max(g['max_lat'], lat_g)
+        g['lat_g_list'].append(lat_g)
+        g['lat_g_sum'] += lat_g
+        
+        tire_stress = s['_derived']['inst_tire_stress']
+        g['tire_stress'] += tire_stress
+        g['max_tire_stress'] = max(g['max_tire_stress'], tire_stress)
+        g['tire_stress_list'].append(tire_stress)
+        
+        brake_pct = s.get('brake_pct', 0.0)
+        if brake_pct > 5.0:  # Significant braking
+            g['brake_count'] += 1
+            g['brake_intensity_sum'] += brake_pct
         g['brake_energy'] += s['_derived']['brake_power']
+        
+        long_g = abs(s['_derived']['long_g'])
+        g['long_g_sum'] += long_g
+        g['long_g_list'].append(long_g)
+        
+        throttle = s.get('throttle_pct', 0.0)
+        g['throttle_sum'] += throttle
+        g['throttle_list'].append(throttle)
+        
+        rpm = s.get('rpm', 0.0)
+        g['rpm_sum'] += rpm
+        g['rpm_list'].append(rpm)
+        
         if len(g['samples']) < 3:
             g['samples'].append({'meta_time':s['meta_time'],'lapdist_m':s['lapdist_m'],'speed_kmh':s['speed_kmh']})
-    # reduce
+    
+    # reduce with enhanced metrics
     out = {}
     for k,v in groups.items():
+        n = v['n'] if v['n'] > 0 else 1
+        avg_speed = v['speed_sum'] / n
+        
+        # Speed consistency metrics
+        speed_std = np.std(v['speed_list']) if len(v['speed_list']) > 1 else 0.0
+        speed_cv = speed_std / avg_speed if avg_speed > 0 else 0.0  # Coefficient of variation
+        
+        # Lateral G consistency
+        avg_lat_g = v['lat_g_sum'] / n
+        lat_g_std = np.std(v['lat_g_list']) if len(v['lat_g_list']) > 1 else 0.0
+        lat_g_consistency = 1.0 - (lat_g_std / avg_lat_g) if avg_lat_g > 0 else 0.0
+        
+        # Tire stress metrics
+        avg_tire_stress = v['tire_stress'] / n
+        tire_stress_std = np.std(v['tire_stress_list']) if len(v['tire_stress_list']) > 1 else 0.0
+        tire_stress_rate = (v['max_tire_stress'] - avg_tire_stress) / avg_tire_stress if avg_tire_stress > 0 else 0.0
+        
+        # Brake metrics
+        brake_frequency = v['brake_count'] / n  # Braking events per sample
+        avg_brake_intensity = v['brake_intensity_sum'] / v['brake_count'] if v['brake_count'] > 0 else 0.0
+        
+        # Longitudinal G metrics
+        avg_long_g = v['long_g_sum'] / n
+        long_g_std = np.std(v['long_g_list']) if len(v['long_g_list']) > 1 else 0.0
+        
+        # Throttle metrics
+        avg_throttle = v['throttle_sum'] / n
+        throttle_std = np.std(v['throttle_list']) if len(v['throttle_list']) > 1 else 0.0
+        
+        # RPM metrics
+        avg_rpm = v['rpm_sum'] / n
+        rpm_std = np.std(v['rpm_list']) if len(v['rpm_list']) > 1 else 0.0
+        
+        # Cornering efficiency: ratio of lateral G to speed (higher = more efficient cornering)
+        cornering_efficiency = avg_lat_g / avg_speed if avg_speed > 0 else 0.0
+        
+        # Energy balance: ratio of braking to acceleration energy
+        energy_balance = v['brake_energy'] / (v['brake_energy'] + avg_throttle * avg_speed) if (v['brake_energy'] + avg_throttle * avg_speed) > 0 else 0.0
+        
         out[k] = {
             'n': v['n'],
-            'avg_speed': v['speed_sum']/v['n'] if v['n'] else 0.0,
+            'avg_speed': avg_speed,
+            'speed_std': speed_std,
+            'speed_cv': speed_cv,  # Coefficient of variation (consistency)
             'max_lat_g': v['max_lat'],
+            'avg_lat_g': avg_lat_g,
+            'lat_g_std': lat_g_std,
+            'lat_g_consistency': lat_g_consistency,
             'tire_stress_sum': v['tire_stress'],
+            'avg_tire_stress': avg_tire_stress,
+            'max_tire_stress': v['max_tire_stress'],
+            'tire_stress_std': tire_stress_std,
+            'tire_stress_rate': tire_stress_rate,  # Peak stress relative to average
             'brake_energy': v['brake_energy'],
+            'brake_frequency': brake_frequency,
+            'avg_brake_intensity': avg_brake_intensity,
+            'avg_long_g': avg_long_g,
+            'long_g_std': long_g_std,
+            'avg_throttle': avg_throttle,
+            'throttle_std': throttle_std,
+            'avg_rpm': avg_rpm,
+            'rpm_std': rpm_std,
+            'cornering_efficiency': cornering_efficiency,
+            'energy_balance': energy_balance,
             'evidence': v['samples']
         }
     return out
@@ -151,11 +250,18 @@ def aggregate_per_lap(samples, track_sectors, track):
     }
     return lap_metrics
 
-def prepare_features_for_model(agg, feature_order=None):
+def prepare_features_for_model(agg, feature_order=None, include_advanced=True):
     """
-    Flatten per_sector aggregates into fixed vector.
-    feature_order: list of keys like ['tire_stress_s0', 'tire_stress_s1', 'avg_speed_s0', ...]
-    If feature_order not provided, produce a default consistent ordering: tire_stress for sectors ascending then avg_speed.
+    Enhanced feature preparation with advanced metrics for pre-event predictions.
+    Flatten per_sector aggregates into fixed vector with comprehensive features.
+    
+    Args:
+        agg: aggregate dict with per_sector data
+        feature_order: optional list of feature names in specific order
+        include_advanced: if True, include advanced features (speed consistency, cornering metrics, etc.)
+    
+    Returns:
+        numpy array of features ready for model prediction
     """
     # collect sectors sorted
     sectors = sorted([int(k) for k in agg.get('perSector', agg.get('per_sector',{})).keys()])
@@ -163,12 +269,54 @@ def prepare_features_for_model(agg, feature_order=None):
     
     per_sector_data = agg.get('perSector', agg.get('per_sector',{}))
     
+    # Core features per sector
     for s in sectors:
         sec = per_sector_data.get(str(s), {})
+        # Basic features (always included)
         features[f'tire_stress_s{s}'] = sec.get('tire_stress_sum', 0.0)
         features[f'avg_speed_s{s}'] = sec.get('avg_speed', 0.0)
         features[f'max_lat_g_s{s}'] = sec.get('max_lat_g', 0.0)
         features[f'brake_energy_s{s}'] = sec.get('brake_energy', 0.0)
+        
+        # Advanced features (if enabled)
+        if include_advanced:
+            features[f'avg_tire_stress_s{s}'] = sec.get('avg_tire_stress', 0.0)
+            features[f'max_tire_stress_s{s}'] = sec.get('max_tire_stress', 0.0)
+            features[f'tire_stress_rate_s{s}'] = sec.get('tire_stress_rate', 0.0)
+            features[f'speed_std_s{s}'] = sec.get('speed_std', 0.0)
+            features[f'speed_cv_s{s}'] = sec.get('speed_cv', 0.0)  # Coefficient of variation
+            features[f'avg_lat_g_s{s}'] = sec.get('avg_lat_g', 0.0)
+            features[f'lat_g_consistency_s{s}'] = sec.get('lat_g_consistency', 0.0)
+            features[f'brake_frequency_s{s}'] = sec.get('brake_frequency', 0.0)
+            features[f'avg_brake_intensity_s{s}'] = sec.get('avg_brake_intensity', 0.0)
+            features[f'avg_long_g_s{s}'] = sec.get('avg_long_g', 0.0)
+            features[f'cornering_efficiency_s{s}'] = sec.get('cornering_efficiency', 0.0)
+            features[f'energy_balance_s{s}'] = sec.get('energy_balance', 0.0)
+    
+    # Cross-sector features (aggregate metrics across all sectors)
+    if include_advanced and len(sectors) > 0:
+        # Overall lap metrics
+        total_tire_stress = sum(sec.get('tire_stress_sum', 0.0) for sec in per_sector_data.values())
+        features['total_tire_stress'] = total_tire_stress
+        
+        max_sector_stress = max((sec.get('max_tire_stress', 0.0) for sec in per_sector_data.values()), default=0.0)
+        features['max_sector_stress'] = max_sector_stress
+        
+        avg_sector_speed = np.mean([sec.get('avg_speed', 0.0) for sec in per_sector_data.values()])
+        features['avg_lap_speed'] = avg_sector_speed
+        
+        speed_consistency = np.mean([sec.get('speed_cv', 0.0) for sec in per_sector_data.values()])
+        features['lap_speed_consistency'] = speed_consistency
+        
+        total_brake_energy = sum(sec.get('brake_energy', 0.0) for sec in per_sector_data.values())
+        features['total_brake_energy'] = total_brake_energy
+        
+        # Sector transition metrics (stress differences between sectors)
+        if len(sectors) > 1:
+            for i in range(len(sectors) - 1):
+                s1_stress = per_sector_data.get(str(sectors[i]), {}).get('avg_tire_stress', 0.0)
+                s2_stress = per_sector_data.get(str(sectors[i+1]), {}).get('avg_tire_stress', 0.0)
+                features[f'stress_transition_s{i}_to_s{i+1}'] = abs(s1_stress - s2_stress)
     
     # if feature_order provided, use it
     if feature_order:

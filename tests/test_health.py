@@ -34,3 +34,4 @@ def test_metrics():
     # Prometheus metrics should be text/plain
     assert "text/plain" in r.headers.get("content-type", "")
 
+

@@ -39,3 +39,4 @@ def test_demo_seeds():
     # Should return 200 if exists, 404 if not
     assert res.status_code in (200, 404)
 
+

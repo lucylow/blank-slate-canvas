@@ -58,3 +58,4 @@ The frontend `DemoSandbox` component (`/demo` route) automatically:
 3. Displays incoming insights in real-time
 4. Allows starting/stopping demo playback
 
+

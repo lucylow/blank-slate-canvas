@@ -28,3 +28,28 @@ dist-ssr
 .env.local
 .env.production.local
 .env.development.local
+
+# Build artifacts
+pitwall-dist/
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+venv/
+env/
+.venv
+
+# IDE
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

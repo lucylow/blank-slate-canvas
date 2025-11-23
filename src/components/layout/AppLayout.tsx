@@ -1,5 +1,6 @@
 import React from 'react';
 import { TopNav } from './TopNav';
+import { Sidebar } from './Sidebar';
 import { CommandPalette } from '@/components/Nav/CommandPalette';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -26,12 +27,15 @@ export function AppLayout({
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopNav />
-      <main className="pt-20">
-        {children}
-      </main>
-      <CommandPalette />
+    <div className="min-h-screen bg-background flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col lg:pl-16">
+        <TopNav />
+        <main className="flex-1 pt-16 lg:pt-20">
+          {children}
+        </main>
+        <CommandPalette />
+      </div>
     </div>
   );
 }

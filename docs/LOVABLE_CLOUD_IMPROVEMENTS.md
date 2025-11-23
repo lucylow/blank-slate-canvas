@@ -217,3 +217,4 @@ For issues or questions:
 2. Review `docs/LOVABLE_CLOUD_SETUP.md`
 3. Check backend logs in Lovable Cloud dashboard
 
+

@@ -128,3 +128,4 @@ The message format matches the existing frontend expectations, so no changes are
 4. **Monitoring**: Add Prometheus metrics
 5. **Multiple Workers**: Partition by chassis hash for parallel processing
 
+

@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  Flag,
-  Menu,
-  X,
+  ChevronRight,
+  Home,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { isLovableCloud } from "@/utils/backendUrl";
 import { LovableCloudStatus } from "@/components/LovableCloudStatus";
+import { cn } from "@/lib/utils";
 
 interface TopNavProps {
   showHomePageLinks?: boolean; // For home page, show Features, GR Cars as anchor links
@@ -16,242 +14,154 @@ interface TopNavProps {
   onAnchorClick?: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
 }
 
+// Route to page title mapping
+const routeTitles: Record<string, string> = {
+  '/': 'Home',
+  '/dashboard': 'Dashboard',
+  '/tracks': 'Track Map',
+  '/analytics': 'Analytics',
+  '/pitwall': 'Strategy',
+  '/ai-summaries': 'AI Summaries',
+  '/race-story': 'Race Story',
+  '/predictive-ai': 'Predictive AI',
+  '/post-event-analysis': 'Post-Event Analysis',
+  '/pit-window': 'Pit Window',
+  '/gr-cars-drivers': 'Cars & Drivers',
+  '/about': 'About',
+  '/settings': 'Settings',
+};
+
 export function TopNav({ 
   showHomePageLinks = false, 
   activeSection = "",
   onAnchorClick 
 }: TopNavProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Main navigation items
-  const navItems = [
-    ...(showHomePageLinks
-      ? [
-          {
-            type: "anchor" as const,
-            href: "#features",
-            label: "Features",
-            id: "features",
-          },
-          {
-            type: "anchor" as const,
-            href: "#gr-cars",
-            label: "GR Cars",
-            id: "gr-cars",
-          },
-        ]
-      : []),
-    { type: "link" as const, to: "/tracks", label: "Tracks" },
-    { type: "link" as const, to: "/analytics", label: "Analytics" },
-    { type: "link" as const, to: "/dashboard", label: "Dashboard" },
-    { type: "link" as const, to: "/agents", label: "AI Agents" },
-    { type: "link" as const, to: "/about", label: "About" },
-  ];
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
-  // Keyboard navigation support
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    if (mobileMenuOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = originalOverflow || "";
-      };
-    } else {
-      document.body.style.overflow = "";
-    }
-  }, [mobileMenuOpen]);
-
-  const isActive = (item: typeof navItems[0]) => {
-    if (item.type === "anchor") {
-      return activeSection === item.id;
-    }
-    return location.pathname === item.to;
+  // Generate breadcrumbs
+  const getBreadcrumbs = () => {
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const breadcrumbs = [{ label: 'Home', to: '/' }];
+    
+    let currentPath = '';
+    pathSegments.forEach((segment) => {
+      currentPath += `/${segment}`;
+      const title = routeTitles[currentPath] || segment.charAt(0).toUpperCase() + segment.slice(1);
+      breadcrumbs.push({ label: title, to: currentPath });
+    });
+    
+    return breadcrumbs;
   };
 
+  const breadcrumbs = getBreadcrumbs();
+  const currentPageTitle = routeTitles[location.pathname] || breadcrumbs[breadcrumbs.length - 1]?.label || 'Page';
+
+  // Main navigation items (only for home page anchor links)
+  const navItems = showHomePageLinks
+    ? [
+        {
+          type: "anchor" as const,
+          href: "#features",
+          label: "Features",
+          id: "features",
+        },
+        {
+          type: "anchor" as const,
+          href: "#gr-cars",
+          label: "GR Cars",
+          id: "gr-cars",
+        },
+      ]
+    : [];
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
-            <Flag className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <div className="text-2xl font-bold tracking-tight">
-            PitWall
-            <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              AI
-            </span>
-          </div>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav
-          className="hidden md:flex items-center gap-8"
-          role="navigation"
-          aria-label="Main navigation"
-        >
-          {navItems.map((item, index) => {
-            const active = isActive(item);
-            const baseClasses =
-              "text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1";
-            const activeClasses = active
-              ? "text-primary"
-              : "hover:text-primary";
-
-            if (item.type === "anchor") {
+    <header className="fixed top-0 left-0 right-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm">
+      <div className="flex flex-col">
+        {/* Top bar */}
+        <div className="container mx-auto px-4 lg:px-6 py-3 flex items-center justify-between">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
+            {breadcrumbs.map((crumb, index) => {
+              const isLast = index === breadcrumbs.length - 1;
               return (
-                <a
-                  key={index}
-                  href={item.href}
-                  onClick={(e) => onAnchorClick?.(e, item.href)}
-                  className={`${baseClasses} ${activeClasses}`}
-                >
-                  {item.label}
-                  <span
-                    className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                      active ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
-                  ></span>
-                </a>
+                <React.Fragment key={crumb.to}>
+                  {index === 0 ? (
+                    <Link
+                      to={crumb.to}
+                      className={cn(
+                        "flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors",
+                        isLast && "text-foreground font-medium"
+                      )}
+                    >
+                      <Home className="w-4 h-4" />
+                    </Link>
+                  ) : (
+                    <Link
+                      to={crumb.to}
+                      className={cn(
+                        "text-muted-foreground hover:text-foreground transition-colors",
+                        isLast && "text-foreground font-medium"
+                      )}
+                    >
+                      {crumb.label}
+                    </Link>
+                  )}
+                  {!isLast && (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  )}
+                </React.Fragment>
               );
-            }
+            })}
+          </nav>
 
-            return (
-              <Link
-                key={index}
-                to={item.to}
-                className={`${baseClasses} ${activeClasses}`}
-              >
-                {item.label}
-                <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                    active ? "w-full" : "w-0 group-hover:w-full"
-                  }`}
-                ></span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Right side actions */}
-        <div className="flex items-center gap-4">
-          {isLovableCloud() && (
-            <div className="hidden md:block">
-              <LovableCloudStatus compact={true} />
-            </div>
-          )}
-          {!showHomePageLinks && (
-            <Link to="/dashboard" className="hidden sm:block">
-              <Button
-                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                aria-label="View Dashboard"
-              >
-                View Dashboard
-              </Button>
-            </Link>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </Button>
+          {/* Right side actions */}
+          <div className="flex items-center gap-3">
+            {isLovableCloud() && (
+              <div className="hidden md:block">
+                <LovableCloudStatus compact={true} />
+              </div>
+            )}
+            {showHomePageLinks && navItems.length > 0 && (
+              <nav className="hidden md:flex items-center gap-4">
+                {navItems.map((item, index) => {
+                  const active = activeSection === item.id;
+                  return (
+                    <a
+                      key={index}
+                      href={item.href}
+                      onClick={(e) => onAnchorClick?.(e, item.href)}
+                      className={cn(
+                        "text-sm font-medium transition-all duration-200 relative group px-2 py-1 rounded",
+                        active
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {item.label}
+                      <span
+                        className={cn(
+                          "absolute bottom-0 left-0 right-0 h-0.5 bg-primary transition-all duration-200",
+                          active ? "w-full" : "w-0 group-hover:w-full"
+                        )}
+                      />
+                    </a>
+                  );
+                })}
+              </nav>
+            )}
+          </div>
         </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <>
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-                onClick={() => setMobileMenuOpen(false)}
-                aria-hidden="true"
-              />
-              {/* Menu */}
-              <motion.div
-                initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-2xl md:hidden z-50"
-              >
-                <nav
-                  className="container mx-auto px-6 py-4 flex flex-col gap-1"
-                  role="navigation"
-                  aria-label="Mobile navigation"
-                >
-                  {navItems.map((item, index) => {
-                    const active = isActive(item);
-                    const baseClasses =
-                      "text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block";
-                    const activeClasses = active
-                      ? "text-primary bg-primary/10"
-                      : "hover:text-primary hover:bg-accent/50";
-
-                    if (item.type === "anchor") {
-                      return (
-                        <motion.a
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          href={item.href}
-                          onClick={(e) => {
-                            onAnchorClick?.(e, item.href);
-                            setMobileMenuOpen(false);
-                          }}
-                          className={`${baseClasses} ${activeClasses}`}
-                        >
-                          {item.label}
-                        </motion.a>
-                      );
-                    }
-
-                    return (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <Link
-                          to={item.to}
-                          className={`${baseClasses} ${activeClasses}`}
-                        >
-                          {item.label}
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </nav>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+        {/* Page Title Bar (only show when not on home page) */}
+        {location.pathname !== '/' && (
+          <div className="border-t border-border/50 bg-muted/30">
+            <div className="container mx-auto px-4 lg:px-6 py-2">
+              <h1 className="text-lg font-semibold text-foreground">{currentPageTitle}</h1>
+            </div>
+          </div>
+        )}
       </div>
+
     </header>
   );
 }

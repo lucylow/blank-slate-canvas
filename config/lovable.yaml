@@ -18,11 +18,14 @@ environment:
   # Optional - set in Lovable UI
   - DEMO_MODE=true
   - DATA_ARCHIVE_URL=file:///mnt/data/pitwall-backend-v2.tar.gz
-  - ALLOWED_ORIGINS=https://*.lovable.app,http://localhost:5173
+  # CORS: Allow all Lovable Cloud domains and localhost for development
+  - ALLOWED_ORIGINS=https://*.lovable.app,http://localhost:5173,http://localhost:3000
   - SSE_INTERVAL_MS=1000
   - LOG_LEVEL=INFO
   
   # Redis (optional, but recommended for AI agents)
+  # Note: In Lovable Cloud, Redis may be provided as a managed service
+  # Update REDIS_URL in Lovable Cloud UI if using managed Redis
   - USE_REDIS_PUBSUB=false
   - REDIS_URL=redis://localhost:6379
   # AI Agents configuration

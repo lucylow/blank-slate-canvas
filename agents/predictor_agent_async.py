@@ -137,10 +137,62 @@ async def ensure_group(r):
 
 def _prepare_input_vector(agg: Dict[str, Any]):
     """
-    Map aggregate dict -> ordered numeric vector, must match training.
+    Enhanced feature preparation using fe_lib for pre-event predictions.
+    Map aggregate dict -> ordered numeric vector with advanced features.
     Enriches with GR car-track features if available.
     """
-    # Base telemetry features
+    # Try to use enhanced features from fe_lib (preprocessor_v2 output)
+    try:
+        # Add predictor directory to path
+        predictor_dir = Path(__file__).parent / "predictor"
+        if str(predictor_dir) not in sys.path:
+            sys.path.insert(0, str(predictor_dir))
+        
+        from predictor_wrapper import features_from_aggregate, get_feature_names
+        
+        # Check if we have per_sector data (from preprocessor_v2)
+        if agg.get("perSector") or agg.get("per_sector"):
+            vec = features_from_aggregate(agg, include_advanced=True)
+            track = agg.get("track", "cota")
+            base_order = get_feature_names(track=track, include_advanced=True)
+            
+            # Enrich with GR car-track features if available
+            gr_features = {}
+            if GR_MATRIX_AVAILABLE:
+                try:
+                    matrix_df = _ensure_gr_matrix_loaded()
+                    if matrix_df is not None and len(matrix_df) > 0:
+                        track_name = _normalize_track_name(track)
+                        car_model = _get_car_model_from_chassis(agg.get("chassis", ""))
+                        
+                        if track_name and car_model:
+                            match = matrix_df[(matrix_df["track"].str.upper() == track_name.upper()) & 
+                                           (matrix_df["car"].str.contains(car_model, case=False, na=False))]
+                            
+                            if not match.empty:
+                                row = match.iloc[0]
+                                gr_features = {
+                                    "power_to_weight": float(row.get("power_to_weight", 0.0)),
+                                    "normalized_track_score": float(row.get("normalized_track_score", 0.0)),
+                                }
+                                logger.debug(f"Enriched with car-track features: track={track_name}, car={car_model}, features={gr_features}")
+                except Exception as e:
+                    logger.warning(f"Failed to enrich with GR features: {e}", exc_info=True)
+            
+            # Append GR features to vector if available
+            if gr_features:
+                import numpy as np
+                vec = np.append(vec, [
+                    gr_features.get("power_to_weight", 0.0),
+                    gr_features.get("normalized_track_score", 0.0),
+                ])
+                base_order.extend(["power_to_weight", "normalized_track_score"])
+            
+            return vec.tolist() if hasattr(vec, 'tolist') else list(vec), base_order
+    except Exception as e:
+        logger.warning(f"Enhanced feature extraction failed, using fallback: {e}", exc_info=True)
+    
+    # Fallback: Base telemetry features (backward compatibility)
     base_order = ["avg_speed_kmh","avg_accx_can","avg_accy_can","avg_tire_temp","avg_throttle_pct","avg_brake_pct"]
     vec = [float(agg.get(k, 0.0)) for k in base_order]
     
@@ -154,7 +206,6 @@ def _prepare_input_vector(agg: Dict[str, Any]):
                 car_model = _get_car_model_from_chassis(agg.get("chassis", ""))
                 
                 if track and car_model:
-                    # Find matching row in matrix
                     match = matrix_df[(matrix_df["track"].str.upper() == track.upper()) & 
                                      (matrix_df["car"].str.contains(car_model, case=False, na=False))]
                     

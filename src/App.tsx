@@ -12,6 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { RouteLayout } from "@/components/layout/RouteLayout";
 
 import Index from "./pages/Index";
+import RaceStrategiesPage from "./pages/RaceStrategiesPage";
 import DashboardPage from "./pages/DashboardPage";
 import PitWallDashboard from "./pages/PitWallDashboard";
 import ComprehensiveDashboard from "./pages/ComprehensiveDashboard";
@@ -28,8 +29,12 @@ import AIAgentIntegration from "./pages/AIAgentIntegration";
 import GRTelemetryDashboard from "./pages/GRTelemetryDashboard";
 import AISummaryReports from "./pages/AISummaryReports";
 import PitWindowOptimization from "./pages/PitWindowOptimization";
-import LovableCloudConfig from "./pages/LovableCloudConfig";
 import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
+import PostEventAnalysis from "./pages/PostEventAnalysis";
+import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
+import RaceStoryGenerator from "./pages/RaceStoryGenerator";
+import PredictiveExplanatory from "./pages/PredictiveExplanatory";
+import CoachingPage from "./pages/CoachingPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,41 +68,61 @@ const App = () => (
               <ErrorBoundary>
                 <RouteLayout>
                   <Routes>
+                    {/* ========== LANDING PAGE ========== */}
                     {/* Main landing page */}
                     <Route path="/" element={<Index />} />
                     
+                    {/* ========== CORE PAGES ========== */}
                     {/* Dashboard - Main race dashboard with live data and telemetry */}
                     <Route path="/dashboard" element={<DashboardPage />} />
                     
-                    {/* Comprehensive Dashboard - All AI features integrated */}
-                    <Route path="/comprehensive" element={<ComprehensiveDashboard />} />
+                    {/* Track Map - Track information and visualization */}
+                    <Route path="/tracks" element={<Tracks />} />
+                    
+                    {/* Analytics - Performance metrics and analysis */}
+                    <Route path="/analytics" element={<Analytics />} />
+                    
+                    {/* ========== STRATEGY & AI ========== */}
+                    {/* Race Strategies - Strategy selection and analysis */}
+                    <Route path="/strategies" element={<RaceStrategiesPage />} />
                     
                     {/* Strategy - Race strategy console (PitWall dashboard) */}
                     <Route path="/pitwall" element={<PitWallDashboard />} />
                     
-                    {/* Analytics - Performance metrics and analysis */}
-                    <Route path="/analytics" element={<Analytics />} />
+                    {/* Predictive & Explanatory A.I. - Unified telemetry and coaching with driver analysis */}
+                    <Route path="/predictive-ai" element={<PredictiveExplanatory />} />
+                    
+                    {/* AI Summary Reports - View and export AI-generated race analysis reports */}
+                    <Route path="/ai-summaries" element={<AISummaryReports />} />
+                    
+                    {/* Race Story Generator - Broadcast & Debrief - Automatically identifies key race moments */}
+                    <Route path="/race-story" element={<RaceStoryGenerator />} />
+                    
+                    {/* ========== TOOLS ========== */}
+                    {/* Post-Event Analysis - Comprehensive race analysis and comparisons */}
+                    <Route path="/post-event-analysis" element={<PostEventAnalysis />} />
+                    
+                    {/* Pit Window Optimization - Monte Carlo simulation with traffic-aware recommendations */}
+                    <Route path="/pit-window" element={<PitWindowOptimization />} />
+                    
+                    {/* GR Cars & Drivers - Car specifications and driver profiles */}
+                    <Route path="/gr-cars-drivers" element={<GRCarsAndDrivers />} />
+                    
+                    {/* Coaching Dashboard - Comprehensive coaching tools and analytics */}
+                    <Route path="/coaching" element={<CoachingPage />} />
+                    
+                    {/* ========== ADDITIONAL FEATURES ========== */}
+                    {/* Demo Sandbox - Interactive demo with 7-track mock data */}
+                    <Route path="/demo" element={<DemoSandbox />} />
+                    
+                    {/* Comprehensive Dashboard - All AI features integrated */}
+                    <Route path="/comprehensive" element={<ComprehensiveDashboard />} />
                     
                     {/* AI Agents - Agent system dashboard */}
                     <Route path="/agents" element={<AgentDashboard />} />
                     
                     {/* Human-in-the-Loop - Review agent decisions */}
                     <Route path="/agents/review" element={<AgentReviewDashboard />} />
-                    
-                    {/* Demo Sandbox - Interactive demo with 7-track mock data */}
-                    <Route path="/demo" element={<DemoSandbox />} />
-                    
-                    {/* Track Map - Track information and visualization */}
-                    <Route path="/tracks" element={<Tracks />} />
-                    
-                    {/* About - Information about the app */}
-                    <Route path="/about" element={<About />} />
-                    
-                    {/* Settings - App configuration */}
-                    <Route path="/settings" element={<Settings />} />
-                    
-                    {/* Legacy route redirects */}
-                    <Route path="/home" element={<Index />} />
                     
                     {/* Agent Insights Dashboard - Live insights from Delivery agent */}
                     <Route path="/agent-insights" element={<AgentInsightsDashboard />} />
@@ -108,14 +133,19 @@ const App = () => (
                     {/* GR Telemetry Comparison - Speed and G-force comparison dashboard */}
                     <Route path="/telemetry" element={<GRTelemetryDashboard />} />
                     
-                    {/* AI Summary Reports - View and export AI-generated race analysis reports */}
-                    <Route path="/ai-summaries" element={<AISummaryReports />} />
+                    {/* Edge Functions - Real-time analytics functions dashboard */}
+                    <Route path="/edge-functions" element={<EdgeFunctionsPage />} />
                     
-                    {/* Pit Window Optimization - Monte Carlo simulation with traffic-aware recommendations */}
-                    <Route path="/pit-window" element={<PitWindowOptimization />} />
+                    {/* ========== SETTINGS ========== */}
+                    {/* About - Information about the app */}
+                    <Route path="/about" element={<About />} />
                     
-                    {/* GR Cars & Drivers - Car specifications and driver profiles */}
-                    <Route path="/gr-cars-drivers" element={<GRCarsAndDrivers />} />
+                    {/* Settings - App configuration */}
+                    <Route path="/settings" element={<Settings />} />
+                    
+                    {/* ========== LEGACY & FALLBACK ========== */}
+                    {/* Legacy route redirects */}
+                    <Route path="/home" element={<Index />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />

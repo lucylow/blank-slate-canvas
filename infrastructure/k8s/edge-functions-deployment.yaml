@@ -1,0 +1,62 @@
+# Edge Functions Deployment Manifest
+# Example configuration for edge platforms (Cloudflare Workers, Vercel Edge, Netlify Edge)
+
+edgeFunctions:
+  - name: coaching
+    path: /api/edge/coaching
+    memory: 128MB
+    timeout: 1s
+    concurrency: 50
+    env:
+      - MODEL_ENDPOINT: https://models.internal/predict
+      - MODEL_KEY: ${MODEL_KEY}
+      - LOVABLE_API_KEY: ${LOVABLE_API_KEY}
+      - SUPABASE_URL: ${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+  - name: pit-window
+    path: /api/edge/pit-window
+    memory: 256MB
+    timeout: 2s
+    concurrency: 30
+    env:
+      - MODEL_ENDPOINT: https://models.internal/predict
+      - MODEL_KEY: ${MODEL_KEY}
+      - LOVABLE_API_KEY: ${LOVABLE_API_KEY}
+      - SUPABASE_URL: ${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+  - name: predict-tire-wear
+    path: /api/edge/predict-tire-wear
+    memory: 192MB
+    timeout: 1.5s
+    concurrency: 40
+    env:
+      - MODEL_ENDPOINT: https://models.internal/predict
+      - MODEL_KEY: ${MODEL_KEY}
+      - LOVABLE_API_KEY: ${LOVABLE_API_KEY}
+      - SUPABASE_URL: ${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
+observability:
+  logs: structured-json
+  traces: enabled
+  metrics:
+    - name: invocations
+    - name: success_rate
+    - name: p95_latency_ms
+    - name: model_mae
+    - name: avg_confidence
+
+# SLOs (Service Level Objectives)
+slos:
+  coaching:
+    target_latency_p95: 200ms
+    target_success_rate: 99%
+  pit-window:
+    target_latency_p95: 300ms
+    target_success_rate: 98%
+  predict-tire-wear:
+    target_latency_p95: 150ms
+    target_success_rate: 99%
+

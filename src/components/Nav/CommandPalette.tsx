@@ -21,6 +21,7 @@ import {
   Target,
   Info,
   FileText,
+  BrainCircuit,
 } from 'lucide-react';
 
 interface CommandItemType {
@@ -48,6 +49,7 @@ const commands: CommandItemType[] = [
   { id: 'comprehensive', label: 'Comprehensive Dashboard', icon: Gauge, to: '/comprehensive', group: 'Dashboards' },
   { id: 'ai-summaries', label: 'AI Summary Reports', icon: FileText, to: '/ai-summaries', group: 'Dashboards' },
   { id: 'agent-integration', label: 'Agent Integration', icon: Cpu, to: '/agent-integration', group: 'Dashboards' },
+  { id: 'predictive-ai', label: 'Predictive AI', icon: BrainCircuit, to: '/predictive-ai', keywords: ['predictive', 'explanatory', 'coaching', 'driver analysis'], group: 'Dashboards' },
 ];
 
 export function CommandPalette() {

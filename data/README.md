@@ -22,3 +22,4 @@ python tools/extract_centerline.py data/Barber_Circuit_Map.pdf --track barber --
 The extracted SVG centerlines will be saved to `public/tracks/` and can be used immediately with the LiveMapSVG component.
 
 
+

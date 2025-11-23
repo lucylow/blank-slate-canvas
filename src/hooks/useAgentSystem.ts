@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useTelemetryWebSocket } from './useTelemetryWebSocket';
+import { useWebSocket } from './useWebSocket';
 import { getWsUrl } from '@/utils/wsUrl';
 import { useDemoMode } from './useDemoMode';
 import { 
@@ -14,9 +14,11 @@ import {
 interface Agent {
   id: string;
   status: 'active' | 'idle' | 'error';
-  types?: string[];
+  type?: string; // Single type from backend
+  types?: string[]; // Array of types for compatibility
   tracks?: string[];
   capacity?: number;
+  registered_at?: string;
 }
 
 export interface Insight {
@@ -83,10 +85,30 @@ export const useAgentSystem = () => {
   
   const insightsRef = useRef<Insight[]>([]);
   const { isDemoMode } = useDemoMode();
-  const ws = useTelemetryWebSocket({ 
-    url: getWsUrl('/telemetry'),
-    enabled: !isDemoMode 
+  
+  // Connect to agent decisions WebSocket endpoint
+  const agentDecisionsWsUrl = getWsUrl('/api/agents/decisions/ws');
+  const ws = useWebSocket(agentDecisionsWsUrl, {
+    batchMs: 100,
+    maxBuffer: 100,
+    maxMessages: 50
   });
+  
+  // Send subscription message when WebSocket connects (optional track/chassis filter)
+  useEffect(() => {
+    if (!isDemoMode && ws.connected && ws.send) {
+      // Send initial subscription message (optional - backend will work without it)
+      // This allows filtering by track/chassis if needed
+      try {
+        ws.send({
+          track: undefined, // Can be set to filter by specific track
+          chassis: undefined // Can be set to filter by specific chassis
+        });
+      } catch (error) {
+        console.warn('Failed to send WebSocket subscription:', error);
+      }
+    }
+  }, [ws.connected, ws.send, isDemoMode]);
 
   // Convert MockAgent to Agent
   const convertMockAgent = (mock: MockAgent): Agent => ({
@@ -176,7 +198,18 @@ export const useAgentSystem = () => {
         // Use the API client from pitwall.ts
         const { getAgentStatus } = await import('@/api/pitwall');
         const data = await getAgentStatus();
-        setAgents(data.agents || []);
+        
+        // Normalize agents to ensure types array exists and status has default
+        const normalizedAgents: Agent[] = (data.agents || []).map(agent => ({
+          id: agent.id,
+          status: (agent.status || 'idle') as 'active' | 'idle' | 'error', // Default to 'idle' if not specified
+          type: agent.type,
+          types: agent.types || (agent.type ? [agent.type] : []), // Ensure types array exists
+          tracks: agent.tracks || [],
+          registered_at: agent.registered_at
+        }));
+        
+        setAgents(normalizedAgents);
         setQueueStats(data.queues || {});
       } catch (error) {
         console.error('Failed to fetch agent status:', error);
@@ -193,49 +226,70 @@ export const useAgentSystem = () => {
 
   // Handle WebSocket messages (live mode only)
   useEffect(() => {
-    if (isDemoMode || !ws) return;
+    if (isDemoMode || !ws.connected) return;
 
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        switch (data.type) {
-          case 'insight_update': {
-            const newInsight: Insight = {
-              ...data.data,
-              insight_id: data.data.insight_id || data.data.id || data.data.decision_id || `insight-${Date.now()}`
-            };
-            
-            setInsights(prev => {
-              const updated = [newInsight, ...prev].slice(0, 50);
-              insightsRef.current = updated;
-              return updated;
-            });
-            break;
+    // Process messages from useWebSocket hook
+    const messages = ws.messages || [];
+    
+    if (messages.length > 0) {
+      messages.forEach((msg: unknown) => {
+        try {
+          // Handle both direct message objects and parsed JSON strings
+          let data: any;
+          if (typeof msg === 'string') {
+            data = JSON.parse(msg);
+          } else if (typeof msg === 'object' && msg !== null) {
+            data = msg;
+          } else {
+            return;
           }
+          
+          switch (data.type) {
+            case 'insight_update': {
+              const newInsight: Insight = {
+                ...data.data,
+                insight_id: data.data.insight_id || data.data.id || data.data.decision_id || `insight-${Date.now()}`,
+                track: data.data.track || '',
+                chassis: data.data.chassis || '',
+                created_at: data.data.created_at || new Date().toISOString()
+              };
+              
+              setInsights(prev => {
+                // Deduplicate by insight_id
+                const existing = prev.find(i => i.insight_id === newInsight.insight_id);
+                if (existing) return prev;
+                
+                const updated = [newInsight, ...prev].slice(0, 50);
+                insightsRef.current = updated;
+                return updated;
+              });
+              break;
+            }
 
-          case 'eda_result':
-            console.log('EDA Result:', data.data);
-            break;
+            case 'eda_result':
+              console.log('EDA Result:', data.data);
+              break;
 
-          case 'agent_status_update':
-            setAgents(prev => 
-              prev.map(agent => 
-                agent.id === data.data.agentId 
-                  ? { ...agent, ...data.data }
-                  : agent
-              )
-            );
-            break;
+            case 'agent_status_update':
+              setAgents(prev => 
+                prev.map(agent => 
+                  agent.id === data.data.agentId 
+                    ? { ...agent, ...data.data }
+                    : agent
+                )
+              );
+              break;
+
+            case 'ping':
+              // Keep-alive ping, no action needed
+              break;
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
         }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
-
-    ws.addEventListener('message', handleMessage);
-    return () => ws.removeEventListener('message', handleMessage);
-  }, [ws, isDemoMode]);
+      });
+    }
+  }, [ws.messages, ws.connected, isDemoMode]);
 
   const fetchInsightDetails = useCallback(async (insightId: string) => {
     try {
