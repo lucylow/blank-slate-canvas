@@ -42,10 +42,10 @@ export function Dashboard() {
   const activeAgents = agentStatus?.agents?.filter(a => a.status === 'active').length || 0;
 
   // Calculate quick stats
-  const totalDrivers = drivers.length;
+  const totalDrivers = drivers?.length || 0;
   const activeAlerts = alerts?.filter(a => a.severity === 'high').length || 0;
-  const avgLapTime = drivers.length > 0 
-    ? (drivers.reduce((sum, d) => sum + d.lastLapTime, 0) / drivers.length).toFixed(3)
+  const avgLapTime = drivers && drivers.length > 0 
+    ? (drivers.reduce((sum, d) => sum + (d.lastLapTime || 0), 0) / drivers.length).toFixed(3)
     : '0.000';
   // Strategy confidence - using predictions if available
   const strategyConfidence = strategy?.predictions ? '85%' : 'N/A';

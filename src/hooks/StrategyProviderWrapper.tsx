@@ -1,5 +1,5 @@
 // Wrapper component that integrates StrategyProvider with TelemetryProvider
-import { ReactNode } from 'react';
+import { ReactNode, useCallback } from 'react';
 import { StrategyProvider } from './useStrategy';
 import { useTelemetry } from './useTelemetry';
 
@@ -7,7 +7,7 @@ export function StrategyProviderWrapper({ children }: { children: ReactNode }) {
   // This component must be used within TelemetryProvider
   const telemetry = useTelemetry();
 
-  const getTelemetryData = () => {
+  const getTelemetryData = useCallback(() => {
     if (!telemetry?.selectedDriver || !telemetry?.trackData?.name) {
       return null;
     }
@@ -16,7 +16,7 @@ export function StrategyProviderWrapper({ children }: { children: ReactNode }) {
       chassis: telemetry.selectedDriver.chassisNumber,
       currentLap: telemetry.currentLap
     };
-  };
+  }, [telemetry?.selectedDriver, telemetry?.trackData?.name, telemetry?.currentLap]);
 
   return (
     <StrategyProvider getTelemetryData={getTelemetryData}>

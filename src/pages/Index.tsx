@@ -973,7 +973,7 @@ const Index = () => {
           <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed">
             Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
           </p>
-          {agentStatus && agentStatus.agents.length > 0 && (
+          {agentStatus?.agents && agentStatus.agents.length > 0 && (
             <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -1066,7 +1066,7 @@ const Index = () => {
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
                 AI Agents
-                {agentStatus && agentStatus.agents.length > 0 && (
+                {agentStatus?.agents && agentStatus.agents.length > 0 && (
                   <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
                     {agentStatus.agents.filter(a => a.status === 'active').length} active
                   </span>
