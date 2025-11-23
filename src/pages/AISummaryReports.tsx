@@ -530,69 +530,211 @@ const MOCK_REPORT_CONTENT: Record<string, string> = {
     <html>
       <head>
         <style>
-          body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 40px; 
-            background: #0a0a0a; 
-            color: #fff;
-            line-height: 1.6;
-            max-width: 1200px;
-            margin: 0 auto;
-          }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #0a0a0a; color: #fff; line-height: 1.6; max-width: 1400px; margin: 0 auto; }
           h1 { color: #EB0A1E; border-bottom: 2px solid #EB0A1E; padding-bottom: 10px; }
-          h2 { color: #EB0A1E; margin-top: 30px; }
+          h2 { color: #EB0A1E; margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+          h3 { color: #EB0A1E; margin-top: 20px; font-size: 1.1em; }
           .stat { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .insight { background: #1a1a1a; padding: 15px; border-left: 4px solid #EB0A1E; margin: 15px 0; }
           .cluster { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .recommendation { background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 10px 0; }
           .meta { color: #888; font-size: 0.9em; }
+          .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0; }
+          .metric-item { background: #252525; padding: 12px; border-radius: 6px; border: 1px solid #333; }
+          .metric-label { color: #888; font-size: 0.85em; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .metric-value { color: #fff; font-size: 1.3em; font-weight: bold; font-family: 'Courier New', monospace; }
+          .metric-sub { color: #aaa; font-size: 0.8em; margin-top: 4px; }
+          .section { margin: 30px 0; }
+          .highlight { background: #2a1a1a; border-left: 4px solid #EB0A1E; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          .warning { background: #2a1a1a; border-left: 4px solid #ffa500; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          .success { background: #1a2a1a; border-left: 4px solid #00ff00; padding: 15px; margin: 12px 0; border-radius: 4px; }
+          table { width: 100%; border-collapse: collapse; margin: 15px 0; background: #1a1a1a; border-radius: 8px; overflow: hidden; }
+          th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+          th { background: #252525; color: #EB0A1E; font-weight: bold; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+          tr:hover { background: #252525; }
+          .confidence { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.85em; font-weight: bold; margin-left: 8px; }
+          .confidence-high { background: #00ff00; color: #000; }
+          .confidence-medium { background: #ffa500; color: #000; }
+          .confidence-low { background: #ff4444; color: #fff; }
+          .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; margin-left: 6px; }
+          .badge-success { background: #00ff00; color: #000; }
+          .badge-warning { background: #ffa500; color: #000; }
+          .badge-danger { background: #ff4444; color: #fff; }
+          .badge-info { background: #4488ff; color: #fff; }
         </style>
       </head>
       <body>
-        <h1>Road America - AI Summary Report</h1>
-        <p class="meta">Generated: 2025-02-14 | Source: EDA Cluster Agent v0.9 / Predictor Agent v1.2</p>
+        <h1>Road America - Comprehensive AI Intelligence Report</h1>
+        <p class="meta">Generated: 2025-02-14 16:45:23 UTC | Source: EDA Cluster Agent v0.9 / Predictor Agent v1.2 / Strategy Agent v1.5 / Coach Agent v1.3</p>
         
-        <h2>Summary Statistics</h2>
-        <div class="stat">
-          <strong>Total Samples:</strong> 1,497<br>
-          <strong>Vehicles Analyzed:</strong> 29<br>
-          <strong>Average Speed:</strong> 133.51 km/h<br>
-          <strong>Speed Std Dev:</strong> 4.5 km/h<br>
-          <strong>Average Tire Temperature:</strong> 95.4°C
+        <div class="section">
+          <h2>Executive Summary</h2>
+          <div class="highlight">
+            <strong>Key Finding:</strong> Analysis of 1,497 telemetry samples across 29 vehicles reveals critical brake fade issues in long downhill zones (+7°C caliper rise per lap), particularly in Carousel and Kettle Bottoms sections. Late apex technique at Turn 5 (Canada Corner) shows 0.4s improvement potential. Tire degradation modeling indicates optimal pit window at Lap 18 with 79% confidence. High-speed sections require careful brake management strategy.
+          </div>
         </div>
-        
-        <h2>Top Insights</h2>
-        <div class="insight">
-          <strong>Brake Fade in Long Downhill Zones</strong><br>
-          Several vehicles show +7°C caliper rise per lap. Monitor brake temperatures closely, especially in the Carousel and Kettle Bottoms sections.
+
+        <div class="section">
+          <h2>Comprehensive Performance Statistics</h2>
+          <div class="metric-grid">
+            <div class="metric-item"><div class="metric-label">Total Telemetry Samples</div><div class="metric-value">1,497,892</div><div class="metric-sub">Across 29 vehicles, 43.1 min race</div></div>
+            <div class="metric-item"><div class="metric-label">Vehicles Analyzed</div><div class="metric-value">29</div><div class="metric-sub">100% field coverage</div></div>
+            <div class="metric-item"><div class="metric-label">Average Speed</div><div class="metric-value">133.51 km/h</div><div class="metric-sub">Std Dev: 4.5 km/h</div></div>
+            <div class="metric-item"><div class="metric-label">Best Lap Time</div><div class="metric-value">2:08.234</div><div class="metric-sub">Car #22, Lap 7</div></div>
+            <div class="metric-item"><div class="metric-label">Average Lap Time</div><div class="metric-value">2:10.567</div><div class="metric-sub">±0.298s consistency</div></div>
+            <div class="metric-item"><div class="metric-label">Average Tire Temperature</div><div class="metric-value">95.4°C</div><div class="metric-sub">Peak: 106.9°C (Cluster 2)</div></div>
+            <div class="metric-item"><div class="metric-label">Tire Degradation Rate</div><div class="metric-value">0.044s/lap</div><div class="metric-sub">Predicted cliff: Lap 19.1</div></div>
+            <div class="metric-item"><div class="metric-label">Brake Temperature Avg</div><div class="metric-value">523°C</div><div class="metric-sub">Peak: 712°C (Carousel)</div></div>
+            <div class="metric-item"><div class="metric-label">Fuel Consumption</div><div class="metric-value">3.1 L/lap</div><div class="metric-sub">Estimated range: 25.2 laps</div></div>
+          </div>
         </div>
-        <div class="insight">
-          <strong>Late Apex Gains</strong><br>
-          Cluster 1 drivers gaining ~0.4s via later turn-in at T5. Consider coaching drivers on optimal turn-in points for Canada Corner.
+
+        <div class="section">
+          <h2>Critical Brake Analysis</h2>
+          <div class="warning">
+            <strong>⚠️ Brake Fade Alert:</strong> Analysis reveals significant brake temperature rise of +7°C per lap in long downhill zones. Carousel (Turn 12) and Kettle Bottoms (Turn 5) show peak temperatures of 712°C and 689°C respectively. This represents critical risk factor requiring immediate attention.
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Turn</th>
+                <th>Brake Temp Avg</th>
+                <th>Peak Temp</th>
+                <th>Rise Rate</th>
+                <th>Risk Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Turn 5 (Canada Corner)</strong></td>
+                <td>645°C</td>
+                <td>689°C</td>
+                <td>+6.2°C/lap</td>
+                <td><span class="badge badge-warning">High</span></td>
+              </tr>
+              <tr>
+                <td><strong>Turn 12 (Carousel)</strong></td>
+                <td>678°C</td>
+                <td>712°C</td>
+                <td>+7.1°C/lap</td>
+                <td><span class="badge badge-danger">Critical</span></td>
+              </tr>
+              <tr>
+                <td><strong>Turn 14 (Kettle Bottoms)</strong></td>
+                <td>623°C</td>
+                <td>667°C</td>
+                <td>+5.8°C/lap</td>
+                <td><span class="badge badge-warning">High</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        
-        <h2>Driver Clusters</h2>
-        <div class="cluster">
-          <strong>Cluster 0 (898 samples)</strong><br>
-          Average Speed: 130.84 km/h | Tire Temp: 90.63°C
+
+        <div class="section">
+          <h2>Strategic Intelligence & Recommendations</h2>
+          
+          <div class="recommendation">
+            <h3>1. Pit Window Optimization <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommended Pit Lap:</strong> Lap 18 (Confidence: 79%)</p>
+            <p><strong>Reasoning:</strong> Tire degradation modeling indicates performance cliff at Lap 19.1. Pitting on Lap 18 provides optimal balance and allows brake cooling opportunity. Long straights provide natural brake cooling between braking zones.</p>
+            <p><strong>Expected Impact:</strong> Maintain competitive pace, avoid tire degradation penalty, provide brake cooling window.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>2. Late Apex Technique - Canada Corner <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Later turn-in at Turn 5 (Canada Corner) to optimize exit speed</p>
+            <p><strong>Confidence:</strong> 83%</p>
+            <p><strong>Data Support:</strong> Cluster 1 drivers show 0.4s improvement with later turn-in technique. Analysis of 449 samples indicates optimal turn-in point is 2.8m later than current average.</p>
+            <p><strong>Expected Improvement:</strong> 0.4s per lap improvement potential</p>
+            <p><strong>Implementation:</strong> Focus on Turn 5 entry. Current turn-in: 78m marker. Recommended: 75.2m marker. Maintain throttle through apex for optimal exit speed.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>3. Brake Management Strategy <span class="confidence confidence-high">HIGH CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Reduce brake pressure by 8-10% in Carousel and Kettle Bottoms sections</p>
+            <p><strong>Confidence:</strong> 88%</p>
+            <p><strong>Data Support:</strong> Brake temperature rise of +7°C per lap in downhill zones indicates excessive brake usage. Reducing pressure by 8-10% should limit temperature rise to +4°C per lap.</p>
+            <p><strong>Expected Impact:</strong> Reduce brake fade risk, extend brake pad life, maintain consistent braking performance throughout race.</p>
+            <p><strong>Risk:</strong> Low. Requires driver confidence but data shows consistent benefits across field.</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>4. Throttle Application Optimization <span class="confidence confidence-medium">MEDIUM CONFIDENCE</span></h3>
+            <p><strong>Recommendation:</strong> Smoother throttle pickup at corner exit to reduce tire stress</p>
+            <p><strong>Confidence:</strong> 77%</p>
+            <p><strong>Data Support:</strong> Analysis shows aggressive throttle application at corner exit increases tire temperature by 3-5°C and accelerates degradation.</p>
+            <p><strong>Expected Improvement:</strong> Reduce tire degradation rate by 6-8%, improve tire life by 1-2 laps</p>
+          </div>
         </div>
-        <div class="cluster">
-          <strong>Cluster 1 (449 samples)</strong><br>
-          Average Speed: 136.18 km/h | Tire Temp: 100.17°C
+
+        <div class="section">
+          <h2>Driver Cluster Intelligence</h2>
+          <div class="cluster">
+            <h3>Cluster 0: Conservative Pace (898 samples, 60.0%)</h3>
+            <p><strong>Average Speed:</strong> 130.84 km/h | <strong>Tire Temp:</strong> 90.63°C | <strong>Lap Time Avg:</strong> 2:11.234</p>
+            <p><strong>Characteristics:</strong> Conservative pace with excellent brake and tire preservation. Best suited for endurance scenarios.</p>
+          </div>
+          <div class="cluster">
+            <h3>Cluster 1: Optimal Performance (449 samples, 30.0%)</h3>
+            <p><strong>Average Speed:</strong> 136.18 km/h | <strong>Tire Temp:</strong> 100.17°C | <strong>Lap Time Avg:</strong> 2:09.567</p>
+            <p><strong>Characteristics:</strong> Fast pace with optimal brake and tire management. Late apex technique at Canada Corner provides 0.4s advantage. <span class="badge badge-success">Target Profile</span></p>
+          </div>
+          <div class="cluster">
+            <h3>Cluster 2: Maximum Performance (150 samples, 10.0%)</h3>
+            <p><strong>Average Speed:</strong> 143.19 km/h | <strong>Tire Temp:</strong> 106.85°C | <strong>Lap Time Avg:</strong> 2:08.123</p>
+            <p><strong>Characteristics:</strong> Maximum performance but high brake and tire stress. Unsustainable beyond 8-10 laps.</p>
+          </div>
         </div>
-        <div class="cluster">
-          <strong>Cluster 2 (150 samples)</strong><br>
-          Average Speed: 143.19 km/h | Tire Temp: 106.85°C
+
+        <div class="section">
+          <h2>Risk Assessment Matrix</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Risk Factor</th>
+                <th>Severity</th>
+                <th>Probability</th>
+                <th>Mitigation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Brake Fade (Carousel)</td>
+                <td><span class="badge badge-danger">Critical</span></td>
+                <td>78%</td>
+                <td>Reduce brake pressure 8-10% in downhill zones</td>
+              </tr>
+              <tr>
+                <td>Tire Degradation Cliff</td>
+                <td><span class="badge badge-warning">High</span></td>
+                <td>79%</td>
+                <td>Pit before Lap 19</td>
+              </tr>
+              <tr>
+                <td>Brake Pad Failure</td>
+                <td><span class="badge badge-danger">High</span></td>
+                <td>34%</td>
+                <td>Monitor brake temps, consider pad compound change</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        
-        <h2>AI Recommendations</h2>
-        <div class="recommendation">
-          <strong>Pit Window Optimization</strong><br>
-          Recommended pit lap: 18 (Confidence: 72%)
+
+        <div class="section">
+          <h2>Action Items Summary</h2>
+          <ol>
+            <li><strong>IMMEDIATE:</strong> Implement brake management strategy - reduce pressure 8-10% in Carousel and Kettle Bottoms.</li>
+            <li><strong>HIGH PRIORITY:</strong> Coach driver on late apex technique at Turn 5 (Canada Corner) - 0.4s improvement potential.</li>
+            <li><strong>HIGH PRIORITY:</strong> Prepare for pit stop on Lap 18.</li>
+            <li><strong>MEDIUM PRIORITY:</strong> Optimize throttle application at corner exit for tire preservation.</li>
+            <li><strong>MONITOR:</strong> Brake temperatures in Carousel and Kettle Bottoms sections - critical risk areas.</li>
+          </ol>
         </div>
-        <div class="recommendation">
-          <strong>Driver Coaching</strong><br>
-          Smoother throttle pickup at corner exit (Confidence: 77%)
+
+        <div class="section">
+          <p class="meta" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333;">
+            Report generated by PitWall A.I. Multi-Agent System | Model Version: v1.2.3 | Data Processing Time: 2.51s | Confidence Score: 79%
+          </p>
         </div>
       </body>
     </html>
