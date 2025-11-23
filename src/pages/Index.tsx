@@ -64,6 +64,8 @@ import {
   type CoachingAlert,
   type CoachingPlan 
 } from "@/api/driverFingerprint";
+import { 
+  getCurrentF1Season,
   type F1RaceResult 
 } from "@/api/f1Benchmarking";
 import { 
@@ -503,7 +505,6 @@ const Index = () => {
     retry: 1,
   });
 
-  });
 
   // Update state when queries complete
   useEffect(() => {
@@ -517,8 +518,6 @@ const Index = () => {
       setAnomalyHealth(anomalyHealthData);
     }
   }, [anomalyHealthData]);
-
-  useEffect(() => {
 
   // Smooth scroll handler for anchor links with header offset
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -3225,8 +3224,6 @@ const Index = () => {
                     Driver Fingerprinting
                   </a>
                 </li>
-                <li>
-                  <a 
                 <li>
                   <a 
                     href="#f1-benchmarking" 
