@@ -144,10 +144,75 @@ class RaceDataLoader:
 
     
 
-    def load_weather(self, race_num):
+    def load_weather(self, race_num, use_api=False, track_coords=None, api_key=None):
 
-        """Load weather data."""
+        """
+        Load weather data from CSV file or OpenWeatherMap API.
+        
+        Args:
+            race_num: Race number
+            use_api: If True, use OpenWeatherMap API instead of CSV files
+            track_coords: Dictionary with 'latitude' and 'longitude' keys (required if use_api=True)
+            api_key: OpenWeatherMap API key (optional, will use env var if not provided)
+        
+        Returns:
+            DataFrame with weather data or None if not available
+        """
 
+        # Try OpenWeatherMap API if requested
+        if use_api and track_coords:
+            try:
+                import os
+                import requests
+                
+                # Get API key from parameter or environment (Lovable Cloud secret)
+                api_key = api_key or os.getenv("OpenWeatherMap_API_Key")
+                
+                if not api_key:
+                    print(
+                        "Warning: OpenWeatherMap_API_Key not found. "
+                        "Please set it as a secret in Lovable Cloud. Falling back to CSV."
+                    )
+                    use_api = False
+                else:
+                    # Fetch current weather from OpenWeatherMap
+                    url = "https://api.openweathermap.org/data/2.5/weather"
+                    params = {
+                        "lat": track_coords["latitude"],
+                        "lon": track_coords["longitude"],
+                        "appid": api_key,
+                        "units": "metric"
+                    }
+                    
+                    response = requests.get(url, params=params, timeout=10)
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    # Convert to DataFrame format matching CSV structure
+                    weather_data = {
+                        "TIME_UTC_STR": [datetime.utcnow()],
+                        "AIR_TEMP": [data["main"]["temp"]],
+                        "TRACK_TEMP": [
+                            data["main"]["temp"] + 15  # Estimate track temp
+                        ],
+                        "HUMIDITY": [data["main"]["humidity"]],
+                        "WIND_SPEED": [data["wind"]["speed"] * 3.6],  # m/s to km/h
+                        "RAIN": [1 if data.get("rain", {}).get("1h", 0) > 0 else 0],
+                        "PRESSURE": [data["main"]["pressure"]],
+                        "WIND_DIRECTION": [data["wind"].get("deg", 0)]
+                    }
+                    
+                    df = pd.DataFrame(weather_data)
+                    df['TIME_UTC_STR'] = pd.to_datetime(df['TIME_UTC_STR'])
+                    print(f"✓ Loaded weather from OpenWeatherMap API for {track_coords}")
+                    return df
+                    
+            except Exception as e:
+                print(f"Warning: Failed to load weather from OpenWeatherMap API: {e}")
+                print("Falling back to CSV file...")
+                use_api = False
+
+        # Fallback to CSV file
         race_path = self.track_path / f"Race {race_num}"
 
         weather_files = list(race_path.glob("*Weather*.CSV"))

@@ -242,6 +242,13 @@ try:
 except ImportError as e:
     logger.warning(f"F1 benchmarking router not available: {e}")
 
+# Import and include weather router (OpenWeatherMap integration)
+try:
+    from app.routes import weather
+    app.include_router(weather.router, tags=["Weather"])
+except ImportError as e:
+    logger.warning(f"Weather router not available: {e}")
+
 # Metrics endpoint - mount Prometheus ASGI app for better compatibility
 from prometheus_client import make_asgi_app
 metrics_app = make_asgi_app()

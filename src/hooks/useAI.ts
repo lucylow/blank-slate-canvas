@@ -8,6 +8,12 @@ export { useAIPerformance, useAIPerformanceMutation } from "./useAIPerformance";
 export { useAIStrategy, useAIStrategyMutation } from "./useAIStrategy";
 export { useAIGapAnalysis, useAIGapAnalysisMutation } from "./useAIGapAnalysis";
 export { useAIModelEval } from "./useAIModelEval";
+export { 
+  useAIAnalytics, 
+  useRealTimeAIAnalytics, 
+  useAnalyzeRaceData,
+  useComprehensiveAnalytics 
+} from "./useAIAnalytics";
 
 // Re-export types for convenience
 export type {

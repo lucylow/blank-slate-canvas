@@ -5,9 +5,20 @@
 import { client } from './client';
 
 // Get API keys from environment variables (Lovable secrets)
-// In Lovable, secrets are exposed as environment variables
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI;
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI;
+// In Lovable, secrets are exposed as environment variables with the secret name
+// "OpenAI" secret -> import.meta.env.OPENAI
+// "GEMINI" secret -> import.meta.env.GEMINI
+const OPENAI_API_KEY = 
+  import.meta.env.OPENAI ||
+  import.meta.env.VITE_OPENAI_API_KEY || 
+  import.meta.env.OPENAI_API_KEY ||
+  (typeof window !== 'undefined' && (window as any).__OPENAI_API_KEY__) ||
+  '';
+const GEMINI_API_KEY = 
+  import.meta.env.GEMINI ||
+  import.meta.env.VITE_GEMINI_API_KEY || 
+  import.meta.env.GEMINI_API_KEY ||
+  '';
 
 // OpenAI API configuration
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
@@ -115,7 +126,7 @@ async function analyzeWithGemini(
   analysisType: string
 ): Promise<AIAnalyticsResponse> {
   if (!GEMINI_API_KEY) {
-    throw new Error('Gemini API key not configured.');
+    throw new Error('Gemini API key not configured. Please add "GEMINI" secret in Lovable.');
   }
 
   const prompt = buildAnalyticsPrompt(data, analysisType);
@@ -300,6 +311,7 @@ function extractSummary(text: string): string {
 
 /**
  * Main function to perform advanced AI analytics
+ * Tries OpenAI first, then falls back to Gemini if OpenAI is unavailable or fails
  */
 export async function performAIAnalytics(
   request: AdvancedAnalyticsRequest
@@ -331,7 +343,26 @@ export async function performAIAnalytics(
     } else if (model === 'gemini') {
       return analyzeWithGemini(data, analysisType);
     } else {
-      return analyzeWithOpenAI(data, analysisType);
+      // Default: try OpenAI first, fallback to Gemini if OpenAI fails or is unavailable
+      if (OPENAI_API_KEY) {
+        try {
+          return await analyzeWithOpenAI(data, analysisType);
+        } catch (openaiError) {
+          console.warn('OpenAI analysis failed, falling back to Gemini:', openaiError);
+          // Fallback to Gemini if available
+          if (GEMINI_API_KEY) {
+            return await analyzeWithGemini(data, analysisType);
+          }
+          // If Gemini is also not available, throw the original OpenAI error
+          throw openaiError;
+        }
+      } else if (GEMINI_API_KEY) {
+        // OpenAI not available, but Gemini is - use Gemini
+        console.info('OpenAI not configured, using Gemini');
+        return await analyzeWithGemini(data, analysisType);
+      } else {
+        throw new Error('No AI API keys configured. Please add "OpenAI" or "GEMINI" secret in Lovable.');
+      }
     }
   } catch (error) {
     console.error('AI Analytics error:', error);
@@ -432,7 +463,7 @@ export async function getRealTimeAIAnalytics(
     return performAIAnalytics({
       data: raceData,
       analysisType: 'comprehensive',
-      model: 'openai', // Prioritize OpenAI
+      model: 'openai', // Will try OpenAI first, fallback to Gemini if needed
     });
   } catch (error) {
     console.error('Error fetching race data for AI analytics:', error);

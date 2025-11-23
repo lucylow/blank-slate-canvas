@@ -46,10 +46,13 @@ AE_MODEL_PATH = os.getenv("AE_MODEL_PATH", "")
 AE_THRESHOLD = float(os.getenv("AE_THRESHOLD", "0.0005"))
 
 # Track Configuration
+# Note: Coordinates (lat/lon) are used for OpenWeatherMap API integration
 TRACKS = {
     "sebring": {
         "name": "Sebring International Raceway",
         "location": "Sebring, Florida",
+        "latitude": 27.4547,
+        "longitude": -80.3478,
         "length_miles": 3.74,
         "turns": 17,
         "data_dir": "sebring/Sebring"
@@ -57,6 +60,8 @@ TRACKS = {
     "cota": {
         "name": "Circuit of the Americas",
         "location": "Austin, Texas",
+        "latitude": 30.1327,
+        "longitude": -97.6344,
         "length_miles": 3.427,
         "turns": 20,
         "data_dir": "circuit-of-the-americas/COTA"
@@ -64,6 +69,8 @@ TRACKS = {
     "road-america": {
         "name": "Road America",
         "location": "Elkhart Lake, Wisconsin",
+        "latitude": 43.8014,
+        "longitude": -88.0078,
         "length_miles": 4.048,
         "turns": 14,
         "data_dir": "road-america/Road America"
@@ -71,6 +78,8 @@ TRACKS = {
     "sonoma": {
         "name": "Sonoma Raceway",
         "location": "Sonoma, California",
+        "latitude": 38.1606,
+        "longitude": -122.4589,
         "length_miles": 2.52,
         "turns": 12,
         "data_dir": "sonoma/Sonoma"
@@ -78,6 +87,8 @@ TRACKS = {
     "barber": {
         "name": "Barber Motorsports Park",
         "location": "Birmingham, Alabama",
+        "latitude": 33.5542,
+        "longitude": -86.6025,
         "length_miles": 2.38,
         "turns": 17,
         "data_dir": "barber-motorsports-park/Barber"
@@ -85,6 +96,8 @@ TRACKS = {
     "vir": {
         "name": "Virginia International Raceway",
         "location": "Alton, Virginia",
+        "latitude": 36.6706,
+        "longitude": -79.1453,
         "length_miles": 3.27,
         "turns": 17,
         "data_dir": "virginia-international-raceway/VIR"
@@ -92,6 +105,8 @@ TRACKS = {
     "indianapolis": {
         "name": "Indianapolis Motor Speedway",
         "location": "Indianapolis, Indiana",
+        "latitude": 39.7950,
+        "longitude": -86.2347,
         "length_miles": 2.439,
         "turns": 14,
         "data_dir": "indianapolis/Indianapolis"
