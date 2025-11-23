@@ -1150,6 +1150,106 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Racing Community Impact Section */}
+      <section className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-accent/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.08),transparent_70%)]" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Racing Community Impact</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Empowering the Racing Community
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              PitWall AI is designed to democratize professional-grade race analytics, making advanced AI-powered insights accessible to teams at all levels of competition.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Potential Impact</h3>
+                <ul className="space-y-2 text-muted-foreground text-sm leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Level the playing field for smaller teams with limited engineering resources</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Reduce costs by optimizing tire strategy and minimizing unnecessary pit stops</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Accelerate driver development through data-driven coaching insights</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Enable real-time decision-making during races without large pit wall teams</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>Foster knowledge sharing and community learning through explainable AI</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">High-Impact Features</h3>
+                <ul className="space-y-2 text-muted-foreground text-sm leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span><strong>Real-time tire predictions:</strong> Prevent costly tire failures and optimize pit windows</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span><strong>Driver coaching insights:</strong> Help drivers improve consistency and lap times</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span><strong>Strategy optimization:</strong> Make data-driven decisions on pit stops and race strategy</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span><strong>Anomaly detection:</strong> Quickly identify issues like lockups or mechanical problems</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span><strong>Competitor analysis:</strong> Understand opponent strategies and find overtaking opportunities</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-8 border border-primary/20 backdrop-blur-sm">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center flex-shrink-0 text-primary-foreground shadow-lg shadow-primary/30">
+                <Flag className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2">Building a Stronger Racing Community</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  By making professional-grade analytics accessible, PitWall AI helps grow the racing community. 
+                  Smaller teams can compete more effectively, drivers can develop faster, and the entire sport benefits 
+                  from more competitive racing. The explainable AI approach ensures teams understand the reasoning behind 
+                  recommendations, fostering learning and continuous improvement across all levels of competition.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* GR Car Comparison Section */}
       <section id="gr-cars" className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />

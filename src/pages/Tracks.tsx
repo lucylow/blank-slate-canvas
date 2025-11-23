@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Flag, ArrowLeft, FileText, ExternalLink, TrendingUp, Activity, Zap, ArrowRight, Download, Loader2 } from "lucide-react";
+import { MapPin, Flag, ArrowLeft, FileText, ExternalLink, TrendingUp, Activity, Zap, ArrowRight, Download, Loader2, Code } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import RaceAnalysis from "@/components/RaceAnalysis";
+import TrackDetailAnalytics from "@/components/TrackDetailAnalytics";
 import { generateAllTracksAISummaryPDF } from "@/utils/pdfGenerator";
 
 // Track configuration with PDF map references
@@ -38,11 +39,23 @@ const TRACK_SVG_MAP: Record<string, string> = {
   "Indianapolis Motor Speedway": "indianapolis.svg",
 };
 
+// Track ID to demo data file mapping
+const TRACK_DEMO_MAP: Record<string, string> = {
+  "cota": "cota_demo.json",
+  "road-america": "road_america_demo.json",
+  "sebring": "sebring_demo.json",
+  "sonoma": "sonoma_demo.json",
+  "barber": "barber_demo.json",
+  "vir": "vir_demo.json",
+  "indianapolis": "indianapolis_demo.json",
+};
+
 const Tracks = () => {
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [viewingMap, setViewingMap] = useState<string | null>(null);
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [trackDataSamples, setTrackDataSamples] = useState<Record<string, any>>({});
 
   const tracks = [
     { 
@@ -102,6 +115,66 @@ const Tracks = () => {
       description: "The legendary Brickyard, home of the Indianapolis 500, featuring a challenging road course layout."
     }
   ];
+
+  // Load sample data for each track
+  useEffect(() => {
+    const loadTrackSamples = async () => {
+      const samples: Record<string, any> = {};
+      
+      for (const track of tracks) {
+        const demoFile = TRACK_DEMO_MAP[track.id];
+        if (demoFile) {
+          try {
+            const response = await fetch(`/demo_data/${demoFile}`);
+            if (response.ok) {
+              const data = await response.json();
+              // Extract a small sample from the telemetry data
+              if (data.races && data.races.length > 0 && data.races[0].telemetry_sample) {
+                const telemetrySample = data.races[0].telemetry_sample;
+                // Get unique telemetry types for a diverse sample
+                const seenTypes = new Set<string>();
+                const sample: any[] = [];
+                
+                for (const entry of telemetrySample) {
+                  if (!seenTypes.has(entry.telemetry_name) && sample.length < 4) {
+                    seenTypes.add(entry.telemetry_name);
+                    sample.push({
+                      telemetry_name: entry.telemetry_name,
+                      telemetry_value: entry.telemetry_value,
+                      timestamp: entry.timestamp,
+                      vehicle_id: entry.vehicle_id,
+                      vehicle_number: entry.vehicle_number,
+                      lap: entry.lap
+                    });
+                  }
+                  if (sample.length >= 4) break;
+                }
+                
+                samples[track.id] = {
+                  track_id: data.track_id,
+                  track_name: data.track_name,
+                  sample_telemetry: sample
+                };
+              } else {
+                // If no telemetry, create a sample structure
+                samples[track.id] = {
+                  track_id: data.track_id,
+                  track_name: data.track_name,
+                  sample_telemetry: []
+                };
+              }
+            }
+          } catch (error) {
+            console.warn(`Failed to load sample data for ${track.id}:`, error);
+          }
+        }
+      }
+      
+      setTrackDataSamples(samples);
+    };
+
+    loadTrackSamples();
+  }, []);
 
   return (
     <>
@@ -330,6 +403,20 @@ const Tracks = () => {
                               <p className="text-sm text-muted-foreground leading-relaxed">
                                 {track.description}
                               </p>
+                              
+                              {/* Dataset JSON Snippet */}
+                              {trackDataSamples[track.id] && trackDataSamples[track.id].sample_telemetry && trackDataSamples[track.id].sample_telemetry.length > 0 && (
+                                <div className="mt-4 p-3 rounded-lg bg-accent/30 border border-border/50">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Code className="w-4 h-4 text-primary" />
+                                    <span className="text-xs font-semibold text-primary uppercase tracking-wide">Dataset Sample</span>
+                                  </div>
+                                  <pre className="text-xs overflow-x-auto text-muted-foreground font-mono leading-relaxed">
+                                    {JSON.stringify(trackDataSamples[track.id].sample_telemetry.slice(0, 3), null, 2)}
+                                  </pre>
+                                </div>
+                              )}
+                              
                               <div className="flex gap-2">
                                 {TRACK_PDF_MAP[track.name] && (
                                   <Button
@@ -345,16 +432,17 @@ const Tracks = () => {
                                     View Map
                                   </Button>
                                 )}
-                                <Link to="/analytics" className="flex-1">
-                                  <Button
-                                    size="sm"
-                                    className="w-full bg-primary hover:bg-primary/90"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <Activity className="w-4 h-4 mr-2" />
-                                    Analytics
-                                  </Button>
-                                </Link>
+                                <Button
+                                  size="sm"
+                                  className="flex-1 bg-primary hover:bg-primary/90"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Track is already selected, detailed analytics will show below
+                                  }}
+                                >
+                                  <Activity className="w-4 h-4 mr-2" />
+                                  View Analytics
+                                </Button>
                               </div>
                             </motion.div>
                           )}
@@ -371,7 +459,7 @@ const Tracks = () => {
                           </div>
                         </div>
                         
-                        {!selectedTrack && (
+                        {selectedTrack !== track.name && (
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -387,7 +475,7 @@ const Tracks = () => {
                               }}
                             >
                               <Zap className="w-3 h-3 mr-2 group-hover/btn:rotate-12 transition-transform" />
-                              View Details
+                              View Detailed Analytics
                               <ArrowRight className="w-3 h-3 ml-auto group-hover/btn:translate-x-1 transition-transform" />
                             </Button>
                           </motion.div>
@@ -400,9 +488,39 @@ const Tracks = () => {
             })}
           </div>
 
+          {/* Detailed Track Analytics - Show for all tracks when selected */}
+          <AnimatePresence>
+            {selectedTrack && (() => {
+              const track = tracks.find(t => t.name === selectedTrack);
+              if (!track) return null;
+              
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-8"
+                >
+                  <TrackDetailAnalytics
+                    track={track}
+                    onClose={() => setSelectedTrack(null)}
+                  />
+                </motion.div>
+              );
+            })()}
+          </AnimatePresence>
+
           {/* Race Analysis for Road America, Virginia International, and Barber Motorsports Park */}
           {(selectedTrack === "Road America" || selectedTrack === "Virginia International" || selectedTrack === "Barber Motorsports Park") && (
-            <RaceAnalysis trackName={selectedTrack} />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-8"
+            >
+              <RaceAnalysis trackName={selectedTrack} />
+            </motion.div>
           )}
 
           {/* Track Data Summary */}
