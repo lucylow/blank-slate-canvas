@@ -196,7 +196,7 @@ const generateMockResults = (): AgentResult[] => {
           "Clients Connected": 3,
           "Delivery Time": "45ms",
           "Message Types": 3,
-          "Storage Success": true
+          "Storage Success": "true"
         },
         insights: [
           "WebSocket broadcast: insight-ab12cd34 created (Priority: HIGH)",
@@ -375,7 +375,7 @@ export default function AIAgentResults() {
                   <div className="space-y-4">
                     {results.map((result, index) => {
                       const time = new Date(result.timestamp);
-                      const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+                      const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '.' + time.getMilliseconds().toString().padStart(3, '0');
                       return (
                         <div key={result.agent_id} className="flex items-start gap-4 p-4 bg-muted/30 rounded-lg border-l-4 border-primary">
                           <div className="flex-shrink-0 w-24 text-xs font-mono text-muted-foreground pt-1">
