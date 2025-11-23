@@ -45,6 +45,7 @@ import GoogleMapsPage from "./pages/GoogleMapsPage";
 import AIDataAnalyticsPage from "./pages/AIDataAnalyticsPage";
 import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
 import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
+import SlackIntegrationPage from "./pages/SlackIntegrationPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -171,6 +172,9 @@ const App = () => (
                     
                     {/* Driver Fingerprinting - AI-powered driver analysis and coaching */}
                     <Route path="/driver-fingerprinting" element={<DriverFingerprintingPage />} />
+                    
+                    {/* Slack Integration - Real-time race alerts and notifications */}
+                    <Route path="/slack-integration" element={<SlackIntegrationPage />} />
                     
                     {/* ========== SETTINGS ========== */}
                     {/* About - Information about the app */}
