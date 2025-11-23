@@ -39,6 +39,12 @@ import F1Benchmarking from "./components/F1Benchmarking";
 import LiveInsightsDashboard from "./pages/LiveInsightsDashboard";
 import LovableCloudConfig from "./pages/LovableCloudConfig";
 import RaceStoryPage from "./pages/RaceStoryPage";
+import GeminiFeaturesPage from "./pages/GeminiFeaturesPage";
+import GoogleMapsPage from "./pages/GoogleMapsPage";
+import AIDataAnalyticsPage from "./pages/AIDataAnalyticsPage";
+import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
+import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
+import SlackIntegrationPage from "./pages/SlackIntegrationPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -148,6 +154,25 @@ const App = () => (
                     
                     {/* Edge Functions - Real-time analytics functions dashboard */}
                     <Route path="/edge-functions" element={<EdgeFunctionsPage />} />
+                    
+                    {/* ========== EXTERNAL API AI FEATURES ========== */}
+                    {/* Gemini AI Features - Showcase, Multimodal, and Zip Matcher */}
+                    <Route path="/gemini-features" element={<GeminiFeaturesPage />} />
+                    
+                    {/* Google Maps Integration - Complete Maps Platform integration */}
+                    <Route path="/google-maps" element={<GoogleMapsPage />} />
+                    
+                    {/* AI Data Analytics - Advanced AI-powered race data analysis */}
+                    <Route path="/ai-analytics" element={<AIDataAnalyticsPage />} />
+                    
+                    {/* Anomaly Detection - Real-time telemetry anomaly detection */}
+                    <Route path="/anomaly-detection" element={<AnomalyDetectionPage />} />
+                    
+                    {/* Driver Fingerprinting - AI-powered driver analysis and coaching */}
+                    <Route path="/driver-fingerprinting" element={<DriverFingerprintingPage />} />
+                    
+                    {/* Slack Integration - Real-time race alerts and notifications */}
+                    <Route path="/slack-integration" element={<SlackIntegrationPage />} />
                     
                     {/* ========== SETTINGS ========== */}
                     {/* About - Information about the app */}

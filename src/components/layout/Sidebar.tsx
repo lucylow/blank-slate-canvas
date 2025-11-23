@@ -14,7 +14,11 @@ import {
   X,
   BarChart3,
   Users,
-  Zap
+  Zap,
+  Brain,
+  Globe,
+  AlertCircle,
+  Bot
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
@@ -68,6 +72,17 @@ export function Sidebar() {
         { icon: BarChart3, label: 'Post-Event Analysis', to: '/post-event-analysis' },
         { icon: Zap, label: 'Pit Window', to: '/pit-window' },
         { icon: Users, label: 'Cars & Drivers', to: '/gr-cars-drivers' },
+      ],
+    },
+    {
+      title: 'External API AI',
+      items: [
+        { icon: Brain, label: 'Gemini AI', to: '/gemini-features' },
+        { icon: Globe, label: 'Google Maps', to: '/google-maps' },
+        { icon: BarChart3, label: 'AI Analytics', to: '/ai-analytics' },
+        { icon: AlertCircle, label: 'Anomaly Detection', to: '/anomaly-detection' },
+        { icon: Users, label: 'Driver Fingerprinting', to: '/driver-fingerprinting' },
+        { icon: Bot, label: 'Slack Integration', to: '/slack-integration' },
       ],
     },
     {

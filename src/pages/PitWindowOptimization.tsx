@@ -4,7 +4,8 @@ import PitConsole from "@/components/PitConsole";
 import MonteCarloVisualization, { type MonteCarloSimulationData } from "@/components/MonteCarloVisualization";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, Activity } from "lucide-react";
+import { BarChart3, Activity, CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 /**
  * Pit Window Optimization Page
@@ -47,6 +48,12 @@ export default function PitWindowOptimization() {
             <TabsTrigger value="visualization" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Monte Carlo Analysis
+              {monteCarloData && (
+                <Badge variant="default" className="ml-1 bg-green-600">
+                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                  Ready
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 

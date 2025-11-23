@@ -1,5 +1,5 @@
 // src/components/GeminiFeaturesShowcase.tsx
-// Showcase component highlighting all unique Gemini features
+// Showcase component highlighting A.I. features
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -30,41 +30,43 @@ import {
 const features = [
   {
     icon: Video,
-    title: 'Native Video Processing',
-    description: 'Upload and analyze video files directly - OpenAI only supports images. Gemini can process video content frame-by-frame for comprehensive analysis.',
-    badge: 'Gemini Only',
+    title: 'Video Processing',
+    description: 'Upload and analyze video files directly. Process video content frame-by-frame for comprehensive analysis of race footage, driver behavior, and track conditions.',
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10',
   },
   {
     icon: Music,
-    title: 'Native Audio Processing',
+    title: 'Audio Processing',
     description: 'Upload audio files for transcription, analysis, and insights. Extract spoken content, analyze tone, and process audio data natively.',
-    badge: 'Gemini Only',
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',
   },
   {
+    icon: ImageIcon,
+    title: 'Image Analysis',
+    description: 'Analyze images, charts, and visual data. Perfect for processing telemetry graphs, track maps, and race photography.',
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10',
+  },
+  {
     icon: Search,
-    title: 'Google Search Grounding',
+    title: 'Web Search Grounding',
     description: 'Enable real-time web search to ground responses with current information. Get citations and sources automatically included in responses.',
-    badge: 'Gemini Only',
     color: 'text-green-500',
     bgColor: 'bg-green-500/10',
   },
   {
     icon: Layers,
-    title: '1M+ Token Context Windows',
-    description: 'Process massive amounts of context - up to 1 million tokens. OpenAI maxes out at 128K. Perfect for analyzing entire codebases, large datasets, or extensive documentation.',
-    badge: 'Gemini Pro',
+    title: 'Large Context Windows',
+    description: 'Process massive amounts of context - up to 1 million tokens. Perfect for analyzing entire race seasons, multiple tracks, or extensive documentation in one go.',
     color: 'text-orange-500',
     bgColor: 'bg-orange-500/10',
   },
   {
     icon: LinkIcon,
     title: 'URL Context Retrieval',
-    description: 'Provide URLs and Gemini will automatically fetch, parse, and analyze web page content. No need to manually copy-paste content.',
-    badge: 'Gemini Only',
+    description: 'Provide URLs and automatically fetch, parse, and analyze web page content. No need to manually copy-paste content.',
     color: 'text-cyan-500',
     bgColor: 'bg-cyan-500/10',
   },
@@ -72,49 +74,25 @@ const features = [
     icon: Sparkles,
     title: 'Unified Multimodal API',
     description: 'Single API call handles text, images, videos, audio, and URLs together. No need to process different media types separately.',
-    badge: 'Gemini Exclusive',
     color: 'text-pink-500',
     bgColor: 'bg-pink-500/10',
   },
+  {
+    icon: Brain,
+    title: 'Advanced Race Data Analysis',
+    description: 'Leverage GPT-4 and advanced models for predictive insights, strategic recommendations, and comprehensive race data analysis.',
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Predictive Analytics',
+    description: 'Get predictive insights for tire wear, pit strategies, and race outcomes based on historical data and real-time telemetry.',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+  },
 ];
 
-const comparisonFeatures = [
-  {
-    feature: 'Video Processing',
-    gemini: true,
-    openai: false,
-  },
-  {
-    feature: 'Audio Processing',
-    gemini: true,
-    openai: false,
-  },
-  {
-    feature: 'Google Search Grounding',
-    gemini: true,
-    openai: false,
-  },
-  {
-    feature: 'URL Context Retrieval',
-    gemini: true,
-    openai: false,
-  },
-  {
-    feature: 'Max Context Window',
-    gemini: '1M+ tokens',
-    openai: '128K tokens',
-  },
-  {
-    feature: 'Image Processing',
-    gemini: true,
-    openai: true,
-  },
-  {
-    feature: 'Multimodal API',
-    gemini: 'Unified',
-    openai: 'Separate APIs',
-  },
-];
 
 export function GeminiFeaturesShowcase() {
   return (
@@ -125,10 +103,10 @@ export function GeminiFeaturesShowcase() {
           <Brain className="w-8 h-8 text-primary-foreground" />
         </div>
         <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-          Gemini-Exclusive Features
+          A.I. Features
         </h2>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Leverage powerful capabilities not available in OpenAI models
+          Powerful A.I. capabilities for race data analysis, multimodal processing, and strategic insights
         </p>
       </div>
 
@@ -149,9 +127,6 @@ export function GeminiFeaturesShowcase() {
                     <div className={`w-12 h-12 ${feature.bgColor} rounded-xl flex items-center justify-center`}>
                       <Icon className={`w-6 h-6 ${feature.color}`} />
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      {feature.badge}
-                    </Badge>
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
@@ -166,68 +141,6 @@ export function GeminiFeaturesShowcase() {
         })}
       </div>
 
-      {/* Comparison Table */}
-      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            Gemini vs OpenAI Feature Comparison
-          </CardTitle>
-          <CardDescription>
-            See how Gemini's unique features compare to OpenAI's capabilities
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-semibold">Feature</th>
-                  <th className="text-center py-3 px-4 font-semibold">Gemini</th>
-                  <th className="text-center py-3 px-4 font-semibold">OpenAI</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonFeatures.map((item, index) => (
-                  <motion.tr
-                    key={item.feature}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="border-b border-border/50 hover:bg-accent/30 transition-colors"
-                  >
-                    <td className="py-3 px-4 font-medium">{item.feature}</td>
-                    <td className="py-3 px-4 text-center">
-                      {typeof item.gemini === 'boolean' ? (
-                        item.gemini ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-500 mx-auto" />
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )
-                      ) : (
-                        <Badge variant="default" className="bg-green-500/20 text-green-600 dark:text-green-400">
-                          {item.gemini}
-                        </Badge>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {typeof item.openai === 'boolean' ? (
-                        item.openai ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-500 mx-auto" />
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )
-                      ) : (
-                        <Badge variant="outline">{item.openai}</Badge>
-                      )}
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Use Cases */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -292,9 +205,9 @@ export function GeminiFeaturesShowcase() {
               <li className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                 <div>
-                  <div className="font-medium">8x Larger Context</div>
+                  <div className="font-medium">Massive Context Windows</div>
                   <div className="text-sm text-muted-foreground">
-                    Process 1M+ tokens vs OpenAI's 128K limit
+                    Process up to 1M+ tokens for analyzing entire race seasons or multiple tracks
                   </div>
                 </div>
               </li>
