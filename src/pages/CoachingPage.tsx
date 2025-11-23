@@ -28,12 +28,12 @@ export default function CoachingPage() {
   const [selectedDriver, setSelectedDriver] = useState<string>('driver-1');
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <main role="main" className="min-h-screen bg-[#0A0A0A] text-white">
+      <section className="max-w-6xl mx-auto py-16 px-6">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Coaching Dashboard</h1>
-          <p className="text-muted-foreground">
+        <div className="space-y-2 mb-8">
+          <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">Coaching Dashboard</h1>
+          <p className="text-gray-300 max-w-2xl">
             Real-time performance analytics and coaching insights for racing teams
           </p>
         </div>
@@ -123,8 +123,8 @@ export default function CoachingPage() {
             <VisualizationControls selectedDriver={selectedDriver} />
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 

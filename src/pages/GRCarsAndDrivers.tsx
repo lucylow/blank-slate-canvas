@@ -143,10 +143,10 @@ const GRCarsAndDrivers: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <main role="main" className="min-h-screen bg-[#0A0A0A] text-white">
       <TopNav />
       
-      <div className="pt-24 pb-12 px-6">
+      <section className="max-w-6xl mx-auto py-16 px-6">
         <div className="container mx-auto max-w-7xl">
           {/* Header */}
           <div className="text-center mb-12">
@@ -570,8 +570,8 @@ const GRCarsAndDrivers: React.FC = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

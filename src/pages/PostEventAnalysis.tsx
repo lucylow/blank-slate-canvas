@@ -314,15 +314,15 @@ export default function PostEventAnalysis() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <main role="main" className="min-h-screen bg-[#0A0A0A] text-white">
+      <section className="max-w-6xl mx-auto py-16 px-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">
               Post-Event Analysis
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-gray-300 mt-3 max-w-2xl">
               Comprehensive race analysis, comparisons, and performance insights
             </p>
           </div>
@@ -339,10 +339,10 @@ export default function PostEventAnalysis() {
             <Button
               variant={comparisonMode ? "default" : "outline"}
               onClick={() => setComparisonMode(!comparisonMode)}
-              className="gap-2"
+              className={`gap-2 ${comparisonMode ? 'bg-[#EB0A1E] hover:bg-red-700' : 'border-gray-700 text-gray-200 hover:bg-gray-800'}`}
             >
               <GitCompare className="w-4 h-4" />
-              GitCompare
+              Compare
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -373,7 +373,7 @@ export default function PostEventAnalysis() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <Card>
+            <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
               <CardContent className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -429,11 +429,11 @@ export default function PostEventAnalysis() {
 
         {/* Race Selection */}
         {comparisonMode && (
-          <Card>
+          <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <GitCompare className="w-5 h-5" />
-                Select Races to GitCompare
+                Select Races to Compare
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -443,18 +443,18 @@ export default function PostEventAnalysis() {
                     key={race.id}
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
                       selectedRaces.includes(race.id)
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
+                        ? "border-[#EB0A1E] bg-[#EB0A1E]/10"
+                        : "border-gray-800 hover:border-gray-700 bg-gray-800"
                     }`}
                     onClick={() => toggleRaceSelection(race.id)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="font-semibold">{race.track}</div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-gray-400">
                           Race {race.raceNumber} • {race.date}
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-xs text-gray-500 mt-1">
                           {race.participants} participants • {race.totalLaps} laps
                         </div>
                       </div>
@@ -483,33 +483,33 @@ export default function PostEventAnalysis() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Races</p>
-                      <p className="text-2xl font-bold">{mockRaceData.length}</p>
-                    </div>
-                    <Flag className="w-8 h-8 text-primary/50" />
+            <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-400">Total Races</p>
+                    <p className="text-2xl font-bold">{mockRaceData.length}</p>
                   </div>
-                </CardContent>
-              </Card>
-              <Card>
+                  <Flag className="w-8 h-8 text-[#EB0A1E]/50" />
+                </div>
+              </CardContent>
+            </Card>
+              <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Unique Drivers</p>
+                      <p className="text-sm text-gray-400">Unique Drivers</p>
                       <p className="text-2xl font-bold">{driverPerformance.length}</p>
                     </div>
-                    <Users className="w-8 h-8 text-primary/50" />
+                    <Users className="w-8 h-8 text-[#EB0A1E]/50" />
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Avg Completion Rate</p>
+                      <p className="text-sm text-gray-400">Avg Completion Rate</p>
                       <p className="text-2xl font-bold">
                         {(
                           mockRaceData.reduce(
@@ -519,34 +519,34 @@ export default function PostEventAnalysis() {
                         ).toFixed(1)}%
                       </p>
                     </div>
-                    <Activity className="w-8 h-8 text-primary/50" />
+                    <Activity className="w-8 h-8 text-[#EB0A1E]/50" />
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total DNFs</p>
+                      <p className="text-sm text-gray-400">Total DNFs</p>
                       <p className="text-2xl font-bold">
                         {mockRaceData.reduce((sum, race) => sum + race.statistics.dnfCount, 0)}
                       </p>
                     </div>
-                    <AlertCircle className="w-8 h-8 text-destructive/50" />
+                    <AlertCircle className="w-8 h-8 text-red-500/50" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Race Results Table */}
-            <Card>
+            <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
               <CardHeader>
                 <CardTitle>Race Results</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {filteredRaces.map((race) => (
-                    <div key={race.id} className="border rounded-lg p-4">
+                    <div key={race.id} className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-gray-600 transition-colors">
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <h3 className="font-semibold text-lg">{race.track}</h3>
@@ -600,7 +600,7 @@ export default function PostEventAnalysis() {
             {selectedRaceData.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card>
+                  <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                     <CardHeader>
                       <CardTitle>Lap Time Comparison</CardTitle>
                     </CardHeader>
@@ -618,7 +618,7 @@ export default function PostEventAnalysis() {
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                     <CardHeader>
                       <CardTitle>Position Distribution</CardTitle>
                     </CardHeader>
@@ -636,7 +636,7 @@ export default function PostEventAnalysis() {
                   </Card>
                 </div>
 
-                <Card>
+                <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                   <CardHeader>
                     <CardTitle>Race Statistics Comparison</CardTitle>
                   </CardHeader>
@@ -673,10 +673,10 @@ export default function PostEventAnalysis() {
                 </Card>
               </>
             ) : (
-              <Card>
+              <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardContent className="p-12 text-center">
-                  <GitCompare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">
+                  <GitCompare className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-gray-400">
                     Select races in comparison mode to view detailed comparisons
                   </p>
                 </CardContent>
@@ -686,7 +686,7 @@ export default function PostEventAnalysis() {
 
           {/* Drivers Tab */}
           <TabsContent value="drivers" className="space-y-6">
-            <Card>
+            <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
               <CardHeader>
                 <CardTitle>Driver Performance Rankings</CardTitle>
               </CardHeader>
@@ -729,7 +729,7 @@ export default function PostEventAnalysis() {
 
           {/* Trends Tab */}
           <TabsContent value="trends" className="space-y-6">
-            <Card>
+            <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
               <CardHeader>
                 <CardTitle>Performance Trends Over Time</CardTitle>
               </CardHeader>
@@ -771,7 +771,7 @@ export default function PostEventAnalysis() {
           {/* Insights Tab */}
           <TabsContent value="insights" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
@@ -779,28 +779,28 @@ export default function PostEventAnalysis() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="p-4 bg-primary/10 rounded-lg">
+                  <div className="p-4 bg-[#EB0A1E]/10 border border-[#EB0A1E]/20 rounded-lg">
                     <div className="font-semibold mb-2">Most Competitive Race</div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-gray-400">
                       Barber Motorsports Park Race 1 had the closest finish with top 3 within 16.5 seconds
                     </p>
                   </div>
-                  <div className="p-4 bg-blue-500/10 rounded-lg">
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                     <div className="font-semibold mb-2">Best Reliability</div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-gray-400">
                       Sebring International Raceway achieved 100% completion rate with 0 DNFs
                     </p>
                   </div>
-                  <div className="p-4 bg-green-500/10 rounded-lg">
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
                     <div className="font-semibold mb-2">Top Performer</div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-gray-400">
                       Car #13 leads with multiple wins and consistent podium finishes
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />
@@ -809,19 +809,19 @@ export default function PostEventAnalysis() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Average Field Spread</span>
+                    <span className="text-sm text-gray-300">Average Field Spread</span>
                     <span className="font-semibold">34.0s</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Average Completion Rate</span>
+                    <span className="text-sm text-gray-300">Average Completion Rate</span>
                     <span className="font-semibold">93.4%</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Total Race Time</span>
+                    <span className="text-sm text-gray-300">Total Race Time</span>
                     <span className="font-semibold">2h 17m</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Total Laps</span>
+                    <span className="text-sm text-gray-300">Total Laps</span>
                     <span className="font-semibold">77</span>
                   </div>
                 </CardContent>
@@ -829,8 +829,8 @@ export default function PostEventAnalysis() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 

@@ -84,13 +84,14 @@ export default function AISummaryReports() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">AI Summary Reports</h1>
-        <p className="text-muted-foreground">
-          View and export AI-generated race analysis reports for each track
-        </p>
-      </div>
+    <main role="main" className="min-h-screen bg-[#0A0A0A] text-white">
+      <section className="max-w-6xl mx-auto py-16 px-6">
+        <div className="mb-6">
+          <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-2">AI Summary Reports</h1>
+          <p className="text-gray-300 max-w-2xl">
+            View and export AI-generated race analysis reports for each track
+          </p>
+        </div>
 
       {error && (
         <Alert variant="destructive" className="mb-6">
@@ -102,7 +103,7 @@ export default function AISummaryReports() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Reports List */}
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-1 bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5" />
@@ -113,11 +114,11 @@ export default function AISummaryReports() {
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-20 w-full" />
+                  <Skeleton key={i} className="h-20 w-full bg-gray-800" />
                 ))}
               </div>
             ) : reports.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-gray-400">
                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p className="text-sm">No reports found.</p>
                 <p className="text-xs mt-2">
@@ -129,10 +130,10 @@ export default function AISummaryReports() {
                 {reports.map((r) => (
                   <Card
                     key={r.id}
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all bg-gray-800 border ${
                       selected === r.id
-                        ? "bg-primary/10 border-primary"
-                        : "hover:bg-accent"
+                        ? "bg-[#EB0A1E]/10 border-[#EB0A1E]"
+                        : "border-gray-700 hover:border-gray-600 hover:bg-gray-750"
                     }`}
                     onClick={() => setSelected(r.id)}
                   >
@@ -144,10 +145,10 @@ export default function AISummaryReports() {
                               l.toUpperCase()
                             )}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1 truncate">
+                          <div className="text-xs text-gray-400 mt-1 truncate">
                             {r.filename}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="text-xs text-gray-500 mt-1">
                             {r.ext.toUpperCase()} file
                           </div>
                         </div>
@@ -159,7 +160,7 @@ export default function AISummaryReports() {
                             downloadPdf(r.id);
                           }}
                           disabled={loadingPdf}
-                          className="shrink-0"
+                          className="shrink-0 text-gray-300 hover:text-white hover:bg-gray-700"
                         >
                           {loadingPdf ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -177,18 +178,18 @@ export default function AISummaryReports() {
         </Card>
 
         {/* Preview */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
           <CardHeader>
             <CardTitle>Preview</CardTitle>
           </CardHeader>
           <CardContent>
             <div
-              className="border rounded-lg overflow-hidden bg-background"
+              className="border border-gray-700 rounded-lg overflow-hidden bg-gray-800"
               style={{ height: "720px" }}
             >
               {loading ? (
                 <div className="flex items-center justify-center h-full">
-                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
               ) : selected ? (
                 <iframe
@@ -202,8 +203,8 @@ export default function AISummaryReports() {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                  <FileText className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
-                  <p className="text-muted-foreground">
+                  <FileText className="w-16 h-16 text-gray-400 mb-4 opacity-50" />
+                  <p className="text-gray-400">
                     Select a report from the list to preview
                   </p>
                 </div>
@@ -212,6 +213,7 @@ export default function AISummaryReports() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </section>
+    </main>
   );
 }

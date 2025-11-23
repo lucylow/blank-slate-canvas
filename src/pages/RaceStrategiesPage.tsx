@@ -289,21 +289,24 @@ export const RaceStrategiesPage: React.FC = () => {
   // Early return if no strategies available
   if (!mockStrategies || mockStrategies.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto p-8 bg-gray-900 text-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-6">Strategies to Win the Race</h1>
-        <div className="bg-red-900/50 border border-red-500 rounded-md p-4">
-          <h2 className="text-xl font-semibold mb-2 text-red-300">Error Loading Strategies</h2>
-          <p className="text-red-200">
-            {error.message || 'No strategies are currently available. Please try again later.'}
-          </p>
-        </div>
-      </div>
+      <main role="main" className="min-h-screen bg-[#0A0A0A] text-white">
+        <section className="max-w-6xl mx-auto py-16 px-6">
+          <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Strategies to Win the Race</h1>
+          <div className="bg-red-900/50 border border-red-500 rounded-md p-4">
+            <h2 className="text-xl font-semibold mb-2 text-red-300">Error Loading Strategies</h2>
+            <p className="text-red-200">
+              {error.message || 'No strategies are currently available. Please try again later.'}
+            </p>
+          </div>
+        </section>
+      </main>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-gray-900 text-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-6">Strategies to Win the Race</h1>
+    <main role="main" className="min-h-screen bg-[#0A0A0A] text-white">
+      <section className="max-w-6xl mx-auto py-16 px-6">
+        <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Strategies to Win the Race</h1>
 
       {/* Error Banner */}
       {error.hasError && (
@@ -336,10 +339,10 @@ export const RaceStrategiesPage: React.FC = () => {
             <button
               key={id}
               onClick={() => handleStrategySelect(id)}
-              className={`px-5 py-3 rounded-md font-semibold transition-colors ${
+              className={`px-5 py-3 rounded font-semibold transition-colors ${
                 selectedStrategyId === id
-                  ? 'bg-indigo-600 hover:bg-indigo-700'
-                  : 'bg-gray-700 hover:bg-gray-600'
+                  ? 'bg-[#EB0A1E] hover:bg-red-700 text-white'
+                  : 'bg-gray-900 border border-gray-800 text-gray-200 hover:bg-gray-800 hover:border-gray-700'
               }`}
               aria-pressed={selectedStrategyId === id}
               disabled={!id}
@@ -372,7 +375,7 @@ export const RaceStrategiesPage: React.FC = () => {
                 return (
                   <li
                     key={`${label}-${index}`}
-                    className="bg-gray-800 p-4 rounded-md shadow-inner text-center"
+                    className="bg-gray-900 border border-gray-800 p-4 rounded-lg text-center hover:border-gray-700 transition-colors"
                   >
                     <div className="text-gray-400 text-sm">{label || 'Unknown Metric'}</div>
                     <div className="text-xl font-bold mt-1">
@@ -383,16 +386,16 @@ export const RaceStrategiesPage: React.FC = () => {
               })}
             </ul>
           ) : (
-            <div className="mb-6 bg-gray-800 p-4 rounded-md text-center text-gray-400">
+            <div className="mb-6 bg-gray-900 border border-gray-800 p-4 rounded-lg text-center text-gray-400">
               No key metrics available for this strategy.
             </div>
           )}
 
           {/* Visual Explanation */}
           {selectedStrategy.visualDataUrl ? (
-            <div className="border border-gray-700 rounded-md overflow-hidden">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-colors">
             {imageErrors.has(selectedStrategy.id) ? (
-              <div className="bg-gray-800 p-8 text-center">
+              <div className="bg-gray-900 p-8 text-center">
                 <p className="text-gray-400 mb-2">Image could not be loaded</p>
                 <p className="text-sm text-gray-500">
                   {selectedStrategy.visualDataUrl}
@@ -405,7 +408,7 @@ export const RaceStrategiesPage: React.FC = () => {
                       return next;
                     });
                   }}
-                  className="mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm"
+                  className="mt-4 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded border border-gray-700 text-sm transition-colors"
                 >
                   Retry Loading Image
                 </button>
@@ -421,13 +424,13 @@ export const RaceStrategiesPage: React.FC = () => {
             )}
             </div>
           ) : (
-            <div className="border border-gray-700 rounded-md p-4 text-center text-gray-400">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 text-center text-gray-400">
               No visual data available for this strategy.
             </div>
           )}
         </section>
       ) : (
-        <section className="bg-gray-800 p-8 rounded-md text-center">
+        <section className="bg-gray-900 border border-gray-800 p-8 rounded-lg text-center hover:border-gray-700 transition-colors">
           <h2 className="text-xl font-semibold mb-2 text-gray-300">No Strategy Selected</h2>
           <p className="text-gray-400">
             {selectedStrategyId
@@ -436,7 +439,8 @@ export const RaceStrategiesPage: React.FC = () => {
           </p>
         </section>
       )}
-    </div>
+      </section>
+    </main>
   );
 };
 
