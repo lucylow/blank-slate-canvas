@@ -353,7 +353,13 @@ export default function ComprehensiveDashboard() {
                   >
                     <PerformanceCard
                       performance={dashboardData.performance}
-                      meta={dashboardData.meta || { lap: selectedLap, total_laps: 25 }}
+                      meta={dashboardData.meta || { 
+                        ok: true, 
+                        track: selectedTrack, 
+                        lap: selectedLap, 
+                        total_laps: dashboardData.total_laps || 25,
+                        enhanced_features: false
+                      }}
                     />
                   </motion.div>
 
@@ -384,7 +390,12 @@ export default function ComprehensiveDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
                   >
-                    <StrategyCard strategy={dashboardData.strategy as any} />
+                    <StrategyCard 
+                      strategy={dashboardData.strategy ? {
+                        recommended_strategy: dashboardData.strategy.recommended_strategy,
+                        strategies: dashboardData.strategy.strategies,
+                      } : undefined} 
+                    />
                   </motion.div>
 
                   {/* Live Gap Analysis */}

@@ -1073,7 +1073,7 @@ const Index = () => {
                       </Link>
                     </div>
                   </nav>
-                </motion.div>
+                </div>
               </>
             )}
         </div>
@@ -2619,8 +2619,7 @@ const Index = () => {
               AI-powered anomaly detection for telemetry data with real-time alerts and ML-based pattern recognition
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" style={{ display: 'none' }}>
             <Card className="border-border/50 hover:border-red-500/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
@@ -2822,8 +2821,8 @@ const Index = () => {
               Comprehensive Formula 1 performance analysis with detailed mock data for strategy comparison
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <F1Benchmarking />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" style={{ display: 'none' }}>
             <Card className="border-border/50 hover:border-orange-500/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
@@ -2952,8 +2951,7 @@ const Index = () => {
               Real-time race alerts and notifications via Slack webhooks with rich formatting and mock mode support
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" style={{ display: 'none' }}>
             <Card className="border-border/50 hover:border-green-500/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
