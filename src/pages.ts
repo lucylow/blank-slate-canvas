@@ -30,4 +30,10 @@ export { default as CoachingToolsPage } from "./pages/CoachingToolsPage";
 export { default as LiveInsightsDashboard } from "./pages/LiveInsightsDashboard";
 export { default as LovableCloudConfig } from "./pages/LovableCloudConfig";
 export { default as RaceStoryPage } from "./pages/RaceStoryPage";
+export { default as GeminiFeaturesPage } from "./pages/GeminiFeaturesPage";
+export { default as GoogleMapsPage } from "./pages/GoogleMapsPage";
+export { default as AIDataAnalyticsPage } from "./pages/AIDataAnalyticsPage";
+export { default as AnomalyDetectionPage } from "./pages/AnomalyDetectionPage";
+export { default as DriverFingerprintingPage } from "./pages/DriverFingerprintingPage";
+export { default as SlackIntegrationPage } from "./pages/SlackIntegrationPage";
 
