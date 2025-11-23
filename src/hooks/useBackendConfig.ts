@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BackendConfig } from '@/lib/types';
 import { getBackendUrl } from '@/utils/backendUrl';
 
@@ -36,7 +36,7 @@ export function useBackendConfig() {
     retryable,
   });
 
-  const fetchConfig = async (isRetry: boolean = false) => {
+  const fetchConfig = useCallback(async (isRetry: boolean = false) => {
     try {
       // getBackendUrl() returns empty string for relative paths, which is valid
       // Empty string means use relative paths (e.g., /api/config)
@@ -159,11 +159,11 @@ export function useBackendConfig() {
         }, RETRY_DELAY);
       }
     }
-  };
+  }, [retryCount, error]);
 
   useEffect(() => {
     fetchConfig();
-  }, []);
+  }, [fetchConfig]);
 
   const retry = () => {
     setRetryCount(0);

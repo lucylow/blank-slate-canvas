@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Flag, ArrowLeft, FileText, ExternalLink, TrendingUp, Activity, Zap, ArrowRight, Download, Loader2, Code } from "lucide-react";
@@ -58,7 +58,7 @@ const Tracks = () => {
   const [generatingTrackId, setGeneratingTrackId] = useState<string | null>(null);
   const [trackDataSamples, setTrackDataSamples] = useState<Record<string, any>>({});
 
-  const tracks = [
+  const tracks = useMemo(() => [
     { 
       name: "Circuit of the Americas", 
       location: "Austin, Texas", 
@@ -115,7 +115,7 @@ const Tracks = () => {
       id: "indianapolis",
       description: "The legendary Brickyard, home of the Indianapolis 500, featuring a challenging road course layout."
     }
-  ];
+  ], []);
 
   // Load sample data for each track
   useEffect(() => {
@@ -175,7 +175,7 @@ const Tracks = () => {
     };
 
     loadTrackSamples();
-  }, []);
+  }, [tracks]);
 
   return (
     <>

@@ -124,7 +124,7 @@ export function useAgentState(options: UseAgentStateOptions = {}) {
   }, [updateState]);
 
   return {
-    state: stateRef.current,
+    state,
     updateState,
     requestAgentAnalysis
   };

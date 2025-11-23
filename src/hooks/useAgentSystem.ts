@@ -108,7 +108,7 @@ export const useAgentSystem = () => {
         console.warn('Failed to send WebSocket subscription:', error);
       }
     }
-  }, [ws.connected, ws.send, isDemoMode]);
+  }, [ws, isDemoMode]);
 
   // Convert MockAgent to Agent
   const convertMockAgent = (mock: MockAgent): Agent => ({

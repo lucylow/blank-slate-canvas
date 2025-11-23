@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { DashboardData } from '@/lib/types';
 import { getBackendUrl } from '@/utils/backendUrl';
 
@@ -24,6 +24,7 @@ export function useLiveStream(
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastDataTimestampRef = useRef<number>(Date.now());
+  const connectRef = useRef<((preserveReconnectCount?: boolean) => void) | null>(null);
 
   const MAX_RECONNECT_ATTEMPTS = 5;
   const RECONNECT_DELAY = 3000; // 3 seconds
@@ -54,16 +55,16 @@ export function useLiveStream(
     }
   };
 
-  const closeConnection = () => {
+  const closeConnection = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
     clearTimeouts();
     setConnected(false);
-  };
+  }, []);
 
-  const connect = (preserveReconnectCount: boolean = false) => {
+  const connect = useCallback((preserveReconnectCount: boolean = false) => {
     if (!track || !race || !vehicle) {
       setError(createError(
         'unknown',
@@ -107,7 +108,19 @@ export function useLiveStream(
             true
           );
           setError(timeoutError);
-          attemptReconnect();
+          setReconnectAttempts(prev => {
+            if (prev < MAX_RECONNECT_ATTEMPTS) {
+              const nextAttempt = prev + 1;
+              reconnectTimeoutRef.current = setTimeout(() => {
+                console.log(`Reconnection attempt ${nextAttempt}/${MAX_RECONNECT_ATTEMPTS}`);
+                if (connectRef.current) {
+                  connectRef.current(true);
+                }
+              }, RECONNECT_DELAY);
+              return nextAttempt;
+            }
+            return prev;
+          });
         }
       }, CONNECTION_TIMEOUT);
 
@@ -122,7 +135,19 @@ export function useLiveStream(
             true
           );
           setError(timeoutError);
-          attemptReconnect();
+          setReconnectAttempts(prev => {
+            if (prev < MAX_RECONNECT_ATTEMPTS) {
+              const nextAttempt = prev + 1;
+              reconnectTimeoutRef.current = setTimeout(() => {
+                console.log(`Reconnection attempt ${nextAttempt}/${MAX_RECONNECT_ATTEMPTS}`);
+                if (connectRef.current) {
+                  connectRef.current(true);
+                }
+              }, RECONNECT_DELAY);
+              return nextAttempt;
+            }
+            return prev;
+          });
         }
       };
       const dataTimeoutInterval = setInterval(checkDataTimeout, 5000);
@@ -202,8 +227,14 @@ export function useLiveStream(
           // Connection was closed - attempt reconnect
           setReconnectAttempts(prev => {
             if (prev < MAX_RECONNECT_ATTEMPTS) {
-              attemptReconnect();
-              return prev; // attemptReconnect will update it
+              const nextAttempt = prev + 1;
+              reconnectTimeoutRef.current = setTimeout(() => {
+                console.log(`Reconnection attempt ${nextAttempt}/${MAX_RECONNECT_ATTEMPTS}`);
+                if (connectRef.current) {
+                  connectRef.current(true);
+                }
+              }, RECONNECT_DELAY);
+              return nextAttempt;
             } else {
               const networkError = createError(
                 'network',
@@ -249,23 +280,10 @@ export function useLiveStream(
       );
       setError(initError);
     }
-  };
+  }, [track, race, vehicle, startLap, closeConnection, connected]);
 
-  const attemptReconnect = () => {
-    setReconnectAttempts(prev => {
-      if (prev >= MAX_RECONNECT_ATTEMPTS) {
-        return prev;
-      }
-      const nextAttempt = prev + 1;
-      
-      reconnectTimeoutRef.current = setTimeout(() => {
-        console.log(`Reconnection attempt ${nextAttempt}/${MAX_RECONNECT_ATTEMPTS}`);
-        connect(true); // Preserve reconnect count
-      }, RECONNECT_DELAY);
-      
-      return nextAttempt;
-    });
-  };
+  // Store latest connect function in ref
+  connectRef.current = connect;
 
   useEffect(() => {
     connect();
@@ -273,7 +291,7 @@ export function useLiveStream(
     return () => {
       closeConnection();
     };
-  }, [track, race, vehicle, startLap]);
+  }, [connect, closeConnection]);
 
   const retry = () => {
     setReconnectAttempts(0);

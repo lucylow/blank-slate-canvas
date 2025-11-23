@@ -105,7 +105,7 @@ export function useAgentStream(options: UseAgentStreamOptions = {}) {
   }, []);
 
   return {
-    messages: messagesRef.current,
+    messages,
     status,
     isConnected,
     sendMessage

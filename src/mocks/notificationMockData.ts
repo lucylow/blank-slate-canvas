@@ -12,6 +12,9 @@ import {
   type HumanLoopData,
 } from "@/services/notificationService";
 
+// Re-export notification functions for use in hooks
+export { showRaceAlert, showPitAlert, showTireAlert, showHumanLoop };
+
 // Mock vehicle data
 const MOCK_VEHICLES = [
   { id: 'GR86-001-10', number: 10, driver: 'Alex Johnson' },

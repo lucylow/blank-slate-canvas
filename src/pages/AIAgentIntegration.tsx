@@ -78,6 +78,19 @@ const AIAgentIntegration = () => {
                   />
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pitwall Collaboration</CardTitle>
+                  <CardDescription>
+                    Multi-agent collaboration for pit crew teams. Multiple agents work together to provide
+                    comprehensive race strategy recommendations.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PitwallCollaboration />
+                </CardContent>
+              </Card>
             </>
           )}
 
