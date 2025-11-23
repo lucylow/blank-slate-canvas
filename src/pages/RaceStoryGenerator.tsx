@@ -43,6 +43,9 @@ import {
   ScatterChart,
   Scatter,
 } from "recharts";
+import { RaceStoryGenerator as RaceStoryGen, type Highlight } from "@/lib/raceStoryGenerator";
+import { mockRaceTelemetry } from "@/mocks/raceTelemetryMock";
+import { RaceStoryHighlights } from "@/components/RaceStoryHighlights";
 
 interface RaceMoment {
   id: string;
@@ -179,7 +182,13 @@ export default function RaceStoryGenerator() {
   const [selectedHighlight, setSelectedHighlight] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"story" | "data">("story");
+  const [viewMode, setViewMode] = useState<"story" | "data" | "generator">("generator");
+
+  // Initialize the new Race Story Generator
+  const generator = useMemo(() => new RaceStoryGen(mockRaceTelemetry), []);
+  const generatedHighlights = useMemo(() => generator.identifyKeyMoments(), [generator]);
+  const englishSummaries = useMemo(() => generator.generateEnglishSummaries(generatedHighlights), [generator, generatedHighlights]);
+  const broadcastCards = useMemo(() => generator.generateBroadcastCards(generatedHighlights), [generator, generatedHighlights]);
 
   useEffect(() => {
     // Simulate loading race highlights
@@ -352,11 +361,100 @@ export default function RaceStoryGenerator() {
           </Card>
         </div>
 
-        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "story" | "data")}>
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "story" | "data" | "generator")}>
           <TabsList>
+            <TabsTrigger value="generator">Race Story Generator</TabsTrigger>
             <TabsTrigger value="story">Story View</TabsTrigger>
             <TabsTrigger value="data">Data Analysis</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="generator" className="space-y-4">
+            {/* New Race Story Generator Component */}
+            <RaceStoryHighlights highlights={generatedHighlights} />
+
+            {/* English Summaries Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>English Summaries</CardTitle>
+                <CardDescription>
+                  Human-readable summaries generated from telemetry data (Data → English translation)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {englishSummaries.map((summary, index) => (
+                    <div
+                      key={index}
+                      className="bg-muted rounded-md p-4 border-l-4 border-primary"
+                    >
+                      <p className="text-sm">{summary}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Broadcast Cards Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Broadcast Cards</CardTitle>
+                <CardDescription>
+                  Media-ready visuals for commentary and post-race recaps
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {broadcastCards.map((card, index) => (
+                    <div
+                      key={index}
+                      className="bg-primary/10 border border-primary/20 rounded-md p-4"
+                    >
+                      <h3 className="font-bold text-primary mb-2">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3">{card.mainText}</p>
+                      <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-primary/10">
+                        {card.evidence.sectorDelta && (
+                          <div>
+                            <span className="text-primary">Sector {card.evidence.sectorDelta.sector}:</span>{" "}
+                            {Math.abs(card.evidence.sectorDelta.delta).toFixed(2)}s
+                            {card.evidence.sectorDelta.delta < 0 ? (
+                              <span className="text-green-600 ml-1">(Gain)</span>
+                            ) : (
+                              <span className="text-red-600 ml-1">(Loss)</span>
+                            )}
+                          </div>
+                        )}
+                        {card.evidence.tireCondition && (
+                          <div>
+                            <span className="text-primary">Tire Wear:</span>{" "}
+                            {card.evidence.tireCondition.wearPercentage}% (Threshold:{" "}
+                            {card.evidence.tireCondition.wornThreshold}%)
+                          </div>
+                        )}
+                        {typeof card.evidence.paceChange === "number" && (
+                          <div>
+                            <span className="text-primary">Pace Change:</span>{" "}
+                            <span
+                              className={
+                                card.evidence.paceChange < 0 ? "text-green-600" : "text-red-600"
+                              }
+                            >
+                              {card.evidence.paceChange.toFixed(2)}s
+                            </span>
+                          </div>
+                        )}
+                        {card.evidence.pitTiming && (
+                          <div>
+                            <span className="text-primary">Pit Strategy:</span>{" "}
+                            {card.evidence.pitTiming.pitType} on lap {card.evidence.pitTiming.pitLap}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="story" className="space-y-4">
             {/* Highlights List */}
