@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TelemetryProvider } from '@/hooks/useTelemetry';
+import { StrategyProviderWrapper } from '@/hooks/StrategyProviderWrapper';
 
 const DashboardPage = () => {
   const { isDemoMode, setIsDemoMode } = useDemoMode();
@@ -88,7 +89,9 @@ const DashboardPage = () => {
         </div>
         <div className="flex-1 overflow-y-auto">
           <TelemetryProvider>
-            <Dashboard />
+            <StrategyProviderWrapper>
+              <Dashboard />
+            </StrategyProviderWrapper>
           </TelemetryProvider>
         </div>
       </div>

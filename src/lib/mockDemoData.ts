@@ -732,3 +732,30 @@ export function generateAgentSystemMockData() {
   };
 }
 
+// Generate mock AgentStatusResponse for API fallback
+export function generateMockAgentStatusResponse() {
+  const agents = generateMockAgents();
+  const queueStats = generateMockQueueStats(agents);
+  
+  // Convert MockAgent[] to Agent[] format matching AgentStatusResponse
+  const convertedAgents = agents.map(agent => ({
+    id: agent.id,
+    type: agent.types?.[0] || 'strategy',
+    status: agent.status,
+    registered_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+    tracks: agent.tracks || [],
+  }));
+  
+  return {
+    success: true,
+    agents: convertedAgents,
+    queues: {
+      tasksLength: queueStats.tasksLength,
+      resultsLength: queueStats.resultsLength,
+      inboxLengths: queueStats.inboxLengths,
+    },
+    redis_available: true,
+    timestamp: new Date().toISOString(),
+  };
+}
+
