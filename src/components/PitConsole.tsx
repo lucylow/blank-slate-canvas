@@ -10,6 +10,7 @@ import {
   generateMockPitWindow 
 } from "@/utils/mockPitWindowData";
 import { PlayCircle, Upload, TrendingUp, TrendingDown, Award, AlertTriangle } from "lucide-react";
+import type { MonteCarloSimulationData, MonteCarloRun } from "./MonteCarloVisualization";
 
 /**
  * PitConsole
@@ -19,6 +20,12 @@ import { PlayCircle, Upload, TrendingUp, TrendingDown, Award, AlertTriangle } fr
  *
  * Usage: import PitConsole and render in App.jsx
  */
+
+interface PitConsoleProps {
+  onSimulationComplete?: (data: MonteCarloSimulationData | null) => void;
+}
+
+export default function PitConsole({ onSimulationComplete }: PitConsoleProps = {}) {
 
 interface ReplayMeta {
   replay_id: string;
@@ -52,7 +59,97 @@ interface SimulationResponse {
   };
 }
 
-export default function PitConsole() {
+/**
+ * Convert simulation results to Monte Carlo data format
+ */
+function convertToMonteCarloData(
+  scenarios: SimulationResponse,
+  carId: string,
+  currentLap: number
+): MonteCarloSimulationData {
+  const runs: MonteCarloRun[] = [];
+  const scenarioKeys = Object.keys(scenarios.naive);
+  
+  // Generate multiple runs per scenario to simulate Monte Carlo
+  scenarioKeys.forEach((scenarioKey) => {
+    const scenario = scenarios.naive[scenarioKey];
+    const modelScenario = scenarios.model?.[scenarioKey];
+    
+    // Generate 100 runs per scenario with variability
+    for (let i = 0; i < 100; i++) {
+      const basePosition = scenario.sim_pos || scenario.baseline_pos || 5;
+      const baseTime = scenario.ordered?.find(o => o.car === carId)?.pred_time || 2000;
+      
+      // Add realistic variability
+      const positionVariation = (Math.random() - 0.5) * 2; // ±1 position
+      const timeVariation = (Math.random() - 0.5) * 20; // ±10 seconds
+      
+      // Confidence based on model vs naive agreement
+      let confidence = 0.7;
+      if (modelScenario && modelScenario.sim_pos) {
+        const positionDiff = Math.abs((scenario.sim_pos || 0) - modelScenario.sim_pos);
+        confidence = Math.max(0.5, 1 - positionDiff / 5); // Higher confidence if models agree
+      }
+      
+      runs.push({
+        runId: `run_${scenarioKey}_${i}`,
+        scenario: scenarioKey,
+        finalPosition: Math.max(1, Math.min(10, basePosition + positionVariation)),
+        totalTime: baseTime + timeVariation,
+        timeGain: (scenario.baseline_pos || 0) - (scenario.sim_pos || 0) + (Math.random() - 0.5) * 5,
+        confidence: confidence + (Math.random() - 0.5) * 0.2,
+        timestamp: Date.now() - (100 - i) * 1000,
+        factors: {
+          tireWear: 0.5 + Math.random() * 0.3,
+          traffic: 0.3 + Math.random() * 0.4,
+          pitStopEfficiency: 0.6 + Math.random() * 0.3,
+          competitorTiming: 0.4 + Math.random() * 0.4,
+        },
+      });
+    }
+  });
+  
+  // Calculate summary statistics
+  const positions = runs.map(r => r.finalPosition);
+  const sortedPositions = [...positions].sort((a, b) => a - b);
+  const meanPosition = positions.reduce((a, b) => a + b, 0) / positions.length;
+  const medianPosition = sortedPositions[Math.floor(sortedPositions.length / 2)];
+  const variance = positions.reduce((sum, pos) => sum + Math.pow(pos - meanPosition, 2), 0) / positions.length;
+  const stdDevPosition = Math.sqrt(variance);
+  
+  // Find best/worst scenarios
+  const scenarioMeans = scenarioKeys.map(scenarioKey => {
+    const scenarioRuns = runs.filter(r => r.scenario === scenarioKey);
+    const mean = scenarioRuns.reduce((sum, r) => sum + r.finalPosition, 0) / scenarioRuns.length;
+    return { scenario: scenarioKey, mean };
+  });
+  
+  const bestScenario = scenarioMeans.reduce((best, curr) => 
+    curr.mean < best.mean ? curr : best
+  ).scenario;
+  const worstScenario = scenarioMeans.reduce((worst, curr) => 
+    curr.mean > worst.mean ? curr : worst
+  ).scenario;
+  
+  return {
+    simulationId: scenarios.sim_id,
+    carId,
+    currentLap,
+    totalRuns: runs.length,
+    runs,
+    scenarios: scenarioKeys,
+    summary: {
+      meanPosition,
+      medianPosition,
+      stdDevPosition,
+      p5Position: sortedPositions[Math.floor(sortedPositions.length * 0.05)],
+      p95Position: sortedPositions[Math.floor(sortedPositions.length * 0.95)],
+      meanTimeGain: runs.reduce((sum, r) => sum + r.timeGain, 0) / runs.length,
+      bestScenario,
+      worstScenario,
+    },
+  };
+}
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [replay, setReplay] = useState<ReplayMeta | null>(null);
@@ -183,6 +280,13 @@ export default function PitConsole() {
         const currentLap = selectedLap !== null ? selectedLap : Math.floor((replay.laps?.length || 25) / 2);
         const mockResults = generateMockSimulationResults(replay.replay_id, selectedCar, currentLap);
         setScenarios(mockResults);
+        
+        // Generate Monte Carlo data and notify parent
+        if (onSimulationComplete && selectedCar) {
+          const monteCarloData = convertToMonteCarloData(mockResults, selectedCar, currentLap);
+          onSimulationComplete(monteCarloData);
+        }
+        
         setBusy(false);
       }, 500); // Simulate API delay
       return;
@@ -205,6 +309,13 @@ export default function PitConsole() {
       }
       const data: SimulationResponse = await res.json();
       setScenarios(data);
+      
+      // Generate Monte Carlo data and notify parent
+      if (onSimulationComplete && selectedCar) {
+        const currentLap = selectedLap !== null ? selectedLap : Math.floor((replay.laps?.length || 25) / 2);
+        const monteCarloData = convertToMonteCarloData(data, selectedCar, currentLap);
+        onSimulationComplete(monteCarloData);
+      }
     } catch (err) {
       console.error("Simulate failed", err);
       // Fallback to mock data if API fails
@@ -213,6 +324,12 @@ export default function PitConsole() {
         const currentLap = selectedLap !== null ? selectedLap : Math.floor((replay.laps?.length || 25) / 2);
         const mockResults = generateMockSimulationResults(replay.replay_id, selectedCar, currentLap);
         setScenarios(mockResults);
+        
+        // Generate Monte Carlo data and notify parent
+        if (onSimulationComplete && selectedCar) {
+          const monteCarloData = convertToMonteCarloData(mockResults, selectedCar, currentLap);
+          onSimulationComplete(monteCarloData);
+        }
       }
     } finally {
       setBusy(false);
