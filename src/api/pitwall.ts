@@ -619,7 +619,7 @@ export interface InsightDetail {
   confidence: number;
   risk_level: string;
   reasoning: string[];
-  evidence: Record<string, unknown>;
+  evidence?: Record<string, unknown>;
   alternatives?: Array<{
     action: string;
     risk: string;
