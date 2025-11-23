@@ -7,7 +7,6 @@ import {
   generateMockAIAnalyticsResponse,
   withMockFallback,
   shouldUseMockData,
-  type as geminiMockType,
 } from '@/lib/geminiMockData';
 
 // Get API keys from environment variables (Lovable secrets)
@@ -36,7 +35,7 @@ const GEMINI_MODELS = {
   flashStable: 'gemini-2.0-flash', // Stable Flash model
   pro: 'gemini-1.5-pro', // For large context (1M tokens)
   proLatest: 'gemini-1.5-pro-latest', // Latest Pro model
-};
+} as const;
 
 export interface RaceDataAnalytics {
   track: string;

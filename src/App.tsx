@@ -36,6 +36,9 @@ import RaceStoryGenerator from "./pages/RaceStoryGenerator";
 import PredictiveExplanatory from "./pages/PredictiveExplanatory";
 import CoachingPage from "./pages/CoachingPage";
 import F1Benchmarking from "./components/F1Benchmarking";
+import LiveInsightsDashboard from "./pages/LiveInsightsDashboard";
+import LovableCloudConfig from "./pages/LovableCloudConfig";
+import RaceStoryPage from "./pages/RaceStoryPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,6 +102,9 @@ const App = () => (
                     {/* Race Story Generator - Broadcast & Debrief - Automatically identifies key race moments */}
                     <Route path="/race-story" element={<RaceStoryGenerator />} />
                     
+                    {/* Race Story Page - Alternative race story page */}
+                    <Route path="/race-story-page" element={<RaceStoryPage />} />
+                    
                     {/* ========== TOOLS ========== */}
                     {/* Post-Event Analysis - Comprehensive race analysis and comparisons */}
                     <Route path="/post-event-analysis" element={<PostEventAnalysis />} />
@@ -131,6 +137,9 @@ const App = () => (
                     {/* Agent Insights Dashboard - Live insights from Delivery agent */}
                     <Route path="/agent-insights" element={<AgentInsightsDashboard />} />
                     
+                    {/* Live Insights Dashboard - Real-time insights dashboard */}
+                    <Route path="/live-insights" element={<LiveInsightsDashboard />} />
+                    
                     {/* AI Agent Integration - Three integration patterns showcase */}
                     <Route path="/agent-integration" element={<AIAgentIntegration />} />
                     
@@ -146,6 +155,9 @@ const App = () => (
                     
                     {/* Settings - App configuration */}
                     <Route path="/settings" element={<Settings />} />
+                    
+                    {/* Lovable Cloud Config - Configuration and debugging page */}
+                    <Route path="/lovable-config" element={<LovableCloudConfig />} />
                     
                     {/* ========== LEGACY & FALLBACK ========== */}
                     {/* Legacy route redirects */}

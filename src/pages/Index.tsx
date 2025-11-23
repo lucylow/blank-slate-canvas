@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2, Brain } from "lucide-react";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2, Brain, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +21,11 @@ import { TelemetryComparisonCharts } from "@/components/TelemetryComparisonChart
 import Chatbot from "@/components/Chatbot";
 import { AnalyticsPopup } from "@/components/AnalyticsPopup";
 import { AIDataAnalytics } from "@/components/AIDataAnalytics";
+import { GeminiZipMatcher } from "@/components/GeminiZipMatcher";
+import { GeminiFeaturesShowcase } from "@/components/GeminiFeaturesShowcase";
+import { GeminiMultimodalInput } from "@/components/GeminiMultimodalInput";
+import { processMultimodalInput } from "@/api/geminiMultimodal";
+import { GoogleMapsIntegration } from "@/components/GoogleMapsIntegration";
 import type { TrackId } from "@/lib/grCarTypes";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
@@ -473,7 +478,7 @@ const Index = () => {
   // Scroll spy to detect active section and show scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['features', 'gr-cars', 'tracks'];
+      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'gr-cars', 'tracks'];
       const scrollPosition = window.scrollY + 100; // Offset for header
 
       // Show/hide scroll-to-top button
@@ -694,6 +699,23 @@ const Index = () => {
               }`}></span>
             </a>
             <a 
+              href="#gemini-features" 
+              onClick={(e) => {
+                handleAnchorClick(e, '#gemini-features');
+                trackLinkClick('Gemini Features', '#gemini-features', { location: 'header' });
+              }}
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                activeSection === 'gemini-features' 
+                  ? 'text-primary' 
+                  : 'hover:text-primary'
+              }`}
+            >
+              Gemini AI
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                activeSection === 'gemini-features' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </a>
+            <a 
               href="#gr-cars" 
               onClick={(e) => handleAnchorClick(e, '#gr-cars')}
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
@@ -846,6 +868,20 @@ const Index = () => {
                       }`}
                     >
                       Features
+                    </motion.a>
+                    <motion.a
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.06 }}
+                      href="#gemini-features" 
+                      onClick={(e) => handleAnchorClick(e, '#gemini-features')}
+                      className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                        activeSection === 'gemini-features'
+                          ? 'text-primary bg-primary/10'
+                          : 'hover:text-primary hover:bg-accent/50'
+                      }`}
+                    >
+                      Gemini AI
                     </motion.a>
                     <motion.a
                       initial={{ opacity: 0, x: -20 }}
@@ -2156,6 +2192,70 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Gemini Features Showcase Section */}
+      <section id="gemini-features" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <GeminiFeaturesShowcase />
+        </div>
+      </section>
+
+      {/* Gemini Multimodal Input Section */}
+      <section id="gemini-multimodal" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
+              <Brain className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Gemini Multimodal AI
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Analyze text, images, videos, audio, and URLs together in a single request - 
+              Powered by Gemini's unified multimodal API
+            </p>
+          </div>
+          <GeminiMultimodalInput onAnalyze={processMultimodalInput} />
+        </div>
+      </section>
+
+      {/* Gemini Zip Matcher Section */}
+      <section id="gemini-zip-matcher" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
+              <Brain className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Gemini Cloud - 7 Zip Datasets Matcher
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Upload and match race data from all 7 tracks using Gemini AI for cross-track analysis, 
+              pattern matching, and comprehensive insights. Leverage 1M+ token context windows for massive dataset processing.
+            </p>
+          </div>
+          <GeminiZipMatcher />
+        </div>
+      </section>
+
+      {/* Google Maps Integration Section */}
+      <section id="google-maps-integration" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
+              <Globe className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Google Maps Integration
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Maps Datasets API & Street View Publish API for enhanced track location data. 
+              Automatic fallback to OpenWeatherMap when cost optimization is needed.
+            </p>
+          </div>
+          <GoogleMapsIntegration />
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gradient-to-b from-accent to-background border-t border-border/50 py-16 px-6">
         <div className="container mx-auto max-w-6xl">
@@ -2206,6 +2306,46 @@ const Index = () => {
                   >
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     GR Cars
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#gemini-features" 
+                    onClick={(e) => handleAnchorClick(e, '#gemini-features')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Gemini Features
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#gemini-multimodal" 
+                    onClick={(e) => handleAnchorClick(e, '#gemini-multimodal')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Multimodal AI
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#gemini-zip-matcher" 
+                    onClick={(e) => handleAnchorClick(e, '#gemini-zip-matcher')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Gemini Zip Matcher
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#google-maps-integration" 
+                    onClick={(e) => handleAnchorClick(e, '#google-maps-integration')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Google Maps
                   </a>
                 </li>
                 <li>
