@@ -189,10 +189,11 @@ export default function AnomalyDetectionPage() {
           return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         case 'score':
           return b.anomaly_score - a.anomaly_score;
-        case 'severity':
+        case 'severity': {
           const severityOrder = { high: 3, medium: 2, low: 1 };
           return (severityOrder[b.alerts[0]?.severity || 'medium'] || 0) - 
                  (severityOrder[a.alerts[0]?.severity || 'medium'] || 0);
+        }
         default:
           return 0;
       }
