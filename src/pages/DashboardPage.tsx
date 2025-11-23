@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { checkDemoHealth } from '@/api/demo';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const DashboardPage = () => {
   const { isDemoMode } = useDemoMode();
@@ -30,28 +31,30 @@ const DashboardPage = () => {
   }, [isDemoMode]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Status Bar */}
-      <div className="px-6 pt-4 pb-2 flex items-center justify-end border-b border-border/50 flex-shrink-0">
-        {backendStatus === 'disconnected' && !isDemoMode && (
-          <Alert variant="destructive" className="py-2 px-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              Backend disconnected
-            </AlertDescription>
-          </Alert>
-        )}
-        {backendStatus === 'connected' && !isDemoMode && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-            <span>Backend connected</span>
-          </div>
-        )}
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col">
+        {/* Status Bar */}
+        <div className="px-6 pt-4 pb-2 flex items-center justify-end border-b border-border/50 flex-shrink-0">
+          {backendStatus === 'disconnected' && !isDemoMode && (
+            <Alert variant="destructive" className="py-2 px-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs">
+                Backend disconnected
+              </AlertDescription>
+            </Alert>
+          )}
+          {backendStatus === 'connected' && !isDemoMode && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <span>Backend connected</span>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <Dashboard />
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
-        <Dashboard />
-      </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

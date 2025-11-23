@@ -23,7 +23,8 @@ export function useWebSocket(url: string, opts: UseWebSocketOptions = {}) {
 
   useEffect(() => {
     // Skip WebSocket connection if URL is empty (demo mode)
-    if (!url || url.trim() === '') {
+    if (!url || url.trim() === '' || url === 'ws://localhost:8000/ws') {
+      console.log('[WebSocket] Skipping connection - demo mode or invalid URL');
       setConnected(false);
       return;
     }
