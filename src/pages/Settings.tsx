@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { PageWithMiniTabs, type MiniTab } from "@/components/PageWithMiniTabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings as SettingsIcon, Wifi, Bell, Palette, Database, Key, Server, Globe, User, Mail, Phone, MapPin, Calendar, Edit } from "lucide-react";
+import { Settings as SettingsIcon, Wifi, Bell, Palette, Database, Key, Server, Globe, User, Mail, Phone, MapPin, Calendar, Edit, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FEATURE_FLAGS, type FeatureFlagKey } from "@/featureFlags/featureRegistry";
+import { useFeatureManager } from "@/featureFlags/FeatureProvider";
 
 const Settings = () => {
   const [liveUpdates, setLiveUpdates] = useState(true);
@@ -16,6 +18,7 @@ const Settings = () => {
 
   const tabs: MiniTab[] = [
     { id: 'profile', label: 'Profile', icon: <User className="h-4 w-4" /> },
+    { id: 'features', label: 'Feature Flags', icon: <Flag className="h-4 w-4" /> },
     { id: 'external', label: 'External APIs', icon: <Globe className="h-4 w-4" /> },
     { id: 'keys', label: 'Keys & Secrets', icon: <Key className="h-4 w-4" /> },
     { id: 'demo', label: 'Demo Server', icon: <Server className="h-4 w-4" /> },
@@ -153,6 +156,29 @@ const Settings = () => {
                       Save Changes
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {active === 'features' && (
+            <>
+              <Card className="bg-card/60 backdrop-blur-md border-border/50">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                      <Flag className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <CardTitle>Impact Feature Flags</CardTitle>
+                      <CardDescription>
+                        Enable or disable impact features for testing and rollout
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FeatureFlagToggles />
                 </CardContent>
               </Card>
             </>
@@ -404,5 +430,44 @@ const Settings = () => {
     </PageWithMiniTabs>
   );
 };
+
+// Feature Flag Toggles Component
+function FeatureFlagToggles() {
+  const { flags, setFlag } = useFeatureManager();
+
+  return (
+    <div className="space-y-4">
+      {Object.entries(FEATURE_FLAGS).map(([key, meta]) => {
+        const flagKey = key as FeatureFlagKey;
+        const isEnabled = flags[flagKey] ?? meta.default;
+
+        return (
+          <div
+            key={key}
+            className="border border-border/50 rounded-lg p-4 bg-background/50"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-1">{meta.name}</h3>
+                <p className="text-sm text-muted-foreground">{meta.description}</p>
+              </div>
+              <div className="ml-4">
+                <Switch
+                  checked={isEnabled}
+                  onCheckedChange={(checked) => setFlag(flagKey, checked)}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      <div className="pt-4 border-t border-border/50">
+        <p className="text-xs text-muted-foreground">
+          Feature flags control which impact features are active. Changes are saved locally and synced with the backend when available.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default Settings;

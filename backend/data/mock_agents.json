@@ -1,0 +1,38 @@
+[
+  {
+    "agent": "predictor",
+    "ts": "2025-03-15T14:22:03.512Z",
+    "insight": "tire_cliff_estimated",
+    "car_id": 13,
+    "laps_until_cliff": 6,
+    "confidence": 0.78
+  },
+  {
+    "agent": "simulator",
+    "ts": "2025-03-15T14:22:10.512Z",
+    "insight": "pit_recommendation",
+    "car_id": 13,
+    "recommended_pit_lap": 20,
+    "expected_gain_s": 3.3,
+    "confidence": 0.82
+  },
+  {
+    "agent": "explainer",
+    "ts": "2025-03-15T14:22:11.512Z",
+    "insight": "shap_top_features",
+    "car_id": 13,
+    "features": [
+      { "name": "tire_stress_sector_1", "impact": 0.21 },
+      { "name": "brake_energy_sector_2", "impact": 0.18 }
+    ]
+  },
+  {
+    "agent": "anomaly",
+    "ts": "2025-03-15T14:22:12.512Z",
+    "insight": "smoke_detected",
+    "car_id": 46,
+    "sector": 12,
+    "confidence": 0.92
+  }
+]
+

@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { FeatureProvider } from "./featureFlags/FeatureProvider.tsx";
 
 // Ensure root element exists before rendering
 const rootElement = document.getElementById("root");
@@ -39,4 +40,8 @@ enableMocking().catch((error) => {
 
 // Render app immediately
 const root = createRoot(rootElement);
-root.render(<App />);
+root.render(
+  <FeatureProvider>
+    <App />
+  </FeatureProvider>
+);
