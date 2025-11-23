@@ -2,7 +2,7 @@
 // AI-powered data analytics service using OpenAI and Gemini APIs
 // Emphasizes AI for data analytics with race telemetry and performance data
 
-import { client } from './client';
+import client from './client';
 
 // Get API keys from environment variables (Lovable secrets)
 // In Lovable, secrets are exposed as environment variables with the secret name
