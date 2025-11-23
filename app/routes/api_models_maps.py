@@ -185,7 +185,10 @@ class EdgeExportRequest(BaseModel):
     """Request for edge export"""
     track_id: str
     bbox: Optional[List[float]] = None  # [min_lon, min_lat, max_lon, max_lat]
-    model_version: Optional[str] = None
+    model_version: Optional[str] = Field(None, description="Model version identifier")
+    
+    class Config:
+        protected_namespaces = ()
 
 
 class EdgeExportResponse(BaseModel):
