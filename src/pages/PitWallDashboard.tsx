@@ -70,22 +70,22 @@ export default function PitWallDashboard() {
   };
 
   // Get mock agent decisions when in demo mode
-  const mockAgentDecisions = useMockAgentDecisions(track.id);
+  const mockAgentDecisions = useMockAgentDecisions(track);
   
   // Get mock telemetry stream when in demo mode
-  const mockTelemetry = useMockTelemetryStream(track.id, 7, 500);
+  const mockTelemetry = useMockTelemetryStream(track, 7, 500);
   
   // Filter decisions by current track
   const filteredDecisions = useMemo(() => {
     // Use mock data if in demo mode and available
     if (isDemoMode && mockAgentDecisions.length > 0) {
-      const trackId = track.id.toLowerCase();
+      const trackId = track.toLowerCase();
       return mockAgentDecisions.filter((d) => d.track.toLowerCase() === trackId);
     }
     
     // Otherwise use loaded demo data
     if (agentDecisions.length === 0) return [];
-    const trackId = track.id.toLowerCase();
+    const trackId = track.toLowerCase();
     return agentDecisions.filter((d) => d.track.toLowerCase() === trackId);
   }, [isDemoMode, mockAgentDecisions, agentDecisions, track]);
   

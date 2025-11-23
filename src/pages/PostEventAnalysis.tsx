@@ -7,7 +7,7 @@ import {
   Download,
   Filter,
   Search,
-  GitGitCompare,
+  GitCompare,
   Calendar,
   MapPin,
   Users,
@@ -340,8 +340,10 @@ export default function PostEventAnalysis() {
               variant={comparisonMode ? "default" : "outline"}
               onClick={() => setComparisonMode(!comparisonMode)}
               className={`gap-2 ${comparisonMode ? 'bg-[#EB0A1E] hover:bg-red-700' : 'border-gray-700 text-gray-200 hover:bg-gray-800'}`}
+              aria-label={comparisonMode ? "Exit comparison mode" : "Enter comparison mode"}
+              aria-pressed={comparisonMode}
             >
-              <GitCompare className="w-4 h-4" />
+              <GitCompare className="w-4 h-4" aria-hidden="true" />
               Compare
             </Button>
             <DropdownMenu>
@@ -432,7 +434,7 @@ export default function PostEventAnalysis() {
           <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GitCompare className="w-5 h-5" />
+                <GitCompare className="w-5 h-5" aria-hidden="true" />
                 Select Races to Compare
               </CardTitle>
             </CardHeader>
@@ -675,7 +677,11 @@ export default function PostEventAnalysis() {
             ) : (
               <Card className="bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
                 <CardContent className="p-12 text-center">
-                  <GitCompare className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <GitCompare 
+                    className="w-12 h-12 mx-auto mb-4 text-gray-400" 
+                    aria-hidden="true"
+                    role="img"
+                  />
                   <p className="text-gray-400">
                     Select races in comparison mode to view detailed comparisons
                   </p>

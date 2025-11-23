@@ -14,7 +14,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  ReferenceLine
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -322,14 +323,11 @@ export function LapSplitDeltaChart({
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
             
             {/* Reference line at zero */}
-            <Line
-              type="monotone"
-              dataKey={() => 0}
+            <ReferenceLine
+              y={0}
               stroke="hsl(var(--muted-foreground))"
               strokeDasharray="5 5"
               strokeWidth={1}
-              dot={false}
-              legendType="none"
               strokeOpacity={0.5}
             />
             

@@ -1465,18 +1465,9 @@ const Index = () => {
             Ready to Transform Your Race Strategy?
           </h2>
           <p className="text-xl md:text-2xl mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto">
-            Join the Toyota GR Cup hackathon or request early access to PitWall AI for your racing team.
+            Request early access to PitWall AI for your racing team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              className="text-lg px-8 py-6 bg-background text-foreground hover:bg-background/90 shadow-xl hover:scale-105 transition-all duration-300 group focus:outline-none focus:ring-3 focus:ring-primary-foreground/50"
-              aria-label="Join Hackathon"
-            >
-              Join Hackathon
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
             <Button 
               size="lg" 
               variant="outline" 

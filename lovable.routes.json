@@ -1,0 +1,120 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "name": "Home",
+      "component": "Index"
+    },
+    {
+      "path": "/dashboard",
+      "name": "Dashboard",
+      "component": "DashboardPage"
+    },
+    {
+      "path": "/tracks",
+      "name": "Tracks",
+      "component": "Tracks"
+    },
+    {
+      "path": "/analytics",
+      "name": "Analytics",
+      "component": "Analytics"
+    },
+    {
+      "path": "/strategies",
+      "name": "Race Strategies",
+      "component": "RaceStrategiesPage"
+    },
+    {
+      "path": "/pitwall",
+      "name": "PitWall Dashboard",
+      "component": "PitWallDashboard"
+    },
+    {
+      "path": "/predictive-ai",
+      "name": "Predictive & Explanatory AI",
+      "component": "PredictiveExplanatory"
+    },
+    {
+      "path": "/ai-summaries",
+      "name": "AI Summary Reports",
+      "component": "AISummaryReports"
+    },
+    {
+      "path": "/race-story",
+      "name": "Race Story Generator",
+      "component": "RaceStoryGenerator"
+    },
+    {
+      "path": "/post-event-analysis",
+      "name": "Post-Event Analysis",
+      "component": "PostEventAnalysis"
+    },
+    {
+      "path": "/pit-window",
+      "name": "Pit Window Optimization",
+      "component": "PitWindowOptimization"
+    },
+    {
+      "path": "/gr-cars-drivers",
+      "name": "GR Cars & Drivers",
+      "component": "GRCarsAndDrivers"
+    },
+    {
+      "path": "/coaching",
+      "name": "Coaching Dashboard",
+      "component": "CoachingPage"
+    },
+    {
+      "path": "/demo",
+      "name": "Demo Sandbox",
+      "component": "DemoSandbox"
+    },
+    {
+      "path": "/comprehensive",
+      "name": "Comprehensive Dashboard",
+      "component": "ComprehensiveDashboard"
+    },
+    {
+      "path": "/agents",
+      "name": "AI Agents",
+      "component": "AgentDashboard"
+    },
+    {
+      "path": "/agents/review",
+      "name": "Agent Review",
+      "component": "AgentReviewDashboard"
+    },
+    {
+      "path": "/agent-insights",
+      "name": "Agent Insights",
+      "component": "AgentInsightsDashboard"
+    },
+    {
+      "path": "/agent-integration",
+      "name": "AI Agent Integration",
+      "component": "AIAgentIntegration"
+    },
+    {
+      "path": "/telemetry",
+      "name": "GR Telemetry",
+      "component": "GRTelemetryDashboard"
+    },
+    {
+      "path": "/edge-functions",
+      "name": "Edge Functions",
+      "component": "EdgeFunctionsPage"
+    },
+    {
+      "path": "/about",
+      "name": "About",
+      "component": "About"
+    },
+    {
+      "path": "/settings",
+      "name": "Settings",
+      "component": "Settings"
+    }
+  ]
+}
+

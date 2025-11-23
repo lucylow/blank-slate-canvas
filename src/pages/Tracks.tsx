@@ -345,7 +345,7 @@ const Tracks = () => {
                                     View Map
                                   </Button>
                                 )}
-                                <Link to={`/pitwall`} className="flex-1">
+                                <Link to="/analytics" className="flex-1">
                                   <Button
                                     size="sm"
                                     className="w-full bg-primary hover:bg-primary/90"

@@ -1,0 +1,100 @@
+# Lovable Frontend Configuration
+# This file tells Lovable about all available pages/routes in the frontend
+
+name: pitwall-frontend
+type: frontend
+
+# Routes configuration - all available pages
+routes:
+  - path: /
+    name: Home
+    description: Main landing page
+    
+  - path: /dashboard
+    name: Dashboard
+    description: Main race dashboard with live data and telemetry
+    
+  - path: /tracks
+    name: Tracks
+    description: Track information and visualization
+    
+  - path: /analytics
+    name: Analytics
+    description: Performance metrics and analysis
+    
+  - path: /strategies
+    name: Race Strategies
+    description: Strategy selection and analysis
+    
+  - path: /pitwall
+    name: PitWall Dashboard
+    description: Strategy console (PitWall dashboard)
+    
+  - path: /predictive-ai
+    name: Predictive & Explanatory AI
+    description: Unified telemetry and coaching with driver analysis
+    
+  - path: /ai-summaries
+    name: AI Summary Reports
+    description: View and export AI-generated race analysis reports
+    
+  - path: /race-story
+    name: Race Story Generator
+    description: Broadcast & Debrief - Automatically identifies key race moments
+    
+  - path: /post-event-analysis
+    name: Post-Event Analysis
+    description: Comprehensive race analysis and comparisons
+    
+  - path: /pit-window
+    name: Pit Window Optimization
+    description: Monte Carlo simulation with traffic-aware recommendations
+    
+  - path: /gr-cars-drivers
+    name: GR Cars & Drivers
+    description: Car specifications and driver profiles
+    
+  - path: /coaching
+    name: Coaching Dashboard
+    description: Comprehensive coaching tools and analytics
+    
+  - path: /demo
+    name: Demo Sandbox
+    description: Interactive demo with 7-track mock data
+    
+  - path: /comprehensive
+    name: Comprehensive Dashboard
+    description: All AI features integrated
+    
+  - path: /agents
+    name: AI Agents
+    description: Agent system dashboard
+    
+  - path: /agents/review
+    name: Agent Review
+    description: Review agent decisions (Human-in-the-Loop)
+    
+  - path: /agent-insights
+    name: Agent Insights
+    description: Live insights from Delivery agent
+    
+  - path: /agent-integration
+    name: AI Agent Integration
+    description: Three integration patterns showcase
+    
+  - path: /telemetry
+    name: GR Telemetry
+    description: Speed and G-force comparison dashboard
+    
+  - path: /edge-functions
+    name: Edge Functions
+    description: Real-time analytics functions dashboard
+    
+  - path: /about
+    name: About
+    description: Information about the app
+    
+  - path: /settings
+    name: Settings
+    description: App configuration
+

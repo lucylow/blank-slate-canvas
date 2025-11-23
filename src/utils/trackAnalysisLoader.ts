@@ -102,7 +102,7 @@ function parseAnalysisContent(content: string): TrackAnalysisData['extractedData
     statistics: {},
   };
 
-  let currentSection = '';
+  const currentSection = '';
   let executiveSummary = '';
 
   for (let i = 0; i < lines.length; i++) {
