@@ -466,6 +466,13 @@ const Index = () => {
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<TrackId>("sonoma");
   const [telemetryConnectionStatus, setTelemetryConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
+  
+  // API feature states
+  const [anomalyHealth, setAnomalyHealth] = useState<{ status: string; pyod_available: boolean; active_connections: number } | null>(null);
+  const [anomalyStats, setAnomalyStats] = useState<AnomalyStats | null>(null);
+  const [f1Season, setF1Season] = useState<any>(null);
+  const [edgeMetrics, setEdgeMetrics] = useState<any>(null);
+  const [slackStatus, setSlackStatus] = useState<string | null>(null);
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
   const { trackButtonClick, trackLinkClick, trackSectionView } = useAnalytics();
@@ -486,6 +493,70 @@ const Index = () => {
     refetchInterval: 30000,
     retry: 1,
   });
+
+  // Fetch F1 season data
+  const { data: f1SeasonData, refetch: refetchF1Season } = useQuery({
+    queryKey: ['f1Season'],
+    queryFn: async () => {
+      try {
+        return await getCurrentF1Season();
+      } catch (error) {
+        console.error('Failed to fetch F1 season:', error);
+        throw error;
+      }
+    },
+    enabled: false, // Fetch on demand
+    retry: 1,
+  });
+
+  // Fetch anomaly health
+  const { data: anomalyHealthData, refetch: refetchAnomalyHealth } = useQuery({
+    queryKey: ['anomalyHealth'],
+    queryFn: async () => {
+      try {
+        return await checkAnomalyHealth();
+      } catch (error) {
+        console.error('Failed to fetch anomaly health:', error);
+        throw error;
+      }
+    },
+    enabled: false, // Fetch on demand
+    retry: 1,
+  });
+
+  // Fetch edge function metrics
+  const { data: edgeMetricsData, refetch: refetchEdgeMetrics } = useQuery({
+    queryKey: ['edgeMetrics'],
+    queryFn: async () => {
+      try {
+        return await getEdgeFunctionMetrics();
+      } catch (error) {
+        console.error('Failed to fetch edge metrics:', error);
+        throw error;
+      }
+    },
+    enabled: false, // Fetch on demand
+    retry: 1,
+  });
+
+  // Update state when queries complete
+  useEffect(() => {
+    if (f1SeasonData) {
+      setF1Season(f1SeasonData);
+    }
+  }, [f1SeasonData]);
+
+  useEffect(() => {
+    if (anomalyHealthData) {
+      setAnomalyHealth(anomalyHealthData);
+    }
+  }, [anomalyHealthData]);
+
+  useEffect(() => {
+    if (edgeMetricsData) {
+      setEdgeMetrics(edgeMetricsData);
+    }
+  }, [edgeMetricsData]);
 
   // Smooth scroll handler for anchor links with header offset
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -2678,20 +2749,36 @@ const Index = () => {
             </Card>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <Button 
-              onClick={async () => {
-                try {
-                  const health = await checkAnomalyHealth();
-                  alert(`Anomaly Detection Service: ${health.status}\nPyOD Available: ${health.pyod_available}`);
-                } catch (error) {
-                  console.error('Anomaly health check failed:', error);
-                }
-              }}
+              onClick={() => refetchAnomalyHealth()}
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+              disabled={anomalyHealthData === undefined && !anomalyHealth}
             >
-              Check Service Health
+              {anomalyHealthData !== undefined || anomalyHealth ? 'Refresh Service Health' : 'Check Service Health'}
             </Button>
+            
+            {anomalyHealth && (
+              <Card className="mt-6 max-w-2xl mx-auto border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4">Anomaly Detection Service Status</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <p className="text-lg font-semibold text-green-500">{anomalyHealth.status}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">PyOD Available</p>
+                      <p className="text-lg font-semibold">{anomalyHealth.pyod_available ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Connections</p>
+                      <p className="text-lg font-semibold">{anomalyHealth.active_connections || 0}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </section>
@@ -2866,16 +2953,9 @@ const Index = () => {
 
           <div className="text-center">
             <Button 
-              onClick={async () => {
-                try {
-                  const metrics = await getEdgeFunctionMetrics();
-                  console.log('Edge Function Metrics:', metrics);
-                  alert(`Edge Functions Status:\n${Object.keys(metrics).length} functions available`);
-                } catch (error) {
-                  console.error('Failed to get edge function metrics:', error);
-                }
-              }}
+              onClick={() => refetchEdgeMetrics()}
               className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+              disabled={edgeMetricsData === undefined && !edgeMetrics}
             >
               View Function Metrics
             </Button>
@@ -2978,23 +3058,37 @@ const Index = () => {
             </Card>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <p className="text-sm text-muted-foreground mb-4">
-              Free APIs: No API keys required • Ergast F1 API • OpenF1 • F1API.dev
+              Free APIs: No API keys required • Ergast F1 API • OpenF1 • F1API.dev                                                                              
             </p>
             <Button 
-              onClick={async () => {
-                try {
-                  const season = await getCurrentF1Season();
-                  alert(`Current F1 Season: ${season.count} races available`);
-                } catch (error) {
-                  console.error('Failed to fetch F1 season:', error);
-                }
-              }}
+              onClick={() => refetchF1Season()}
               className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+              disabled={f1SeasonData === undefined && !f1Season}
             >
-              View Current Season
+              {f1SeasonData !== undefined || f1Season ? 'Refresh Season Data' : 'View Current Season'}
             </Button>
+            
+            {f1Season && (
+              <Card className="mt-6 max-w-2xl mx-auto border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4">Current F1 Season</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Total Races:</span>
+                      <span className="text-lg font-semibold">{f1Season.count || 0}</span>
+                    </div>
+                    {f1Season.season && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Season:</span>
+                        <span className="text-lg font-semibold">{f1Season.season}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </section>

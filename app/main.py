@@ -268,6 +268,13 @@ try:
     from app.routes import maps, maps_ws
     app.include_router(maps.router, tags=["Maps & Location"])
     app.include_router(maps_ws.router, tags=["Maps WebSocket"])
+    
+    # Computer Vision API routes
+    try:
+        from app.routes import computer_vision
+        app.include_router(computer_vision.router, tags=["Computer Vision"])
+    except ImportError as e:
+        logger.warning(f"Computer vision routes not available: {e}")
 except ImportError as e:
     logger.warning(f"Maps router not available: {e}")
 

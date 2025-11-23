@@ -34,3 +34,9 @@ httpx>=0.24.0  # For async HTTP requests to Ergast, OpenF1, F1API.dev
 # Twilio API integration (optional - for SMS, Voice, WhatsApp)
 # Note: Using httpx for Twilio API calls, but twilio SDK available as alternative
 # twilio>=8.0.0  # Optional: Official Twilio SDK (currently using httpx instead)
+# Communication & Notification APIs
+slack-sdk>=3.23.0  # For Slack notifications (team alerts, race updates)
+sendgrid>=6.10.0  # For email notifications (race reports, summaries)
+# Computer Vision API integrations (optional)
+# google-cloud-vision>=3.0.0  # Optional: For Google Cloud Vision API (track condition, tire analysis)
+# boto3>=1.28.0  # Optional: For AWS Rekognition (track condition, tire analysis)
