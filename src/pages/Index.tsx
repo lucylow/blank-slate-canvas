@@ -1080,7 +1080,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-24 px-6 relative overflow-hidden" role="main" aria-label="Hero section">
+      <section className="pt-32 pb-32 px-6 relative overflow-hidden" role="main" aria-label="Hero section">
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
@@ -1091,12 +1091,12 @@ const Index = () => {
         
         <div className="container mx-auto max-w-5xl text-center relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 mb-8 backdrop-blur-md shadow-lg shadow-primary/10">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">AI-Powered Race Intelligence</span>
+            <span className="text-sm font-semibold text-primary">AI-Powered Race Intelligence</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight tracking-tight">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] tracking-tight">
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
               PitWall{" "}
             </span>
@@ -1108,14 +1108,14 @@ const Index = () => {
               Real-time race strategy & tire intelligence for the GR Cup
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
             Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
           </p>
           {agentStatus?.agents && agentStatus.agents.length > 0 && (
-            <div className="mb-12 flex items-center justify-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto">
+            <div className="mb-12 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto backdrop-blur-md shadow-lg shadow-primary/10">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-primary">
+                <span className="text-sm font-semibold text-primary">
                   {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} AI Agents Active
                 </span>
               </div>
@@ -1127,31 +1127,31 @@ const Index = () => {
           )}
           
           <div className="flex flex-col items-center gap-5 mb-12 max-w-2xl mx-auto">
-            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
                 Real-time tire predictions (per-sector) → Laps-until-cliff
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
                 Pit-window optimizer with "what-if" simulator (SC / traffic)
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
                 Driver fingerprinting + actionable coaching alerts
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
                 Explainable AI with confidence intervals & feature attribution
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
+            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
                 Competitor modeling for undercut/overcut strategy windows
@@ -1159,11 +1159,11 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
             <Link to="/comprehensive">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+                className="bg-primary hover:bg-primary/90 text-base md:text-lg px-8 py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
                 onClick={() => trackButtonClick('View Comprehensive Dashboard', 'hero')}
               >
@@ -1174,7 +1174,7 @@ const Index = () => {
             <Link to="/telemetry">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+                className="bg-primary hover:bg-primary/90 text-base md:text-lg px-8 py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
                 onClick={() => trackButtonClick('View Telemetry Comparison', 'hero')}
               >
@@ -1239,7 +1239,7 @@ const Index = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Autonomous AI Agent System</span>
+              <span className="text-sm font-semibold text-primary">Autonomous AI Agent System</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Powered by 7 Specialized AI Agents
@@ -1350,7 +1350,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Users className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Racing Community Impact</span>
+              <span className="text-sm font-semibold text-primary">Racing Community Impact</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Empowering the Racing Community
@@ -1466,7 +1466,7 @@ const Index = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Zap className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Real-Time Telemetry Analytics</span>
+              <span className="text-sm font-semibold text-primary">Real-Time Telemetry Analytics</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Speed & G-Force Comparison
@@ -1784,7 +1784,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Bot className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">AI-Powered Analysis</span>
+              <span className="text-sm font-semibold text-primary">AI-Powered Analysis</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               AI Summary Report
