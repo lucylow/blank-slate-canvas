@@ -235,6 +235,13 @@ try:
 except ImportError as e:
     logger.warning(f"Track analysis router not available: {e}")
 
+# Import and include F1 benchmarking router
+try:
+    from app.routes import f1_benchmarking
+    app.include_router(f1_benchmarking.router, tags=["F1 Benchmarking"])
+except ImportError as e:
+    logger.warning(f"F1 benchmarking router not available: {e}")
+
 # Metrics endpoint - mount Prometheus ASGI app for better compatibility
 from prometheus_client import make_asgi_app
 metrics_app = make_asgi_app()

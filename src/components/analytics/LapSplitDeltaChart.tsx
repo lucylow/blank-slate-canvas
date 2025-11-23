@@ -43,13 +43,18 @@ export function LapSplitDeltaChart({
   className
 }: LapSplitDeltaChartProps) {
   const [chartView, setChartView] = useState<ChartView>('all-sectors');
-  const defaultRefCar = refCar ?? cars[0];
+  const defaultRefCar = refCar ?? (cars && cars.length > 0 ? cars[0] : undefined);
 
   // Fetch split delta data
   const { data, isLoading, error } = useQuery<SplitDeltaResponse>({
-    queryKey: ['split-deltas', track, race, cars.join(','), defaultRefCar],
-    queryFn: () => getSplitDeltas(track, race, cars, defaultRefCar),
-    enabled: cars.length >= 2,
+    queryKey: ['split-deltas', track, race, cars?.join(',') ?? '', defaultRefCar],
+    queryFn: () => {
+      if (!cars || cars.length < 2 || !defaultRefCar) {
+        throw new Error('Invalid cars array or reference car');
+      }
+      return getSplitDeltas(track, race, cars, defaultRefCar);
+    },
+    enabled: !!cars && cars.length >= 2 && !!defaultRefCar,
     staleTime: 30000, // 30 seconds
     refetchOnWindowFocus: false
   });
@@ -119,10 +124,10 @@ export function LapSplitDeltaChart({
     
     // For single sector view, assign colors by car
     const carNum = seriesName.match(/Car (\d+)/)?.[1];
-    if (carNum) {
+    if (carNum && cars) {
       const colors = ['#3B82F6', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899'];
       const carIndex = cars.indexOf(Number(carNum));
-      return colors[carIndex % colors.length];
+      return colors[carIndex >= 0 ? carIndex % colors.length : 0];
     }
     
     return '#6B7280'; // Default gray
@@ -256,7 +261,7 @@ export function LapSplitDeltaChart({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             Lap Split Deltas Comparison
-            {data.meta.demo && (
+            {data.meta?.demo && (
               <Badge variant="outline" className="text-xs">
                 Demo Data
               </Badge>
@@ -275,7 +280,7 @@ export function LapSplitDeltaChart({
           </Select>
         </div>
         <div className="text-sm text-muted-foreground">
-          Reference Car: <span className="font-semibold">#{data.meta.ref_car}</span> • Comparing: {cars.filter(c => c !== data.meta.ref_car).map(c => `#${c}`).join(', ')}
+          Reference Car: <span className="font-semibold">#{data.meta?.ref_car ?? defaultRefCar}</span> • Comparing: {cars && cars.length > 0 ? cars.filter(c => c !== (data.meta?.ref_car ?? defaultRefCar)).map(c => `#${c}`).join(', ') : 'N/A'}
         </div>
       </CardHeader>
       <CardContent>

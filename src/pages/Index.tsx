@@ -17,8 +17,10 @@ import COTARaceResults from "@/components/COTARaceResults";
 import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
 import GRCarComparison from "@/components/GRCarComparison";
 import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
+import { TelemetryComparisonCharts } from "@/components/TelemetryComparisonCharts";
 import Chatbot from "@/components/Chatbot";
 import { AnalyticsPopup } from "@/components/AnalyticsPopup";
+import type { TrackId } from "@/lib/grCarTypes";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
@@ -392,6 +394,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState<string>('');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<TrackId>("sonoma");
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
   const { trackButtonClick, trackLinkClick, trackSectionView } = useAnalytics();
@@ -1309,7 +1312,7 @@ const Index = () => {
       <section id="gr-cars" className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
-          <GRCarComparison />
+          <GRCarComparison selectedTrack={selectedTrack} onTrackChange={setSelectedTrack} />
         </div>
       </section>
 
@@ -2039,6 +2042,14 @@ const Index = () => {
               Contact Our Team
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Telemetry Comparison Section */}
+      <section id="telemetry-comparison-charts" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <TelemetryComparisonCharts selectedTrack={selectedTrack} />
         </div>
       </section>
 

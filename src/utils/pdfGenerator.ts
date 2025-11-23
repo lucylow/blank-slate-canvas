@@ -1002,16 +1002,173 @@ const TRACK_NAME_TO_ID: Record<string, string> = {
 
 /**
  * Track ID to display name mapping
+ * Supports both hyphen and underscore formats (e.g., "road-america" and "road_america")
  */
 const TRACK_ID_TO_NAME: Record<string, string> = {
   "cota": "Circuit of the Americas",
   "road_america": "Road America",
+  "road-america": "Road America",
   "sebring": "Sebring International",
   "sonoma": "Sonoma Raceway",
   "barber": "Barber Motorsports Park",
   "vir": "Virginia International",
   "indianapolis": "Indianapolis Motor Speedway"
 };
+
+/**
+ * Generate PDF report for a single track using AI summary data
+ * @param trackId - The track ID (e.g., "cota", "sebring", "road-america")
+ * @param trackName - Optional display name for the track
+ */
+export async function generateSingleTrackAISummaryPDF(trackId: string, trackName?: string): Promise<void> {
+  try {
+    // Load AI summary data from public folder
+    let aiSummaries: any;
+    
+    try {
+      // Try fetching from public/data/ first (for production)
+      let response = await fetch('/data/ai_summary_reports.json');
+      
+      // Fallback: try root data path
+      if (!response.ok) {
+        response = await fetch('/ai_summary_reports.json');
+      }
+      
+      // Another fallback: try public demo_data
+      if (!response.ok) {
+        response = await fetch('/demo_data/ai_summary_reports.json');
+      }
+      
+      if (response.ok) {
+        aiSummaries = await response.json();
+      } else {
+        throw new Error(`Failed to load AI summary data: ${response.status} ${response.statusText}`);
+      }
+    } catch (fetchError) {
+      console.error('Error loading AI summary data:', fetchError);
+      throw new Error('Failed to load AI summary data. Please ensure the data file exists.');
+    }
+
+    // Normalize track ID (handle both "road-america" and "road_america")
+    const normalizedTrackId = trackId.replace('-', '_');
+    const summary = aiSummaries[normalizedTrackId] || aiSummaries[trackId];
+    
+    const displayName = trackName || TRACK_ID_TO_NAME[trackId] || TRACK_ID_TO_NAME[normalizedTrackId] || trackId;
+
+    // Build markdown report for single track
+    let markdownContent = `# GR Cup Racing Series - AI Data Analysis Report
+
+## 🏁 ${displayName}
+
+**Report Generated:** ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+
+**Track ID:** ${trackId}
+
+---
+
+`;
+
+    if (summary) {
+      const stats = summary.summary_stats || {};
+      const insights = summary.top_insights || [];
+      const clusters = summary.clusters || [];
+      const recommendations = summary.recommendations || [];
+
+      markdownContent += `### 📈 Summary Statistics\n\n`;
+      markdownContent += `- **Track Name:** ${summary.track_name || displayName}\n`;
+      markdownContent += `- **Telemetry Samples:** ${(stats.n_samples || 0).toLocaleString()}\n`;
+      markdownContent += `- **Unique Vehicles:** ${stats.n_vehicles || 'N/A'}\n`;
+      markdownContent += `- **Average Speed:** ${stats.avg_speed_kmh?.toFixed(2) || 'N/A'} km/h\n`;
+      markdownContent += `- **Speed Standard Deviation:** ${stats.std_speed_kmh?.toFixed(2) || 'N/A'} km/h\n`;
+      markdownContent += `- **Average Tire Temperature:** ${stats.avg_tire_temp?.toFixed(1) || 'N/A'}°C\n`;
+      markdownContent += `- **Report Generated:** ${summary.generated_at ? new Date(summary.generated_at).toLocaleDateString() : 'N/A'}\n\n`;
+
+      if (insights.length > 0) {
+        markdownContent += `### 🔍 Top AI Insights\n\n`;
+        insights.forEach((insight: any, i: number) => {
+          markdownContent += `#### ${i + 1}. ${insight.title || 'Insight'}\n\n`;
+          markdownContent += `${insight.detail || insight.message || 'No details available.'}\n\n`;
+        });
+      }
+
+      if (clusters.length > 0) {
+        markdownContent += `### 📊 Performance Clusters\n\n`;
+        markdownContent += `The AI has identified ${clusters.length} distinct performance clusters:\n\n`;
+        markdownContent += `| Cluster ID | Size | Avg Speed (km/h) | Avg Tire Temp (°C) |\n`;
+        markdownContent += `|------------|------|------------------|---------------------|\n`;
+        
+        clusters.forEach((cluster: any) => {
+          const centroid = cluster.centroid || {};
+          markdownContent += `| ${cluster.cluster_id} | ${cluster.size} | ${centroid.speed_kmh?.toFixed(2) || 'N/A'} | ${centroid.tire_temp?.toFixed(2) || 'N/A'} |\n`;
+        });
+        markdownContent += `\n`;
+      }
+
+      if (recommendations.length > 0) {
+        markdownContent += `### 💡 Strategic Recommendations\n\n`;
+        recommendations.forEach((rec: any, i: number) => {
+          markdownContent += `#### ${i + 1}. ${rec.type === 'pit_window' ? '🏁 Pit Strategy' : rec.type === 'driver_coach' ? '👨‍🏫 Driver Coaching' : '📋 Recommendation'}\n\n`;
+          
+          if (rec.type === 'pit_window') {
+            markdownContent += `- **Recommended Pit Window:** Lap ${rec.recommended_lap || 'N/A'}\n`;
+            markdownContent += `- **Confidence Level:** ${((rec.confidence || 0) * 100).toFixed(0)}%\n\n`;
+          } else if (rec.type === 'driver_coach') {
+            markdownContent += `- **Message:** ${rec.message || 'No message provided.'}\n`;
+            markdownContent += `- **Confidence Level:** ${((rec.confidence || 0) * 100).toFixed(0)}%\n\n`;
+          } else {
+            markdownContent += `${rec.message || JSON.stringify(rec)}\n\n`;
+          }
+        });
+      }
+
+      if (summary.generated_by) {
+        markdownContent += `### 🤖 AI Analysis Source\n\n`;
+        markdownContent += `Generated by: ${summary.generated_by}\n\n`;
+      }
+    } else {
+      markdownContent += `### ⏳ Data Pending\n\n`;
+      markdownContent += `AI analysis data for ${displayName} is currently being processed. This section will be updated once analysis is complete.\n\n`;
+      markdownContent += `**Track Information:**\n`;
+      
+      // Add basic track info based on track name
+      const trackInfo: Record<string, { length: string; turns: number; location: string }> = {
+        "Circuit of the Americas": { length: "3.427 miles", turns: 20, location: "Austin, Texas" },
+        "Road America": { length: "4.048 miles", turns: 14, location: "Elkhart Lake, Wisconsin" },
+        "Sebring International": { length: "3.74 miles", turns: 17, location: "Sebring, Florida" },
+        "Sonoma Raceway": { length: "2.52 miles", turns: 12, location: "Sonoma, California" },
+        "Barber Motorsports Park": { length: "2.38 miles", turns: 17, location: "Birmingham, Alabama" },
+        "Virginia International": { length: "3.27 miles", turns: 17, location: "Alton, Virginia" },
+        "Indianapolis Motor Speedway": { length: "2.439 miles", turns: 14, location: "Indianapolis, Indiana" }
+      };
+
+      const info = trackInfo[displayName];
+      if (info) {
+        markdownContent += `- **Location:** ${info.location}\n`;
+        markdownContent += `- **Length:** ${info.length}\n`;
+        markdownContent += `- **Turns:** ${info.turns}\n\n`;
+      }
+    }
+
+    markdownContent += `---\n\n`;
+    markdownContent += `**Report Generated by:** Pit Wall AI Analytics System\n`;
+    markdownContent += `**For:** GR Cup Racing Series - ${displayName}\n`;
+    markdownContent += `**Confidential - For Team Use Only**\n\n`;
+    markdownContent += `*This report contains AI-generated insights based on telemetry data. Always verify recommendations with race engineers and drivers.*\n`;
+
+    // Generate PDF filename
+    const filename = `${displayName.replace(/\s+/g, '_')}_AI_Analysis_Report.pdf`;
+
+    // Generate PDF
+    await generatePDFFromMarkdown(
+      markdownContent,
+      filename,
+      `GR Cup Racing Series - ${displayName} AI Analysis Report`
+    );
+  } catch (error) {
+    console.error(`Error generating PDF for track ${trackId}:`, error);
+    throw error;
+  }
+}
 
 /**
  * Generate comprehensive PDF report for all 7 tracks using AI summary data

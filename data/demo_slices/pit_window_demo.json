@@ -1,22 +1,73 @@
 {
+  "_comment": "Pit Window Demo Data - Explains how pit-window optimization works",
+  "_description": "This mock data demonstrates pit-window calculations that help teams decide the optimal lap range for pit stops. The system compares 'pit now' vs 'stay out' strategies using Monte Carlo simulation.",
+  
   "predictions": {
     "pit_now_delta": -3.8,
+    "_pit_now_delta_explanation": "Time delta in seconds if pitting now. Negative means pitting now is FASTER (saves 3.8s). This suggests we're in the optimal window.",
     "pit_now_risk": 22,
+    "_pit_now_risk_explanation": "Risk percentage (0-100) of pitting now. Lower is better. 22% indicates low risk - good traffic conditions.",
     "stay_out_delta": 1.2,
-    "stay_out_risk": 35
+    "_stay_out_delta_explanation": "Time delta in seconds if staying out longer. Positive means staying out is SLOWER (loses 1.2s). Tire degradation is accelerating.",
+    "stay_out_risk": 35,
+    "_stay_out_risk_explanation": "Risk percentage of staying out. 35% is higher risk - tire wear accelerating, traffic may worsen."
   },
+  
   "explanation": {
     "top_features": [
-      {"name": "TireTempFL", "value": 0.45},
-      {"name": "sector2_stress", "value": 0.30},
-      {"name": "lap_speed_variance", "value": 0.25}
+      {
+        "name": "TireTempFL",
+        "value": 0.45,
+        "_explanation": "Front-left tire temperature impact (45% weight). High temp indicates accelerated wear - key factor in pit window timing."
+      },
+      {
+        "name": "sector2_stress",
+        "value": 0.30,
+        "_explanation": "Sector 2 stress factor (30% weight). High-stress sectors cause faster tire degradation, affecting optimal pit window."
+      },
+      {
+        "name": "lap_speed_variance",
+        "value": 0.25,
+        "_explanation": "Lap speed variance (25% weight). Inconsistent lap times indicate tire degradation - signals approaching pit window."
+      }
     ],
     "pred_median": 3.4,
+    "_pred_median_explanation": "Median predicted time impact in seconds. This is the expected time delta from optimal pit strategy.",
     "ci_5": 2.8,
     "ci_95": 4.2,
+    "_confidence_interval_explanation": "90% confidence interval: 2.8s to 4.2s. Shows uncertainty range in predictions.",
     "model_version": "tire-v1.0"
   },
-  "model_version": "tire-v1.0"
+  
+  "pit_window_optimal": [15, 17],
+  "_pit_window_optimal_explanation": "Optimal pit window: Laps 15-17. This range balances tire wear, track position, and traffic. Pitting within this window maximizes race performance.",
+  
+  "scenario_context": {
+    "current_lap": 14,
+    "tire_wear_percentage": 72,
+    "_tire_wear_explanation": "Current tire wear at 72%. Approaching critical threshold (~80%) where performance degrades significantly.",
+    "track_position": 3,
+    "gap_to_leader": "+2.4s",
+    "gap_to_behind": "-1.8s",
+    "_position_explanation": "P3 position. Close gap behind suggests pitting now could lose position, but staying out risks tire failure.",
+    "traffic_ahead": false,
+    "traffic_behind": true,
+    "_traffic_explanation": "Clear track ahead, car behind. Good conditions for pit stop - less risk of losing time in traffic."
+  },
+  
+  "strategy_recommendation": {
+    "recommended_action": "pit_now",
+    "_recommended_action_explanation": "Recommend pitting now (lap 14-15). The -3.8s delta shows pitting now is optimal. Traffic is clear, and tire wear is accelerating.",
+    "reasoning": [
+      "Tire wear at 72% and accelerating - performance cliff approaching",
+      "Clear track ahead - minimal traffic risk",
+      "Pit window optimal range (15-17) starting next lap",
+      "Staying out risks 1.2s time loss + 35% risk of tire issues"
+    ]
+  },
+  
+  "model_version": "tire-v1.0",
+  "_model_info": "Physics-informed ML model trained on historical GR Cup data. Uses tire temperature, degradation curves, and track-specific factors."
 }
 
 

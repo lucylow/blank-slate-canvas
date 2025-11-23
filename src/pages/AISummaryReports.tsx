@@ -1,10 +1,19 @@
 // src/pages/AISummaryReports.tsx
-import React, { useEffect, useState } from "react";
-import { Loader2, FileText, Download, AlertCircle } from "lucide-react";
+import React, { useEffect, useState, useMemo } from "react";
+import { Loader2, FileText, Download, AlertCircle, BarChart3, TrendingUp, Gauge, Target, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
+import { DriverClusterChart } from "@/components/analytics/DriverClusterChart";
+import { SpeedDistributionChart } from "@/components/analytics/SpeedDistributionChart";
+import { TireTemperatureTrendChart } from "@/components/analytics/TireTemperatureTrendChart";
+import { SectorPerformanceChart } from "@/components/analytics/SectorPerformanceChart";
+import { LapTimeTrendsChart } from "@/components/analytics/LapTimeTrendsChart";
+import { TireWearDistributionChart } from "@/components/analytics/TireWearDistributionChart";
+import { LapSplitDeltaChart } from "@/components/analytics/LapSplitDeltaChart";
 
 type Report = {
   id: string;
@@ -494,6 +503,65 @@ function getAISummaryApiBase(): string {
   return '';
 }
 
+// Mock data generators for charts based on report content
+function generateMockClusterData(trackId: string) {
+  const baseData = {
+    sebring: [
+      { cluster: 0, avgSpeed: 130.77, tireTemp: 87.78, sampleCount: 892, description: "Conservative driving style, lower tire temperatures" },
+      { cluster: 1, avgSpeed: 136.11, tireTemp: 96.02, sampleCount: 446, description: "Aggressive driving style, optimal tire management" },
+      { cluster: 2, avgSpeed: 143.12, tireTemp: 103.40, sampleCount: 148, description: "Maximum performance, high tire stress" },
+    ],
+    road_america: [
+      { cluster: 0, avgSpeed: 130.84, tireTemp: 90.63, sampleCount: 898, description: "Conservative pace" },
+      { cluster: 1, avgSpeed: 136.18, tireTemp: 100.17, sampleCount: 449, description: "Optimal performance" },
+      { cluster: 2, avgSpeed: 143.19, tireTemp: 106.85, sampleCount: 150, description: "Maximum effort" },
+    ],
+    cota: [
+      { cluster: 0, avgSpeed: 131.62, tireTemp: 88.35, sampleCount: 923, description: "Steady pace" },
+      { cluster: 1, avgSpeed: 136.60, tireTemp: 97.65, sampleCount: 462, description: "Fast pace" },
+      { cluster: 2, avgSpeed: 144.25, tireTemp: 104.16, sampleCount: 154, description: "Peak performance" },
+    ],
+  };
+  return baseData[trackId as keyof typeof baseData] || baseData.sebring;
+}
+
+function generateMockSpeedDistribution(trackId: string) {
+  const ranges = ["100-110", "110-120", "120-130", "130-140", "140-150", "150-160", "160+"];
+  const baseFreq = {
+    sebring: [45, 120, 280, 420, 380, 200, 63],
+    road_america: [42, 115, 275, 415, 375, 195, 60],
+    cota: [48, 125, 290, 430, 390, 205, 68],
+  };
+  const frequencies = baseFreq[trackId as keyof typeof baseFreq] || baseFreq.sebring;
+  const total = frequencies.reduce((a, b) => a + b, 0);
+  
+  return ranges.map((range, i) => ({
+    speedRange: range,
+    frequency: frequencies[i],
+    percentage: (frequencies[i] / total) * 100,
+  }));
+}
+
+function generateMockTireTempTrend(trackId: string) {
+  const laps = Array.from({ length: 20 }, (_, i) => i + 1);
+  const baseTemp = trackId === 'sebring' ? 87 : trackId === 'cota' ? 88 : 90;
+  
+  return laps.map(lap => ({
+    lap,
+    temperature: baseTemp + (lap * 0.4) + Math.sin(lap / 3) * 2,
+    predicted: lap > 15 ? baseTemp + (lap * 0.45) + Math.sin(lap / 3) * 2 : undefined,
+    threshold: 100,
+  }));
+}
+
+function generateMockSectorData(trackId: string) {
+  return [
+    { sector: "Sector 1", avgTime: 26.961, bestTime: 26.850, consistency: 99.2, improvement: 0.111 },
+    { sector: "Sector 2", avgTime: 43.160, bestTime: 42.980, consistency: 98.8, improvement: 0.180 },
+    { sector: "Sector 3", avgTime: 29.163, bestTime: 29.050, consistency: 99.5, improvement: 0.113 },
+  ];
+}
+
 export default function AISummaryReports() {
   const [reports, setReports] = useState<Report[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -501,7 +569,22 @@ export default function AISummaryReports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
   const API_BASE = getAISummaryApiBase();
+
+  // Generate mock chart data based on selected report
+  const chartData = useMemo(() => {
+    if (!selected) return null;
+    
+    return {
+      clusterData: generateMockClusterData(selected),
+      speedDistribution: generateMockSpeedDistribution(selected),
+      tireTempTrend: generateMockTireTempTrend(selected),
+      sectorData: generateMockSectorData(selected),
+      avgSpeed: selected === 'sebring' ? 133.44 : selected === 'cota' ? 134.31 : 133.51,
+      stdDev: selected === 'sebring' ? 5.5 : selected === 'cota' ? 5.5 : 4.5,
+    };
+  }, [selected]);
 
   // Manage preview URL for mock content
   useEffect(() => {
@@ -844,7 +927,233 @@ export default function AISummaryReports() {
           </CardContent>
         </Card>
       </div>
-      </section>
+
+      {/* Enhanced Data Analysis Charts Section */}
+      {selected && chartData && (
+        <section className="max-w-7xl mx-auto py-12 px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30">
+                <BarChart3 className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold">Data Analysis & Visualizations</h2>
+                <p className="text-gray-300 text-sm mt-1">
+                  Comprehensive performance metrics and trends for {selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="performance" className="flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Performance
+              </TabsTrigger>
+              <TabsTrigger value="tires" className="flex items-center gap-2">
+                <Gauge className="w-4 h-4" />
+                Tires & Temperature
+              </TabsTrigger>
+              <TabsTrigger value="comparison" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Comparison
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <DriverClusterChart
+                    data={chartData.clusterData}
+                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <SpeedDistributionChart
+                    data={chartData.speedDistribution}
+                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    avgSpeed={chartData.avgSpeed}
+                    stdDev={chartData.stdDev}
+                  />
+                </motion.div>
+              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <SectorPerformanceChart
+                  data={chartData.sectorData}
+                  trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                />
+              </motion.div>
+            </TabsContent>
+
+            <TabsContent value="performance" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Card className="bg-card/60 backdrop-blur-md border-border/50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-primary" />
+                      Lap Time Trends
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-96">
+                      <LapTimeTrendsChart />
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <SectorPerformanceChart
+                  data={chartData.sectorData}
+                  trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                />
+              </motion.div>
+            </TabsContent>
+
+            <TabsContent value="tires" className="space-y-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  <TireTemperatureTrendChart
+                    data={chartData.tireTempTrend}
+                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    showPrediction={true}
+                    warningThreshold={100}
+                  />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <Card className="bg-card/60 backdrop-blur-md border-border/50 h-full">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Gauge className="w-5 h-5 text-primary" />
+                        Tire Wear Distribution
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-96">
+                        <TireWearDistributionChart />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="comparison" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <LapSplitDeltaChart
+                  track={selected}
+                  race={1}
+                  cars={[7, 13, 22]}
+                  refCar={7}
+                />
+              </motion.div>
+              <div className="grid lg:grid-cols-2 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <DriverClusterChart
+                    data={chartData.clusterData}
+                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <SpeedDistributionChart
+                    data={chartData.speedDistribution}
+                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                    avgSpeed={chartData.avgSpeed}
+                    stdDev={chartData.stdDev}
+                  />
+                </motion.div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* AI Insights Summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-8"
+          >
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  AI-Powered Insights Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-lg bg-card/50 border border-border/30">
+                    <div className="text-sm font-semibold text-muted-foreground mb-2">Driver Clusters</div>
+                    <div className="text-2xl font-bold">{chartData.clusterData.length}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {chartData.clusterData.reduce((sum, c) => sum + c.sampleCount, 0)} total samples analyzed
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-card/50 border border-border/30">
+                    <div className="text-sm font-semibold text-muted-foreground mb-2">Average Speed</div>
+                    <div className="text-2xl font-bold">{chartData.avgSpeed.toFixed(2)} km/h</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Std Dev: {chartData.stdDev.toFixed(2)} km/h
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-card/50 border border-border/30">
+                    <div className="text-sm font-semibold text-muted-foreground mb-2">Sectors Analyzed</div>
+                    <div className="text-2xl font-bold">{chartData.sectorData.length}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Performance metrics across all sectors
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </section>
+      )}
     </main>
   );
 }

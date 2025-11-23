@@ -1,0 +1,128 @@
+{
+  "_comment": "Example Dashboard API Response with Pit Window Data",
+  "_description": "This shows how pit-window data appears in the main dashboard API response (GET /api/dashboard). This is the format used by the frontend StrategyProvider and other components.",
+  "_usage": "This is an example structure. In production, this data comes from the live dashboard API endpoint.",
+  
+  "meta": {
+    "ok": true,
+    "track": "circuit_of_the_americas",
+    "lap": 14,
+    "total_laps": 30,
+    "enhanced_features": true
+  },
+  
+  "tire_wear": {
+    "front_left": 72.5,
+    "front_right": 71.8,
+    "rear_left": 73.2,
+    "rear_right": 72.1,
+    "_tire_wear_explanation": "Tire wear percentages (0-100). Higher = more wear. Average: 72.4%",
+    
+    "predicted_laps_remaining": 8,
+    "_predicted_laps_explanation": "Predicted laps until tire performance degrades significantly (typically >80% wear)",
+    
+    "pit_window_optimal": [15, 17],
+    "_pit_window_explanation": "Optimal pit window: Laps 15-17. This is the recommended lap range for pit stops. Array format: [start_lap, end_lap]",
+    
+    "confidence": 0.87,
+    "_confidence_explanation": "Model confidence in predictions (0-1). 0.87 = 87% confidence",
+    
+    "ci_lower": {
+      "front_left": 68.2,
+      "front_right": 67.5,
+      "rear_left": 69.1,
+      "rear_right": 68.0,
+      "pit_window_start": 14,
+      "pit_window_end": 16
+    },
+    "_ci_lower_explanation": "Lower bound of 90% confidence interval for tire wear and pit window",
+    
+    "ci_upper": {
+      "front_left": 76.8,
+      "front_right": 76.1,
+      "rear_left": 77.3,
+      "rear_right": 76.2,
+      "pit_window_start": 16,
+      "pit_window_end": 18
+    },
+    "_ci_upper_explanation": "Upper bound of 90% confidence interval for tire wear and pit window",
+    
+    "top_features": {
+      "TireTempFL": 0.45,
+      "sector2_stress": 0.30,
+      "lap_speed_variance": 0.25
+    },
+    "_top_features_explanation": "Top contributing factors to pit window prediction, with weights (sum to 1.0)",
+    
+    "model_version": "tire-v1.0"
+  },
+  
+  "performance": {
+    "current_lap": "1:45.234",
+    "best_lap": "1:43.891",
+    "gap_to_leader": "+2.4s",
+    "predicted_finish": "P3",
+    "position": 3,
+    "lap_number": 14
+  },
+  
+  "gap_analysis": {
+    "position": 3,
+    "gap_to_leader": "+2.4s",
+    "gap_to_ahead": "+1.2s",
+    "gap_to_behind": "-1.8s",
+    "overtaking_opportunity": false,
+    "under_pressure": true,
+    "_gap_analysis_explanation": "Gap analysis affects pit window timing. Being under pressure may require earlier pit to maintain position."
+  },
+  
+  "strategy": {
+    "recommended_strategy": "pit_window_optimal",
+    "strategies": [
+      {
+        "name": "Pit Early (Lap 14)",
+        "pit_lap": 14,
+        "expected_finish": "P3",
+        "confidence": 0.75,
+        "reasoning": "Pit now to avoid traffic, maintain position. Tire wear at 72% - still safe but optimal window opening."
+      },
+      {
+        "name": "Pit Window Optimal (Lap 15-17)",
+        "pit_lap": 15,
+        "expected_finish": "P2",
+        "confidence": 0.92,
+        "reasoning": "Optimal timing - balances tire wear, track position, and traffic. Highest confidence strategy."
+      },
+      {
+        "name": "Pit Late (Lap 18+)",
+        "pit_lap": 18,
+        "expected_finish": "P4",
+        "confidence": 0.65,
+        "reasoning": "Risky - tire wear approaching critical (>75%), may lose significant time and position."
+      }
+    ],
+    "_strategies_explanation": "Multiple strategy options with expected outcomes. Recommended strategy has highest confidence."
+  },
+  
+  "_how_to_use": {
+    "frontend_usage": "The StrategyProvider hook (src/hooks/useStrategy.tsx) uses tire_wear.pit_window_optimal to set strategy state",
+    "example_code": "const pitWindow = dashboardData.tire_wear.pit_window_optimal; // [15, 17]",
+    "display_format": "Optimal Pit Window: Laps {pitWindow[0]} - {pitWindow[1]}"
+  },
+  
+  "_pit_window_decision_logic": {
+    "when_to_pit": [
+      "Current lap is within pit_window_optimal range [15, 17]",
+      "Tire wear is between 65-80% (approaching critical threshold)",
+      "Traffic conditions are favorable",
+      "Track position allows for pit stop without losing too many positions"
+    ],
+    "when_to_stay_out": [
+      "Current lap is before pit_window_optimal start (lap < 15)",
+      "Tire wear is still low (< 60%)",
+      "Heavy traffic ahead - wait for clear track",
+      "Close battle for position - delay pit to maintain track position"
+    ]
+  }
+}
+

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, BarChart3, PieChart, Activity, Target, Zap, Loader2, AlertCircle, RefreshCw, Download, FileText, Clock, Award, TrendingDown, Gauge, Flame, CheckCircle2, AlertTriangle, ArrowUpRight, ArrowDownRight, Minus, Sparkles, Bot } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -11,20 +11,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LapTimeTrendsChart } from "@/components/analytics/LapTimeTrendsChart";
 import { TireWearDistributionChart } from "@/components/analytics/TireWearDistributionChart";
 import { LapSplitDeltaChart } from "@/components/analytics/LapSplitDeltaChart";
-import { getLiveDashboard, getTracks, getAgentStatus, type DashboardData, type TrackList, type AgentStatusResponse } from "@/api/pitwall";
+import { getLiveDashboard, getTracks, getAgentStatus, type DashboardData, type TrackList, type AgentStatusResponse, type Track } from "@/api/pitwall";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { DemoButton } from "@/components/DemoButton";
 
+// Default tracks fallback if API fails
+const DEFAULT_TRACKS: TrackList = {
+  tracks: [
+    { id: "sebring", name: "Sebring International", location: "Sebring, Florida", length_miles: 3.74, turns: 17, available_races: [1, 2] },
+    { id: "cota", name: "Circuit of the Americas", location: "Austin, Texas", length_miles: 3.427, turns: 20, available_races: [1, 2] },
+    { id: "road-america", name: "Road America", location: "Elkhart Lake, Wisconsin", length_miles: 4.048, turns: 14, available_races: [1, 2] },
+    { id: "sonoma", name: "Sonoma Raceway", location: "Sonoma, California", length_miles: 2.52, turns: 12, available_races: [1, 2] },
+    { id: "barber", name: "Barber Motorsports Park", location: "Birmingham, Alabama", length_miles: 2.38, turns: 17, available_races: [1, 2] },
+    { id: "vir", name: "Virginia International", location: "Alton, Virginia", length_miles: 3.27, turns: 17, available_races: [1, 2] },
+    { id: "indianapolis", name: "Indianapolis Motor Speedway", location: "Indianapolis, Indiana", length_miles: 2.439, turns: 14, available_races: [1, 2] },
+  ]
+};
+
 const Analytics = () => {
   const { isDemoMode } = useDemoMode();
+  const [searchParams] = useSearchParams();
   const [selectedTrack, setSelectedTrack] = useState("sebring");
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
   const [selectedLap, setSelectedLap] = useState(12);
   const [comparisonCars, setComparisonCars] = useState<number[]>([7, 13, 22]); // Default cars for comparison
-  const [tracks, setTracks] = useState<TrackList | null>(null);
+  const [tracks, setTracks] = useState<TrackList | null>(DEFAULT_TRACKS);
   const hasInitializedTracks = useRef(false);
+
+  // Read track from URL params
+  useEffect(() => {
+    const trackParam = searchParams.get('track');
+    if (trackParam) {
+      setSelectedTrack(trackParam);
+    }
+  }, [searchParams]);
 
   // Fetch tracks list
   useEffect(() => {
@@ -34,12 +56,17 @@ const Analytics = () => {
       try {
         const tracksData = await getTracks();
         setTracks(tracksData);
-        if (tracksData.tracks.length > 0 && !selectedTrack) {
+        // Only set default track if no track param in URL
+        const trackParam = searchParams.get('track');
+        if (tracksData.tracks.length > 0 && !trackParam) {
           setSelectedTrack(tracksData.tracks[0].id);
         }
         hasInitializedTracks.current = true;
       } catch (error) {
-        console.error("Failed to fetch tracks:", error);
+        console.error("Failed to fetch tracks, using default tracks:", error);
+        // Use default tracks as fallback
+        setTracks(DEFAULT_TRACKS);
+        hasInitializedTracks.current = true;
       }
     };
     fetchTracks();
@@ -49,10 +76,19 @@ const Analytics = () => {
   // Fetch dashboard data (includes analytics)
   const { data: dashboardData, isLoading, error, refetch, isRefetching } = useQuery<DashboardData>({
     queryKey: ["analytics", selectedTrack, selectedRace, selectedVehicle, selectedLap],
-    queryFn: () => getLiveDashboard(selectedTrack, selectedRace, selectedVehicle, selectedLap),
+    queryFn: async () => {
+      try {
+        return await getLiveDashboard(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+      } catch (error) {
+        // Log error but don't throw - let React Query handle retries
+        console.error("Dashboard API error:", error);
+        throw error;
+      }
+    },
     enabled: !!selectedTrack,
     refetchInterval: 30000, // Refetch every 30 seconds
     retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Fetch AI agent status
@@ -172,9 +208,10 @@ const Analytics = () => {
 
   // Track name for PDF export
   const trackName = useMemo(() => {
-    if (!tracks || !selectedTrack) return "";
-    const track = tracks.tracks.find(t => t.id === selectedTrack);
-    return track?.name || "";
+    if (!selectedTrack) return "";
+    const tracksList = tracks?.tracks || DEFAULT_TRACKS.tracks;
+    const track = tracksList.find(t => t.id === selectedTrack);
+    return track?.name || selectedTrack;
   }, [tracks, selectedTrack]);
 
   /**
@@ -331,7 +368,7 @@ const Analytics = () => {
                     <SelectValue placeholder="Select track" />
                   </SelectTrigger>
                   <SelectContent>
-                    {tracks?.tracks.map((track) => (
+                    {(tracks?.tracks || DEFAULT_TRACKS.tracks).map((track) => (
                       <SelectItem key={track.id} value={track.id}>
                         {track.name}
                       </SelectItem>

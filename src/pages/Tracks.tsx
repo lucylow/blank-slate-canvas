@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import RaceAnalysis from "@/components/RaceAnalysis";
 import TrackDetailAnalytics from "@/components/TrackDetailAnalytics";
-import { generateAllTracksAISummaryPDF } from "@/utils/pdfGenerator";
+import { generateAllTracksAISummaryPDF, generateSingleTrackAISummaryPDF } from "@/utils/pdfGenerator";
 
 // Track configuration with PDF map references
 // Maps track names to PDF filenames in public/track-maps/
@@ -55,6 +55,7 @@ const Tracks = () => {
   const [viewingMap, setViewingMap] = useState<string | null>(null);
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [generatingTrackId, setGeneratingTrackId] = useState<string | null>(null);
   const [trackDataSamples, setTrackDataSamples] = useState<Record<string, any>>({});
 
   const tracks = [
@@ -417,31 +418,64 @@ const Tracks = () => {
                                 </div>
                               )}
                               
-                              <div className="flex gap-2">
-                                {TRACK_PDF_MAP[track.name] && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex-1"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setViewingMap(track.name);
-                                    }}
-                                  >
-                                    <FileText className="w-4 h-4 mr-2" />
-                                    View Map
-                                  </Button>
-                                )}
+                              <div className="flex flex-col gap-2">
+                                <div className="flex gap-2">
+                                  {TRACK_PDF_MAP[track.name] && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="flex-1"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setViewingMap(track.name);
+                                      }}
+                                    >
+                                      <FileText className="w-4 h-4 mr-2" />
+                                      View Map
+                                    </Button>
+                                  )}
+                                  <Link to={`/analytics?track=${track.id}`} className="flex-1">
+                                    <Button
+                                      size="sm"
+                                      className="w-full bg-primary hover:bg-primary/90"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                      }}
+                                    >
+                                      <Activity className="w-4 h-4 mr-2" />
+                                      View Analytics
+                                    </Button>
+                                  </Link>
+                                </div>
                                 <Button
+                                  variant="outline"
                                   size="sm"
-                                  className="flex-1 bg-primary hover:bg-primary/90"
-                                  onClick={(e) => {
+                                  className="w-full"
+                                  disabled={generatingTrackId === track.id}
+                                  onClick={async (e) => {
                                     e.stopPropagation();
-                                    // Track is already selected, detailed analytics will show below
+                                    setGeneratingTrackId(track.id);
+                                    try {
+                                      await generateSingleTrackAISummaryPDF(track.id, track.name);
+                                    } catch (error) {
+                                      console.error('Error generating PDF:', error);
+                                      alert('Failed to generate PDF. Please check the console for details.');
+                                    } finally {
+                                      setGeneratingTrackId(null);
+                                    }
                                   }}
                                 >
-                                  <Activity className="w-4 h-4 mr-2" />
-                                  View Analytics
+                                  {generatingTrackId === track.id ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Generating...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Download className="w-4 h-4 mr-2" />
+                                      Download AI Summary Report
+                                    </>
+                                  )}
                                 </Button>
                               </div>
                             </motion.div>

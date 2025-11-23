@@ -18,8 +18,22 @@ import {
 import { grCarComparisonData, grCars, trackPerformanceData } from '@/lib/grCarData';
 import type { TrackId } from '@/lib/grCarTypes';
 
-const GRCarComparison: React.FC = () => {
-  const [selectedTrack, setSelectedTrack] = useState<TrackId>("sonoma");
+interface GRCarComparisonProps {
+  selectedTrack?: TrackId;
+  onTrackChange?: (track: TrackId) => void;
+}
+
+const GRCarComparison: React.FC<GRCarComparisonProps> = ({ 
+  selectedTrack: externalSelectedTrack,
+  onTrackChange 
+}) => {
+  const [internalSelectedTrack, setInternalSelectedTrack] = useState<TrackId>("sonoma");
+  const selectedTrack = externalSelectedTrack || internalSelectedTrack;
+  
+  const handleTrackChange = (track: TrackId) => {
+    setInternalSelectedTrack(track);
+    onTrackChange?.(track);
+  };
 
   const getRatingColor = (rating: string) => {
     switch (rating) {
@@ -76,7 +90,7 @@ const GRCarComparison: React.FC = () => {
         {trackPerformanceData.map((track) => (
           <button
             key={track.track}
-            onClick={() => setSelectedTrack(track.track)}
+            onClick={() => handleTrackChange(track.track)}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               selectedTrack === track.track
                 ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
