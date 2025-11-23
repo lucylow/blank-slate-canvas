@@ -153,3 +153,4 @@ async def get_model_details(model_id: str):
         logger.error(f"Error getting model details: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+

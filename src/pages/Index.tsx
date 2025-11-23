@@ -351,35 +351,90 @@ export const RaceStrategiesPage: React.FC = () => {
       </div>
 
       {/* Selected Strategy Details */}
-      {selectedStrategy && (
+      {selectedStrategy ? (
         <section>
-          <h2 className="text-2xl font-semibold mb-2">{selectedStrategy.name}</h2>
-          <p className="mb-4 text-gray-300">{selectedStrategy.description}</p>
+          <h2 className="text-2xl font-semibold mb-2">
+            {selectedStrategy.name || 'Unnamed Strategy'}
+          </h2>
+          <p className="mb-4 text-gray-300">
+            {selectedStrategy.description || 'No description available.'}
+          </p>
 
           {/* Key Metrics */}
-          <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {selectedStrategy.keyMetrics.map(({ label, value }) => (
-              <li
-                key={label}
-                className="bg-gray-800 p-4 rounded-md shadow-inner text-center"
-              >
-                <div className="text-gray-400 text-sm">{label}</div>
-                <div className="text-xl font-bold mt-1">{value}</div>
-              </li>
-            ))}
-          </ul>
+          {selectedStrategy.keyMetrics && selectedStrategy.keyMetrics.length > 0 ? (
+            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              {selectedStrategy.keyMetrics.map(({ label, value }, index) => {
+                if (!label) {
+                  console.warn('Metric missing label at index:', index);
+                  return null;
+                }
+
+                return (
+                  <li
+                    key={`${label}-${index}`}
+                    className="bg-gray-800 p-4 rounded-md shadow-inner text-center"
+                  >
+                    <div className="text-gray-400 text-sm">{label || 'Unknown Metric'}</div>
+                    <div className="text-xl font-bold mt-1">
+                      {value !== undefined && value !== null ? value : 'N/A'}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="mb-6 bg-gray-800 p-4 rounded-md text-center text-gray-400">
+              No key metrics available for this strategy.
+            </div>
+          )}
 
           {/* Visual Explanation */}
-          {selectedStrategy.visualDataUrl && (
+          {selectedStrategy.visualDataUrl ? (
             <div className="border border-gray-700 rounded-md overflow-hidden">
+            {imageErrors.has(selectedStrategy.id) ? (
+              <div className="bg-gray-800 p-8 text-center">
+                <p className="text-gray-400 mb-2">Image could not be loaded</p>
+                <p className="text-sm text-gray-500">
+                  {selectedStrategy.visualDataUrl}
+                </p>
+                <button
+                  onClick={() => {
+                    setImageErrors((prev) => {
+                      const next = new Set(prev);
+                      next.delete(selectedStrategy.id);
+                      return next;
+                    });
+                  }}
+                  className="mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm"
+                >
+                  Retry Loading Image
+                </button>
+              </div>
+            ) : (
               <img
                 src={selectedStrategy.visualDataUrl}
                 alt={`${selectedStrategy.name} visualization`}
                 className="w-full h-auto object-contain"
+                onError={() => handleImageError(selectedStrategy.id, selectedStrategy.visualDataUrl!)}
+                loading="lazy"
               />
+            )}
+            </div>
+          ) : (
+            <div className="border border-gray-700 rounded-md p-4 text-center text-gray-400">
+              No visual data available for this strategy.
             </div>
           )}
-      </section>
+        </section>
+      ) : (
+        <section className="bg-gray-800 p-8 rounded-md text-center">
+          <h2 className="text-xl font-semibold mb-2 text-gray-300">No Strategy Selected</h2>
+          <p className="text-gray-400">
+            {selectedStrategyId
+              ? `Strategy with ID "${selectedStrategyId}" could not be found.`
+              : 'Please select a strategy from the options above.'}
+          </p>
+        </section>
       )}
     </div>
   );

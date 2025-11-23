@@ -180,3 +180,4 @@ export function LovableCloudStatus({ showDetails = false, compact = false }: Lov
   );
 }
 
+

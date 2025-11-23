@@ -162,3 +162,4 @@ The simulator is designed for hackathon demos and development. It provides:
 - All timestamps are normalized to current time for real-time feel
 - Original TRD data is preserved in `_raw` field for reference
 
+

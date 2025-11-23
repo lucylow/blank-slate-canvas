@@ -155,3 +155,4 @@ async def get_dataset_coverage():
         logger.error(f"Error getting dataset coverage: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+

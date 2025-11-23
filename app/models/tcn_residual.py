@@ -45,3 +45,4 @@ class ResidualTCN(nn.Module):
         out = self.head(h).squeeze(-1)
         return out
 
+

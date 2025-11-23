@@ -194,3 +194,4 @@ export function CarTypeBadge({
   );
 }
 
+

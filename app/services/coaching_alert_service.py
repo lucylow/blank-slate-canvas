@@ -283,3 +283,4 @@ class CoachingAlertService:
 # Global instance
 coaching_alert_service = CoachingAlertService()
 
+

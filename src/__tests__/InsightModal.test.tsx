@@ -18,3 +18,4 @@ test('InsightModal fetches and displays evidence', async () => {
   await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 });
 
+

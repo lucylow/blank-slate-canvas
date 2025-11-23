@@ -365,3 +365,4 @@ export const LivePerformanceComparison: React.FC<LivePerformanceComparisonProps>
     </Card>
   );
 };
+

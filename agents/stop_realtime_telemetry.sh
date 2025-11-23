@@ -24,3 +24,4 @@ else
     echo -e "${YELLOW}No PID file found. Services may not be running.${NC}"
 fi
 
+
