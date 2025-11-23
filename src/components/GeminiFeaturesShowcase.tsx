@@ -1,7 +1,7 @@
 // src/components/GeminiFeaturesShowcase.tsx
 // Showcase component highlighting A.I. features
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Card,
@@ -11,6 +11,8 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import {
   Video,
   Music,
@@ -25,6 +27,12 @@ import {
   Sparkles,
   Layers,
   Search,
+  Play,
+  BarChart3,
+  Activity,
+  Clock,
+  FileCode,
+  Database,
 } from 'lucide-react';
 
 const features = [
@@ -94,7 +102,76 @@ const features = [
 ];
 
 
+// Mock data generators for demonstrations
+const generateMockRaceAnalytics = () => ({
+  vehicles: Array.from({ length: 10 }, (_, i) => ({
+    id: `GR86-00${i + 1}-${(i + 1) * 10}`,
+    number: (i + 1) * 10,
+    lap: 15 + Math.floor(Math.random() * 10),
+    gapToLeader: i === 0 ? 0 : (Math.random() * 30).toFixed(3),
+    speed: 110 + Math.random() * 20,
+    tireWear: 1200 + Math.random() * 300,
+    consistency: 95 + Math.random() * 5,
+  })),
+  totalDataPoints: 2847563,
+  tracksAnalyzed: 7,
+  racesProcessed: 14,
+});
+
+const generateMockVideoAnalysis = () => ({
+  frames: 1250,
+  duration: '45.2s',
+  insights: [
+    { type: 'driver', description: 'Late braking detected at Turn 5', confidence: 0.94 },
+    { type: 'track', description: 'Wet conditions observed in Sector 2', confidence: 0.87 },
+    { type: 'vehicle', description: 'Excessive body roll at Turn 9', confidence: 0.91 },
+  ],
+});
+
+const generateMockDatasetStats = () => ({
+  totalTokens: 1245632,
+  tracks: ['barber', 'cota', 'indianapolis', 'road_america', 'sebring', 'sonoma', 'vir'],
+  dataPoints: 41989346,
+  analysisTime: '2.3s',
+});
+
+const generateMockAudioTranscription = () => ({
+  transcript: "Alright team, we're looking at about 2.3 seconds to the leader. Tires are holding up well, track temperature is rising. Suggest staying out another 3 laps before pitting.",
+  duration: '12.5s',
+  speakers: 2,
+  keywords: ['leader', 'tires', 'track temperature', 'pitting'],
+});
+
 export function GeminiFeaturesShowcase() {
+  const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
+  const [mockRaceData] = useState(generateMockRaceAnalytics());
+  const [mockVideoData] = useState(generateMockVideoAnalysis());
+  const [mockDatasetData] = useState(generateMockDatasetStats());
+  const [mockAudioData] = useState(generateMockAudioTranscription());
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (isProcessing && processingProgress < 100) {
+      const timer = setTimeout(() => {
+        setProcessingProgress((prev) => Math.min(prev + 10, 100));
+      }, 200);
+      return () => clearTimeout(timer);
+    } else if (processingProgress >= 100) {
+      setIsProcessing(false);
+    }
+  }, [isProcessing, processingProgress]);
+
+  const handleDemoClick = (demoId: string) => {
+    setSelectedDemo(demoId);
+    setProcessingProgress(0);
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      setProcessingProgress(100);
+    }, 2000);
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -109,6 +186,191 @@ export function GeminiFeaturesShowcase() {
           Powerful A.I. capabilities for race data analysis, multimodal processing, and strategic insights
         </p>
       </div>
+
+      {/* Interactive Demo Section */}
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-primary" />
+            Live Demo - Mock Data Analysis
+          </CardTitle>
+          <CardDescription>
+            Experience Gemini AI capabilities with interactive mock data demonstrations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <Button
+              variant={selectedDemo === 'race' ? 'default' : 'outline'}
+              onClick={() => handleDemoClick('race')}
+              className="h-auto py-4 flex flex-col items-start gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                <span className="font-semibold">Race Analytics</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-left">
+                Analyze {mockRaceData.totalDataPoints.toLocaleString()} data points across {mockRaceData.tracksAnalyzed} tracks
+              </span>
+            </Button>
+            <Button
+              variant={selectedDemo === 'video' ? 'default' : 'outline'}
+              onClick={() => handleDemoClick('video')}
+              className="h-auto py-4 flex flex-col items-start gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <Video className="w-5 h-5" />
+                <span className="font-semibold">Video Analysis</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-left">
+                Process {mockVideoData.frames} frames in real-time
+              </span>
+            </Button>
+            <Button
+              variant={selectedDemo === 'dataset' ? 'default' : 'outline'}
+              onClick={() => handleDemoClick('dataset')}
+              className="h-auto py-4 flex flex-col items-start gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                <span className="font-semibold">Large Dataset</span>
+              </div>
+              <span className="text-xs text-muted-foreground text-left">
+                Process {mockDatasetData.totalTokens.toLocaleString()} tokens in {mockDatasetData.analysisTime}
+              </span>
+            </Button>
+          </div>
+
+          {isProcessing && (
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Processing with Gemini AI...</span>
+                <span className="text-primary font-semibold">{processingProgress}%</span>
+              </div>
+              <Progress value={processingProgress} className="h-2" />
+            </div>
+          )}
+
+          {selectedDemo && processingProgress >= 100 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6"
+            >
+              {selectedDemo === 'race' && (
+                <Card className="border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Race Analytics Results</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-primary">{mockRaceData.totalDataPoints.toLocaleString()}</div>
+                        <div className="text-xs text-muted-foreground">Data Points</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-primary">{mockRaceData.tracksAnalyzed}</div>
+                        <div className="text-xs text-muted-foreground">Tracks</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-primary">{mockRaceData.racesProcessed}</div>
+                        <div className="text-xs text-muted-foreground">Races</div>
+                      </div>
+                    </div>
+                    <div className="border-t pt-4">
+                      <div className="text-sm font-semibold mb-2">Top 5 Vehicles (Live Gaps)</div>
+                      <div className="space-y-2">
+                        {mockRaceData.vehicles.slice(0, 5).map((vehicle, idx) => (
+                          <div key={vehicle.id} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                            <div className="flex items-center gap-3">
+                              <Badge variant="outline">#{vehicle.number}</Badge>
+                              <span className="text-sm">Lap {vehicle.lap}</span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="text-muted-foreground">Gap: {vehicle.gapToLeader}s</span>
+                              <span className="text-muted-foreground">Speed: {vehicle.speed.toFixed(1)} mph</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {selectedDemo === 'video' && (
+                <Card className="border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Video Analysis Results</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-muted/50 rounded">
+                        <div className="text-sm text-muted-foreground mb-1">Frames Analyzed</div>
+                        <div className="text-2xl font-bold">{mockVideoData.frames}</div>
+                      </div>
+                      <div className="p-4 bg-muted/50 rounded">
+                        <div className="text-sm text-muted-foreground mb-1">Duration</div>
+                        <div className="text-2xl font-bold">{mockVideoData.duration}</div>
+                      </div>
+                    </div>
+                    <div className="border-t pt-4">
+                      <div className="text-sm font-semibold mb-2">AI-Generated Insights</div>
+                      <div className="space-y-3">
+                        {mockVideoData.insights.map((insight, idx) => (
+                          <div key={idx} className="flex items-start gap-3 p-3 bg-muted/50 rounded">
+                            <Badge className="mt-0.5">{insight.type}</Badge>
+                            <div className="flex-1">
+                              <div className="text-sm font-medium">{insight.description}</div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Confidence: {(insight.confidence * 100).toFixed(0)}%
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {selectedDemo === 'dataset' && (
+                <Card className="border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Large Dataset Analysis Results</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-4 bg-muted/50 rounded text-center">
+                        <div className="text-sm text-muted-foreground mb-1">Tokens Processed</div>
+                        <div className="text-2xl font-bold text-primary">{mockDatasetData.totalTokens.toLocaleString()}</div>
+                      </div>
+                      <div className="p-4 bg-muted/50 rounded text-center">
+                        <div className="text-sm text-muted-foreground mb-1">Analysis Time</div>
+                        <div className="text-2xl font-bold text-primary">{mockDatasetData.analysisTime}</div>
+                      </div>
+                      <div className="p-4 bg-muted/50 rounded text-center">
+                        <div className="text-sm text-muted-foreground mb-1">Data Points</div>
+                        <div className="text-2xl font-bold text-primary">{mockDatasetData.dataPoints.toLocaleString()}</div>
+                      </div>
+                    </div>
+                    <div className="border-t pt-4">
+                      <div className="text-sm font-semibold mb-2">Tracks Analyzed</div>
+                      <div className="flex flex-wrap gap-2">
+                        {mockDatasetData.tracks.map((track) => (
+                          <Badge key={track} variant="secondary" className="capitalize">
+                            {track.replace('_', ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Feature Cards Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

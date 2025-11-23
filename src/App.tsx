@@ -10,6 +10,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { DeliveryProvider } from "@/components/DeliveryProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { RouteLayout } from "@/components/layout/RouteLayout";
+import { NotificationProvider } from "@/components/NotificationProvider";
 
 import Index from "./pages/Index";
 import RaceStrategiesPage from "./pages/RaceStrategiesPage";
@@ -44,7 +45,6 @@ import GoogleMapsPage from "./pages/GoogleMapsPage";
 import AIDataAnalyticsPage from "./pages/AIDataAnalyticsPage";
 import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
 import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
-import SlackIntegrationPage from "./pages/SlackIntegrationPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,13 +70,14 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <DeliveryProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Suspense fallback={<PageLoader />}>
-              <ErrorBoundary>
-                <RouteLayout>
+          <NotificationProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <Suspense fallback={<PageLoader />}>
+                <ErrorBoundary>
+                  <RouteLayout>
                   <Routes>
                     {/* ========== LANDING PAGE ========== */}
                     {/* Main landing page */}
@@ -171,9 +172,6 @@ const App = () => (
                     {/* Driver Fingerprinting - AI-powered driver analysis and coaching */}
                     <Route path="/driver-fingerprinting" element={<DriverFingerprintingPage />} />
                     
-                    {/* Slack Integration - Real-time race alerts and notifications */}
-                    <Route path="/slack-integration" element={<SlackIntegrationPage />} />
-                    
                     {/* ========== SETTINGS ========== */}
                     {/* About - Information about the app */}
                     <Route path="/about" element={<About />} />
@@ -192,9 +190,10 @@ const App = () => (
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </RouteLayout>
-              </ErrorBoundary>
-            </Suspense>
-          </BrowserRouter>
+                </ErrorBoundary>
+              </Suspense>
+            </BrowserRouter>
+          </NotificationProvider>
         </DeliveryProvider>
       </TooltipProvider>
     </QueryClientProvider>

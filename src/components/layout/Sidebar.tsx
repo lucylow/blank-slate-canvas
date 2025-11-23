@@ -101,7 +101,6 @@ export function Sidebar() {
         { icon: BarChart3, label: 'AI Analytics', to: '/ai-analytics' },
         { icon: AlertCircle, label: 'Anomaly Detection', to: '/anomaly-detection' },
         { icon: Users, label: 'Driver Fingerprinting', to: '/driver-fingerprinting' },
-        { icon: MessageSquare, label: 'Slack Integration', to: '/slack-integration' },
       ],
     },
     {

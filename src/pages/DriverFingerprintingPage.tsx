@@ -1,102 +1,685 @@
 // src/pages/DriverFingerprintingPage.tsx
 // Driver Fingerprinting & Coaching Page
 
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
+import { 
+  Users, 
+  Target, 
+  AlertCircle, 
+  Award, 
+  TrendingUp, 
+  Loader2,
+  RefreshCw,
+  BarChart3,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Info,
+  Sparkles,
+  Activity,
+  Gauge,
+  Zap
+} from 'lucide-react';
+import { 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  PolarRadiusAxis, 
+  Radar, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend
+} from 'recharts';
+
 import { RouteLayout } from '@/components/layout/RouteLayout';
-import { Users, Target, AlertCircle, Award, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+import { 
+  getFingerprint, 
+  getAlerts, 
+  getCoachingPlan,
+  compareDrivers,
+  type DriverFingerprint,
+  type CoachingAlert,
+  type CoachingPlan
+} from '@/api/driverFingerprint';
+
+// Mock driver IDs for demo
+const MOCK_DRIVERS = [
+  { id: 'driver-1', name: 'Driver #13' },
+  { id: 'driver-2', name: 'Driver #22' },
+  { id: 'driver-3', name: 'Driver #0' },
+  { id: 'driver-4', name: 'Driver #46' },
+  { id: 'driver-5', name: 'Driver #47' },
+];
+
+// Mock data generators
+function generateMockFingerprint(driverId: string): DriverFingerprint {
+  const baseScore = 75 + Math.random() * 20;
+  return {
+    id: `fp-${driverId}`,
+    driver_id: driverId,
+    features: {
+      braking_consistency: Math.round(70 + Math.random() * 25),
+      throttle_smoothness: Math.round(65 + Math.random() * 30),
+      cornering_style: Math.round(75 + Math.random() * 20),
+      lap_consistency: Math.round(80 + Math.random() * 15),
+      tire_stress_index: Math.round(60 + Math.random() * 35),
+      overall_score: Math.round(baseScore),
+    },
+    created_at: new Date().toISOString(),
+    session_type: 'race',
+  };
+}
+
+function generateMockAlerts(driverId: string): CoachingAlert[] {
+  const alerts: CoachingAlert[] = [];
+  const priorities: Array<'critical' | 'high' | 'medium' | 'low'> = ['critical', 'high', 'medium', 'low'];
+  const categories = ['Braking', 'Throttle', 'Cornering', 'Consistency', 'Tire Management'];
+  
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+    alerts.push({
+      id: `alert-${driverId}-${i}`,
+      type: 'performance',
+      category: categories[Math.floor(Math.random() * categories.length)],
+      message: `Improve ${categories[Math.floor(Math.random() * categories.length)].toLowerCase()} technique`,
+      priority: priorities[Math.floor(Math.random() * priorities.length)],
+      improvement_area: categories[Math.floor(Math.random() * categories.length)],
+      feature_value: Math.round(50 + Math.random() * 40),
+      threshold: 75,
+      confidence: Math.round(80 + Math.random() * 15),
+      timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
+    });
+  }
+  
+  return alerts.sort((a, b) => {
+    const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+}
+
+function generateMockCoachingPlan(driverId: string): CoachingPlan {
+  return {
+    driver_id: driverId,
+    generated_at: new Date().toISOString(),
+    overall_score: Math.round(75 + Math.random() * 20),
+    priority_areas: ['Braking Consistency', 'Throttle Smoothness', 'Lap Consistency'],
+    weekly_focus: [
+      'Practice trail braking on entry',
+      'Work on throttle application smoothness',
+      'Maintain consistent lap times within 0.5s window'
+    ],
+    specific_drills: [
+      '10 laps focusing on late braking points',
+      '5 laps with throttle control exercises',
+      '15 laps maintaining consistent pace'
+    ],
+    progress_metrics: {
+      target_braking_consistency: 85,
+      target_throttle_smoothness: 80,
+      target_lap_consistency: 90,
+      target_overall_score: 85,
+    },
+  };
+}
+
+// Priority badge component
+function PriorityBadge({ priority }: { priority: CoachingAlert['priority'] }) {
+  const variants = {
+    critical: 'bg-red-500/20 text-red-500 border-red-500/50',
+    high: 'bg-orange-500/20 text-orange-500 border-orange-500/50',
+    medium: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/50',
+    low: 'bg-blue-500/20 text-blue-500 border-blue-500/50',
+  };
+  
+  return (
+    <Badge variant="outline" className={variants[priority]}>
+      {priority.toUpperCase()}
+    </Badge>
+  );
+}
+
+// Feature metric card
+function FeatureMetric({ label, value, max = 100 }: { label: string; value: number; max?: number }) {
+  const percentage = (value / max) * 100;
+  const getColor = () => {
+    if (percentage >= 80) return 'bg-green-500';
+    if (percentage >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+  
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-semibold">{value}/{max}</span>
+      </div>
+      <Progress value={percentage} className="h-2" />
+    </div>
+  );
+}
 
 export default function DriverFingerprintingPage() {
+  const [selectedDriver, setSelectedDriver] = useState<string>('driver-1');
+  const [comparisonDriver, setComparisonDriver] = useState<string>('');
+
+  // Fetch fingerprint
+  const { data: fingerprint, isLoading: fingerprintLoading, refetch: refetchFingerprint } = useQuery({
+    queryKey: ['fingerprint', selectedDriver],
+    queryFn: async () => {
+      try {
+        return await getFingerprint(selectedDriver);
+      } catch (error) {
+        console.warn('Using mock fingerprint data:', error);
+        return generateMockFingerprint(selectedDriver);
+      }
+    },
+  });
+
+  // Fetch alerts
+  const { data: alerts, isLoading: alertsLoading, refetch: refetchAlerts } = useQuery({
+    queryKey: ['alerts', selectedDriver],
+    queryFn: async () => {
+      try {
+        return await getAlerts(selectedDriver);
+      } catch (error) {
+        console.warn('Using mock alerts data:', error);
+        return generateMockAlerts(selectedDriver);
+      }
+    },
+  });
+
+  // Fetch coaching plan
+  const { data: coachingPlan, isLoading: planLoading, refetch: refetchPlan } = useQuery({
+    queryKey: ['coaching-plan', selectedDriver],
+    queryFn: async () => {
+      try {
+        return await getCoachingPlan(selectedDriver);
+      } catch (error) {
+        console.warn('Using mock coaching plan data:', error);
+        return generateMockCoachingPlan(selectedDriver);
+      }
+    },
+  });
+
+  // Fetch comparison
+  const { data: comparison, isLoading: comparisonLoading } = useQuery({
+    queryKey: ['driver-comparison', selectedDriver, comparisonDriver],
+    queryFn: async () => {
+      if (!comparisonDriver) return null;
+      try {
+        return await compareDrivers(selectedDriver, comparisonDriver);
+      } catch (error) {
+        console.warn('Comparison failed, using mock data:', error);
+        // Return mock comparison
+        const driver1Fp = fingerprint || generateMockFingerprint(selectedDriver);
+        const driver2Fp = generateMockFingerprint(comparisonDriver);
+        return {
+          driver1: driver1Fp.features,
+          driver2: driver2Fp.features,
+          differences: Object.keys(driver1Fp.features).map(key => ({
+            feature: key,
+            driver1_value: driver1Fp.features[key],
+            driver2_value: driver2Fp.features[key],
+            difference: driver1Fp.features[key] - driver2Fp.features[key],
+          })),
+        };
+      }
+    },
+    enabled: !!comparisonDriver,
+  });
+
+  // Prepare radar chart data
+  const radarData = fingerprint ? [
+    { feature: 'Braking', value: fingerprint.features.braking_consistency },
+    { feature: 'Throttle', value: fingerprint.features.throttle_smoothness },
+    { feature: 'Cornering', value: fingerprint.features.cornering_style },
+    { feature: 'Consistency', value: fingerprint.features.lap_consistency },
+    { feature: 'Tire Mgmt', value: fingerprint.features.tire_stress_index },
+  ] : [];
+
+  // Prepare comparison chart data
+  const comparisonData = comparison ? Object.keys(comparison.driver1 || {}).map(key => ({
+    feature: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    driver1: comparison.driver1[key],
+    driver2: comparison.driver2[key],
+  })) : [];
+
+  const isLoading = fingerprintLoading || alertsLoading || planLoading;
+
   return (
     <RouteLayout>
       <div className="container mx-auto py-8 space-y-8">
         {/* Header */}
-        <div className="space-y-4 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-4 shadow-xl shadow-purple-500/20">
-            <Users className="w-8 h-8 text-white" />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl shadow-purple-500/20">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                  Driver Fingerprinting & Coaching
+                </h1>
+                <p className="text-xl text-muted-foreground mt-2">
+                  AI-powered driver analysis with personalized coaching plans
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                refetchFingerprint();
+                refetchAlerts();
+                refetchPlan();
+              }}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Driver Fingerprinting & Coaching
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            AI-powered driver analysis with personalized coaching plans and performance insights
-          </p>
+
+          {/* Driver Selection */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm font-medium">Select Driver:</span>
+            </div>
+            <Select value={selectedDriver} onValueChange={setSelectedDriver}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MOCK_DRIVERS.map((driver) => (
+                  <SelectItem key={driver.id} value={driver.id}>
+                    {driver.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <Target className="w-6 h-6 text-purple-500" />
-                <CardTitle>Fingerprinting</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                Generate unique driver fingerprints from telemetry data including braking consistency, throttle smoothness, and cornering style.
-              </p>
-            </CardContent>
-          </Card>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+          </div>
+        )}
 
-          <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <AlertCircle className="w-6 h-6 text-purple-500" />
-                <CardTitle>Coaching Alerts</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                Real-time coaching alerts with priority levels (critical, high, medium, low) and improvement area identification.
-              </p>
-            </CardContent>
-          </Card>
+        {/* Main Content Tabs */}
+        {!isLoading && (
+          <Tabs defaultValue="fingerprint" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="fingerprint" className="flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Fingerprint
+              </TabsTrigger>
+              <TabsTrigger value="alerts" className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" />
+                Alerts
+                {alerts && alerts.length > 0 && (
+                  <Badge variant="destructive" className="ml-1">
+                    {alerts.filter(a => a.priority === 'critical' || a.priority === 'high').length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="coaching" className="flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                Coaching Plan
+              </TabsTrigger>
+              <TabsTrigger value="comparison" className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Comparison
+              </TabsTrigger>
+            </TabsList>
 
-          <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <Award className="w-6 h-6 text-purple-500" />
-                <CardTitle>Coaching Plans</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                Personalized weekly coaching plans with specific drills, priority areas, and progress metrics.
-              </p>
-            </CardContent>
-          </Card>
+            {/* Fingerprint Tab */}
+            <TabsContent value="fingerprint" className="space-y-6">
+              {fingerprint && (
+                <>
+                  {/* Overall Score Card */}
+                  <Card className="border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-purple-600/5">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-2xl">Overall Performance Score</CardTitle>
+                          <CardDescription>Comprehensive driver assessment</CardDescription>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-5xl font-bold text-purple-500">
+                            {fingerprint.features.overall_score}
+                          </div>
+                          <div className="text-sm text-muted-foreground">out of 100</div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Progress 
+                        value={fingerprint.features.overall_score} 
+                        className="h-3"
+                      />
+                    </CardContent>
+                  </Card>
 
-          <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <TrendingUp className="w-6 h-6 text-purple-500" />
-                <CardTitle>Driver Comparison</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                Compare drivers with teammates or baseline drivers to identify performance differences and improvement opportunities.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Radar Chart */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Performance Profile</CardTitle>
+                        <CardDescription>Multi-dimensional driver analysis</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <RadarChart data={radarData}>
+                            <PolarGrid />
+                            <PolarAngleAxis dataKey="feature" />
+                            <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                            <Radar
+                              name="Performance"
+                              dataKey="value"
+                              stroke="#a855f7"
+                              fill="#a855f7"
+                              fillOpacity={0.6}
+                            />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
 
-        {/* Feature Details */}
-        <Card className="border-purple-500/30 bg-purple-500/5">
-          <CardHeader>
-            <CardTitle>Available Features</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Features: Braking consistency, throttle smoothness, cornering style, lap consistency, tire stress index, overall score
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Use the coaching page for detailed driver analysis and personalized coaching recommendations.
-            </p>
-          </CardContent>
-        </Card>
+                    {/* Feature Metrics */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Detailed Metrics</CardTitle>
+                        <CardDescription>Individual performance indicators</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <FeatureMetric
+                          label="Braking Consistency"
+                          value={fingerprint.features.braking_consistency}
+                        />
+                        <FeatureMetric
+                          label="Throttle Smoothness"
+                          value={fingerprint.features.throttle_smoothness}
+                        />
+                        <FeatureMetric
+                          label="Cornering Style"
+                          value={fingerprint.features.cornering_style}
+                        />
+                        <FeatureMetric
+                          label="Lap Consistency"
+                          value={fingerprint.features.lap_consistency}
+                        />
+                        <FeatureMetric
+                          label="Tire Stress Index"
+                          value={fingerprint.features.tire_stress_index}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Session Info */}
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Activity className="w-4 h-4" />
+                          <span>Session Type: {fingerprint.session_type || 'Race'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Gauge className="w-4 h-4" />
+                          <span>Generated: {new Date(fingerprint.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+
+            {/* Alerts Tab */}
+            <TabsContent value="alerts" className="space-y-4">
+              {alerts && alerts.length > 0 ? (
+                <div className="space-y-4">
+                  {alerts.map((alert) => (
+                    <motion.div
+                      key={alert.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Alert
+                        className={
+                          alert.priority === 'critical'
+                            ? 'border-red-500/50 bg-red-500/10'
+                            : alert.priority === 'high'
+                            ? 'border-orange-500/50 bg-orange-500/10'
+                            : 'border-yellow-500/50 bg-yellow-500/10'
+                        }
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3 flex-1">
+                            {alert.priority === 'critical' ? (
+                              <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                            ) : alert.priority === 'high' ? (
+                              <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5" />
+                            ) : (
+                              <Info className="w-5 h-5 text-yellow-500 mt-0.5" />
+                            )}
+                            <div className="flex-1">
+                              <AlertTitle className="flex items-center gap-2">
+                                {alert.category}
+                                <PriorityBadge priority={alert.priority} />
+                              </AlertTitle>
+                              <AlertDescription className="mt-2">
+                                {alert.message}
+                              </AlertDescription>
+                              <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+                                <span>Area: {alert.improvement_area}</span>
+                                {alert.feature_value && (
+                                  <span>Current: {alert.feature_value}/100</span>
+                                )}
+                                {alert.threshold && (
+                                  <span>Target: {alert.threshold}/100</span>
+                                )}
+                                {alert.confidence && (
+                                  <span>Confidence: {alert.confidence}%</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Alert>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                    <p className="text-lg font-semibold">No Active Alerts</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Driver performance is within acceptable parameters
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            {/* Coaching Plan Tab */}
+            <TabsContent value="coaching" className="space-y-6">
+              {coachingPlan && (
+                <>
+                  <Card className="border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-purple-600/5">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-500" />
+                        Personalized Coaching Plan
+                      </CardTitle>
+                      <CardDescription>
+                        Generated on {new Date(coachingPlan.generated_at).toLocaleDateString()}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="font-semibold mb-3 flex items-center gap-2">
+                            <Target className="w-4 h-4" />
+                            Priority Areas
+                          </h3>
+                          <ul className="space-y-2">
+                            {coachingPlan.priority_areas.map((area, idx) => (
+                              <li key={idx} className="flex items-center gap-2 text-sm">
+                                <div className="w-2 h-2 rounded-full bg-purple-500" />
+                                {area}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold mb-3 flex items-center gap-2">
+                            <Zap className="w-4 h-4" />
+                            Weekly Focus
+                          </h3>
+                          <ul className="space-y-2">
+                            {coachingPlan.weekly_focus.map((focus, idx) => (
+                              <li key={idx} className="flex items-center gap-2 text-sm">
+                                <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                {focus}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Specific Drills</CardTitle>
+                      <CardDescription>Practice exercises for improvement</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {coachingPlan.specific_drills.map((drill, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-3 p-3 rounded-lg border bg-card"
+                          >
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-sm font-semibold text-purple-500">
+                              {idx + 1}
+                            </div>
+                            <p className="text-sm flex-1">{drill}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Progress Metrics</CardTitle>
+                      <CardDescription>Target values for improvement</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FeatureMetric
+                        label="Target Braking Consistency"
+                        value={coachingPlan.progress_metrics.target_braking_consistency}
+                      />
+                      <FeatureMetric
+                        label="Target Throttle Smoothness"
+                        value={coachingPlan.progress_metrics.target_throttle_smoothness}
+                      />
+                      <FeatureMetric
+                        label="Target Lap Consistency"
+                        value={coachingPlan.progress_metrics.target_lap_consistency}
+                      />
+                      <FeatureMetric
+                        label="Target Overall Score"
+                        value={coachingPlan.progress_metrics.target_overall_score}
+                      />
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+
+            {/* Comparison Tab */}
+            <TabsContent value="comparison" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Compare Drivers</CardTitle>
+                  <CardDescription>Select a driver to compare performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4">
+                    <Select value={comparisonDriver} onValueChange={setComparisonDriver}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Select driver to compare" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MOCK_DRIVERS.filter(d => d.id !== selectedDriver).map((driver) => (
+                          <SelectItem key={driver.id} value={driver.id}>
+                            {driver.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {comparisonDriver && (
+                <>
+                  {comparisonLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                    </div>
+                  ) : comparison && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Performance Comparison</CardTitle>
+                        <CardDescription>
+                          {MOCK_DRIVERS.find(d => d.id === selectedDriver)?.name} vs{' '}
+                          {MOCK_DRIVERS.find(d => d.id === comparisonDriver)?.name}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={400}>
+                          <BarChart data={comparisonData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="feature" />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="driver1" fill="#a855f7" name={MOCK_DRIVERS.find(d => d.id === selectedDriver)?.name} />
+                            <Bar dataKey="driver2" fill="#10b981" name={MOCK_DRIVERS.find(d => d.id === comparisonDriver)?.name} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </RouteLayout>
   );
 }
-
