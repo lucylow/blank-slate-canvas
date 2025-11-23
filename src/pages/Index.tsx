@@ -1172,132 +1172,144 @@ const Index = () => {
     retry: 1,
   });
 
+  const mockTireWearEval = {
+    eval_metric: "tire-wear-prediction",
+    model_version: "1.0.0",
+    by_track: {
+      sebring: {
+        rmse_mean: 0.34,
+        rmse_std: 0.08,
+        rmse_list: [0.32, 0.35, 0.33, 0.36, 0.34],
+        r2_mean: 0.89,
+        r2_list: [0.88, 0.90, 0.89, 0.87, 0.91],
+        n_samples: 50,
+        folds: 5,
+      },
+      road_america: {
+        rmse_mean: 0.28,
+        rmse_std: 0.06,
+        rmse_list: [0.26, 0.29, 0.27, 0.28, 0.30],
+        r2_mean: 0.91,
+        r2_list: [0.90, 0.92, 0.91, 0.90, 0.92],
+        n_samples: 50,
+        folds: 5,
+      },
+      cota: {
+        rmse_mean: 0.31,
+        rmse_std: 0.07,
+        rmse_list: [0.29, 0.32, 0.30, 0.31, 0.33],
+        r2_mean: 0.88,
+        r2_list: [0.87, 0.89, 0.88, 0.87, 0.89],
+        n_samples: 50,
+        folds: 5,
+      },
+    },
+    summary: {
+      avg_rmse: 0.31,
+      timestamp: Date.now() / 1000,
+    },
+  };
+
   // Fetch analytics data
   const { data: tireWearEval } = useQuery({
     queryKey: ["tireWearEval"],
     queryFn: async () => {
+      if (isDemoMode) {
+        return mockTireWearEval;
+      }
       try {
         return await evaluateTireWearModel();
       } catch (error) {
         console.error("Tire wear eval fetch error:", error);
-        // Return mock data
-        return {
-          eval_metric: "tire-wear-prediction",
-          model_version: "1.0.0",
-          by_track: {
-            sebring: {
-              rmse_mean: 0.34,
-              rmse_std: 0.08,
-              rmse_list: [0.32, 0.35, 0.33, 0.36, 0.34],
-              r2_mean: 0.89,
-              r2_list: [0.88, 0.90, 0.89, 0.87, 0.91],
-              n_samples: 50,
-              folds: 5,
-            },
-            road_america: {
-              rmse_mean: 0.28,
-              rmse_std: 0.06,
-              rmse_list: [0.26, 0.29, 0.27, 0.28, 0.30],
-              r2_mean: 0.91,
-              r2_list: [0.90, 0.92, 0.91, 0.90, 0.92],
-              n_samples: 50,
-              folds: 5,
-            },
-            cota: {
-              rmse_mean: 0.31,
-              rmse_std: 0.07,
-              rmse_list: [0.29, 0.32, 0.30, 0.31, 0.33],
-              r2_mean: 0.88,
-              r2_list: [0.87, 0.89, 0.88, 0.87, 0.89],
-              n_samples: 50,
-              folds: 5,
-            },
-          },
-          summary: {
-            avg_rmse: 0.31,
-            timestamp: Date.now() / 1000,
-          },
-        };
+        return mockTireWearEval;
       }
     },
-    enabled: !isDemoMode,
+    enabled: true, // Always enabled, uses mock in demo mode
     retry: 1,
   });
+
+  const mockDatasetCoverage = {
+    by_track: {
+      sebring: {
+        n_laps: 1250,
+        n_drivers: 45,
+        n_sessions: 15,
+        date_min: "2025-09-01",
+        date_max: "2025-11-20",
+        tire_compounds: ["soft", "medium", "hard"],
+        data_sha: "sha256:abc123def456",
+      },
+      road_america: {
+        n_laps: 980,
+        n_drivers: 38,
+        n_sessions: 12,
+        date_min: "2025-08-15",
+        date_max: "2025-11-10",
+        tire_compounds: ["soft", "medium"],
+        data_sha: "sha256:def456abc789",
+      },
+      cota: {
+        n_laps: 1100,
+        n_drivers: 42,
+        n_sessions: 14,
+        date_min: "2025-09-10",
+        date_max: "2025-11-18",
+        tire_compounds: ["soft", "medium", "hard"],
+        data_sha: "sha256:ghi789jkl012",
+      },
+    },
+    summary: {
+      total_laps: 3330,
+      total_drivers: 125,
+      total_sessions: 41,
+      training_complete: true,
+    },
+  };
 
   const { data: datasetCoverage } = useQuery({
     queryKey: ["datasetCoverage"],
     queryFn: async () => {
+      if (isDemoMode) {
+        return mockDatasetCoverage;
+      }
       try {
         return await getDatasetCoverage();
       } catch (error) {
         console.error("Dataset coverage fetch error:", error);
-        // Return mock data
-        return {
-          by_track: {
-            sebring: {
-              n_laps: 1250,
-              n_drivers: 45,
-              n_sessions: 15,
-              date_min: "2025-09-01",
-              date_max: "2025-11-20",
-              tire_compounds: ["soft", "medium", "hard"],
-              data_sha: "sha256:abc123def456",
-            },
-            road_america: {
-              n_laps: 980,
-              n_drivers: 38,
-              n_sessions: 12,
-              date_min: "2025-08-15",
-              date_max: "2025-11-10",
-              tire_compounds: ["soft", "medium"],
-              data_sha: "sha256:def456abc789",
-            },
-            cota: {
-              n_laps: 1100,
-              n_drivers: 42,
-              n_sessions: 14,
-              date_min: "2025-09-10",
-              date_max: "2025-11-18",
-              tire_compounds: ["soft", "medium", "hard"],
-              data_sha: "sha256:ghi789jkl012",
-            },
-          },
-          summary: {
-            total_laps: 3330,
-            total_drivers: 125,
-            total_sessions: 41,
-            training_complete: true,
-          },
-        };
+        return mockDatasetCoverage;
       }
     },
-    enabled: !isDemoMode,
+    enabled: true, // Always enabled, uses mock in demo mode
     retry: 1,
   });
+
+  const mockAnomalySummary = {
+    anomalies: {
+      tire_lockup: { count: 23, severity: "warning" },
+      wheelspin: { count: 15, severity: "warning" },
+      oversteer: { count: 8, severity: "warning" },
+      understeer: { count: 12, severity: "warning" },
+      brake_fade: { count: 5, severity: "warning" },
+      sensor_glitch: { count: 3, severity: "warning" },
+    },
+    track: null,
+    period: "last_7_days",
+  };
 
   const { data: anomalySummary } = useQuery({
     queryKey: ["anomalySummary"],
     queryFn: async () => {
+      if (isDemoMode) {
+        return mockAnomalySummary;
+      }
       try {
         return await getAnomalySummary();
       } catch (error) {
         console.error("Anomaly summary fetch error:", error);
-        // Return mock data
-        return {
-          anomalies: {
-            tire_lockup: { count: 23, severity: "warning" },
-            wheelspin: { count: 15, severity: "warning" },
-            oversteer: { count: 8, severity: "warning" },
-            understeer: { count: 12, severity: "warning" },
-            brake_fade: { count: 5, severity: "warning" },
-            sensor_glitch: { count: 3, severity: "warning" },
-          },
-          track: null,
-          period: "last_7_days",
-        };
+        return mockAnomalySummary;
       }
     },
-    enabled: !isDemoMode,
+    enabled: true, // Always enabled, uses mock in demo mode
     retry: 1,
   });
 

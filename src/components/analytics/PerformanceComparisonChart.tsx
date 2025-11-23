@@ -64,6 +64,24 @@ export function PerformanceComparisonChart() {
     return result.sort((a, b) => a.bestLapTime - b.bestLapTime).slice(0, 10);
   }, [lapTimes]);
 
+  // Calculate insights - must be before conditional returns to follow React Hooks rules
+  const insights = useMemo(() => {
+    if (chartData.length === 0) return null;
+    const bestVehicle = chartData[0];
+    const avgConsistency = chartData.reduce((sum, v) => sum + v.consistency, 0) / chartData.length;
+    const topPerformer = chartData.find(v => v.bestLapTime === Math.min(...chartData.map(d => d.bestLapTime)));
+    
+    return {
+      bestVehicle: bestVehicle?.vehicle,
+      bestLapTime: bestVehicle?.bestLapTime,
+      avgConsistency: avgConsistency.toFixed(1),
+      topPerformer: topPerformer?.vehicle,
+      performanceGap: chartData.length > 1 
+        ? (chartData[chartData.length - 1].bestLapTime - chartData[0].bestLapTime).toFixed(2)
+        : '0.00',
+    };
+  }, [chartData]);
+
   if (loading) {
     return (
       <Card>
@@ -96,24 +114,6 @@ export function PerformanceComparisonChart() {
       </Card>
     );
   }
-
-  // Calculate insights
-  const insights = useMemo(() => {
-    if (chartData.length === 0) return null;
-    const bestVehicle = chartData[0];
-    const avgConsistency = chartData.reduce((sum, v) => sum + v.consistency, 0) / chartData.length;
-    const topPerformer = chartData.find(v => v.bestLapTime === Math.min(...chartData.map(d => d.bestLapTime)));
-    
-    return {
-      bestVehicle: bestVehicle?.vehicle,
-      bestLapTime: bestVehicle?.bestLapTime,
-      avgConsistency: avgConsistency.toFixed(1),
-      topPerformer: topPerformer?.vehicle,
-      performanceGap: chartData.length > 1 
-        ? (chartData[chartData.length - 1].bestLapTime - chartData[0].bestLapTime).toFixed(2)
-        : '0.00',
-    };
-  }, [chartData]);
 
   return (
     <Card className="border-primary/20 bg-card/60 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-300">

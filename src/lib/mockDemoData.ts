@@ -352,7 +352,7 @@ export function generateTimeSeriesData(
   let tireWearRL = 43;
   let tireWearRR = 45;
   let gapToLeader = 2.5 + Math.random() * 3;
-  let position = 3 + Math.floor(Math.random() * 5);
+  const position = 3 + Math.floor(Math.random() * 5);
 
   for (let i = 0; i < numPoints; i++) {
     const timestamp = generateTimestamp(baseTime, i * 0.5);
