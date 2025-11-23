@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { MiniTabs, type MiniTab } from "./MiniTabs";
+import { MiniTabs } from "./MiniTabs";
+import type { MiniTab } from "./MiniTabs";
 import { cn } from "@/lib/utils";
+
+// Re-export MiniTab type for convenience
+export type { MiniTab };
 
 interface PageWithMiniTabsProps {
   pageTitle: string;
