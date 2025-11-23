@@ -24,5 +24,8 @@ kaleido>=0.2.1  # For PNG export from Plotly figures
 umap-learn>=0.5.5  # For 2D embedding visualization (optional, falls back to sklearn TSNE if not available)
 # Physics-informed tire wear prediction dependencies
 lightgbm>=4.0.0  # For residual model training and inference
+xgboost>=2.0.0  # For ensemble gradient boosting models (already listed above)
+catboost>=1.2.0  # Optional: For CatBoost ensemble model (better categorical handling)
+optuna>=3.0.0  # Optional: For hyperparameter optimization
 pyarrow>=12.0.0  # For Parquet file I/O in precompute_features.py
 torch>=1.10.0  # Optional: for TCN sequence model (install torch for GPU support if needed)

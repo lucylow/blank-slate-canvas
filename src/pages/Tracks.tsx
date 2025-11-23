@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Flag, ArrowLeft, FileText, ExternalLink, TrendingUp, Activity, Zap, ArrowRight } from "lucide-react";
+import { MapPin, Flag, ArrowLeft, FileText, ExternalLink, TrendingUp, Activity, Zap, ArrowRight, Download, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import RaceAnalysis from "@/components/RaceAnalysis";
+import { generateAllTracksAISummaryPDF } from "@/utils/pdfGenerator";
 
 // Track configuration with PDF map references
 // Maps track names to PDF filenames in public/track-maps/
@@ -41,6 +42,7 @@ const Tracks = () => {
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [viewingMap, setViewingMap] = useState<string | null>(null);
   const [hoveredTrack, setHoveredTrack] = useState<string | null>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const tracks = [
     { 
@@ -127,11 +129,40 @@ const Tracks = () => {
               <h1 className="text-2xl font-bold">GR Cup Tracks</h1>
             </div>
           </div>
-          <Link to="/dashboard">
-            <Button className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105">
-              View Dashboard
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={async () => {
+                setIsGeneratingPDF(true);
+                try {
+                  await generateAllTracksAISummaryPDF();
+                } catch (error) {
+                  console.error('Error generating PDF:', error);
+                  alert('Failed to generate PDF. Please check the console for details.');
+                } finally {
+                  setIsGeneratingPDF(false);
+                }
+              }}
+              disabled={isGeneratingPDF}
+              className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download AI Analysis Report
+                </>
+              )}
             </Button>
-          </Link>
+            <Link to="/dashboard">
+              <Button variant="outline" className="shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                View Dashboard
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -151,9 +182,37 @@ const Tracks = () => {
             <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               GR Cup Track Analytics
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl">
+            <p className="text-lg text-muted-foreground max-w-2xl mb-6">
               Comprehensive data and AI models for all 7 tracks in the Toyota GR Cup North America series.
             </p>
+            <Button
+              onClick={async () => {
+                setIsGeneratingPDF(true);
+                try {
+                  await generateAllTracksAISummaryPDF();
+                } catch (error) {
+                  console.error('Error generating PDF:', error);
+                  alert('Failed to generate PDF. Please check the console for details.');
+                } finally {
+                  setIsGeneratingPDF(false);
+                }
+              }}
+              disabled={isGeneratingPDF}
+              size="lg"
+              className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Generating PDF Report...
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5 mr-2" />
+                  Download AI Data Analysis Summary (PDF)
+                </>
+              )}
+            </Button>
           </motion.div>
 
           {/* Tracks Grid */}

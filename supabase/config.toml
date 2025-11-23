@@ -1,10 +1,23 @@
-project_id = "osucqcdjoztyqlqcguwc"
-
-[functions.predict-tire-wear]
-verify_jwt = false
-
-[functions.pit-window]
-verify_jwt = false
+# Supabase Edge Functions Configuration
+# Add this to your existing supabase/config.toml
 
 [functions.coaching]
 verify_jwt = false
+memory = 128
+timeout = 1
+
+[functions.pit-window]
+verify_jwt = false
+memory = 256
+timeout = 2
+
+[functions.predict-tire-wear]
+verify_jwt = false
+memory = 192
+timeout = 1.5
+
+# Observability settings
+[observability]
+logs = "structured-json"
+traces = true
+metrics = ["invocations", "success_rate", "p95_latency_ms", "model_mae"]

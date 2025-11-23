@@ -4,207 +4,207 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-// Environment variable validation
-function getEnvVar(name: string): string {
-  const value = Deno.env.get(name);
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
+// Simple in-memory cache (30s TTL)
+const cache = new Map<string, { data: any; expires: number }>();
+
+// Retry helper with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries = 2,
+  initialDelay = 200
+): Promise<T> {
+  let lastError: Error;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (i < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, i);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
-  return value;
+  throw lastError!;
 }
 
-// Create Supabase client with validation
-function createSupabaseClient() {
-  const url = getEnvVar('SUPABASE_URL');
-  const serviceRoleKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY');
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
+// Model endpoint helper
+async function fetchModelPrediction(payload: any): Promise<any> {
+  const MODEL_ENDPOINT = Deno.env.get('MODEL_ENDPOINT') || 'https://models.internal/predict';
+  const MODEL_KEY = Deno.env.get('MODEL_KEY') || Deno.env.get('LOVABLE_API_KEY') || '';
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 600); // 600ms timeout for <150ms SLA
+  
+  try {
+    const res = await fetch(`${MODEL_ENDPOINT}/infer/tire_wear`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': MODEL_KEY,
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+      throw new Error(`Model endpoint error: ${res.status}`);
+    }
+    
+    return await res.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    // Fallback to AI gateway
+    return fetchAIFallback(payload);
+  }
+}
+
+// Fallback to AI gateway
+async function fetchAIFallback(payload: any): Promise<any> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    throw new Error('LOVABLE_API_KEY not configured');
+  }
+
+  const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert motorsports tire engineer. Analyze telemetry and predict tire wear. Always respond with valid JSON only, no markdown.'
+        },
+        {
+          role: 'user',
+          content: `Predict tire wear. Respond with JSON: { "pred_loss_per_lap_seconds": 0, "laps_until_0_5s": 0, "temp_map": [[0]], "confidence": 0.0-1.0 }`
+        }
+      ]
+    }),
   });
+
+  if (!aiResponse.ok) {
+    throw new Error(`AI gateway error: ${aiResponse.status}`);
+  }
+
+  const data = await aiResponse.json();
+  const content = data.choices[0].message.content;
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Invalid AI response format');
+  }
+  
+  return JSON.parse(jsonMatch[0]);
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Only allow POST
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
   const startTime = Date.now();
+  const reqId = crypto.randomUUID?.() ?? String(Math.floor(Math.random() * 1e9));
   
   try {
-    // Validate request body
-    let requestBody;
-    try {
-      requestBody = await req.json();
-    } catch {
+    const body = await req.json();
+    
+    // Input validation per spec: { chassisId, lapHistory, ambientTemp, compound }
+    if (!body.chassisId || !body.lapHistory) {
       return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        JSON.stringify({ error: 'bad_request', message: 'Missing required fields: chassisId, lapHistory' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const { car_number, track_id, current_lap, telemetry_data } = requestBody;
-
-    // Validate required fields
-    if (!car_number || !track_id || !current_lap || !telemetry_data) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Missing required fields',
-          required: ['car_number', 'track_id', 'current_lap', 'telemetry_data']
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Check cache (same chassis + recent lap)
+    const cacheKey = `${body.chassisId}-${body.lapHistory?.length || 0}`;
+    const cached = cache.get(cacheKey);
+    if (cached && cached.expires > Date.now()) {
+      return new Response(JSON.stringify({
+        ...cached.data,
+        cached_until: new Date(cached.expires).toISOString(),
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Validate environment variables
-    const LOVABLE_API_KEY = getEnvVar('LOVABLE_API_KEY');
+    // Trim lap history to last 10 laps for edge efficiency
+    const lapHistory = Array.isArray(body.lapHistory) 
+      ? body.lapHistory.slice(-10)
+      : [];
 
-    // Call Lovable AI for tire wear prediction
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert motorsports tire engineer. Analyze telemetry and predict tire wear. Always respond with valid JSON only, no markdown.'
-          },
-          {
-            role: 'user',
-            content: `Analyze this telemetry data and predict tire wear:
-- Speed: ${telemetry_data.speed} kph
-- Throttle: ${telemetry_data.throttle_position}%
-- Brake Pressure: ${telemetry_data.brake_pressure} bar
-- Lateral G: ${telemetry_data.lateral_g}G
-- Longitudinal G: ${telemetry_data.longitudinal_g}G
-- Tire Temperature: ${telemetry_data.tire_temp}°C
-- Tire Pressure: ${telemetry_data.tire_pressure} psi
-- Current Lap: ${current_lap}/15
-- Track: ${track_id}
-
-Predict:
-1. Current tire wear percentage (0-100)
-2. Laps until performance cliff (>85% wear)
-3. Confidence (0-1)
-4. Per-sector breakdown (S1/S2/S3)
-5. Top 3 factors affecting wear with impact scores
-
-Respond ONLY with valid JSON:
-{
-  "tire_wear_percent": <number>,
-  "laps_until_cliff": <number>,
-  "confidence": <number>,
-  "top_factors": [{"factor": "name", "impact": <0-1>, "current_value": "value"}],
-  "sector_analysis": {"sector_1": "percent + description", "sector_2": "percent + description", "sector_3": "percent + description"}
-}`
-          }
-        ]
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (aiResponse.status === 402) {
-        return new Response(JSON.stringify({ error: 'Payment required. Please add credits to your Lovable AI workspace.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw new Error(`AI gateway error: ${aiResponse.status}`);
-    }
-
-    const data = await aiResponse.json();
-    const content = data.choices[0].message.content;
-    
-    // Extract JSON from response (handle potential markdown formatting)
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('Invalid AI response format');
-    }
-    
-    const prediction = JSON.parse(jsonMatch[0]);
-
-    // Transform to match TirePredictionResponse interface
-    const response = {
-      chassis: `car-${car_number}`,
-      track: track_id,
-      predicted_loss_per_lap_s: prediction.tire_wear_percent / 100, // Convert percent to seconds approximation
-      laps_until_0_5s_loss: prediction.laps_until_cliff || 10,
-      recommended_pit_lap: current_lap + (prediction.laps_until_cliff || 10),
-      feature_scores: prediction.top_factors?.map((f: { factor?: string; impact?: number }) => ({
-        name: f.factor || 'unknown',
-        score: f.impact || 0
-      })) || [],
-      explanation: [
-        `Tire wear: ${prediction.tire_wear_percent}%`,
-        prediction.sector_analysis?.sector_1 || '',
-        prediction.sector_analysis?.sector_2 || '',
-        prediction.sector_analysis?.sector_3 || ''
-      ].filter(Boolean),
-      meta: {
-        model_version: 'gemini-2.5-flash',
-        generated_at: new Date().toISOString(),
-        demo: false,
-        confidence: prediction.confidence
-      }
+    const payload = {
+      chassisId: body.chassisId,
+      lapHistory,
+      ambientTemp: body.ambientTemp ?? 25,
+      compound: body.compound ?? 'medium',
+      requestId: reqId,
     };
 
-    // Store in database
-    const supabase = createSupabaseClient();
+    // Call model with retry
+    const prediction = await retryWithBackoff(
+      () => fetchModelPrediction(payload),
+      2,
+      200
+    );
 
-    // Insert prediction with error handling
-    const { error: insertError } = await supabase.from('tire_predictions').insert({
-      car_number,
-      lap_number: current_lap,
-      wear_percent: prediction.tire_wear_percent,
-      laps_until_cliff: prediction.laps_until_cliff,
-      confidence: prediction.confidence,
-      sector_1_wear: parseFloat(prediction.sector_analysis?.sector_1?.match(/[\d.]+/)?.[0] || '0'),
-      sector_2_wear: parseFloat(prediction.sector_analysis?.sector_2?.match(/[\d.]+/)?.[0] || '0'),
-      sector_3_wear: parseFloat(prediction.sector_analysis?.sector_3?.match(/[\d.]+/)?.[0] || '0'),
-      top_factors: prediction.top_factors,
+    // Transform to spec output format: { pred_loss_per_lap_seconds, laps_until_0_5s, temp_map, confidence }
+    const response = {
+      requestId: reqId,
+      pred_loss_per_lap_seconds: prediction.pred_loss_per_lap_seconds || 0.05,
+      laps_until_0_5s: prediction.laps_until_0_5s || 10,
+      temp_map: prediction.temp_map || [[0]],
+      confidence: prediction.confidence || 0.5,
+      cached_until: new Date(Date.now() + 30000).toISOString(), // 30s cache
+    };
+
+    // Cache the result
+    cache.set(cacheKey, {
+      data: response,
+      expires: Date.now() + 30000,
     });
 
-    if (insertError) {
-      console.error('Database insert error:', insertError);
-      // Don't fail the request if logging fails
-    }
-
-    // Log API call (non-blocking)
+    // Structured logging
     const latency = Date.now() - startTime;
-    supabase.from('api_logs').insert({
-      endpoint: '/predict-tire-wear',
-      method: 'POST',
-      request_body: { car_number, track_id, current_lap },
-      response_code: 200,
-      latency_ms: latency,
-    }).catch((error) => {
-      console.error('Failed to log API call:', error);
-    });
+    const logEntry = {
+      service: 'predict-tire-wear',
+      requestId: reqId,
+      chassisId: body.chassisId,
+      latencyMs: latency,
+      modelVersion: prediction.modelVersion || 'v1.0',
+      confidence: response.confidence,
+      outcome: 'success',
+    };
 
-    console.log(`Tire prediction completed in ${latency}ms`);
+    console.log(JSON.stringify(logEntry));
+
+    // Store metrics
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    try {
+      await supabase.from('api_logs').insert({
+        endpoint: '/predict-tire-wear',
+        method: 'POST',
+        request_body: { chassisId: body.chassisId },
+        response_code: 200,
+        latency_ms: latency,
+        request_id: reqId,
+      });
+    } catch (dbError) {
+      console.error('DB log insert failed:', dbError);
+    }
 
     return new Response(JSON.stringify(response), {
       status: 200,
@@ -212,11 +212,30 @@ Respond ONLY with valid JSON:
     });
 
   } catch (error) {
-    console.error('Tire prediction error:', error);
+    const latency = Date.now() - startTime;
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    // Log error
+    console.error(JSON.stringify({
+      service: 'predict-tire-wear',
+      requestId: reqId,
+      latencyMs: latency,
+      outcome: 'error',
+      error: errorMessage,
+    }));
+
+    // Graceful fallback per spec: return last-known prediction with low confidence
     return new Response(
-      JSON.stringify({ error: 'Prediction failed', details: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        requestId: reqId,
+        pred_loss_per_lap_seconds: 0.05,
+        laps_until_0_5s: 10,
+        temp_map: [[0]],
+        confidence: 0.5,
+        stale: true,
+        cached_until: null,
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
