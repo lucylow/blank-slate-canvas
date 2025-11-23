@@ -145,13 +145,21 @@ export default function ComprehensiveDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated background gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
+      
+      {/* Animated grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -187,7 +195,7 @@ export default function ComprehensiveDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-6">
+      <main className="pt-24 pb-12 px-6 relative z-10">
         <div className="container mx-auto max-w-7xl">
           {/* Controls */}
           <motion.div

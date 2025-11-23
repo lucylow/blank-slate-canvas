@@ -102,13 +102,21 @@ const Tracks = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated background gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
+      
+      {/* Animated grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -120,7 +128,7 @@ const Tracks = () => {
             </div>
           </div>
           <Link to="/dashboard">
-            <Button className="bg-primary hover:bg-primary/90">
+            <Button className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105">
               View Dashboard
             </Button>
           </Link>
@@ -128,7 +136,7 @@ const Tracks = () => {
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-6">
+      <main className="pt-24 pb-12 px-6 relative z-10">
         <div className="container mx-auto max-w-7xl">
           {/* Page Header */}
           <motion.div
@@ -136,6 +144,10 @@ const Tracks = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-12"
           >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Track Analytics</span>
+            </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               GR Cup Track Analytics
             </h2>
@@ -348,22 +360,32 @@ const Tracks = () => {
             transition={{ delay: 0.8 }}
             className="mt-12"
           >
-            <Card className="bg-card/60 backdrop-blur-md border-border/50">
+            <Card className="bg-card/60 backdrop-blur-md border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:scale-[1.01]">
               <CardContent className="p-6">
-                <h3 className="text-2xl font-bold mb-4">Track Data Summary</h3>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                    <TrendingUp className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Track Data Summary</h3>
+                </div>
                 <div className="grid md:grid-cols-3 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Total Telemetry Points</p>
-                    <p className="text-2xl font-bold">41.9M+</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Unique Vehicles</p>
-                    <p className="text-2xl font-bold">397</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Average Race Duration</p>
-                    <p className="text-2xl font-bold">45.8 min</p>
-                  </div>
+                  {[
+                    { label: "Total Telemetry Points", value: "41.9M+" },
+                    { label: "Unique Vehicles", value: "397" },
+                    { label: "Average Race Duration", value: "45.8 min" }
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      className="p-4 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 hover:border-primary/30 transition-all duration-300"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.9 + index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
+                      <p className="text-2xl font-bold text-primary">{stat.value}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
