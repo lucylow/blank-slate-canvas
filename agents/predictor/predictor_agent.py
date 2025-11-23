@@ -23,7 +23,20 @@ except Exception as e:
     model = Dummy()
 
 def predict_feature_vector(payload):
-    # payload will be dict. For demo we support sample-derived simple features:
+    """
+    Enhanced feature extraction using fe_lib for pre-event predictions.
+    Falls back to simple features if aggregate data not available.
+    """
+    # Try to use enhanced features from aggregate_window (preprocessor_v2 output)
+    agg = payload.get('aggregate', payload.get('perSector', payload.get('per_sector')))
+    if agg:
+        try:
+            from predictor_wrapper import features_from_aggregate
+            return features_from_aggregate({'per_sector': agg}, include_advanced=True)
+        except Exception as e:
+            print(f"[Predictor] Enhanced features failed, using fallback: {e}")
+    
+    # Fallback: simple features from sample/derived (backward compatibility)
     sample = payload.get('sample', {})
     derived = payload.get('derived', {})
     # create feature vector in exact order your training code expects
@@ -61,6 +74,22 @@ def main_loop():
             features = predict_feature_vector(payload)
             pred = float(model.predict([features])[0])
             insight_id = f"insight-{uuid.uuid4().hex[:8]}"
+            # Enhanced feature importance extraction
+            top_features = []
+            try:
+                from predictor_wrapper import get_feature_names
+                feature_names = get_feature_names(track=task.get('track', 'cota'), include_advanced=True)
+                if len(feature_names) == len(features):
+                    # Calculate feature importance (simple: use feature values as proxy)
+                    feature_importance = list(zip(feature_names, features))
+                    # Sort by absolute value, take top 5
+                    top_features = sorted(feature_importance, key=lambda x: abs(x[1]), reverse=True)[:5]
+                    top_features = [{"name": name, "value": float(val)} for name, val in top_features]
+            except Exception as e:
+                print(f"[Predictor] Feature importance extraction failed: {e}")
+                # Fallback to simple features
+                top_features = [{"name":"tire_stress_inst","value":payload.get('derived',{}).get('tire_stress_inst', 0)}]
+            
             result = {
                 "type":"insight_update",
                 "task_id": task_id,
@@ -69,7 +98,8 @@ def main_loop():
                 "chassis": task.get('chassis'),
                 "model_version": getattr(model, 'version', 'v0'),
                 "predictions": {"predicted_loss_per_lap_seconds": pred, "laps_until_0_5s_loss": max(1.0, round(0.5 / (pred or 0.01), 2))},
-                "explanation": {"top_features": [{"name":"tire_stress_inst","value":payload.get('derived',{}).get('tire_stress_inst')}], "evidence":[payload.get('sample')]},
+                "explanation": {"top_features": top_features, "evidence":[payload.get('sample')]},
+                "feature_scores": top_features,  # Add feature_scores for UI compatibility
                 "created_at": datetime.utcnow().isoformat() + 'Z'
             }
             # store full insight record for later fetch by id

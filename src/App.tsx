@@ -30,6 +30,7 @@ import AISummaryReports from "./pages/AISummaryReports";
 import PitWindowOptimization from "./pages/PitWindowOptimization";
 import LovableCloudConfig from "./pages/LovableCloudConfig";
 import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
+import PostEventAnalysis from "./pages/PostEventAnalysis";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,6 +117,9 @@ const App = () => (
                     
                     {/* GR Cars & Drivers - Car specifications and driver profiles */}
                     <Route path="/gr-cars-drivers" element={<GRCarsAndDrivers />} />
+                    
+                    {/* Post-Event Analysis - Comprehensive race analysis and comparisons */}
+                    <Route path="/post-event-analysis" element={<PostEventAnalysis />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />

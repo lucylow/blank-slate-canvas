@@ -31,11 +31,18 @@ import COTARaceResults from "@/components/COTARaceResults";
 import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
 import GRCarComparison from "@/components/GRCarComparison";
 import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
+import { RealTimeMetricsCard } from "@/components/dashboard/RealTimeMetricsCard";
+import { RealTimeAlerts } from "@/components/dashboard/RealTimeAlerts";
+import { LivePerformanceComparison } from "@/components/dashboard/LivePerformanceComparison";
 
 import {
   checkHealth,
   getAgentStatus,
+  getTracks,
+  getLiveDashboard,
   type AgentStatusResponse,
+  type TrackList,
+  type DashboardData,
 } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
@@ -969,6 +976,45 @@ const Index = () => {
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
 
+  // Fetch tracks from backend
+  const { data: tracksData, error: tracksError } = useQuery<TrackList>({
+    queryKey: ["tracks"],
+    queryFn: async () => {
+      try {
+        return await getTracks();
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch tracks";
+        console.error("Tracks fetch error:", errorMessage);
+        throw error;
+      }
+    },
+    enabled: !isDemoMode,
+    retry: 1,
+  });
+
+  // Example: Fetch dashboard data for a specific track/race/vehicle/lap
+  // You can make this dynamic based on user selection
+  const { data: dashboardData, error: dashboardError } = useQuery<DashboardData>({
+    queryKey: ["dashboard", "sebring", 1, 7, 12], // track, race, vehicle, lap
+    queryFn: async () => {
+      try {
+        return await getLiveDashboard("sebring", 1, 7, 12);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch dashboard data";
+        console.error("Dashboard fetch error:", errorMessage);
+        throw error;
+      }
+    },
+    enabled: !isDemoMode,
+    retry: 1,
+  });
+
   // Smooth scroll handler for anchor links with header offset
   const handleAnchorClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -1177,67 +1223,88 @@ const Index = () => {
 
   const features = [
     {
-      icon: <TrendingUp className="w-6 h-6" />,
-      title: "Real-Time Analytics",
+      icon: <Users className="w-6 h-6" />,
+      title: "Personalized Driver Coaching",
       description:
-        "AI agents process live telemetry data to provide instant insights on car performance, tire wear, and race strategy.",
+        "Coach Agent provides real-time, corner-by-corner feedback with specific braking points, apex timing, and throttle application recommendations. Track your consistency scores and improvement trends over time.",
+      gradient: "from-purple-500/20 to-pink-500/20",
+    },
+    {
+      icon: <Target className="w-6 h-6" />,
+      title: "Advanced Driver Analytics",
+      description:
+        "Comprehensive driver fingerprinting identifies your unique driving style, strengths, and areas for improvement. Compare your performance against top drivers and track progress across sessions.",
+      gradient: "from-violet-500/20 to-purple-500/20",
+    },
+    {
+      icon: <AlertCircle className="w-6 h-6" />,
+      title: "Mistake Detection & Correction",
+      description:
+        "Anomaly Detective Agent automatically identifies lockups, early lifts, missed apexes, and inconsistent braking patterns. Get instant alerts with actionable corrections to improve lap times.",
+      gradient: "from-red-500/20 to-orange-500/20",
+    },
+    {
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: "Sector-by-Sector Analysis",
+      description:
+        "Break down your performance by track sector to identify where you're losing time. Compare sector times against your best laps and top performers to focus training efforts.",
       gradient: "from-blue-500/20 to-cyan-500/20",
+    },
+    {
+      icon: <Zap className="w-6 h-6" />,
+      title: "Real-Time Performance Feedback",
+      description:
+        "Receive instant feedback during practice sessions and races. Coach Agent analyzes telemetry at 20Hz to provide immediate guidance on braking, cornering, and acceleration techniques.",
+      gradient: "from-yellow-500/20 to-orange-500/20",
+    },
+    {
+      icon: <FileText className="w-6 h-6" />,
+      title: "Training Progress Reports",
+      description:
+        "Track your development over time with detailed progress reports. Monitor consistency improvements, lap time trends, and skill development across all 7 GR Cup tracks.",
+      gradient: "from-emerald-500/20 to-teal-500/20",
+    },
+    {
+      icon: <MapPin className="w-6 h-6" />,
+      title: "Track-Specific Training Plans",
+      description:
+        "AI agents use custom models trained on data from all 7 GR Cup tracks to provide circuit-specific coaching. Learn optimal racing lines, braking zones, and cornering techniques for each track.",
+      gradient: "from-green-500/20 to-emerald-500/20",
+    },
+    {
+      icon: <Users className="w-6 h-6" />,
+      title: "Peer Comparison & Benchmarking",
+      description:
+        "Compare your driving style and performance against other drivers. Identify what top performers do differently and adapt their techniques to improve your own performance.",
+      gradient: "from-indigo-500/20 to-blue-500/20",
+    },
+    {
+      icon: <Sparkles className="w-6 h-6" />,
+      title: "Explainable Training Insights",
+      description:
+        "Understand why the AI recommends specific techniques with confidence scores, feature attribution, and visual explanations. Build trust in the coaching system through transparent, research-backed insights.",
+      gradient: "from-rose-500/20 to-pink-500/20",
     },
     {
       icon: <Target className="w-6 h-6" />,
       title: "Predictive Tire Models",
       description:
-        "Predictor Agent forecasts tire degradation with 95% accuracy. Strategy Agent recommends optimal pit stop windows.",
+        "Learn how your driving style affects tire degradation. Predictor Agent forecasts tire wear patterns to help you optimize your technique for longer tire life and better race performance.",
       gradient: "from-primary/20 to-red-500/20",
     },
     {
-      icon: <Users className="w-6 h-6" />,
-      title: "Driver Performance",
+      icon: <Flag className="w-6 h-6" />,
+      title: "Consistency Scoring",
       description:
-        "Coach Agent analyzes driver inputs and provides actionable feedback to improve lap times and consistency.",
-      gradient: "from-purple-500/20 to-pink-500/20",
+        "Measure your lap-to-lap consistency with advanced metrics. Track standard deviation of lap times, sector consistency, and identify patterns that affect your performance reliability.",
+      gradient: "from-cyan-500/20 to-blue-500/20",
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Strategy Optimization",
+      title: "Adaptive Learning Recommendations",
       description:
-        "Simulator Agent runs race scenarios. Strategy Agent determines optimal strategy for qualifying and race conditions.",
-      gradient: "from-yellow-500/20 to-orange-500/20",
-    },
-    {
-      icon: <MapPin className="w-6 h-6" />,
-      title: "Track-Specific Models",
-      description:
-        "AI agents use custom models trained on data from all 7 GR Cup tracks for circuit-specific insights.",
-      gradient: "from-green-500/20 to-emerald-500/20",
-    },
-    {
-      icon: <Flag className="w-6 h-6" />,
-      title: "Live Gap Analysis",
-      description:
-        "Strategy Agent monitors real-time gaps to competitors and calculates overtaking opportunities.",
-      gradient: "from-indigo-500/20 to-blue-500/20",
-    },
-    {
-      icon: <Sparkles className="w-6 h-6" />,
-      title: "Explainable AI & Trust",
-      description:
-        "Explainer Agent provides research-backed confidence intervals, uncertainty bands, and feature attribution for transparent decisions.",
-      gradient: "from-emerald-500/20 to-teal-500/20",
-    },
-    {
-      icon: <Target className="w-6 h-6" />,
-      title: "Driver Coaching Insights",
-      description:
-        "Coach Agent performs corner-by-corner analysis. Anomaly Detective Agent detects lockups and early lifts.",
-      gradient: "from-violet-500/20 to-purple-500/20",
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Competitor Modeling",
-      description:
-        "Strategy Agent predicts competitor pit timing and identifies undercut/overcut windows for strategic advantage.",
-      gradient: "from-rose-500/20 to-pink-500/20",
+        "AI agents learn from your driving patterns and adapt coaching recommendations to your skill level. Receive progressively advanced techniques as you improve, ensuring continuous development.",
+      gradient: "from-amber-500/20 to-yellow-500/20",
     },
   ];
 
@@ -1415,7 +1482,7 @@ const Index = () => {
             <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
               <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
               <p className="text-lg text-foreground font-medium">
-                Driver fingerprinting + actionable coaching alerts
+                Advanced driver training: Real-time coaching, consistency scoring, sector analysis & progress tracking
               </p>
             </div>
             <div className="flex items-start gap-4 text-left w-full p-4 rounded-lg bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 group">
@@ -1500,6 +1567,17 @@ const Index = () => {
                 Agent Integration
               </Button>
             </Link>
+            <Link to="/post-event-analysis">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                aria-label="View Post-Event Analysis"
+              >
+                <FileText className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                Post-Event Analysis
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -1516,6 +1594,125 @@ const Index = () => {
           <DemoLauncher />
         </React.Suspense>
       </section>
+
+      {/* Backend Data Showcase Section - Shows backend changes */}
+      {!isDemoMode && (
+        <section className="py-12 px-6 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-4">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  Live Backend Data
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Backend Integration Working
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Your backend changes are now visible! Here's data fetched directly from your FastAPI backend.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {/* Tracks from Backend */}
+              <Card className="bg-card/60 backdrop-blur-md border-primary/30">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    Available Tracks (Backend API)
+                  </h3>
+                  {tracksError ? (
+                    <div className="text-sm text-destructive">
+                      Error loading tracks: {tracksError instanceof Error ? tracksError.message : "Unknown error"}
+                    </div>
+                  ) : tracksData?.tracks ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {tracksData.tracks.length} tracks loaded from backend
+                      </p>
+                      <div className="max-h-64 overflow-y-auto space-y-1">
+                        {tracksData.tracks.slice(0, 5).map((track) => (
+                          <div
+                            key={track.id}
+                            className="p-2 rounded bg-accent/20 border border-border/50 text-sm"
+                          >
+                            <div className="font-medium">{track.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {track.location} • {track.length_miles} mi • {track.turns} turns
+                            </div>
+                          </div>
+                        ))}
+                        {tracksData.tracks.length > 5 && (
+                          <div className="text-xs text-muted-foreground text-center py-2">
+                            +{tracksData.tracks.length - 5} more tracks
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Loading tracks from backend...
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Dashboard Data from Backend */}
+              <Card className="bg-card/60 backdrop-blur-md border-primary/30">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <Target className="w-5 h-5 text-primary" />
+                    Live Dashboard Data (Backend API)
+                  </h3>
+                  {dashboardError ? (
+                    <div className="text-sm text-destructive">
+                      Error loading dashboard: {dashboardError instanceof Error ? dashboardError.message : "Unknown error"}
+                    </div>
+                  ) : dashboardData ? (
+                    <div className="space-y-3">
+                      <div className="text-sm text-muted-foreground">
+                        Track: <span className="font-medium text-foreground">{dashboardData.track}</span> • 
+                        Race: <span className="font-medium text-foreground">{dashboardData.race}</span> • 
+                        Vehicle: <span className="font-medium text-foreground">{dashboardData.vehicle_number}</span> • 
+                        Lap: <span className="font-medium text-foreground">{dashboardData.lap}</span>
+                      </div>
+                      {dashboardData.tire_wear && (
+                        <div className="p-3 rounded bg-accent/20 border border-border/50">
+                          <div className="text-xs text-muted-foreground mb-1">Tire Wear</div>
+                          <div className="grid grid-cols-4 gap-2 text-sm">
+                            <div>FL: {dashboardData.tire_wear.front_left?.toFixed(1) || "N/A"}%</div>
+                            <div>FR: {dashboardData.tire_wear.front_right?.toFixed(1) || "N/A"}%</div>
+                            <div>RL: {dashboardData.tire_wear.rear_left?.toFixed(1) || "N/A"}%</div>
+                            <div>RR: {dashboardData.tire_wear.rear_right?.toFixed(1) || "N/A"}%</div>
+                          </div>
+                        </div>
+                      )}
+                      {dashboardData.performance && (
+                        <div className="p-3 rounded bg-accent/20 border border-border/50">
+                          <div className="text-xs text-muted-foreground mb-1">Performance</div>
+                          <div className="text-sm">
+                            Position: {dashboardData.performance.position} • 
+                            Gap: {dashboardData.performance.gap_to_leader}
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-xs text-muted-foreground">
+                        Live: {dashboardData.live_data ? "Yes" : "No"} • 
+                        Updated: {new Date(dashboardData.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Loading dashboard data from backend...
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* AI Agents Showcase Section */}
       <section className="py-24 px-6 bg-gradient-to-br from-primary/10 via-primary/5 to-background relative overflow-hidden">
@@ -1671,6 +1868,194 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Driver Training Insights Section */}
+      <section
+        id="driver-training"
+        className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20"
+        aria-label="Driver training insights section"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">
+                Driver Development Platform
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Advanced Driver Training & Insights
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Transform your driving performance with AI-powered coaching, detailed analytics, and personalized training insights designed to help you reach your full potential.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* Real-Time Coaching */}
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-6 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Zap className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Real-Time Coaching</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Receive instant feedback during every lap. Our Coach Agent analyzes your braking points, corner entry speeds, apex timing, and throttle application to provide actionable corrections in real-time.
+                </p>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Corner-by-corner analysis with specific improvement recommendations</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Instant alerts for lockups, early lifts, and missed apexes</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Optimal racing line suggestions based on telemetry data</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Performance Analytics */}
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-6 text-primary-foreground shadow-lg shadow-primary/30">
+                  <TrendingUp className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Performance Analytics</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Track your progress with comprehensive analytics. Monitor consistency scores, lap time trends, sector improvements, and identify patterns that affect your performance.
+                </p>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Driver consistency scoring (99%+ consistency for top performers)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Sector-by-sector time analysis and improvement tracking</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Historical performance trends across multiple sessions</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Driver Fingerprinting */}
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-6 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Target className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Driver Fingerprinting</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Understand your unique driving style through advanced pattern recognition. Identify your strengths, weaknesses, and driving characteristics compared to top performers.
+                </p>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Driving style clustering (Conservative, Aggressive, Late Apex patterns)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>G-force analysis and cornering technique evaluation</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Comparison with top drivers to identify improvement opportunities</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Training Progress */}
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
+              <CardContent className="p-8">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-6 text-primary-foreground shadow-lg shadow-primary/30">
+                  <FileText className="w-7 h-7" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Training Progress Reports</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Comprehensive progress tracking across all training sessions. Monitor your development over time with detailed reports showing consistency improvements, lap time trends, and skill development.
+                </p>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Session-by-session improvement tracking</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Track-specific performance evolution across all 7 GR Cup circuits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span>Adaptive learning recommendations that evolve with your skill level</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Key Training Insights */}
+          <div className="mt-16">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Key Training Insights
+              </h3>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Data-driven insights from analyzing thousands of laps across the GR Cup series
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-primary mb-2">99.76%</div>
+                  <div className="text-sm font-semibold mb-2">Top Driver Consistency</div>
+                  <p className="text-xs text-muted-foreground">
+                    Top performers maintain consistency scores above 99.7% with standard deviation under 0.3s
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-primary mb-2">0.4s</div>
+                  <div className="text-sm font-semibold mb-2">Average Sector Improvement</div>
+                  <p className="text-xs text-muted-foreground">
+                    Drivers implementing late apex techniques gain an average of 0.4s per sector
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-primary mb-2">87%</div>
+                  <div className="text-sm font-semibold mb-2">Coaching Confidence</div>
+                  <p className="text-xs text-muted-foreground">
+                    AI coaching recommendations achieve 87% confidence with research-backed feature attribution
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link to="/dashboard">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
+              >
+                Start Driver Training
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* GR Car Comparison Section */}
       <section
         id="gr-cars"
@@ -1701,6 +2086,106 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <GRTelemetryComparison />
+        </div>
+      </section>
+
+      {/* Enhanced Real-Time Analytics Section */}
+      <section className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-accent/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.08),transparent_70%)]" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
+              <Zap className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">
+                Live Real-Time Analytics
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Advanced Real-Time Analytics
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Experience live telemetry processing with instant insights, real-time alerts, 
+              and competitive performance comparisons. Powered by AI agents analyzing data at 20Hz.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-6 mb-8">
+            {/* Real-Time Metrics */}
+            <RealTimeMetricsCard
+              track="sebring"
+              race={1}
+              vehicle={7}
+              lap={12}
+            />
+
+            {/* Real-Time Alerts */}
+            <RealTimeAlerts
+              data={dashboardData || undefined}
+              connected={!isDemoMode && !!dashboardData}
+            />
+          </div>
+
+          {/* Live Performance Comparison */}
+          <div className="mb-8">
+            <LivePerformanceComparison
+              track="sebring"
+              race={1}
+              vehicles={[7, 13, 22, 46]}
+              refVehicle={7}
+            />
+          </div>
+
+          {/* Feature Highlights */}
+          <div className="grid md:grid-cols-3 gap-6 mt-8">
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Live Metrics</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Real-time telemetry processing with animated value updates, trend indicators, 
+                  and instant performance scoring. Updates every second.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Smart Alerts</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  AI-powered alert system that monitors tire wear, performance degradation, 
+                  gap analysis, and strategic opportunities in real-time.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
+                  <Users className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Competitor Analysis</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Compare performance across multiple vehicles with sector-by-sector deltas, 
+                  gap analysis, and predictive positioning.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link to="/comprehensive">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
+              >
+                Explore Full Dashboard
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

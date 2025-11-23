@@ -6,15 +6,120 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Retry helper with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries = 2,
+  initialDelay = 200
+): Promise<T> {
+  let lastError: Error;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (i < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, i);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw lastError!;
+}
+
+// Model endpoint helper (replace with your actual model service)
+async function fetchModelPrediction(payload: any): Promise<any> {
+  const MODEL_ENDPOINT = Deno.env.get('MODEL_ENDPOINT') || 'https://models.internal/predict';
+  const MODEL_KEY = Deno.env.get('MODEL_KEY') || Deno.env.get('LOVABLE_API_KEY') || '';
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 800); // 800ms timeout for <200ms SLA
+  
+  try {
+    const res = await fetch(`${MODEL_ENDPOINT}/infer/coaching`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': MODEL_KEY,
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+      throw new Error(`Model endpoint error: ${res.status}`);
+    }
+    
+    return await res.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    // Fallback to AI gateway if model endpoint fails
+    return fetchAIFallback(payload);
+  }
+}
+
+// Fallback to AI gateway
+async function fetchAIFallback(payload: any): Promise<any> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) {
+    throw new Error('LOVABLE_API_KEY not configured');
+  }
+
+  const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a professional racing coach. Provide specific, actionable feedback based on driver performance data. Always respond with valid JSON only, no markdown.'
+        },
+        {
+          role: 'user',
+          content: `Analyze telemetry and provide coaching advice. Respond with JSON: { "adviceId": "uuid", "priority": "low|medium|high", "message": "coaching tip", "evidence": [{"time": "t", "metric": "name", "value": 0}], "confidence": 0.0-1.0 }`
+        }
+      ]
+    }),
+  });
+
+  if (!aiResponse.ok) {
+    throw new Error(`AI gateway error: ${aiResponse.status}`);
+  }
+
+  const data = await aiResponse.json();
+  const content = data.choices[0].message.content;
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Invalid AI response format');
+  }
+  
+  return JSON.parse(jsonMatch[0]);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   const startTime = Date.now();
+  const reqId = crypto.randomUUID?.() ?? String(Math.floor(Math.random() * 1e9));
   
   try {
-    const { car_number } = await req.json();
+    const body = await req.json();
+    
+    // Input validation per spec
+    if (!body.chassisId || !body.lap || !body.telemetryWindow) {
+      return new Response(
+        JSON.stringify({ error: 'bad_request', message: 'Missing required fields: chassisId, lap, telemetryWindow' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

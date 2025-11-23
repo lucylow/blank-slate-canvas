@@ -4,22 +4,73 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Environment variable validation
+function getEnvVar(name: string): string {
+  const value = Deno.env.get(name);
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+// Create Supabase client with validation
+function createSupabaseClient() {
+  const url = getEnvVar('SUPABASE_URL');
+  const serviceRoleKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY');
+  return createClient(url, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Only allow POST
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   const startTime = Date.now();
   
   try {
-    const { car_number, track_id, current_lap, telemetry_data } = await req.json();
-
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    // Validate request body
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { car_number, track_id, current_lap, telemetry_data } = requestBody;
+
+    // Validate required fields
+    if (!car_number || !track_id || !current_lap || !telemetry_data) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing required fields',
+          required: ['car_number', 'track_id', 'current_lap', 'telemetry_data']
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate environment variables
+    const LOVABLE_API_KEY = getEnvVar('LOVABLE_API_KEY');
 
     // Call Lovable AI for tire wear prediction
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -121,11 +172,9 @@ Respond ONLY with valid JSON:
     };
 
     // Store in database
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabase = createSupabaseClient();
 
+    // Insert prediction with error handling
     const { error: insertError } = await supabase.from('tire_predictions').insert({
       car_number,
       lap_number: current_lap,
@@ -140,16 +189,19 @@ Respond ONLY with valid JSON:
 
     if (insertError) {
       console.error('Database insert error:', insertError);
+      // Don't fail the request if logging fails
     }
 
-    // Log API call
+    // Log API call (non-blocking)
     const latency = Date.now() - startTime;
-    await supabase.from('api_logs').insert({
+    supabase.from('api_logs').insert({
       endpoint: '/predict-tire-wear',
       method: 'POST',
       request_body: { car_number, track_id, current_lap },
       response_code: 200,
       latency_ms: latency,
+    }).catch((error) => {
+      console.error('Failed to log API call:', error);
     });
 
     console.log(`Tire prediction completed in ${latency}ms`);

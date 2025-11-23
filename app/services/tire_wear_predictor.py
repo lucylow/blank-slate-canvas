@@ -15,9 +15,13 @@ import joblib
 
 import os
 
+import sys
+
 import logging
 
-from typing import Dict, List
+from typing import Dict, List, Optional
+
+from pathlib import Path
 
 
 
@@ -125,7 +129,7 @@ def predict_tire_wear(
 
         preds = [base_pred + np.random.normal(0, 0.1) for _ in range(bootstrap_N)]
 
-            else:
+    else:
 
         # Real model predictions with noise injection
 
@@ -237,6 +241,56 @@ def predict_tire_wear(
 
     }
 
+
+
+def features_from_aggregate(agg: Dict, include_advanced: bool = True) -> Dict[str, float]:
+    """
+    Convert aggregate data (from preprocessor_v2) to feature dict for prediction.
+    Uses enhanced features from fe_lib if available.
+    
+    Args:
+        agg: aggregate dict with 'perSector' or 'per_sector' data
+        include_advanced: if True, include advanced features
+        
+    Returns:
+        dict of feature name -> value
+    """
+    try:
+        # Try to use fe_lib for enhanced feature extraction
+        agents_dir = Path(__file__).parent.parent.parent / "agents" / "predictor"
+        if str(agents_dir) not in sys.path:
+            sys.path.insert(0, str(agents_dir))
+        
+        from predictor_wrapper import prepare_features_for_model, get_feature_names
+        
+        # Get feature vector and names
+        vec = prepare_features_for_model(agg, include_advanced=include_advanced)
+        track = agg.get("track", "cota")
+        feature_names = get_feature_names(track=track, include_advanced=include_advanced)
+        
+        # Convert to dict
+        if len(feature_names) == len(vec):
+            return dict(zip(feature_names, vec.tolist() if hasattr(vec, 'tolist') else list(vec)))
+    except Exception as e:
+        logger.warning(f"Enhanced feature extraction failed, using fallback: {e}", exc_info=True)
+    
+    # Fallback: extract basic features from aggregate
+    features = {}
+    per_sector = agg.get("perSector", agg.get("per_sector", {}))
+    
+    for sector_idx, sector_data in per_sector.items():
+        s = str(sector_idx)
+        features[f"tire_stress_s{s}"] = sector_data.get("tire_stress_sum", 0.0)
+        features[f"avg_speed_s{s}"] = sector_data.get("avg_speed", 0.0)
+        features[f"max_lat_g_s{s}"] = sector_data.get("max_lat_g", 0.0)
+        features[f"brake_energy_s{s}"] = sector_data.get("brake_energy", 0.0)
+        
+        if include_advanced:
+            features[f"avg_tire_stress_s{s}"] = sector_data.get("avg_tire_stress", 0.0)
+            features[f"speed_std_s{s}"] = sector_data.get("speed_std", 0.0)
+            features[f"lat_g_consistency_s{s}"] = sector_data.get("lat_g_consistency", 0.0)
+    
+    return features
 
 
 def predict_with_sector_breakdown(

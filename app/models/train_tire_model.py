@@ -23,10 +23,33 @@ import pandas as pd
 import numpy as np
 import time
 import logging
-from sklearn.linear_model import Ridge
-from sklearn.model_selection import KFold, cross_val_score
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.linear_model import Ridge, ElasticNet
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 import lightgbm as lgb
+
+# Optional advanced libraries
+try:
+    import xgboost as xgb
+    has_xgb = True
+except ImportError:
+    has_xgb = False
+    logging.warning("XGBoost not available. Install with: pip install xgboost")
+
+try:
+    import catboost as cb
+    has_catboost = True
+except ImportError:
+    has_catboost = False
+    logging.warning("CatBoost not available. Install with: pip install catboost")
+
+try:
+    import optuna
+    has_optuna = True
+except ImportError:
+    has_optuna = False
+    logging.warning("Optuna not available. Install with: pip install optuna")
 
 # Optional TCN
 USE_TCN_DEFAULT = False
@@ -129,9 +152,24 @@ def build_features(df):
     return X, y, meta
 
 
-def train_physics_baseline(X, y):
-    # Simple ridge regression to provide physics baseline coefficients (interpretable)
-    model = Ridge(alpha=1.0)
+def train_physics_baseline(X, y, model_type='ridge'):
+    """
+    Train physics-informed baseline model with improved regularization.
+    
+    Args:
+        X: Feature matrix
+        y: Target values
+        model_type: 'ridge' or 'elastic_net'
+    
+    Returns:
+        Trained model
+    """
+    if model_type == 'elastic_net':
+        # ElasticNet combines L1 and L2 regularization for better feature selection
+        model = ElasticNet(alpha=0.5, l1_ratio=0.5, max_iter=2000, random_state=42)
+    else:
+        # Improved Ridge with better regularization
+        model = Ridge(alpha=1.5, max_iter=2000, solver='auto', random_state=42)
     model.fit(X, y)
     return model
 

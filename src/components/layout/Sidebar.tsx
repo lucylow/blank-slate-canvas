@@ -1,4 +1,4 @@
-import { LayoutDashboard, Map, TrendingUp, Settings, Flag, Target, Info } from 'lucide-react';
+import { LayoutDashboard, Map, TrendingUp, Settings, Flag, Target, Info, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -9,20 +9,22 @@ const MotionLink = motion(Link);
 export function Sidebar() {
   const location = useLocation();
   
-  // Logical 7-button navigation structure for PitWall AI:
+  // Navigation structure for PitWall AI:
   // 1. Home (landing page)
   // 2. Dashboard (main race dashboard with live data and telemetry)
   // 3. Track Map (track information and visualization)
   // 4. Analytics (performance metrics and analysis)
   // 5. Strategy (race strategy console - PitWall dashboard)
-  // 6. About (information about the app)
-  // 7. Settings (app configuration)
+  // 6. AI Summaries (AI-generated race analysis reports)
+  // 7. About (information about the app)
+  // 8. Settings (app configuration)
   const menuItems = [
     { icon: Flag, label: 'Home', to: '/' },
     { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
     { icon: Map, label: 'Track Map', to: '/tracks' },
     { icon: TrendingUp, label: 'Analytics', to: '/analytics' },
     { icon: Target, label: 'Strategy', to: '/pitwall' },
+    { icon: FileText, label: 'AI Summaries', to: '/ai-summaries' },
     { icon: Info, label: 'About', to: '/about' },
     { icon: Settings, label: 'Settings', to: '/settings' },
   ];
