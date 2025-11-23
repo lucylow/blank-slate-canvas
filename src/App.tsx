@@ -35,6 +35,7 @@ import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
 import RaceStoryGenerator from "./pages/RaceStoryGenerator";
 import PredictiveExplanatory from "./pages/PredictiveExplanatory";
 import CoachingPage from "./pages/CoachingPage";
+import F1Benchmarking from "./components/F1Benchmarking";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +111,9 @@ const App = () => (
                     
                     {/* Coaching Dashboard - Comprehensive coaching tools and analytics */}
                     <Route path="/coaching" element={<CoachingPage />} />
+                    
+                    {/* F1 Benchmarking - Compare GR Cup strategies with F1 historical data (Free APIs) */}
+                    <Route path="/f1-benchmarking" element={<F1Benchmarking />} />
                     
                     {/* ========== ADDITIONAL FEATURES ========== */}
                     {/* Demo Sandbox - Interactive demo with 7-track mock data */}

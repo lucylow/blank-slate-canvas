@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot } from "lucide-react";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +28,7 @@ import { useDemoMode } from "@/hooks/useDemoMode";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useQuery } from "@tanstack/react-query";
 import { generateMockAgentStatusResponse } from "@/lib/mockDemoData";
+import { telemetryWS } from "@/lib/api";
 
 /* ================================================================================
 
@@ -395,6 +396,7 @@ const Index = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<TrackId>("sonoma");
+  const [telemetryConnectionStatus, setTelemetryConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
   const { trackButtonClick, trackLinkClick, trackSectionView } = useAnalytics();
@@ -434,6 +436,36 @@ const Index = () => {
         // Update URL without triggering scroll
         window.history.pushState(null, '', href);
       }
+    }
+  };
+
+  // Telemetry connection status listener
+  useEffect(() => {
+    telemetryWS.setConnectionChangeHandler((status) => {
+      setTelemetryConnectionStatus(status);
+    });
+
+    // Check initial connection status
+    if (telemetryWS.isConnected()) {
+      setTelemetryConnectionStatus('connected');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      telemetryWS.setConnectionChangeHandler(undefined);
+    };
+  }, []);
+
+  // Handle live data connection click
+  const handleLiveDataClick = () => {
+    if (telemetryConnectionStatus === 'connected') {
+      // Disconnect if already connected
+      telemetryWS.disconnect();
+      setTelemetryConnectionStatus('disconnected');
+    } else {
+      // Connect to live telemetry
+      setTelemetryConnectionStatus('connecting');
+      telemetryWS.connect();
     }
   };
 
@@ -858,6 +890,22 @@ const Index = () => {
                         }`}
                       >
                         Analytics
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Link 
+                        to="/f1-benchmarking"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          trackLinkClick('F1 Benchmarking', '/f1-benchmarking', { location: 'mobile-menu' });
+                        }}
+                        className="block py-2 px-4 hover:bg-accent rounded-lg transition-colors"
+                      >
+                        F1 Benchmarking
                       </Link>
                     </motion.div>
                     <motion.div
@@ -1525,10 +1573,40 @@ const Index = () => {
                     Circuit of the Americas - Lap 12/25
                   </p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                  <div className="w-3 h-3 bg-primary rounded-full animate-pulse shadow-lg shadow-primary/50" />
-                  <span className="text-sm font-semibold text-primary">Live Data</span>
-                </div>
+                <button
+                  onClick={handleLiveDataClick}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 cursor-pointer hover:scale-105 ${
+                    telemetryConnectionStatus === 'connected'
+                      ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20'
+                      : telemetryConnectionStatus === 'connecting'
+                      ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20'
+                      : 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20'
+                  }`}
+                  title={
+                    telemetryConnectionStatus === 'connected'
+                      ? 'Click to disconnect from live telemetry'
+                      : telemetryConnectionStatus === 'connecting'
+                      ? 'Connecting to live telemetry...'
+                      : 'Click to connect to live telemetry data'
+                  }
+                >
+                  {telemetryConnectionStatus === 'connected' ? (
+                    <>
+                      <Wifi className="w-4 h-4" />
+                      <span className="text-sm font-semibold">Live Data</span>
+                    </>
+                  ) : telemetryConnectionStatus === 'connecting' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm font-semibold">Connecting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <WifiOff className="w-4 h-4" />
+                      <span className="text-sm font-semibold">Live Data</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-6 p-6">
