@@ -2547,6 +2547,582 @@ Authorization: Bearer <jwt_token>
 
 ---
 
+## External APIs & Integrations
+
+This project integrates with multiple third-party APIs to provide comprehensive functionality. Below is a detailed breakdown of all APIs used, their purposes, configuration requirements, and usage.
+
+### API Overview
+
+| API Provider | Purpose | Authentication | Status |
+|-------------|---------|----------------|--------|
+| **Google Maps Platform** | Maps, geocoding, routing, weather, air quality | API Key | ✅ Required |
+| **OpenAI** | AI-powered analytics and insights | API Key | ⚪ Optional |
+| **Google Gemini** | Multimodal AI (text, images, video, audio) | API Key | ⚪ Optional |
+| **OpenWeatherMap** | Weather data for track conditions | API Key | ✅ Required |
+| **Twilio** | SMS, Voice, WhatsApp messaging | Account SID + Auth Token | ⚪ Optional |
+| **Mailgun** | Email sending service | API Key | ⚪ Optional |
+| **Slack** | Webhook notifications | Webhook URL | ⚪ Optional |
+| **Ergast F1** | Historical F1 data | None (Free) | ✅ Free |
+| **OpenF1** | Real-time F1 telemetry | None (Free) | ✅ Free |
+| **F1API.dev** | Alternative F1 data source | None (Free) | ✅ Free |
+| **URLMeta** | URL metadata extraction | None (Free) | ✅ Free |
+
+---
+
+### 1. Google Maps Platform APIs
+
+**Purpose**: Comprehensive mapping, geocoding, routing, and environmental data services.
+
+**API Key Configuration**:
+- **Environment Variable**: `GOOGLE_MAPS_API_KEY` or `VITE_GOOGLE_MAPS_API_KEY`
+- **Get API Key**: [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+- **Required APIs**: Enable the following APIs in Google Cloud Console:
+  - Maps JavaScript API
+  - Geocoding API
+  - Places API
+  - Routes API
+  - Distance Matrix API
+  - Roads API
+  - Elevation API
+  - Timezone API
+  - Address Validation API
+  - Air Quality API
+  - Solar API
+  - Weather API
+  - Pollen API
+  - Aerial View API
+
+**Base URLs**:
+```typescript
+{
+  airQuality: 'https://airquality.googleapis.com/v1',
+  solar: 'https://solar.googleapis.com/v1',
+  weather: 'https://weather.googleapis.com/v1',
+  pollen: 'https://pollen.googleapis.com/v1',
+  geocoding: 'https://maps.googleapis.com/maps/api/geocode/json',
+  places: 'https://places.googleapis.com/v1',
+  directions: 'https://routes.googleapis.com/directions/v2:computeRoutes',
+  distanceMatrix: 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix',
+  routes: 'https://routes.googleapis.com/v1',
+  roads: 'https://roads.googleapis.com/v1',
+  elevation: 'https://maps.googleapis.com/maps/api/elevation/json',
+  timezone: 'https://maps.googleapis.com/maps/api/timezone/json',
+  addressValidation: 'https://addressvalidation.googleapis.com/v1',
+  mapsStatic: 'https://maps.googleapis.com/maps/api/staticmap',
+  streetViewStatic: 'https://maps.googleapis.com/maps/api/streetview',
+  aerialView: 'https://aerialview.googleapis.com/v1',
+  mapTiles: 'https://tile.googleapis.com/v1'
+}
+```
+
+**Key Features**:
+- **Air Quality API**: Real-time air quality index and pollution data
+- **Solar API**: Building solar potential and rooftop solar insights
+- **Weather API**: Current conditions and forecasts
+- **Pollen API**: Pollen count and allergy forecasts
+- **Geocoding API**: Convert addresses to coordinates and vice versa
+- **Places API**: Search for places, get place details, autocomplete
+- **Directions API**: Calculate routes between locations
+- **Distance Matrix API**: Calculate travel times and distances
+- **Roads API**: Snap GPS points to roads, get speed limits
+- **Elevation API**: Get elevation data for coordinates
+- **Timezone API**: Get timezone information for locations
+- **Address Validation API**: Validate and standardize addresses
+- **Static Maps API**: Generate static map images
+- **Street View Static API**: Get Street View imagery
+- **Aerial View API**: Generate aerial view videos
+- **Map Tiles API**: Access map tiles for custom rendering
+
+**Usage Example**:
+```typescript
+import { getAirQuality, getWeather, getDirections } from '@/api/googleMapsComprehensive';
+
+// Get air quality data
+const airQuality = await getAirQuality(33.4822, -86.5103);
+
+// Get weather conditions
+const weather = await getWeather(30.1327, -97.6351);
+
+// Calculate route
+const route = await getDirections({
+  origin: { lat: 30.1327, lng: -97.6351 },
+  destination: { lat: 33.4822, lng: -86.5103 }
+});
+```
+
+**Documentation**: 
+- [Google Maps Platform](https://developers.google.com/maps/documentation)
+- [API Reference](https://developers.google.com/maps/documentation/apis)
+- [Pricing](https://developers.google.com/maps/billing-and-pricing/pricing)
+
+---
+
+### 2. OpenAI API
+
+**Purpose**: AI-powered data analytics, insights generation, and natural language processing for race telemetry analysis.
+
+**API Key Configuration**:
+- **Environment Variable**: `OPENAI_API_KEY` or `VITE_OPENAI_API_KEY`
+- **Get API Key**: [OpenAI Platform](https://platform.openai.com/api-keys)
+- **Base URL**: `https://api.openai.com/v1/chat/completions`
+
+**Models Used**:
+- `gpt-4` - Advanced reasoning and analysis
+- `gpt-4-turbo` - Faster responses with extended context
+- `gpt-3.5-turbo` - Cost-effective for simpler tasks
+
+**Key Features**:
+- Race data analytics and insights generation
+- Tire wear pattern analysis
+- Performance trend identification
+- Natural language explanations of telemetry data
+- Predictive analytics for race strategy
+
+**Usage Example**:
+```typescript
+import { analyzeRaceData } from '@/api/aiAnalytics';
+
+const analysis = await analyzeRaceData({
+  track: 'sebring',
+  race: 1,
+  vehicle: 7,
+  lap: 12,
+  telemetry: { /* telemetry data */ }
+});
+```
+
+**Rate Limits**: 
+- Free tier: 3 requests/minute
+- Paid tier: Varies by plan (typically 500-10,000 requests/minute)
+
+**Documentation**: 
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Pricing](https://openai.com/pricing)
+
+---
+
+### 3. Google Gemini API
+
+**Purpose**: Multimodal AI capabilities for processing text, images, video, and audio data in race analytics.
+
+**API Key Configuration**:
+- **Environment Variable**: `GEMINI_API_KEY` or `VITE_GEMINI_API_KEY`
+- **Get API Key**: [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **Base URL**: `https://generativelanguage.googleapis.com/v1beta`
+
+**Models Used**:
+- `gemini-2.0-flash-exp` - Latest experimental model with video/audio support
+- `gemini-2.0-flash` - Stable Flash model for fast responses
+- `gemini-1.5-pro` - Large context model (1M tokens)
+- `gemini-1.5-pro-latest` - Latest Pro model
+
+**Key Features**:
+- Multimodal input processing (text, images, video, audio)
+- Large context window (up to 1M tokens)
+- Grounding with Google Search
+- Citation support for source attribution
+- Streaming responses for real-time updates
+- Function calling for structured outputs
+
+**Usage Example**:
+```typescript
+import { analyzeRaceDataWithGemini } from '@/api/aiAnalytics';
+
+const analysis = await analyzeRaceDataWithGemini({
+  track: 'cota',
+  race: 1,
+  images: [/* base64 encoded images */],
+  video: { data: 'base64', mimeType: 'video/mp4' },
+  urls: ['https://example.com/race-data']
+});
+```
+
+**Rate Limits**: 
+- Free tier: 15 requests/minute
+- Paid tier: Higher limits available
+
+**Documentation**: 
+- [Gemini API Documentation](https://ai.google.dev/docs)
+- [Pricing](https://ai.google.dev/pricing)
+
+---
+
+### 4. OpenWeatherMap API
+
+**Purpose**: Real-time weather data for track conditions, including temperature, humidity, wind, and precipitation.
+
+**API Key Configuration**:
+- **Environment Variable**: `OpenWeatherMap_API_Key` (Backend)
+- **Get API Key**: [OpenWeatherMap](https://openweathermap.org/api)
+- **Base URL**: `https://api.openweathermap.org/data/2.5`
+- **One Call API URL**: `https://api.openweathermap.org/data/3.0/onecall` (requires paid plan)
+
+**Key Features**:
+- Current weather conditions (temperature, humidity, wind, pressure)
+- Hourly forecasts (up to 48 hours)
+- Daily forecasts (up to 8 days)
+- Historical weather data (One Call API)
+- Track temperature estimation
+- Weather alerts and warnings
+
+**Endpoints Used**:
+- `GET /weather` - Current weather conditions
+- `GET /forecast` - 3-hour forecast (free tier)
+- `GET /onecall` - Comprehensive data (paid tier)
+- `GET /onecall/timemachine` - Historical data (paid tier)
+
+**Usage Example**:
+```python
+from app.services.openweathermap_service import get_openweathermap_service
+
+service = get_openweathermap_service()
+weather = await service.get_current_weather(lat=30.1327, lon=-97.6351)  # COTA
+forecast = await service.get_hourly_forecast(lat=30.1327, lon=-97.6351, hours=48)
+```
+
+**Rate Limits**: 
+- Free tier: 60 calls/minute, 1,000,000 calls/month
+- Paid tier: Higher limits available
+
+**Documentation**: 
+- [OpenWeatherMap API](https://openweathermap.org/api)
+- [Pricing](https://openweathermap.org/price)
+
+---
+
+### 5. Twilio API
+
+**Purpose**: SMS, voice calls, and WhatsApp messaging for race alerts and notifications.
+
+**API Configuration**:
+- **Account SID**: `Twilio_SID` (Environment Variable)
+- **Auth Token**: `Twilio_Secret` (Environment Variable)
+- **Phone Number**: `Twilio_Phone_Number` (Optional, for SMS/Voice)
+- **WhatsApp Number**: `Twilio_WhatsApp_Number` (Optional, for WhatsApp)
+- **Base URL**: `https://api.twilio.com/2010-04-01`
+
+**Get Credentials**: [Twilio Console](https://console.twilio.com/)
+
+**Key Features**:
+- Send SMS messages
+- Make voice calls with TwiML
+- Send WhatsApp messages
+- Message status callbacks
+- Phone number verification
+
+**Usage Example**:
+```python
+from app.services.twilio_service import get_twilio_service
+
+service = get_twilio_service()
+result = await service.send_sms(
+    to="+1234567890",
+    message="Tire wear alert: Front left at 75%"
+)
+```
+
+**Rate Limits**: 
+- SMS: Varies by account type
+- Voice: Varies by account type
+- WhatsApp: Based on messaging limits
+
+**Documentation**: 
+- [Twilio API Documentation](https://www.twilio.com/docs)
+- [Python SDK](https://www.twilio.com/docs/libraries/python)
+- [WhatsApp Business API](https://www.twilio.com/docs/whatsapp)
+
+---
+
+### 6. Mailgun API
+
+**Purpose**: Email sending service for race reports, alerts, and notifications.
+
+**API Configuration**:
+- **Base URL**: `MailGun_Base_URL` (e.g., `https://api.mailgun.net/v3/`)
+- **Domain**: `MailGun_Sandbox_domain`
+- **API Key**: `MailGun_API_Key`
+- **Get Credentials**: [Mailgun Dashboard](https://app.mailgun.com/)
+
+**Key Features**:
+- Send simple text emails
+- Send HTML emails
+- Send emails with attachments
+- Support for multiple recipients (CC, BCC)
+- Email tracking and analytics
+- Template variables
+
+**Usage Example**:
+```python
+from app.services.mailgun_service import get_mailgun_service
+
+service = get_mailgun_service()
+result = await service.send_simple_message(
+    to="team@example.com",
+    subject="Race Report - Sebring",
+    text="Race summary...",
+    html="<html>...</html>"
+)
+```
+
+**Rate Limits**: 
+- Free tier: 5,000 emails/month
+- Paid tier: Higher limits available
+
+**Documentation**: 
+- [Mailgun API Documentation](https://documentation.mailgun.com/)
+- [Pricing](https://www.mailgun.com/pricing/)
+
+---
+
+### 7. Slack Webhook API
+
+**Purpose**: Send notifications and alerts to Slack channels via webhooks.
+
+**Webhook Configuration**:
+- **Environment Variable**: `VITE_SLACK_WEBHOOK_URL` or `SLACK_WEBHOOK_URL`
+- **Format**: `https://hooks.slack.com/triggers/{WORKFLOW_ID}/{TRIGGER_ID}/{SECRET}`
+- **Get Webhook URL**: [Slack Workflow Builder](https://slack.com/help/articles/360041352714-Create-more-advanced-workflows-using-webhooks)
+
+**Key Features**:
+- Send text messages
+- Send rich formatted messages with blocks
+- Send attachments with colors and fields
+- Race alerts and notifications
+- Telemetry alerts
+- Lap time notifications
+- Pit stop notifications
+- Tire wear alerts
+
+**Usage Example**:
+```typescript
+import { sendSlackMessage, sendRaceAlert, sendTireWearAlert } from '@/api/slack';
+
+// Simple message
+await sendSlackMessage('Race started at Sebring');
+
+// Race alert
+await sendRaceAlert('Sebring 12 Hour', 'Pit Stop', {
+  Vehicle: 'GR86-7',
+  Lap: '12',
+  Reason: 'Tire change'
+});
+
+// Tire wear alert
+await sendTireWearAlert('GR86-7', 75, 72, 68, 70, 15);
+```
+
+**Rate Limits**: 
+- Webhook rate limits depend on Slack workspace settings
+- Typically: 1 request/second per webhook
+
+**Documentation**: 
+- [Slack Webhooks](https://api.slack.com/messaging/webhooks)
+- [Workflow Builder](https://slack.com/help/articles/360041352714)
+
+---
+
+### 8. Ergast F1 API
+
+**Purpose**: Historical Formula 1 data (1950-present) for benchmarking and strategy comparison.
+
+**API Configuration**:
+- **Base URL**: `http://ergast.com/api/f1/`
+- **Authentication**: None required (Free API)
+- **Rate Limit**: ~200 requests/hour (be respectful)
+
+**Key Features**:
+- Race results and standings
+- Driver and constructor standings
+- Lap times and pit stops
+- Circuit information
+- Qualifying results
+- Historical data from 1950 to present
+
+**Endpoints Used**:
+- `GET /f1/{year}.json` - Season races
+- `GET /f1/{year}/{round}.json` - Race results
+- `GET /f1/{year}/{round}/qualifying.json` - Qualifying results
+- `GET /f1/{year}/{round}/laps.json` - Lap times
+- `GET /f1/{year}/{round}/pitstops.json` - Pit stops
+- `GET /f1/{year}/driverStandings.json` - Driver standings
+- `GET /f1/{year}/constructorStandings.json` - Constructor standings
+- `GET /f1/circuits/{circuitId}.json` - Circuit information
+
+**Usage Example**:
+```python
+from app.services.ergast_service import ergast_service
+
+races = await ergast_service.get_current_season_races()
+results = await ergast_service.get_race_results(2024, 1)
+lap_times = await ergast_service.get_lap_times(2024, 1)
+pit_stops = await ergast_service.get_pit_stops(2024, 1)
+```
+
+**Documentation**: 
+- [Ergast F1 API](http://ergast.com/mrd/)
+- [API Documentation](http://ergast.com/mrd/)
+
+---
+
+### 9. OpenF1 API
+
+**Purpose**: Real-time and historical F1 telemetry data for detailed analysis.
+
+**API Configuration**:
+- **Base URL**: `https://api.openf1.org/v1`
+- **Authentication**: None required (Free API)
+- **Rate Limit**: No official limit (be respectful)
+
+**Key Features**:
+- Real-time session data
+- Lap time telemetry
+- Car telemetry (speed, throttle, brake, gear)
+- Stint data (tire compounds, pit stops)
+- Historical race data
+
+**Endpoints Used**:
+- `GET /sessions` - Get F1 sessions by date or location
+- `GET /lap_times` - Get lap time data
+- `GET /car_data` - Get car telemetry data
+- `GET /stints` - Get stint information
+
+**Usage Example**:
+```python
+from app.services.openf1_service import openf1_service
+
+sessions = await openf1_service.get_sessions_by_date(date(2024, 5, 19))
+lap_times = await openf1_service.get_lap_times(session_key=12345)
+telemetry = await openf1_service.get_car_telemetry(session_key=12345, driver_number=44)
+stints = await openf1_service.get_stints(session_key=12345, driver_number=44)
+```
+
+**Documentation**: 
+- [OpenF1 GitHub](https://github.com/br-g/openf1)
+- [API Documentation](https://api.openf1.org/docs)
+
+---
+
+### 10. F1API.dev
+
+**Purpose**: Alternative F1 data source for redundancy and additional data points.
+
+**API Configuration**:
+- **Base URL**: `https://api.f1api.dev/v1`
+- **Authentication**: None required (Free API)
+- **Rate Limit**: No specific limit mentioned
+
+**Key Features**:
+- Driver information
+- Race schedules
+- Race results
+- Alternative data format
+
+**Endpoints Used**:
+- `GET /drivers` - Get F1 drivers
+- `GET /races/{year}` - Get season races
+- `GET /races/{year}/{round}/results` - Get race results
+
+**Usage Example**:
+```python
+from app.services.f1api_service import f1api_service
+
+drivers = await f1api_service.get_drivers()
+races = await f1api_service.get_season_races(2024)
+results = await f1api_service.get_race_results(2024, 1)
+```
+
+**Documentation**: 
+- [F1API.dev Documentation](https://f1api.dev/docs)
+
+---
+
+### 11. URLMeta API
+
+**Purpose**: Extract metadata from URLs for context in multimodal AI processing.
+
+**API Configuration**:
+- **Base URL**: `https://api.urlmeta.org/`
+- **Authentication**: None required (Free API)
+
+**Key Features**:
+- URL metadata extraction
+- Title, description, image extraction
+- Used for Gemini multimodal input processing
+
+**Usage Example**:
+```typescript
+const previewUrl = `https://api.urlmeta.org/?url=${encodeURIComponent(url)}`;
+const metaResponse = await fetch(previewUrl);
+const metadata = await metaResponse.json();
+```
+
+**Documentation**: 
+- [URLMeta API](https://api.urlmeta.org/)
+
+---
+
+### API Configuration Summary
+
+#### Required API Keys
+
+1. **Google Maps API Key** (`GOOGLE_MAPS_API_KEY`)
+   - Location: Frontend
+   - Get from: [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+
+2. **OpenWeatherMap API Key** (`OpenWeatherMap_API_Key`)
+   - Location: Backend
+   - Get from: [OpenWeatherMap](https://openweathermap.org/api)
+
+#### Optional API Keys
+
+3. **OpenAI API Key** (`OPENAI_API_KEY` or `VITE_OPENAI_API_KEY`)
+   - Location: Frontend
+   - Get from: [OpenAI Platform](https://platform.openai.com/api-keys)
+
+4. **Gemini API Key** (`GEMINI_API_KEY` or `VITE_GEMINI_API_KEY`)
+   - Location: Frontend
+   - Get from: [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+5. **Twilio Credentials** (`Twilio_SID`, `Twilio_Secret`, `Twilio_Phone_Number`, `Twilio_WhatsApp_Number`)
+   - Location: Backend
+   - Get from: [Twilio Console](https://console.twilio.com/)
+
+6. **Mailgun Credentials** (`MailGun_Base_URL`, `MailGun_Sandbox_domain`, `MailGun_API_Key`)
+   - Location: Backend
+   - Get from: [Mailgun Dashboard](https://app.mailgun.com/)
+
+7. **Slack Webhook URL** (`VITE_SLACK_WEBHOOK_URL`)
+   - Location: Frontend
+   - Get from: [Slack Workflow Builder](https://slack.com/help/articles/360041352714)
+
+#### Free APIs (No Authentication Required)
+
+- **Ergast F1 API**: `http://ergast.com/api/f1/`
+- **OpenF1 API**: `https://api.openf1.org/v1`
+- **F1API.dev**: `https://api.f1api.dev/v1`
+- **URLMeta API**: `https://api.urlmeta.org/`
+
+---
+
+### API Error Handling
+
+All API integrations include:
+- **Mock data fallbacks** for development and testing
+- **Retry logic** with exponential backoff
+- **Timeout handling** (typically 10-30 seconds)
+- **Graceful degradation** when APIs are unavailable
+- **Error logging** for debugging
+
+### API Rate Limiting
+
+The application implements rate limiting and caching to:
+- Respect API provider limits
+- Reduce API costs
+- Improve response times
+- Handle API failures gracefully
+
+---
+
 ## Development & Testing
 
 > **Note**: For a quick start, see the [Quick Start](#-quick-start) section above. This section provides detailed development setup and testing information.

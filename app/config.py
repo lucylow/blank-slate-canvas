@@ -138,6 +138,20 @@ FUEL_CONFIG = {
 CACHE_ENABLED = True
 CACHE_TTL_SECONDS = 300  # 5 minutes
 
+# External API Configuration
+# Ergast F1 API (Free, no API key needed)
+ERGAST_API_URL = "http://ergast.com/api/f1"
+
+# Google Maps API Configuration
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
+GOOGLE_MAPS_CACHE_TTL = 86400  # 24 hours for elevation data (rarely changes)
+GOOGLE_MAPS_ENABLED = bool(GOOGLE_MAPS_API_KEY)
+
+# Race Control API (Toyota GR Cup - when available)
+RACE_CONTROL_API_URL = os.getenv("RACE_CONTROL_API_URL", "")
+RACE_CONTROL_API_KEY = os.getenv("RACE_CONTROL_API_KEY", "")
+RACE_CONTROL_ENABLED = bool(RACE_CONTROL_API_URL and RACE_CONTROL_API_KEY)
+
 # Data paths
 DATA_RAW_DIR = Path(DATA_DIR) / "raw"
 DATA_PRECOMPUTED_DIR = Path(DATA_DIR) / "precomputed"

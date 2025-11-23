@@ -415,22 +415,120 @@ class MapService:
     
     def __init__(self):
         self.track_cache = {}
+        self._google_maps_service = None
         logger.info("MapService initialized")
     
-    def get_track_geometry(self, track_id: str) -> Optional[Dict]:
-        """Get track geometry (centerline, sectors, elevation)"""
-        if track_id in self.track_cache:
-            return self.track_cache[track_id]
+    def _get_google_maps_service(self):
+        """Lazy load Google Maps service if available"""
+        if self._google_maps_service is None:
+            try:
+                from app.services.google_maps_service import get_google_maps_service
+                self._google_maps_service = get_google_maps_service()
+            except Exception as e:
+                logger.debug(f"Google Maps service not available: {e}")
+                self._google_maps_service = False  # Mark as unavailable
+        
+        return self._google_maps_service if self._google_maps_service is not False else None
+    
+    def get_track_geometry(self, track_id: str, use_google_elevation: bool = False) -> Optional[Dict]:
+        """
+        Get track geometry (centerline, sectors, elevation)
+        
+        Args:
+            track_id: Track identifier
+            use_google_elevation: If True and Google Maps API is available, 
+                                 fetch real elevation data
+        
+        Returns:
+            Track geometry dictionary
+        """
+        cache_key = f"{track_id}_google" if use_google_elevation else track_id
+        
+        if cache_key in self.track_cache:
+            return self.track_cache[cache_key]
         
         # Try to load from file or use mock
         geometry = MOCK_TRACK_GEOMETRY.get(track_id)
-        if geometry:
-            self.track_cache[track_id] = geometry
-            return geometry
+        if not geometry:
+            logger.warning(f"Track geometry not found for {track_id}, using default mock")
+            geometry = MOCK_TRACK_GEOMETRY.get("sebring")
         
-        logger.warning(f"Track geometry not found for {track_id}, using default mock")
-        # Return a default mock
-        return MOCK_TRACK_GEOMETRY.get("sebring")
+        # Note: Google Maps elevation enhancement is async and should be called separately
+        # For sync method, return geometry as-is. Use async method for elevation enhancement.
+        
+        if geometry:
+            self.track_cache[cache_key] = geometry
+        
+        return geometry
+    
+    async def enhance_with_google_elevation(self, track_id: str) -> Optional[Dict]:
+        """
+        Enhance track geometry with real elevation data from Google Maps API
+        
+        This is an async method that fetches real elevation data from Google Maps
+        and updates the track geometry cache.
+        
+        Args:
+            track_id: Track identifier
+        
+        Returns:
+            Enhanced geometry dictionary with real elevation profile, or None if unavailable
+        """
+        google_maps = self._get_google_maps_service()
+        if not google_maps:
+            logger.debug(f"Google Maps not available, cannot enhance elevation for {track_id}")
+            return None
+        
+        # Get base geometry first
+        geometry = self.get_track_geometry(track_id, use_google_elevation=False)
+        if not geometry:
+            return None
+        
+        try:
+            # Extract coordinates from centerline
+            centerline_coords = geometry.get("centerline_geojson", {}).get("coordinates", [])
+            if not centerline_coords:
+                return geometry
+            
+            # Convert to (lat, lon) tuples (GeoJSON format is [lon, lat])
+            coordinates = [(coord[1], coord[0]) for coord in centerline_coords]
+            
+            # Sample elevation points (every Nth point to reduce API calls)
+            sample_rate = max(1, len(coordinates) // 100)  # Max 100 points
+            sampled_coords = coordinates[::sample_rate]
+            
+            # Fetch elevation profile
+            elevation_results = await google_maps.get_elevation_profile(sampled_coords)
+            
+            if elevation_results:
+                # Rebuild elevation profile aligned with track distance
+                length_m = geometry.get("length_m", 5000.0)
+                num_points = len(elevation_results)
+                elevation_profile = []
+                
+                for i, result in enumerate(elevation_results):
+                    elevation = result.get("elevation", 0.0)
+                    s = (i / (num_points - 1)) * length_m if num_points > 1 else 0.0
+                    
+                    elevation_profile.append({
+                        "s": round(s, 2),
+                        "elev": round(elevation, 1)
+                    })
+                
+                # Update geometry with real elevation
+                geometry["elevation_profile"] = elevation_profile
+                
+                # Cache the enhanced geometry
+                cache_key = f"{track_id}_google"
+                self.track_cache[cache_key] = geometry
+                
+                logger.info(f"Enhanced {track_id} with Google Maps elevation data ({len(elevation_profile)} points)")
+            
+        except Exception as e:
+            logger.warning(f"Failed to enhance elevation with Google Maps for {track_id}: {e}")
+            # Return original geometry on error
+        
+        return geometry
     
     def match_points(self, track_id: str, points: List[Dict]) -> List[Dict]:
         """

@@ -479,7 +479,7 @@ const Index = () => {
   // Scroll spy to detect active section and show scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'gr-cars', 'tracks'];
+      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'data-analytics-apis', 'gr-cars', 'tracks'];
       const scrollPosition = window.scrollY + 100; // Offset for header
 
       // Show/hide scroll-to-top button
@@ -812,7 +812,7 @@ const Index = () => {
             </Button>
             <Link to="/dashboard" className="hidden sm:block">
               <Button 
-                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50"
+                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50"
                 aria-label="View Dashboard - Opens interactive dashboard"
                 onClick={() => trackButtonClick('View Dashboard', 'header')}
               >
@@ -1114,7 +1114,7 @@ const Index = () => {
             <Link to="/comprehensive">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
                 onClick={() => trackButtonClick('View Comprehensive Dashboard', 'hero')}
               >
@@ -1125,7 +1125,7 @@ const Index = () => {
             <Link to="/telemetry">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
                 onClick={() => trackButtonClick('View Telemetry Comparison', 'hero')}
               >
@@ -1137,7 +1137,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="Run Demo - Opens interactive dashboard"
                 onClick={() => trackButtonClick('Run Demo', 'hero')}
               >
@@ -1149,7 +1149,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agents"
                 onClick={() => trackButtonClick('AI Agents', 'hero')}
               >
@@ -1166,7 +1166,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agent Integration Patterns"
                 onClick={() => trackButtonClick('Agent Integration', 'hero')}
               >
@@ -2152,7 +2152,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-3 focus:ring-primary-foreground/50"
+              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
               aria-label="Contact Our Team"
             >
               Contact Our Team
@@ -2258,6 +2258,269 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Data & Analytics APIs Section */}
+      <section id="data-analytics-apis" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
+              <BarChart3 className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Data & Analytics APIs
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Time-series databases and visualization APIs for telemetry storage, real-time analytics, and interactive charting.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* TimescaleDB Cloud API */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="h-full border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center">
+                      <Activity className="w-6 h-6 text-blue-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold">TimescaleDB Cloud</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    PostgreSQL-based time-series database optimized for telemetry, IoT, and analytics.
+                  </p>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Key Features:</h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Hypertables for automatic partitioning</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Up to 95% storage compression</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Continuous aggregates for real-time analytics</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Full SQL support & PostgreSQL compatibility</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Vector search for AI/ML workloads</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Pricing:</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Free tier available. Performance Plan starts at $30/month + $0.177/GB-month storage.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://docs.timescale.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    Documentation
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* InfluxDB Cloud API */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Card className="h-full border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg flex items-center justify-center">
+                      <Gauge className="w-6 h-6 text-purple-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold">InfluxDB Cloud</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    High-performance time-series database purpose-built for telemetry, monitoring, and real-time analytics.
+                  </p>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Key Features:</h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Millions of data points per second ingestion</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Flux query language & native SQL support</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Unlimited cardinality handling</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Low-latency queries for recent data</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Built-in dashboards & Telegraf integration</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Pricing:</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Free plan: 5MB writes/300MB queries per 5 min. Usage-based: $0.0025/MB data in.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://docs.influxdata.com/influxdb/cloud/api-guide/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    Documentation
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Plotly Chart Studio API */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Card className="h-full border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6 text-orange-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold">Plotly Chart Studio</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Create and share interactive visualizations and charts programmatically with rich interactivity.
+                  </p>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Key Features:</h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Line, bar, scatter, heatmaps, 3D plots & more</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Interactive zoom, pan, hover, click events</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Python, R, JavaScript, MATLAB support</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Cloud-based sharing & collaboration</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Embeddable via iframes or HTML snippets</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Pricing:</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Free tier with basic charting & public sharing. Professional plans for private sharing & advanced analytics.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://plotly.com/chart-studio/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    Documentation
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Comparison & Recommendations */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-12"
+          >
+            <Card className="border-border/50 bg-gradient-to-br from-primary/5 to-primary/10">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Comparison & Recommendations
+                </h3>
+                <div className="grid md:grid-cols-3 gap-6 text-sm">
+                  <div>
+                    <h4 className="font-semibold mb-2 text-primary">TimescaleDB</h4>
+                    <p className="text-muted-foreground">
+                      Best for PostgreSQL-based apps needing time-series capabilities. SQL familiarity, relational + time-series in one database.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2 text-primary">InfluxDB</h4>
+                    <p className="text-muted-foreground">
+                      Best for high-throughput telemetry, monitoring, and real-time analytics. Purpose-built for time-series with high ingestion rates.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2 text-primary">Plotly Chart Studio</h4>
+                    <p className="text-muted-foreground">
+                      Best for interactive visualizations and dashboards. Rich interactivity, multi-language support, easy embedding.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-sm text-muted-foreground">
+                    <strong className="text-foreground">Common use case:</strong> TimescaleDB/InfluxDB for storage → Plotly for visualization. All three offer free tiers suitable for prototyping and small projects.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gradient-to-b from-accent to-background border-t border-border/50 py-16 px-6">
         <div className="container mx-auto max-w-6xl">
@@ -2351,6 +2614,16 @@ const Index = () => {
                   </a>
                 </li>
                 <li>
+                  <a 
+                    href="#data-analytics-apis" 
+                    onClick={(e) => handleAnchorClick(e, '#data-analytics-apis')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Data & Analytics APIs
+                  </a>
+                </li>
+                <li>
                   <Link to="/tracks" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Tracks
@@ -2426,7 +2699,7 @@ const Index = () => {
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-3 focus:ring-primary/50"
+              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-5 h-5" />
