@@ -1,6 +1,10 @@
 // src/lib/mockDemoData.ts
 // Comprehensive mock data generator for demo mode
 // Generates data for all 7 AI agents, time series, and tire predictions for all tracks
+//
+// NOTE: For comprehensive mock data with all API integrations (Weather, AI Analytics,
+// Google Maps, Hugging Face, Twilio, Slack, F1, Computer Vision, Driver Fingerprinting,
+// Anomaly Detection), see src/lib/comprehensiveMockData.ts
 
 import type { AgentDecision } from "@/components/pitwall/AIAgentDecisions";
 
