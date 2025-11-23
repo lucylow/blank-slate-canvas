@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TireWearCard } from '@/components/dashboard/TireWearCard';
 import { StrategyCard } from '@/components/dashboard/StrategyCard';
 import { PerformanceCard } from '@/components/dashboard/PerformanceCard';
+import { TelemetryComparison } from '@/components/dashboard/TelemetryComparison';
 import { DemoButton } from '@/components/DemoButton';
 
 import { useBackendConfig } from '@/hooks/useBackendConfig';
@@ -436,37 +437,48 @@ export function Dashboard() {
         )}
 
         {data ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-          >
-            <div className="lg:col-span-2 grid grid-cols-1 gap-6">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <PerformanceCard performance={data.performance} meta={data.meta} />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <TireWearCard wear={data.tire_wear} />
-              </motion.div>
-            </div>
+          <>
             <motion.div 
-              className="lg:col-span-1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6"
             >
-              <StrategyCard strategy={data.strategy} />
+              <div className="lg:col-span-2 grid grid-cols-1 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <PerformanceCard performance={data.performance} meta={data.meta} />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <TireWearCard wear={data.tire_wear} />
+                </motion.div>
+              </div>
+              <motion.div 
+                className="lg:col-span-1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <StrategyCard strategy={data.strategy} />
+              </motion.div>
             </motion.div>
-          </motion.div>
+            
+            {/* Telemetry Comparison Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <TelemetryComparison />
+            </motion.div>
+          </>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
