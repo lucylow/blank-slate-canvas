@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Wifi, WifiOff, AlertCircle, Sparkles, Activity } from 'lucide-react';
+import { Loader2, Wifi, WifiOff, AlertCircle, Sparkles, Activity, RefreshCw, XCircle, Clock, Network, Server, FileX } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -15,16 +15,60 @@ import { useBackendConfig } from '@/hooks/useBackendConfig';
 import { useLiveStream } from '@/hooks/useLiveStream';
 
 export function Dashboard() {
-  const { config, loading: configLoading, error: configError } = useBackendConfig();
+  const { 
+    config, 
+    loading: configLoading, 
+    error: configError,
+    retry: retryConfig,
+    retryCount: configRetryCount,
+    maxRetries: configMaxRetries
+  } = useBackendConfig();
   const [selectedTrack, setSelectedTrack] = useState('sebring');
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
 
-  const { data, connected, error } = useLiveStream(
+  const { 
+    data, 
+    connected, 
+    error: streamError,
+    reconnectAttempts,
+    retry: retryStream,
+    maxReconnectAttempts
+  } = useLiveStream(
     selectedTrack,
     selectedRace,
     selectedVehicle
   );
+
+  const getErrorIcon = (errorType?: string) => {
+    switch (errorType) {
+      case 'network':
+        return <Network className="h-4 w-4" />;
+      case 'timeout':
+        return <Clock className="h-4 w-4" />;
+      case 'server':
+        return <Server className="h-4 w-4" />;
+      case 'parse':
+        return <FileX className="h-4 w-4" />;
+      default:
+        return <AlertCircle className="h-4 w-4" />;
+    }
+  };
+
+  const getErrorColor = (errorType?: string) => {
+    switch (errorType) {
+      case 'network':
+        return 'text-blue-500';
+      case 'timeout':
+        return 'text-yellow-500';
+      case 'server':
+        return 'text-red-500';
+      case 'parse':
+        return 'text-orange-500';
+      default:
+        return 'text-red-500';
+    }
+  };
 
   if (configLoading) {
     return (
@@ -37,7 +81,14 @@ export function Dashboard() {
         <Card className="p-8 bg-card/60 backdrop-blur-md border-border/50 relative z-10">
           <CardContent className="flex flex-col items-center gap-4">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading backend configuration...</p>
+            <div className="text-center">
+              <p className="text-muted-foreground mb-1">Loading backend configuration...</p>
+              {configRetryCount > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Retry attempt {configRetryCount}/{configMaxRetries}
+                </p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -51,15 +102,87 @@ export function Dashboard() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)]" />
         
-        <Alert variant="destructive" className="max-w-2xl mx-auto mt-8 relative z-10 bg-card/60 backdrop-blur-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Configuration Error</AlertTitle>
-          <AlertDescription>
-            <p className="mb-2">{configError}</p>
-            <p className="text-sm">Make sure your Python backend is running and the API URL is configured via <code className="bg-muted px-1 rounded">VITE_BACKEND_URL</code> environment variable.</p>
-            <p className="text-sm mt-2">Set <code className="bg-muted px-1 rounded">VITE_BACKEND_URL</code> to your backend URL (e.g., <code className="bg-muted px-1 rounded">https://your-backend.com</code>)</p>
-          </AlertDescription>
-        </Alert>
+        <div className="max-w-3xl mx-auto mt-8 relative z-10 space-y-4">
+          <Alert 
+            variant={configError.type === 'server' && configError.statusCode && configError.statusCode >= 500 ? "destructive" : "default"} 
+            className="bg-card/60 backdrop-blur-md border-border/50"
+          >
+            <div className="flex items-start gap-3">
+              <div className={getErrorColor(configError.type)}>
+                {getErrorIcon(configError.type)}
+              </div>
+              <div className="flex-1">
+                <AlertTitle className="flex items-center gap-2">
+                  Configuration Error
+                  {configError.statusCode && (
+                    <span className="text-xs font-normal text-muted-foreground">
+                      (HTTP {configError.statusCode})
+                    </span>
+                  )}
+                </AlertTitle>
+                <AlertDescription className="mt-2 space-y-3">
+                  <div>
+                    <p className="font-medium mb-1">{configError.message}</p>
+                    {configError.details && (
+                      <p className="text-sm text-muted-foreground mt-1">{configError.details}</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-muted/50 p-3 rounded-md text-sm space-y-2">
+                    <p className="font-medium">Troubleshooting steps:</p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Verify your Python backend is running</li>
+                      <li>Check the API URL configuration via <code className="bg-background px-1 rounded">VITE_BACKEND_URL</code> environment variable</li>
+                      <li>Ensure the backend is accessible from your network</li>
+                      <li>Check backend logs for detailed error information</li>
+                      {configError.type === 'network' && (
+                        <li>Verify your internet connection and firewall settings</li>
+                      )}
+                      {configError.type === 'timeout' && (
+                        <li>The backend may be overloaded - try again in a few moments</li>
+                      )}
+                      {configError.statusCode === 404 && (
+                        <li>The configuration endpoint may not be available on this backend version</li>
+                      )}
+                      {configError.statusCode && configError.statusCode >= 500 && (
+                        <li>The backend server encountered an internal error - check server logs</li>
+                      )}
+                    </ul>
+                  </div>
+
+                  {configError.retryable && (
+                    <div className="flex items-center gap-3 pt-2">
+                      <Button
+                        onClick={retryConfig}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Retry Connection
+                      </Button>
+                      {configRetryCount > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          Attempt {configRetryCount}/{configMaxRetries}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </AlertDescription>
+              </div>
+            </div>
+          </Alert>
+
+          {configError.type === 'network' && (
+            <Alert className="bg-blue-500/10 border-blue-500/20">
+              <Network className="h-4 w-4 text-blue-500" />
+              <AlertTitle className="text-blue-500">Network Issue Detected</AlertTitle>
+              <AlertDescription className="text-sm">
+                This appears to be a network connectivity problem. Check your connection and ensure the backend server is reachable.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
       </div>
     );
   }
@@ -89,10 +212,10 @@ export function Dashboard() {
               PitWall A.I. Dashboard
             </h1>
             <p className="text-muted-foreground text-lg">
-              {config?.tracks.find(t => t.id === selectedTrack)?.name || 'Track'} - Race {selectedRace} - Vehicle {selectedVehicle}
+              {config?.tracks?.find(t => t.id === selectedTrack)?.name || selectedTrack.charAt(0).toUpperCase() + selectedTrack.slice(1)} - Race {selectedRace} - Vehicle {selectedVehicle}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <DemoButton />
             <motion.div 
               className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
@@ -111,30 +234,194 @@ export function Dashboard() {
           </div>
         </motion.header>
 
-        {error && (
+        {/* Backend URL Configuration Display */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <Card className="bg-card/40 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-all duration-300">
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Server className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-0.5">Backend URL</p>
+                    <p className="text-sm font-mono text-foreground break-all">
+                      {displayBackendUrl}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {viteBackendUrl ? (
+                    <span className="px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">
+                      VITE_BACKEND_URL
+                    </span>
+                  ) : (
+                    <span className="px-2 py-1 rounded bg-muted border border-border">
+                      Auto-detected
+                    </span>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {streamError && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
           >
-            <Alert variant="destructive" className="mb-6 bg-card/60 backdrop-blur-md border-border/50">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Stream Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+            <Alert 
+              variant={streamError.type === 'server' || streamError.type === 'parse' ? "destructive" : "default"} 
+              className="bg-card/60 backdrop-blur-md border-border/50"
+            >
+              <div className="flex items-start gap-3">
+                <div className={getErrorColor(streamError.type)}>
+                  {getErrorIcon(streamError.type)}
+                </div>
+                <div className="flex-1">
+                  <AlertTitle className="flex items-center gap-2">
+                    Stream Error
+                    {reconnectAttempts > 0 && (
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (Reconnect attempt {reconnectAttempts}/{maxReconnectAttempts})
+                      </span>
+                    )}
+                  </AlertTitle>
+                  <AlertDescription className="mt-2 space-y-3">
+                    <div>
+                      <p className="font-medium mb-1">{streamError.message}</p>
+                      {streamError.details && (
+                        <p className="text-sm text-muted-foreground mt-1">{streamError.details}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Error occurred at {new Date(streamError.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
+
+                    <div className="bg-muted/50 p-3 rounded-md text-sm space-y-2">
+                      <p className="font-medium">Possible solutions:</p>
+                      <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                        {streamError.type === 'network' && (
+                          <>
+                            <li>Check your network connection</li>
+                            <li>Verify the backend server is accessible</li>
+                            <li>Check firewall or proxy settings</li>
+                          </>
+                        )}
+                        {streamError.type === 'timeout' && (
+                          <>
+                            <li>The backend may be slow to respond</li>
+                            <li>Try refreshing the connection</li>
+                            <li>Check backend server load and performance</li>
+                          </>
+                        )}
+                        {streamError.type === 'server' && (
+                          <>
+                            <li>Backend server encountered an error</li>
+                            <li>Check backend logs for details</li>
+                            <li>The selected track/race/vehicle combination may be invalid</li>
+                          </>
+                        )}
+                        {streamError.type === 'parse' && (
+                          <>
+                            <li>Data format may have changed</li>
+                            <li>Backend version may be incompatible</li>
+                            <li>Check browser console for details</li>
+                          </>
+                        )}
+                        {streamError.type === 'unknown' && (
+                          <>
+                            <li>An unexpected error occurred</li>
+                            <li>Try refreshing the page</li>
+                            <li>Check browser console for more details</li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
+
+                    {streamError.retryable && (
+                      <div className="flex items-center gap-3 pt-2">
+                        <Button
+                          onClick={retryStream}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Retry Stream
+                        </Button>
+                        {reconnectAttempts > 0 && reconnectAttempts < maxReconnectAttempts && (
+                          <span className="text-xs text-muted-foreground">
+                            Auto-retrying... ({reconnectAttempts}/{maxReconnectAttempts})
+                          </span>
+                        )}
+                        {reconnectAttempts >= maxReconnectAttempts && (
+                          <span className="text-xs text-yellow-500">
+                            Max retry attempts reached. Please retry manually.
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {!streamError.retryable && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <XCircle className="w-4 h-4" />
+                        <span>This error cannot be automatically retried. Please check the issue and try again.</span>
+                      </div>
+                    )}
+                  </AlertDescription>
+                </div>
+              </div>
             </Alert>
+
+            {/* Additional context alerts based on error type */}
+            {streamError.type === 'network' && (
+              <Alert className="mt-3 bg-blue-500/10 border-blue-500/20">
+                <Network className="h-4 w-4 text-blue-500" />
+                <AlertTitle className="text-blue-500">Network Connectivity Issue</AlertTitle>
+                <AlertDescription className="text-sm">
+                  Unable to establish or maintain connection to the backend stream. This is typically a network or server availability issue.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {streamError.type === 'timeout' && (
+              <Alert className="mt-3 bg-yellow-500/10 border-yellow-500/20">
+                <Clock className="h-4 w-4 text-yellow-500" />
+                <AlertTitle className="text-yellow-500">Connection Timeout</AlertTitle>
+                <AlertDescription className="text-sm">
+                  The connection timed out. The backend may be experiencing high load or the network connection is slow.
+                </AlertDescription>
+              </Alert>
+            )}
           </motion.div>
         )}
 
-        {!connected && !error && (
+        {!connected && !streamError && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <Alert className="mb-6 bg-card/60 backdrop-blur-md border-border/50">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Connecting to stream</AlertTitle>
-              <AlertDescription>
-                Waiting for live data stream from backend...
-              </AlertDescription>
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <div className="flex-1">
+                  <AlertTitle>Connecting to stream</AlertTitle>
+                  <AlertDescription>
+                    Establishing connection to live data stream from backend...
+                    {reconnectAttempts > 0 && (
+                      <span className="block mt-1 text-xs text-muted-foreground">
+                        Reconnection attempt {reconnectAttempts}/{maxReconnectAttempts}
+                      </span>
+                    )}
+                  </AlertDescription>
+                </div>
+              </div>
             </Alert>
           </motion.div>
         )}
