@@ -130,18 +130,24 @@ const Settings = () => {
             transition={{ delay: 0.2 }}
             className="mb-6"
           >
-            <Card className="bg-card/60 backdrop-blur-md border-border/50">
+            <Card className="bg-card/60 backdrop-blur-md border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:scale-[1.01]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-primary" />
-                  Notifications
-                </CardTitle>
-                <CardDescription>
-                  Manage notification preferences
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Bell className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Notifications
+                    </CardTitle>
+                    <CardDescription>
+                      Manage notification preferences
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 transition-colors">
                   <div className="space-y-0.5">
                     <Label htmlFor="notifications">Enable Notifications</Label>
                     <p className="text-xs text-muted-foreground">
@@ -165,18 +171,24 @@ const Settings = () => {
             transition={{ delay: 0.3 }}
             className="mb-6"
           >
-            <Card className="bg-card/60 backdrop-blur-md border-border/50">
+            <Card className="bg-card/60 backdrop-blur-md border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:scale-[1.01]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-primary" />
-                  Appearance
-                </CardTitle>
-                <CardDescription>
-                  Customize the look and feel
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Palette className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Appearance
+                    </CardTitle>
+                    <CardDescription>
+                      Customize the look and feel
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 transition-colors">
                   <div className="space-y-0.5">
                     <Label htmlFor="dark-mode">Dark Mode</Label>
                     <p className="text-xs text-muted-foreground">
@@ -201,30 +213,36 @@ const Settings = () => {
             transition={{ delay: 0.4 }}
             className="mb-6"
           >
-            <Card className="bg-card/60 backdrop-blur-md border-border/50">
+            <Card className="bg-card/60 backdrop-blur-md border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:scale-[1.01]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="w-5 h-5 text-primary" />
-                  Data Management
-                </CardTitle>
-                <CardDescription>
-                  Manage cached data and storage
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Database className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Data Management
+                    </CardTitle>
+                    <CardDescription>
+                      Manage cached data and storage
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 transition-colors">
                   <div>
                     <Label>Cached Telemetry Data</Label>
                     <p className="text-xs text-muted-foreground mt-1">
                       ~245 MB cached locally
                     </p>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
                     Clear Cache
                   </Button>
                 </div>
                 <div className="pt-2 border-t border-border/50">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
                     Export Data
                   </Button>
                 </div>
@@ -239,8 +257,15 @@ const Settings = () => {
             transition={{ delay: 0.5 }}
             className="flex justify-end gap-4"
           >
-            <Button variant="outline">Reset to Defaults</Button>
-            <Button className="bg-primary hover:bg-primary/90">
+            <Button 
+              variant="outline" 
+              className="hover:bg-accent/50 transition-all duration-300"
+            >
+              Reset to Defaults
+            </Button>
+            <Button 
+              className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105"
+            >
               Save Settings
             </Button>
           </motion.div>
