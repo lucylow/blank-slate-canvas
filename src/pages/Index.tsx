@@ -633,7 +633,10 @@ const Index = () => {
           <nav className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main navigation">
             <a 
               href="#features" 
-              onClick={(e) => handleAnchorClick(e, '#features')}
+              onClick={(e) => {
+                handleAnchorClick(e, '#features');
+                trackLinkClick('Features', '#features', { location: 'header' });
+              }}
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
                 activeSection === 'features' 
                   ? 'text-primary' 
@@ -674,6 +677,7 @@ const Index = () => {
             </Link>
             <Link 
               to="/analytics" 
+              onClick={() => trackLinkClick('Analytics', '/analytics', { location: 'header' })}
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
                 location.pathname === '/analytics' 
                   ? 'text-primary' 
@@ -896,12 +900,25 @@ const Index = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.15 }}
-                      className="mt-2 pt-2 border-t border-border/50"
+                      className="mt-2 pt-2 border-t border-border/50 space-y-2"
                     >
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          setAnalyticsOpen(true);
+                          trackButtonClick('View Analytics', 'mobile-menu');
+                        }}
+                        aria-label="View Analytics"
+                      >
+                        <BarChart3 className="w-4 h-4 mr-2" />
+                        View Analytics
+                      </Button>
                       <Link to="/dashboard" className="block">
                         <Button 
                           className="w-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
                           aria-label="View Dashboard - Opens interactive dashboard"
+                          onClick={() => trackButtonClick('View Dashboard', 'mobile-menu')}
                         >
                           View Dashboard
                         </Button>
@@ -1001,6 +1018,7 @@ const Index = () => {
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
                 aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
+                onClick={() => trackButtonClick('View Comprehensive Dashboard', 'hero')}
               >
                 View Comprehensive Dashboard
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -1011,6 +1029,7 @@ const Index = () => {
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 group"
                 aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
+                onClick={() => trackButtonClick('View Telemetry Comparison', 'hero')}
               >
                 View Telemetry Comparison
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -1022,6 +1041,7 @@ const Index = () => {
                 variant="outline" 
                 className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="Run Demo - Opens interactive dashboard"
+                onClick={() => trackButtonClick('Run Demo', 'hero')}
               >
                 Run Demo
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -1033,6 +1053,7 @@ const Index = () => {
                 variant="outline" 
                 className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agents"
+                onClick={() => trackButtonClick('AI Agents', 'hero')}
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
                 AI Agents
@@ -1049,6 +1070,7 @@ const Index = () => {
                 variant="outline" 
                 className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-3 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agent Integration Patterns"
+                onClick={() => trackButtonClick('Agent Integration', 'hero')}
               >
                 <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
                 Agent Integration
@@ -2150,6 +2172,9 @@ const Index = () => {
 
       {/* Chatbot */}
       <Chatbot />
+
+      {/* Analytics Popup */}
+      <AnalyticsPopup open={analyticsOpen} onOpenChange={setAnalyticsOpen} />
     </div>
   );
 };
