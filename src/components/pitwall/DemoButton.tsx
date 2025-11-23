@@ -19,6 +19,7 @@ export interface DemoData {
     agent_type: string;
     track: string;
     chassis: string;
+    vehicle_number?: number;
     timestamp: string;
     decision_type: string;
     action: string;
@@ -62,22 +63,41 @@ export default function DemoButton({ onLoadDemo, className }: DemoButtonProps) {
       // Load AI agents demo data
       const response = await fetch("/demo_data/ai_agents_demo.json");
       if (!response.ok) {
-        throw new Error(`Failed to load demo data: ${response.statusText}`);
+        throw new Error(`Failed to load demo data: ${response.status} ${response.statusText}`);
       }
 
       const data: DemoData = await response.json();
       
+      // Validate data structure
+      if (!data || typeof data !== 'object') {
+        throw new Error("Invalid demo data format");
+      }
+
+      // Validate decisions array if present
+      if (data.decisions && !Array.isArray(data.decisions)) {
+        throw new Error("Invalid decisions format in demo data");
+      }
+      
       // Simulate loading delay for better UX
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      onLoadDemo(data);
-      setLoaded(true);
-      
-      // Reset loaded state after 3 seconds
-      setTimeout(() => setLoaded(false), 3000);
+      // Call onLoadDemo with error handling
+      try {
+        onLoadDemo(data);
+        setLoaded(true);
+        
+        // Reset loaded state after 3 seconds
+        setTimeout(() => setLoaded(false), 3000);
+      } catch (callbackError) {
+        console.error("Error in onLoadDemo callback:", callbackError);
+        throw new Error(`Failed to process demo data: ${callbackError instanceof Error ? callbackError.message : 'Unknown error'}`);
+      }
     } catch (err) {
       console.error("Error loading demo data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load demo data");
+      const errorMessage = err instanceof Error ? err.message : "Failed to load demo data";
+      setError(errorMessage);
+      // Keep error visible for longer
+      setTimeout(() => setError(null), 5000);
     } finally {
       setLoading(false);
     }

@@ -41,8 +41,8 @@ export function DemoButton({
     if (isDemoMode) {
       toast({
         title: "Demo Mode Already Active",
-        description: "Demo mode is already enabled. Data will load from demo_data.json",
-        duration: 2000,
+        description: "Demo mode is already enabled. Comprehensive mock data is available for all 7 tracks with AI agent decisions, time series, and tire predictions.",
+        duration: 3000,
       });
       return;
     }
@@ -54,31 +54,59 @@ export function DemoButton({
       // Enable demo mode first
       setIsDemoMode(true);
 
-      // Load demo data from demo_data.json
-      const demoData = await getDemoData();
+      // Generate comprehensive mock data for all tracks
+      // This includes: AI agent decisions, time series, tire predictions, and telemetry
+      const { generateAllTracksMockData } = await import("@/lib/mockDemoData");
+      const mockData = generateAllTracksMockData();
+      
+      // Count totals for display
+      const totalDecisions = Object.values(mockData.agentDecisions).reduce(
+        (sum, arr) => sum + arr.length,
+        0
+      );
+      const totalTimeSeries = Object.values(mockData.timeSeries).reduce(
+        (sum, arr) => sum + arr.length,
+        0
+      );
+      const totalPredictions = Object.values(mockData.tirePredictions).reduce(
+        (sum, arr) => sum + arr.length,
+        0
+      );
+      const totalTelemetry = Object.values(mockData.telemetry).reduce(
+        (sum, arr) => sum + arr.length,
+        0
+      );
 
       setHasLoaded(true);
       
-      // Show success toast
+      // Show success toast with comprehensive data summary
       toast({
-        title: "Demo Mode Enabled",
-        description: `Loaded ${demoData.meta?.count || 0} demo data points from ${demoData.meta?.tracks_available || 0} tracks`,
-        duration: 3000,
+        title: "Demo Mode Enabled - Comprehensive Mock Data Loaded",
+        description: `Generated mock data for all 7 tracks: ${totalDecisions} AI agent decisions, ${totalTimeSeries} time series points, ${totalPredictions} tire predictions, ${totalTelemetry} telemetry points. All 7 AI agents are simulated.`,
+        duration: 5000,
       });
 
-      // Call optional callback
+      // Call optional callback with mock data structure
       if (onDemoLoaded) {
-        onDemoLoaded(demoData);
+        onDemoLoaded({
+          meta: {
+            count: totalTelemetry,
+            tracks_available: 7,
+            source: "mock_generator",
+            loaded_at: new Date().toISOString(),
+          },
+          mockData: mockData,
+        });
       }
     } catch (error) {
-      console.error("Failed to load demo data:", error);
+      console.error("Failed to generate mock demo data:", error);
       
-      // Still enable demo mode even if data loading fails
+      // Still enable demo mode even if data generation fails
       setIsDemoMode(true);
       
       toast({
         title: "Demo Mode Enabled",
-        description: error instanceof Error ? error.message : "Failed to load demo data, but demo mode is enabled",
+        description: error instanceof Error ? error.message : "Failed to generate mock data, but demo mode is enabled",
         variant: "destructive",
         duration: 5000,
       });

@@ -21,6 +21,7 @@ import AIAgentDecisions, { type AgentDecision } from "@/components/pitwall/AIAge
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useDemoWs } from "@/hooks/useDemoWs";
 import { useDemoMode } from "@/hooks/useDemoMode";
+import { useMockAgentDecisions, useMockTelemetryStream } from "@/hooks/useMockDemoData";
 
 import { getWsUrl } from "@/utils/wsUrl";
 
@@ -40,39 +41,58 @@ export default function PitWallDashboard() {
 
   // Handle demo data loading
   const handleLoadDemo = (data: DemoData) => {
-    setDemoData(data);
-    // Convert demo decisions to AgentDecision format
-    if (data.decisions) {
-      const decisions: AgentDecision[] = data.decisions.map((d) => ({
-        decision_id: d.decision_id,
-        agent_id: d.agent_id,
-        agent_type: d.agent_type,
-        track: d.track,
-        chassis: d.chassis,
-        vehicle_number: d.vehicle_number,
-        timestamp: d.timestamp,
-        decision_type: d.decision_type as AgentDecision["decision_type"],
-        action: d.action,
-        confidence: d.confidence,
-        risk_level: d.risk_level as AgentDecision["risk_level"],
-        reasoning: d.reasoning,
-        evidence: d.evidence,
-      }));
-      setAgentDecisions(decisions);
+    try {
+      setDemoData(data);
+      // Convert demo decisions to AgentDecision format
+      if (data.decisions && Array.isArray(data.decisions)) {
+        const decisions: AgentDecision[] = data.decisions.map((d) => ({
+          decision_id: d.decision_id || `decision-${Date.now()}-${Math.random()}`,
+          agent_id: d.agent_id || 'unknown',
+          agent_type: d.agent_type || 'unknown',
+          track: d.track || 'unknown',
+          chassis: d.chassis || 'unknown',
+          vehicle_number: d.vehicle_number,
+          timestamp: d.timestamp || new Date().toISOString(),
+          decision_type: (d.decision_type as AgentDecision["decision_type"]) || 'strategy',
+          action: d.action || 'No action specified',
+          confidence: typeof d.confidence === 'number' ? d.confidence : 0.5,
+          risk_level: (d.risk_level as AgentDecision["risk_level"]) || 'moderate',
+          reasoning: Array.isArray(d.reasoning) ? d.reasoning : [],
+          evidence: d.evidence || {},
+        }));
+        setAgentDecisions(decisions);
+      }
+    } catch (error) {
+      console.error('Error processing demo data:', error);
+      // Set empty decisions array on error
+      setAgentDecisions([]);
     }
   };
 
+  // Get mock agent decisions when in demo mode
+  const mockAgentDecisions = useMockAgentDecisions(track.id);
+  
+  // Get mock telemetry stream when in demo mode
+  const mockTelemetry = useMockTelemetryStream(track.id, 7, 500);
+  
   // Filter decisions by current track
   const filteredDecisions = useMemo(() => {
+    // Use mock data if in demo mode and available
+    if (isDemoMode && mockAgentDecisions.length > 0) {
+      const trackId = track.id.toLowerCase();
+      return mockAgentDecisions.filter((d) => d.track.toLowerCase() === trackId);
+    }
+    
+    // Otherwise use loaded demo data
     if (agentDecisions.length === 0) return [];
     const trackId = track.id.toLowerCase();
     return agentDecisions.filter((d) => d.track.toLowerCase() === trackId);
-  }, [agentDecisions, track]);
+  }, [isDemoMode, mockAgentDecisions, agentDecisions, track]);
   
   // Use demo WebSocket when in demo mode, otherwise use regular WebSocket
   const demoWs = useDemoWs({
     url: 'ws://localhost:8081/ws/demo',
-    autoConnect: isDemoMode
+    autoConnect: isDemoMode && mockTelemetry.length === 0 // Only connect if no mock data
   });
   
   const regularWsUrl = isDemoMode ? '' : getWsUrl('/ws');
@@ -82,9 +102,13 @@ export default function PitWallDashboard() {
     maxMessages: 500,
   });
   
-  // Use demo or regular WebSocket data
-  const connected = isDemoMode ? demoWs.connected : regularWs.connected;
-  const messages = isDemoMode ? demoWs.points : regularWs.messages;
+  // Use mock telemetry if available, otherwise use WebSocket data
+  const connected = isDemoMode 
+    ? (mockTelemetry.length > 0 ? true : demoWs.connected)
+    : regularWs.connected;
+  const messages = isDemoMode 
+    ? (mockTelemetry.length > 0 ? mockTelemetry : demoWs.points)
+    : regularWs.messages;
   const messageCount = messages.length;
   // derive last telemetry point for car position
   const lastPoint = useMemo(() => messages.length ? messages[messages.length-1] : null, [messages]);
@@ -101,7 +125,15 @@ export default function PitWallDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Animated background gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
+      
+      {/* Animated grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
         <div className="container mx-auto px-6 py-4">
@@ -168,7 +200,7 @@ export default function PitWallDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-6">
+      <main className="container mx-auto px-6 py-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Section - Track Map and Charts */}
           <section className="col-span-1 lg:col-span-2 space-y-6">

@@ -34,6 +34,7 @@ interface AgentResult {
 }
 
 // Mock results for all 7 AI agents based on demo_data.json processing pipeline
+// Includes examples from multiple tracks: COTA, Barber, Sebring, Indianapolis, Road America, Sonoma, VIR
 const generateMockResults = (): AgentResult[] => {
   const baseTime = new Date("2025-11-20T15:30:45.123Z");
   
@@ -44,13 +45,14 @@ const generateMockResults = (): AgentResult[] => {
       agent_name: "Preprocessor Agent",
       status: "completed",
       results: {
-        summary: "Canonicalized 8,472 samples from demo_data.json. Mapped 12 sectors and derived lateral_g, longitudinal_g, tire_stress_inst, brake_energy_inst features.",
+        summary: "Canonicalized 8,472 samples from demo_data.json. Mapped 12 sectors and derived lateral_g, longitudinal_g, tire_stress_inst, brake_energy_inst features. Processed data from COTA (3.1M rows), Barber (2.8M rows), Sebring (2.9M rows).",
         key_metrics: {
           "Samples Processed": 8472,
           "Sectors Mapped": 12,
           "Derived Features": 4,
           "Aggregate Windows": 12,
-          "Anomalies Detected": 3
+          "Anomalies Detected": 3,
+          "Tracks Processed": 3
         },
         insights: [
           "Canonicalized 8,472 telemetry samples from demo_data.json",
@@ -58,7 +60,9 @@ const generateMockResults = (): AgentResult[] => {
           "Derived 4 new features: lateral_g, longitudinal_g, tire_stress_inst, brake_energy_inst",
           "Sector 1: avg_speed 148.2 km/h, max_lat_g 1.8, tire_stress 124,000",
           "Sector 2: avg_speed 132.1 km/h, max_lat_g 2.1, tire_stress 168,000 (high load)",
-          "Sector 3: avg_speed 220.5 km/h, max_lat_g 1.2, tire_stress 98,000"
+          "Sector 3: avg_speed 220.5 km/h, max_lat_g 1.2, tire_stress 98,000",
+          "Processed Barber data: 2,847,563 rows, 28 vehicles, 45.62 minutes",
+          "Processed Sebring data: 2,945,678 rows, 29 vehicles, 46.78 minutes"
         ],
         confidence: 0.98,
         processing_time_ms: 1111
@@ -71,20 +75,23 @@ const generateMockResults = (): AgentResult[] => {
       agent_name: "EDA Agent",
       status: "completed",
       results: {
-        summary: "Identified 3 driving style clusters using UMAP + HDBSCAN: conservative_smooth (856 samples), aggressive_late_apex (742 samples), unstable_entry (402 samples).",
+        summary: "Identified 3 driving style clusters using UMAP + HDBSCAN: conservative_smooth (856 samples), aggressive_late_apex (742 samples), unstable_entry (402 samples). Analyzed VIR data showing 99.76% consistency for Car #13.",
         key_metrics: {
           "Clusters Found": 3,
           "Samples Analyzed": 2000,
           "Driving Styles": 3,
           "Cluster Stability": "87%",
-          "Centroid Drift": 0.23
+          "Centroid Drift": 0.23,
+          "Tracks Analyzed": 4
         },
         insights: [
           "Cluster 0 - Conservative Smooth: avg_speed 135.2 km/h, max_lat_g 1.6",
           "Cluster 1 - Aggressive Late Apex: avg_speed 152.8 km/h, max_lat_g 2.3 (high cornering loads)",
           "Cluster 2 - Unstable Entry: avg_speed 128.5 km/h, max_lat_g 1.9 (mid-corner corrections)",
           "Evidence sample: Lap 12, Sector 2 - late braking, high corner speed pattern detected",
-          "Drift metrics show stable clustering (87% stability, 0.23 centroid drift)"
+          "Drift metrics show stable clustering (87% stability, 0.23 centroid drift)",
+          "VIR analysis: Car #13 consistency 99.76% (std: 0.234s), top 5 drivers <0.5s std dev",
+          "Road America: Late apex gains - Cluster 1 drivers gaining ~0.4s via later turn-in at T5"
         ],
         confidence: 0.87,
         processing_time_ms: 1112
@@ -97,20 +104,23 @@ const generateMockResults = (): AgentResult[] => {
       agent_name: "Predictor Agent",
       status: "completed",
       results: {
-        summary: "Predicted 0.321s/lap tire degradation loss. Tire cliff expected at Lap 18. Model confidence 78% (R²=0.89, MAE=0.08s).",
+        summary: "Predicted 0.321s/lap tire degradation loss. Tire cliff expected at Lap 18. Model confidence 78% (R²=0.89, MAE=0.08s). Also analyzed Barber (0.312s/lap loss, cliff at Lap 10) and Sebring (6-9°C temp rise over 8 laps).",
         key_metrics: {
           "Predicted Loss/Lap": "0.321s",
           "Laps Until 0.5s Loss": 6.2,
           "Model Confidence": "78%",
           "R Squared": 0.89,
-          "MAE (seconds)": 0.08
+          "MAE (seconds)": 0.08,
+          "Tracks Modeled": 3
         },
         insights: [
           "Predicted tire degradation: 0.321s loss per lap",
           "Tire cliff expected by Lap 18 (6.2 laps until 0.5s threshold)",
           "Confidence interval: [0.285s, 0.357s]",
           "Top feature importance: tire_stress_sector_1 (42%), brake_energy_sector_2 (31%)",
-          "Model trained on COTA data (v1.2), validated with 89% R² accuracy"
+          "Model trained on COTA data (v1.2), validated with 89% R² accuracy",
+          "Barber prediction: 0.312s/lap loss, tire cliff at Lap 10, confidence 78%",
+          "Sebring analysis: Surface temp rises 6-9°C over 8 laps, expected cliff at lap ~18"
         ],
         confidence: 0.78,
         processing_time_ms: 1112
@@ -123,13 +133,14 @@ const generateMockResults = (): AgentResult[] => {
       agent_name: "Simulator Agent",
       status: "completed",
       results: {
-        summary: "Recommended PIT_LAP_15 strategy with +3.3s expected gain. Analyzed 2 scenarios: pit_lap_15 (60% probability, 3600.23s) vs stay_out (40% probability, 3603.52s).",
+        summary: "Recommended PIT_LAP_15 strategy with +3.3s expected gain. Analyzed 2 scenarios: pit_lap_15 (60% probability, 3600.23s) vs stay_out (40% probability, 3603.52s). Also simulated Road America (Lap 18, 72% confidence) and Indianapolis (multiple scenarios).",
         key_metrics: {
           "Strategy Recommended": "PIT_LAP_15",
           "Expected Gain": "+3.3s",
-          "Scenarios Analyzed": 2,
+          "Scenarios Analyzed": 4,
           "Best Strategy Probability": "60%",
-          "Tire Cliff Lap": 18
+          "Tire Cliff Lap": 18,
+          "Tracks Simulated": 3
         },
         insights: [
           "Optimal strategy: Pit stop on Lap 15 (+3.3s expected gain)",
@@ -137,7 +148,9 @@ const generateMockResults = (): AgentResult[] => {
           "Scenario 2 (Stay Out): 3603.52s total time, 40% probability, tire degradation risk in final laps",
           "Tire cliff predicted at Lap 18 - pit before degradation",
           "Undercut window: Laps 14-16 optimal for track position gain",
-          "Competitor strategies: opponent_4 (lap 16), opponent_7 (lap 14)"
+          "Competitor strategies: opponent_4 (lap 16), opponent_7 (lap 14)",
+          "Road America: Recommended pit Lap 18 (72% confidence), 4 scenarios analyzed",
+          "Indianapolis: Multiple strategies tested, Race 2 showed 13.6s faster pace"
         ],
         confidence: 0.82,
         processing_time_ms: 1111
@@ -204,13 +217,15 @@ const generateMockResults = (): AgentResult[] => {
       agent_name: "Orchestrator Agent",
       status: "completed",
       results: {
-        summary: "Orchestrated 7-agent pipeline processing. Total duration: 5.89s. System throughput: 51 insights/min. All 7 agents active, 0 failed tasks.",
+        summary: "Orchestrated 7-agent pipeline processing across 7 tracks. Total duration: 5.89s. System throughput: 51 insights/min. All 7 agents active, 0 failed tasks. Processed 41.9M telemetry data points from COTA, Barber, Sebring, Indianapolis, Road America, Sonoma, and VIR.",
         key_metrics: {
           "Agents Active": 7,
           "Tasks Processed": 42,
           "Total Duration": "5.89s",
           "Throughput": "51 insights/min",
-          "Error Rate": "0%"
+          "Error Rate": "0%",
+          "Tracks Processed": 7,
+          "Total Data Points": "41.9M"
         },
         insights: [
           "Pipeline execution: demo_data.json processing completed in 5.89s",
@@ -218,7 +233,10 @@ const generateMockResults = (): AgentResult[] => {
           "Data flow: 8,472 input samples → 12 aggregate windows → 5 insights → 1 final recommendation",
           "Routing: 7 tasks routed, 6 affinity matches, 1 load-balanced, 0 failed tasks",
           "System metrics: 1,120ms avg processing time, 87% agent utilization, 0% error rate",
-          "Queue status: 3 tasks pending, 8 results ready, all agent inboxes healthy"
+          "Queue status: 3 tasks pending, 8 results ready, all agent inboxes healthy",
+          "Multi-track processing: COTA (3.1M rows), Barber (2.8M rows), Sebring (2.9M rows), Indianapolis (3.4M rows)",
+          "Road America (2.7M rows), Sonoma (2.6M rows), VIR (2.8M rows) - all processed successfully",
+          "Total unique vehicles analyzed: 397 across all 7 tracks"
         ],
         confidence: 0.95,
         processing_time_ms: 5890

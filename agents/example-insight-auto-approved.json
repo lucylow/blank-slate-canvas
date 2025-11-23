@@ -1,0 +1,52 @@
+{
+  "type": "insight_update",
+  "data": {
+    "id": "insight-1705789300.456",
+    "title": "Moderate Tire Wear Detected",
+    "severity": "low",
+    "score": 0.25,
+    "explanation": "Predicted tire loss: 0.25s per lap. Estimated 2.0 laps until 0.5s cumulative loss.",
+    "approval_status": "auto_approved",
+    "requires_review": false,
+    "review_priority": "low",
+    "auto_approval_threshold": 0.75,
+    "top_features": [
+      {
+        "name": "tire_stress_s2",
+        "value": 0.25,
+        "importance": 0.20
+      },
+      {
+        "name": "brake_energy",
+        "value": 0.15,
+        "importance": 0.12
+      }
+    ],
+    "recommendation": {
+      "one_liner": "Monitor tire wear - pit window opening in 2-3 laps",
+      "bullets": [
+        "Optimal pit window: Lap 10-12",
+        "Continue monitoring",
+        "No immediate action required"
+      ],
+      "voiceover_script": "Monitor tire wear - pit window opening in 2-3 laps. Optimal pit window: Lap 10-12. Continue monitoring. No immediate action required."
+    },
+    "evidence": [
+      {
+        "meta_time": "2025-01-20T15:31:45.123Z",
+        "lap": 8,
+        "sector": "S2",
+        "sample_idx": 1456,
+        "trace": {
+          "speed_kmh": 180.2,
+          "lateral_g": 1.1,
+          "tire_stress": 0.45
+        }
+      }
+    ],
+    "model_version": "tire-v1.0",
+    "timestamp": "2025-01-20T15:31:50.000Z"
+  },
+  "timestamp": "2025-01-20T15:31:50.000Z"
+}
+

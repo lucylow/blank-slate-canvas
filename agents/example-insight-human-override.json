@@ -1,0 +1,70 @@
+{
+  "type": "insight_update",
+  "data": {
+    "id": "insight-1705789400.789",
+    "title": "Tire Degradation Detected",
+    "severity": "high",
+    "score": 0.65,
+    "explanation": "Predicted tire loss: 0.65s per lap. Estimated 0.77 laps until 0.5s cumulative loss.",
+    "approval_status": "approved",
+    "requires_review": true,
+    "review_priority": "high",
+    "reviewer_id": "engineer-001",
+    "reviewed_at": "2025-01-20T15:32:15.000Z",
+    "review_notes": "Reviewed telemetry - driver reports good tire feel. Deferring pit stop by 1 lap based on driver feedback.",
+    "human_override": {
+      "action": "modified",
+      "reason": "Driver feedback contradicts model prediction - driver reports tires feel good",
+      "modified_recommendation": {
+        "one_liner": "Monitor closely - pit on Lap 9 (1 lap delay)",
+        "bullets": [
+          "Deferred pit stop: Lap 9 (was Lap 8)",
+          "Driver reports good tire feel",
+          "Monitor for next 2 laps",
+          "Re-evaluate if degradation accelerates"
+        ],
+        "voiceover_script": "Monitor closely - pit on Lap 9. Deferred pit stop: Lap 9. Driver reports good tire feel. Monitor for next 2 laps. Re-evaluate if degradation accelerates."
+      },
+      "timestamp": "2025-01-20T15:32:15.000Z",
+      "reviewer_id": "engineer-001"
+    },
+    "top_features": [
+      {
+        "name": "tire_stress_s2",
+        "value": 0.65,
+        "importance": 0.38
+      },
+      {
+        "name": "brake_energy",
+        "value": 0.28,
+        "importance": 0.25
+      }
+    ],
+    "recommendation": {
+      "one_liner": "Recommendation: Pit on lap 8 (optimal window)",
+      "bullets": [
+        "Optimal pit window: Lap 8",
+        "Estimated time saved: 2.3s",
+        "Monitor tire stress in sectors 2 and 3"
+      ],
+      "voiceover_script": "Recommendation: Pit on lap 8 (optimal window). Optimal pit window: Lap 8. Estimated time saved: 2.3s. Monitor tire stress in sectors 2 and 3."
+    },
+    "evidence": [
+      {
+        "meta_time": "2025-01-20T15:32:00.123Z",
+        "lap": 7,
+        "sector": "S2",
+        "sample_idx": 1567,
+        "trace": {
+          "speed_kmh": 182.5,
+          "lateral_g": 1.3,
+          "tire_stress": 0.78
+        }
+      }
+    ],
+    "model_version": "tire-v1.0",
+    "timestamp": "2025-01-20T15:32:00.000Z"
+  },
+  "timestamp": "2025-01-20T15:32:00.000Z"
+}
+

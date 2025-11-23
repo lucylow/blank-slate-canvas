@@ -4,13 +4,15 @@ interface UseTelemetryWebSocketOptions {
   url?: string;
   reconnectInterval?: number;
   maxReconnectAttempts?: number;
+  enabled?: boolean;
 }
 
 export const useTelemetryWebSocket = (options: UseTelemetryWebSocketOptions = {}) => {
   const {
     url = import.meta.env.VITE_WS_URL || 'ws://localhost:8080',
     reconnectInterval = 3000,
-    maxReconnectAttempts = 10
+    maxReconnectAttempts = 10,
+    enabled = true
   } = options;
 
   const [ws, setWs] = useState<WebSocket | null>(null);
@@ -20,7 +22,7 @@ export const useTelemetryWebSocket = (options: UseTelemetryWebSocketOptions = {}
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!url || url.trim() === '') {
+    if (!enabled || !url || url.trim() === '') {
       return;
     }
 
@@ -91,7 +93,7 @@ export const useTelemetryWebSocket = (options: UseTelemetryWebSocketOptions = {}
       setWs(null);
       setConnected(false);
     };
-  }, [url, reconnectInterval, maxReconnectAttempts]);
+  }, [url, reconnectInterval, maxReconnectAttempts, enabled]);
 
   return ws;
 };

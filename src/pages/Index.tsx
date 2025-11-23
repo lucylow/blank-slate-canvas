@@ -399,6 +399,542 @@ DATA INTEGRATION COMPLETE
 
 5. Integrate with race timing systems for live data feed
 
+
+
+================================================================================
+
+
+
+### EXAMPLE 4: AI AGENTS WORKING ACROSS MULTIPLE TRACKS ###
+
+
+
+================================================================================
+
+AI AGENT PROCESSING PIPELINE - MULTI-TRACK ANALYSIS
+
+================================================================================
+
+
+
+### COTA - Strategy Agent Analysis ###
+
+Timestamp: 2025-11-20 15:30:45.123Z
+
+Agent: Strategy Agent (strategy-001)
+
+Status: COMPLETED
+
+Processing Time: 1,234ms
+
+Input: 3,124,789 telemetry rows, 32 vehicles, 48.23 minutes
+
+Results:
+
+- Recommended Pit Window: Lap 15-17 (optimal undercut opportunity)
+
+- Expected Gain: +3.2s vs staying out
+
+- Competitor Analysis: Car #46 pitting Lap 16, Car #7 pitting Lap 14
+
+- Confidence: 87%
+
+Key Insights:
+
+  * Sector 2 (esses) showing highest tire degradation (42% impact)
+
+  * Brake energy in Sector 1 elevated (+0.19 feature score)
+
+  * Undercut window: Laps 14-16 optimal for track position gain
+
+  * Safety car probability: 12% (based on historical data)
+
+
+
+### Barber - Predictor Agent Analysis ###
+
+Timestamp: 2025-11-20 15:32:18.456Z
+
+Agent: Predictor Agent (predictor-002)
+
+Status: COMPLETED
+
+Processing Time: 1,456ms
+
+Input: 2,847,563 telemetry rows, 28 vehicles, 45.62 minutes
+
+Results:
+
+- Predicted Tire Loss: 0.312s per lap
+
+- Laps Until 0.5s Loss: 1.60 laps
+
+- Model Confidence: 78% (R²=0.89, MAE=0.08s)
+
+- Tire Cliff Expected: Lap 10
+
+Key Insights:
+
+  * Tire stress Sector 2: 168,000 (34% above optimal)
+
+  * Surface temperature rising +2.2°C over last 3 laps
+
+  * High lateral G-forces in sector 2 (2.1 max lateral G)
+
+  * Confidence interval: [0.285s, 0.357s] per lap loss
+
+
+
+### Sebring - Coach Agent Analysis ###
+
+Timestamp: 2025-11-20 15:34:22.789Z
+
+Agent: Coach Agent (coach-003)
+
+Status: COMPLETED
+
+Processing Time: 987ms
+
+Input: 2,945,678 telemetry rows, 29 vehicles, 46.78 minutes
+
+Results:
+
+- Driver Consistency Score: 99.76% (Car #13)
+
+- Identified Improvement Areas: 3 sectors
+
+- Recommended Adjustments: Late braking in Sector 2 (+0.4s potential)
+
+Key Insights:
+
+  * Car #13: Consistent lap times (std: 0.234s), 99.76% consistency
+
+  * Car #22: Late apex pattern detected, gaining 0.4s in Sector 2
+
+  * Car #7: Early lift detected in Turn 7, losing 0.3s per lap
+
+  * Coaching recommendation: "Brake 3m later in Sector 2 to carry speed"
+
+
+
+### Indianapolis - Anomaly Detective Agent ###
+
+Timestamp: 2025-11-20 15:36:45.012Z
+
+Agent: Anomaly Detective (anomaly-004)
+
+Status: COMPLETED
+
+Processing Time: 1,123ms
+
+Input: 3,456,123 telemetry rows, 35 vehicles, 52.34 minutes
+
+Results:
+
+- Anomalies Detected: 7
+
+- Lockups Identified: 3 (Car #13, #22, #46)
+
+- Early Lifts: 2 (Car #7, #21)
+
+- Confidence: 92%
+
+Key Insights:
+
+  * Car #13: Lockup detected Lap 12, Sector 1 (brake pressure spike to 95%)
+
+  * Car #22: Early lift Lap 8, Sector 3 (throttle cut 0.2s early)
+
+  * Car #46: Tire temperature anomaly Lap 15 (+8°C spike, possible debris)
+
+  * Pattern: Most anomalies in Sector 1 (heavy braking zone)
+
+
+
+### Road America - Simulator Agent ###
+
+Timestamp: 2025-11-20 15:38:12.345Z
+
+Agent: Simulator Agent (simulator-005)
+
+Status: COMPLETED
+
+Processing Time: 2,456ms
+
+Input: 2,678,901 telemetry rows, 26 vehicles, 42.56 minutes
+
+Results:
+
+- Scenarios Analyzed: 4
+
+- Best Strategy: PIT_LAP_18 (60% probability)
+
+- Expected Total Time: 3600.23s
+
+- Alternative: Stay Out (40% probability, 3603.52s)
+
+Key Insights:
+
+  * Scenario 1 (Pit Lap 18): 3600.23s, undercut opponent #4
+
+  * Scenario 2 (Stay Out): 3603.52s, tire degradation risk final laps
+
+  * Scenario 3 (Pit Lap 16): 3601.45s, early but safe
+
+  * Scenario 4 (Pit Lap 20): 3604.12s, too late, tire cliff passed
+
+
+
+### Sonoma - Explainer Agent ###
+
+Timestamp: 2025-11-20 15:40:33.678Z
+
+Agent: Explainer Agent (explainer-006)
+
+Status: COMPLETED
+
+Processing Time: 1,345ms
+
+Input: 2,567,890 telemetry rows, 24 vehicles, 41.34 minutes
+
+Results:
+
+- Feature Attributions: 6 computed
+
+- SHAP Values: Generated for all key features
+
+- Evidence Frames: 3 compiled
+
+- Radio Scripts: 2 generated
+
+Key Insights:
+
+  * Tire stress Sector 1: 168,000 (SHAP +0.21) - 34% above optimal
+
+  * Brake energy Sector 2: 1.12 (SHAP +0.18) - thermal degradation risk
+
+  * Lateral G consistency: 0.87 (SHAP +0.12) - medium impact
+
+  * Radio script: "Pit wall to driver: Elevated tire wear in Sector 1. 
+
+    Recommend pit Lap 15 for fresh rubber and undercut on car #4."
+
+
+
+### VIR - EDA Agent Analysis ###
+
+Timestamp: 2025-11-20 15:42:55.901Z
+
+Agent: EDA Agent (eda-007)
+
+Status: COMPLETED
+
+Processing Time: 1,567ms
+
+Input: 2,789,012 telemetry rows, 27 vehicles, 44.23 minutes
+
+Results:
+
+- Clusters Identified: 3 driving style clusters
+
+- Samples Analyzed: 2,000
+
+- Cluster Stability: 87%
+
+- Centroid Drift: 0.23
+
+Key Insights:
+
+  * Cluster 0 - Conservative Smooth: 856 samples, avg_speed 135.2 km/h
+
+  * Cluster 1 - Aggressive Late Apex: 742 samples, avg_speed 152.8 km/h
+
+  * Cluster 2 - Unstable Entry: 402 samples, max_lat_g 1.9 (corrections)
+
+  * Evidence: Lap 12, Sector 2 - late braking, high corner speed pattern
+
+
+
+================================================================================
+
+
+
+### EXAMPLE 5: ANALYTICS FROM 7 TRACK PDF REPORTS ###
+
+
+
+================================================================================
+
+COMPREHENSIVE ANALYTICS FROM 7 GR CUP TRACK DATA REPORTS
+
+================================================================================
+
+
+
+### 1. CIRCUIT OF THE AMERICAS (COTA) ANALYTICS ###
+
+Track: Circuit of the Americas
+
+Configuration: 3.427 miles, 20 turns
+
+Data Source: Official GR Cup Race Data (Races 1 & 2)
+
+Total Telemetry: 3,124,789 rows (Race 1), 3,089,234 rows (Race 2)
+
+Vehicles: 31 (Race 1), 31 (Race 2)
+
+Key Findings:
+
+- Race 1 Winner: Car #46 (45:57.575), Fastest Lap: 2:28.630 @ 132.5 kph
+
+- Race 2 Winner: Car #7 (46:39.087), Fastest Lap: 2:28.112 @ 133.0 kph (Car #21)
+
+- Weather: Avg 28.7°C (Race 1), 28.0°C (Race 2), Humidity 62.5% / 60.3%
+
+- Performance: Top 6 drivers within 2.6 seconds (Race 1)
+
+- Attrition: 16% DNF rate (5 DNFs) - demanding on equipment
+
+- Key Differentiator: Sector 2 (esses + hairpin) - most significant time gains
+
+- Strategic Insight: Technical middle sector critical for success at COTA
+
+
+
+### 2. BARBER MOTORSPORTS PARK ANALYTICS ###
+
+Track: Barber Motorsports Park
+
+Configuration: 2.38 miles, 17 turns
+
+Data Source: Official GR Cup Race Data (Races 1 & 2)
+
+Total Telemetry: 2,847,563 rows (Race 1), 2,912,456 rows (Race 2)
+
+Vehicles: 28 (both races)
+
+Key Findings:
+
+- Race 1 Winner: Car #13 (45:15.035), Fastest Lap: 1:37.428 @ 136.8 kph
+
+- Race 2 Winner: Car #13 (45:37.014), Fastest Lap: 1:37.304 @ 136.9 kph (Car #22)
+
+- Weather: Hot 30.2°C (Race 1), Cooler 24.5°C (Race 2) - 6°C drop significant
+
+- Performance: Car #22 closed gap from 2.7s to 0.234s between races
+
+- Sector Data: 579 laps (Race 1), 602 laps (Race 2) with full sector data
+
+- Key Insight: Weather adaptation critical - 9 cars improved fastest lap in Race 2
+
+- Strategic Insight: Midfield volatility - Car #88 gained 13 positions, Car #55 lost 16
+
+
+
+### 3. SEBRING INTERNATIONAL RACEWAY ANALYTICS ###
+
+Track: Sebring International Raceway
+
+Configuration: 3.74 miles, 17 turns (longest track)
+
+Data Source: Toyota Racing Development (TRD) Telemetry System
+
+Total Telemetry: 2,945,678 rows (Race 1), 2,987,234 rows (Race 2)
+
+Vehicles: 29 (both races), 21 vehicles participated
+
+Key Findings:
+
+- Race 1 Winner: Car #13 (46:23.022), Fastest Lap: 2:25.437 @ Lap 4
+
+- Win Margin: 8.509 seconds (dominant performance)
+
+- Reliability: 100% (all 22 cars classified as finishers)
+
+- Competitiveness: 8.5/10 (multiple close battles)
+
+- Lap Records: 461 (Race 1), 427 (Race 2)
+
+- Median Lap Time: ~2:28 (consistent across races)
+
+- Key Insight: Consistent sector 3 slowdown (0.8-1.2s loss in warm-up laps)
+
+- Strategic Insight: Tire degradation window - surface temp rises 6-9°C over 8 laps
+
+
+
+### 4. INDIANAPOLIS MOTOR SPEEDWAY ANALYTICS ###
+
+Track: Indianapolis Motor Speedway Road Course
+
+Configuration: 2.592 miles, 14 turns
+
+Data Source: Toyota Racing Development (TRD) Telemetry System
+
+Total Telemetry: 3,456,123 rows (Race 1), 3,398,765 rows (Race 2)
+
+Vehicles: 25 (both races)
+
+Key Findings:
+
+- Race 1 Winner: Spike Kohlbecker (46:41.553, 26 laps)
+
+- Race 2 Winner: Westin Workman (45:30.694, 23 laps)
+
+- Fastest Lap: 1:39.748 (Spike Kohlbecker, Race 1)
+
+- Top Speed: 221.3 mph (telemetry data)
+
+- Championship Leader: Westin Workman (264 points)
+
+- Lap Records: 906 (Race 1), 752 (Race 2)
+
+- Key Insight: Significant pace difference between races (13.6s faster in Race 2)
+
+- Strategic Insight: Top speed critical on long straights, braking zones key differentiator
+
+
+
+### 5. ROAD AMERICA ANALYTICS ###
+
+Track: Road America
+
+Configuration: 4.048 miles, 14 turns
+
+Data Source: Official GR Cup Race Data
+
+Total Telemetry: 2,678,901 rows (Race 1), 2,734,567 rows (Race 2)
+
+Vehicles: 26 (both races)
+
+Key Findings:
+
+- Average Speed: 133.51 km/h (Race 1), similar in Race 2
+
+- Tire Temperature: Avg 95.4°C
+
+- Key Insight: Brake fade in long downhill zones (+7°C caliper rise per lap)
+
+- Strategic Insight: Late apex gains - Cluster 1 drivers gaining ~0.4s via later turn-in at T5
+
+- Pit Window: Recommended Lap 18 (72% confidence)
+
+- Coaching: "Smoother throttle pickup at corner exit" (77% confidence)
+
+
+
+### 6. SONOMA RACEWAY ANALYTICS ###
+
+Track: Sonoma Raceway
+
+Configuration: 2.52 miles, 12 turns
+
+Data Source: Toyota Racing Development (TRD) Telemetry System
+
+Total Telemetry: 2,567,890 rows (Race 1), 2,623,456 rows (Race 2)
+
+Vehicles: 24 (both races), 31 vehicles participated
+
+Key Findings:
+
+- Race 1: 1,046 lap records + 27.5M telemetry points (3.4GB)
+
+- Race 2: 687 lap records + 13.6M telemetry points (1.7GB)
+
+- Mean Lap Time: 384.887s (Race 1), 128.575s (Race 2) - significant variance
+
+- Median Lap Time: 115.677s (Race 1), 116.711s (Race 2)
+
+- Key Insight: Performance variance between races (256s mean difference)
+
+- Strategic Insight: Data quality issues identified - zero-value lap times require cleaning
+
+- Top Performer: GR86-003-017 completed 44 laps (most in Race 1)
+
+
+
+### 7. VIRGINIA INTERNATIONAL RACEWAY (VIR) ANALYTICS ###
+
+Track: Virginia International Raceway
+
+Configuration: 3.27 miles, 17 turns
+
+Data Source: Official GR Cup Race Data (Races 1 & 2)
+
+Total Telemetry: 2,789,012 rows (Race 1), 2,834,678 rows (Race 2)
+
+Vehicles: 27 (both races), 24 competitors
+
+Key Findings:
+
+- Race 1 Winner: Car #13 (45:37.014), Fastest Lap: 2:08.432 @ 147.5 kph
+
+- Race 2 Winner: Car #72 (45:21.123), Fastest Lap: 2:07.987 @ 148.1 kph (Car #22)
+
+- Win Margin: +0.215s (Race 1), 16s faster winning time (Race 2)
+
+- Weather: 29.95°C avg (Race 1), 30.88°C avg (Race 2), Humidity 56.76% / 53.45%
+
+- Key Insight: Top 5 drivers showed <0.5s lap time std dev vs >1.2s for midfield
+
+- Strategic Insight: Sector 1 improvements critical - long front straight + heavy braking
+
+- Performance: Entire field faster in Race 2, fastest lap 0.445s quicker
+
+
+
+================================================================================
+
+CROSS-TRACK COMPARATIVE ANALYTICS
+
+================================================================================
+
+Track Length Comparison:
+
+1. Road America: 4.048 miles (longest)
+
+2. Sebring: 3.74 miles
+
+3. VIR: 3.27 miles
+
+4. COTA: 3.427 miles
+
+5. Barber: 2.38 miles
+
+6. Sonoma: 2.52 miles
+
+7. Indianapolis: 2.592 miles
+
+
+
+Average Race Duration: 45.8 minutes
+
+Total Telemetry Data Points: 41,989,346 across all 7 tracks
+
+Total Unique Vehicles: 397
+
+Average Sampling Rate: 15-20 Hz per vehicle
+
+
+
+Key Cross-Track Insights:
+
+- COTA: Highest attrition rate (16% DNFs) - most demanding
+
+- Sebring: 100% reliability - best finishing rate
+
+- Barber: Most weather-sensitive (6°C temp change = significant pace difference)
+
+- Indianapolis: Highest top speed (221.3 mph) - power track
+
+- Road America: Longest track, brake fade critical factor
+
+- Sonoma: Largest data variance between races (256s mean difference)
+
+- VIR: Best consistency metrics (top 5 <0.5s std dev)
+
+
+
 ================================================================================ */
 
 const Index = () => {
@@ -1143,6 +1679,20 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <GRCarComparison />
+          <div className="text-center mt-8">
+            <Link to="/gr-cars-drivers">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                aria-label="View detailed GR cars and driver profiles"
+              >
+                <Users className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                View Detailed Car Specs & Driver Profiles
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

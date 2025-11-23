@@ -29,6 +29,7 @@ import GRTelemetryDashboard from "./pages/GRTelemetryDashboard";
 import AISummaryReports from "./pages/AISummaryReports";
 import PitWindowOptimization from "./pages/PitWindowOptimization";
 import LovableCloudConfig from "./pages/LovableCloudConfig";
+import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,6 +113,9 @@ const App = () => (
                     
                     {/* Pit Window Optimization - Monte Carlo simulation with traffic-aware recommendations */}
                     <Route path="/pit-window" element={<PitWindowOptimization />} />
+                    
+                    {/* GR Cars & Drivers - Car specifications and driver profiles */}
+                    <Route path="/gr-cars-drivers" element={<GRCarsAndDrivers />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />

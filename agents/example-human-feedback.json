@@ -1,0 +1,33 @@
+{
+  "type": "human_feedback",
+  "data": {
+    "feedback_id": "feedback-001",
+    "insight_id": "insight-1705789400.789",
+    "reviewer_id": "engineer-001",
+    "reviewer_name": "Sarah Chen",
+    "action": "modified",
+    "reason": "Driver feedback contradicts model prediction - tires feel good. Driver has good track record of tire feel assessment.",
+    "confidence_adjustment": -0.15,
+    "original_score": 0.65,
+    "adjusted_score": 0.50,
+    "modified_recommendation": {
+      "one_liner": "Monitor closely - pit on Lap 9 (1 lap delay)",
+      "bullets": [
+        "Deferred pit stop: Lap 9 (was Lap 8)",
+        "Driver reports good tire feel",
+        "Monitor for next 2 laps",
+        "Re-evaluate if degradation accelerates"
+      ],
+      "voiceover_script": "Monitor closely - pit on Lap 9. Deferred pit stop: Lap 9. Driver reports good tire feel. Monitor for next 2 laps. Re-evaluate if degradation accelerates."
+    },
+    "learning_note": "Driver feedback valuable - consider adding driver input to model. This driver (GR86-002) has historically accurate tire feel assessment.",
+    "feedback_categories": [
+      "driver_feedback",
+      "model_confidence_adjustment",
+      "strategy_modification"
+    ],
+    "timestamp": "2025-01-20T15:32:15.000Z"
+  },
+  "timestamp": "2025-01-20T15:32:15.000Z"
+}
+

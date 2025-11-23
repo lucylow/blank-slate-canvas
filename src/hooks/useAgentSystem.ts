@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTelemetryWebSocket } from './useTelemetryWebSocket';
 import { getWsUrl } from '@/utils/wsUrl';
+import { useDemoMode } from './useDemoMode';
+import { 
+  generateAgentSystemMockData, 
+  generateMockInsights,
+  generateMockQueueStats,
+  type MockAgent,
+  type MockInsight,
+  type MockQueueStats
+} from '@/lib/mockDemoData';
 
 interface Agent {
   id: string;
@@ -73,10 +82,95 @@ export const useAgentSystem = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const insightsRef = useRef<Insight[]>([]);
-  const ws = useTelemetryWebSocket({ url: getWsUrl('/telemetry') });
+  const { isDemoMode } = useDemoMode();
+  const ws = useTelemetryWebSocket({ 
+    url: getWsUrl('/telemetry'),
+    enabled: !isDemoMode 
+  });
 
-  // Fetch agent status periodically
+  // Convert MockAgent to Agent
+  const convertMockAgent = (mock: MockAgent): Agent => ({
+    id: mock.id,
+    status: mock.status,
+    types: mock.types,
+    tracks: mock.tracks,
+    capacity: mock.capacity,
+  });
+
+  // Convert MockInsight to Insight
+  const convertMockInsight = (mock: MockInsight): Insight => ({
+    insight_id: mock.insight_id,
+    decision_id: mock.decision_id,
+    track: mock.track,
+    chassis: mock.chassis,
+    created_at: mock.created_at,
+    priority: mock.priority,
+    type: mock.type,
+    decision_type: mock.decision_type,
+    agent_id: mock.agent_id,
+    agent_type: mock.agent_type,
+    action: mock.action,
+    confidence: mock.confidence,
+    risk_level: mock.risk_level,
+    reasoning: mock.reasoning,
+    evidence: mock.evidence,
+    alternatives: mock.alternatives,
+    predictions: mock.predictions ? {
+      predicted_loss_per_lap_seconds: mock.predictions.predicted_loss_per_lap_seconds,
+      laps_until_0_5s_loss: mock.predictions.laps_until_0_5s_loss,
+    } : undefined,
+    explanation: mock.explanation,
+  });
+
+  // Convert MockQueueStats to QueueStats
+  const convertMockQueueStats = (mock: MockQueueStats): QueueStats => ({
+    tasksLength: mock.tasksLength,
+    resultsLength: mock.resultsLength,
+    inboxLengths: mock.inboxLengths,
+  });
+
+  // Initialize mock data in demo mode
   useEffect(() => {
+    if (isDemoMode) {
+      const mockData = generateAgentSystemMockData();
+      setAgents(mockData.agents.map(convertMockAgent));
+      setInsights(mockData.insights.map(convertMockInsight));
+      insightsRef.current = mockData.insights.map(convertMockInsight);
+      setQueueStats(convertMockQueueStats(mockData.queueStats));
+
+      // Simulate periodic updates in demo mode
+      const interval = setInterval(() => {
+        // Occasionally add new insights
+        if (Math.random() > 0.7) {
+          const newInsights = generateMockInsights(1);
+          const convertedInsights = newInsights.map(convertMockInsight);
+          setInsights(prev => {
+            const updated = [...convertedInsights, ...prev].slice(0, 50);
+            insightsRef.current = updated;
+            return updated;
+          });
+        }
+        
+        // Update queue stats occasionally
+        if (Math.random() > 0.8) {
+          const currentAgents = mockData.agents.map(convertMockAgent);
+          const newStats = generateMockQueueStats(mockData.agents);
+          setQueueStats(convertMockQueueStats(newStats));
+        }
+      }, 5000);
+
+      return () => clearInterval(interval);
+    } else {
+      // Clear mock data when switching to live mode
+      setInsights([]);
+      insightsRef.current = [];
+    }
+  }, [isDemoMode]);
+
+  // Fetch agent status periodically (live mode only)
+  useEffect(() => {
+    if (isDemoMode) return;
+
     const fetchAgentStatus = async () => {
       try {
         // Use the API client from pitwall.ts
@@ -95,11 +189,11 @@ export const useAgentSystem = () => {
     fetchAgentStatus();
     const interval = setInterval(fetchAgentStatus, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isDemoMode]);
 
-  // Handle WebSocket messages
+  // Handle WebSocket messages (live mode only)
   useEffect(() => {
-    if (!ws) return;
+    if (isDemoMode || !ws) return;
 
     const handleMessage = (event: MessageEvent) => {
       try {
@@ -141,10 +235,20 @@ export const useAgentSystem = () => {
 
     ws.addEventListener('message', handleMessage);
     return () => ws.removeEventListener('message', handleMessage);
-  }, [ws]);
+  }, [ws, isDemoMode]);
 
   const fetchInsightDetails = useCallback(async (insightId: string) => {
     try {
+      if (isDemoMode) {
+        // In demo mode, find the insight from existing insights
+        const existingInsight = insightsRef.current.find(i => i.insight_id === insightId);
+        if (existingInsight) {
+          setSelectedInsight(existingInsight);
+          setIsModalOpen(true);
+        }
+        return;
+      }
+
       const { getInsightDetails } = await import('@/api/pitwall');
       const response = await getInsightDetails(insightId);
       const detail = response.insight;
@@ -180,7 +284,7 @@ export const useAgentSystem = () => {
     } catch (error) {
       console.error('Failed to fetch insight details:', error);
     }
-  }, []);
+  }, [isDemoMode]);
 
   const submitTelemetry = useCallback(async (telemetryData: Record<string, unknown>) => {
     try {
@@ -199,7 +303,7 @@ export const useAgentSystem = () => {
 
   return {
     agents,
-    insights: insightsRef.current,
+    insights: insights, // Use state instead of ref for proper reactivity
     queueStats,
     selectedInsight,
     isModalOpen,
