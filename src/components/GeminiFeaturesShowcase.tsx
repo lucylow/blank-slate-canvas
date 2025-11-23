@@ -80,7 +80,7 @@ const features = [
   {
     icon: Brain,
     title: 'Advanced Race Data Analysis',
-    description: 'Leverage GPT-4 and advanced models for predictive insights, strategic recommendations, and comprehensive race data analysis.',
+    description: 'Leverage advanced A.I. models for predictive insights, strategic recommendations, and comprehensive race data analysis.',
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10',
   },

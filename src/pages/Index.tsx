@@ -844,7 +844,7 @@ const Index = () => {
                   : 'hover:text-primary'
               }`}
             >
-              Gemini AI
+              A.I. Features
               <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
                 activeSection === 'gemini-features' ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
@@ -1015,7 +1015,7 @@ const Index = () => {
                           : 'hover:text-primary hover:bg-accent/50'
                       }`}
                     >
-                      Gemini AI
+                      A.I. Features
                     </motion.a>
                     <motion.a
                       initial={{ opacity: 0, x: -20 }}
@@ -2349,7 +2349,7 @@ const Index = () => {
               AI-Powered Data Analytics
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Leverage OpenAI GPT-4 and Google Gemini for advanced race data analysis, 
+              Leverage advanced A.I. for advanced race data analysis, 
               predictive insights, and strategic recommendations
             </p>
           </div>
