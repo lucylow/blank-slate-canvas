@@ -263,6 +263,14 @@ try:
 except ImportError as e:
     logger.warning(f"Twilio router not available: {e}")
 
+# Import and include maps router (Mapping & Location APIs)
+try:
+    from app.routes import maps, maps_ws
+    app.include_router(maps.router, tags=["Maps & Location"])
+    app.include_router(maps_ws.router, tags=["Maps WebSocket"])
+except ImportError as e:
+    logger.warning(f"Maps router not available: {e}")
+
 # Metrics endpoint - mount Prometheus ASGI app for better compatibility
 from prometheus_client import make_asgi_app
 metrics_app = make_asgi_app()

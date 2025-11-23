@@ -1,0 +1,88 @@
+{
+  "description": "Mock telemetry samples for testing map matching and enrichment",
+  "samples": [
+    {
+      "ts": 1699999200.0,
+      "lat": 27.4547,
+      "lon": -80.3478,
+      "speed_kmh": 210.2,
+      "rpm": 8000,
+      "can_brake": 0.2,
+      "brake": 0.2,
+      "throttle": 0.65,
+      "gear": 4
+    },
+    {
+      "ts": 1699999201.0,
+      "lat": 27.4550,
+      "lon": -80.3475,
+      "speed_kmh": 215.5,
+      "rpm": 8200,
+      "can_brake": 0.0,
+      "brake": 0.0,
+      "throttle": 0.75,
+      "gear": 4
+    },
+    {
+      "ts": 1699999202.0,
+      "lat": 27.4555,
+      "lon": -80.3470,
+      "speed_kmh": 220.1,
+      "rpm": 8500,
+      "can_brake": 0.0,
+      "brake": 0.0,
+      "throttle": 0.85,
+      "gear": 5
+    },
+    {
+      "ts": 1699999203.0,
+      "lat": 27.4560,
+      "lon": -80.3465,
+      "speed_kmh": 195.3,
+      "rpm": 7500,
+      "can_brake": 0.8,
+      "brake": 0.8,
+      "throttle": 0.1,
+      "gear": 4
+    },
+    {
+      "ts": 1699999204.0,
+      "lat": 27.4565,
+      "lon": -80.3460,
+      "speed_kmh": 180.5,
+      "rpm": 7000,
+      "can_brake": 0.9,
+      "brake": 0.9,
+      "throttle": 0.0,
+      "gear": 3
+    }
+  ],
+  "scenarios": {
+    "overtake": {
+      "description": "Overtaking maneuver sample",
+      "samples": [
+        {
+          "ts": 1699999300.0,
+          "lat": 27.4600,
+          "lon": -80.3400,
+          "speed_kmh": 205.0,
+          "offset_m": 3.5,
+          "sector": "s2"
+        }
+      ]
+    },
+    "pit_entry": {
+      "description": "Pit entry sample",
+      "samples": [
+        {
+          "ts": 1699999400.0,
+          "lat": 27.5000,
+          "lon": -80.3000,
+          "speed_kmh": 80.0,
+          "sector": "s3"
+        }
+      ]
+    }
+  }
+}
+
