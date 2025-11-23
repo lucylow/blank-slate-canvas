@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp } from "lucide-react";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

@@ -13,8 +13,11 @@ import { DemoButton } from '@/components/DemoButton';
 
 import { useBackendConfig } from '@/hooks/useBackendConfig';
 import { useLiveStream } from '@/hooks/useLiveStream';
+import { useDemoMode } from '@/hooks/useDemoMode';
+import { getBackendUrl } from '@/utils/backendUrl';
 
 export function Dashboard() {
+  const { isDemoMode } = useDemoMode();
   const { 
     config, 
     loading: configLoading, 
@@ -23,6 +26,12 @@ export function Dashboard() {
     retryCount: configRetryCount,
     maxRetries: configMaxRetries
   } = useBackendConfig();
+  
+  // Get the current backend URL for display
+  const backendUrl = getBackendUrl();
+  const viteBackendUrl = import.meta.env.VITE_BACKEND_URL;
+  const displayBackendUrl = viteBackendUrl || backendUrl || (import.meta.env.DEV ? 'http://localhost:8000 (via Vite proxy)' : 'Relative path (/api)');
+  
   const [selectedTrack, setSelectedTrack] = useState('sebring');
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
@@ -95,97 +104,8 @@ export function Dashboard() {
     );
   }
   
-  if (configError) {
-    return (
-      <div className="min-h-screen bg-background p-4 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)]" />
-        
-        <div className="max-w-3xl mx-auto mt-8 relative z-10 space-y-4">
-          <Alert 
-            variant={configError.type === 'server' && configError.statusCode && configError.statusCode >= 500 ? "destructive" : "default"} 
-            className="bg-card/60 backdrop-blur-md border-border/50"
-          >
-            <div className="flex items-start gap-3">
-              <div className={getErrorColor(configError.type)}>
-                {getErrorIcon(configError.type)}
-              </div>
-              <div className="flex-1">
-                <AlertTitle className="flex items-center gap-2">
-                  Configuration Error
-                  {configError.statusCode && (
-                    <span className="text-xs font-normal text-muted-foreground">
-                      (HTTP {configError.statusCode})
-                    </span>
-                  )}
-                </AlertTitle>
-                <AlertDescription className="mt-2 space-y-3">
-                  <div>
-                    <p className="font-medium mb-1">{configError.message}</p>
-                    {configError.details && (
-                      <p className="text-sm text-muted-foreground mt-1">{configError.details}</p>
-                    )}
-                  </div>
-                  
-                  <div className="bg-muted/50 p-3 rounded-md text-sm space-y-2">
-                    <p className="font-medium">Troubleshooting steps:</p>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                      <li>Verify your Python backend is running</li>
-                      <li>Check the API URL configuration via <code className="bg-background px-1 rounded">VITE_BACKEND_URL</code> environment variable</li>
-                      <li>Ensure the backend is accessible from your network</li>
-                      <li>Check backend logs for detailed error information</li>
-                      {configError.type === 'network' && (
-                        <li>Verify your internet connection and firewall settings</li>
-                      )}
-                      {configError.type === 'timeout' && (
-                        <li>The backend may be overloaded - try again in a few moments</li>
-                      )}
-                      {configError.statusCode === 404 && (
-                        <li>The configuration endpoint may not be available on this backend version</li>
-                      )}
-                      {configError.statusCode && configError.statusCode >= 500 && (
-                        <li>The backend server encountered an internal error - check server logs</li>
-                      )}
-                    </ul>
-                  </div>
-
-                  {configError.retryable && (
-                    <div className="flex items-center gap-3 pt-2">
-                      <Button
-                        onClick={retryConfig}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-2"
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                        Retry Connection
-                      </Button>
-                      {configRetryCount > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          Attempt {configRetryCount}/{configMaxRetries}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </AlertDescription>
-              </div>
-            </div>
-          </Alert>
-
-          {configError.type === 'network' && (
-            <Alert className="bg-blue-500/10 border-blue-500/20">
-              <Network className="h-4 w-4 text-blue-500" />
-              <AlertTitle className="text-blue-500">Network Issue Detected</AlertTitle>
-              <AlertDescription className="text-sm">
-                This appears to be a network connectivity problem. Check your connection and ensure the backend server is reachable.
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      </div>
-    );
-  }
+  // If config fails but we're in demo mode or want to continue anyway, show warning but allow continuation
+  const showConfigError = configError && !isDemoMode;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 relative overflow-hidden">
@@ -198,6 +118,93 @@ export function Dashboard() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
       
       <div className="max-w-7xl mx-auto relative z-10">
+        {/* Show config error as warning if in demo mode, otherwise show full error */}
+        {configError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Alert 
+              variant={showConfigError ? "destructive" : "default"} 
+              className="bg-card/60 backdrop-blur-md border-border/50"
+            >
+              <div className="flex items-start gap-3">
+                <div className={getErrorColor(configError.type)}>
+                  {getErrorIcon(configError.type)}
+                </div>
+                <div className="flex-1">
+                  <AlertTitle className="flex items-center gap-2">
+                    {isDemoMode ? 'Backend Configuration Warning' : 'Configuration Error'}
+                    {configError.statusCode && (
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (HTTP {configError.statusCode})
+                      </span>
+                    )}
+                  </AlertTitle>
+                  <AlertDescription className="mt-2 space-y-3">
+                    <div>
+                      <p className="font-medium mb-1">{configError.message}</p>
+                      {configError.details && (
+                        <p className="text-sm text-muted-foreground mt-1">{configError.details}</p>
+                      )}
+                      {isDemoMode && (
+                        <p className="text-sm text-primary mt-2 font-medium">
+                          Demo mode is active - dashboard will continue with demo data.
+                        </p>
+                      )}
+                    </div>
+                    
+                    {showConfigError && (
+                      <div className="bg-muted/50 p-3 rounded-md text-sm space-y-2">
+                        <p className="font-medium">Troubleshooting steps:</p>
+                        <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                          <li>Verify your Python backend is running</li>
+                          <li>Check the API URL configuration via <code className="bg-background px-1 rounded">VITE_BACKEND_URL</code> environment variable</li>
+                          <li>Ensure the backend is accessible from your network</li>
+                          <li>Check backend logs for detailed error information</li>
+                          <li>Try enabling demo mode using the Demo button above</li>
+                          {configError.type === 'network' && (
+                            <li>Verify your internet connection and firewall settings</li>
+                          )}
+                          {configError.type === 'timeout' && (
+                            <li>The backend may be overloaded - try again in a few moments</li>
+                          )}
+                          {configError.statusCode === 404 && (
+                            <li>The configuration endpoint may not be available on this backend version</li>
+                          )}
+                          {configError.statusCode && configError.statusCode >= 500 && (
+                            <li>The backend server encountered an internal error - check server logs</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
+                    {configError.retryable && (
+                      <div className="flex items-center gap-3 pt-2">
+                        <Button
+                          onClick={retryConfig}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Retry Connection
+                        </Button>
+                        {configRetryCount > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            Attempt {configRetryCount}/{configMaxRetries}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </AlertDescription>
+                </div>
+              </div>
+            </Alert>
+          </motion.div>
+        )}
+
         <motion.header 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -206,7 +213,9 @@ export function Dashboard() {
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
               <Activity className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Live Dashboard</span>
+              <span className="text-sm font-medium text-primary">
+                {isDemoMode ? 'Demo Dashboard' : 'Live Dashboard'}
+              </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
               PitWall A.I. Dashboard
