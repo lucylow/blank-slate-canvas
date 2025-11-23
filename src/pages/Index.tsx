@@ -26,6 +26,7 @@ import { GeminiFeaturesShowcase } from "@/components/GeminiFeaturesShowcase";
 import { GeminiMultimodalInput } from "@/components/GeminiMultimodalInput";
 import { processMultimodalInput } from "@/api/geminiMultimodal";
 import { GoogleMapsIntegration } from "@/components/GoogleMapsIntegration";
+import { GoogleMapsComprehensive } from "@/components/GoogleMapsComprehensive";
 import type { TrackId } from "@/lib/grCarTypes";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
@@ -1066,12 +1067,12 @@ const Index = () => {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <span className="text-sm font-medium text-primary">
-                  {agentStatus.agents.filter(a => a.status === 'active').length} AI Agents Active
+                  {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} AI Agents Active
                 </span>
               </div>
               <span className="text-muted-foreground">•</span>
               <span className="text-xs text-muted-foreground">
-                {agentStatus.agents.length} Total Agents
+                {agentStatus?.agents?.length ?? 0} Total Agents
               </span>
             </div>
           )}
@@ -1156,7 +1157,7 @@ const Index = () => {
                 AI Agents
                 {agentStatus?.agents && agentStatus.agents.length > 0 && (
                   <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
-                    {agentStatus.agents.filter(a => a.status === 'active').length} active
+                    {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} active
                   </span>
                 )}
               </Button>
@@ -2248,11 +2249,12 @@ const Index = () => {
               Google Maps Integration
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Maps Datasets API & Street View Publish API for enhanced track location data. 
-              Automatic fallback to OpenWeatherMap when cost optimization is needed.
+              Complete Google Maps Platform integration with all APIs: Air Quality, Solar, Weather, Pollen, 
+              Maps, Places, Routes, Elevation, Time Zone, Address Validation, and more. 
+              Comprehensive mock data fallbacks ensure all features work even without API keys.
             </p>
           </div>
-          <GoogleMapsIntegration />
+          <GoogleMapsComprehensive />
         </div>
       </section>
 

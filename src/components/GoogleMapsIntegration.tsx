@@ -2,7 +2,7 @@
 // Google Maps integration component with Maps Datasets API and Street View Publish API
 // Fallback to OpenWeatherMap when Google Maps API costs are a concern
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Card,
@@ -45,11 +45,7 @@ export function GoogleMapsIntegration() {
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [streetViewImages, setStreetViewImages] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    loadTracksData();
-  }, [useGoogleMaps]);
-
-  const loadTracksData = async () => {
+  const loadTracksData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -75,11 +71,15 @@ export function GoogleMapsIntegration() {
         setStreetViewImages(images);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load track data');
+      setError(err instanceof Error ? err.message : 'Failed to load tracks data');
     } finally {
       setLoading(false);
     }
-  };
+  }, [useGoogleMaps]);
+
+  useEffect(() => {
+    loadTracksData();
+  }, [loadTracksData]);
 
   const googleMapsAvailable = isGoogleMapsAvailable();
 

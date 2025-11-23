@@ -249,6 +249,20 @@ try:
 except ImportError as e:
     logger.warning(f"Weather router not available: {e}")
 
+# Import and include email router (Mailgun integration)
+try:
+    from app.routes import email
+    app.include_router(email.router, tags=["Email"])
+except ImportError as e:
+    logger.warning(f"Email router not available: {e}")
+
+# Import and include Twilio router (SMS, Voice, WhatsApp integration)
+try:
+    from app.routes import twilio
+    app.include_router(twilio.router, tags=["Twilio"])
+except ImportError as e:
+    logger.warning(f"Twilio router not available: {e}")
+
 # Metrics endpoint - mount Prometheus ASGI app for better compatibility
 from prometheus_client import make_asgi_app
 metrics_app = make_asgi_app()

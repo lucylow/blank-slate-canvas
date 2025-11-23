@@ -20,7 +20,8 @@
     "realtime-server": "node pitwall-dist/index.js",
     "realtime:dev": "nodemon pitwall-dist/index.js",
     "ai-summaries": "node server/ai-summaries/index.js",
-    "build-pdfs": "node tools/batch_build_pdfs.js"
+    "build-pdfs": "node tools/batch_build_pdfs.js",
+    "validate-secrets": "node scripts/validate_lovable_secrets.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -190,7 +190,7 @@ export function GeminiMultimodalInput({
   };
 
   // Process files
-  const processFiles = async (files: File[], type: 'image' | 'video' | 'audio') => {
+  const processFiles = useCallback(async (files: File[], type: 'image' | 'video' | 'audio') => {
     const MAX_SIZE = type === 'image' ? 20 * 1024 * 1024 : 40 * 1024 * 1024;
     
     for (const file of files) {
@@ -249,7 +249,7 @@ export function GeminiMultimodalInput({
         setAudio(prev => [...prev, mediaFile]);
       }
     }
-  };
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -302,7 +302,7 @@ export function GeminiMultimodalInput({
     if (images.length > 0) processFiles(images, 'image');
     if (videos.length > 0) processFiles(videos, 'video');
     if (audios.length > 0) processFiles(audios, 'audio');
-  }, []);
+  }, [processFiles]);
 
   // Audio player controls
   const toggleAudio = (id: string, url: string) => {
