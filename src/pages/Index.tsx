@@ -25,6 +25,7 @@ import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useQuery } from "@tanstack/react-query";
+import { generateMockAgentStatusResponse } from "@/lib/mockDemoData";
 
 /* ================================================================================
 
@@ -398,7 +399,15 @@ const Index = () => {
   // Fetch AI agent status for showcase
   const { data: agentStatus } = useQuery<AgentStatusResponse>({
     queryKey: ['agentStatus'],
-    queryFn: getAgentStatus,
+    queryFn: async () => {
+      try {
+        return await getAgentStatus();
+      } catch (error) {
+        // Fall back to mock data on error
+        console.warn('Failed to fetch agent status, using mock data:', error);
+        return generateMockAgentStatusResponse();
+      }
+    },
     enabled: !isDemoMode,
     refetchInterval: 30000,
     retry: 1,
