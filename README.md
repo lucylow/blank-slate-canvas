@@ -1560,4 +1560,897 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 📊 Database Schema & Data Models
+
+### Redis Streams Schema
+
+**Telemetry Stream** (`telemetry.stream`):
+```json
+{
+  "id": "1234567890-0",
+  "fields": {
+    "vehicle_id": "GR86-001",
+    "timestamp": "2025-11-19T20:58:00.000Z",
+    "lap": 12,
+    "sector": 1,
+    "accx_can": 0.5,
+    "accy_can": 1.2,
+    "speed_kmh": 150.5,
+    "pbrake_f": 850.2,
+    "pbrake_r": 420.1,
+    "rpm": 6500,
+    "steering_angle": 15.3,
+    "lapdist_m": 0.45
+  }
+}
+```
+
+**Results Stream** (`results.stream`):
+```json
+{
+  "id": "1234567891-0",
+  "fields": {
+    "agent_id": "predictor-01",
+    "task_id": "task-123",
+    "result_type": "tire_wear_prediction",
+    "timestamp": "2025-11-19T20:58:00.100Z",
+    "data": {
+      "tire_wear": {
+        "front_left": 78.5,
+        "front_right": 82.1,
+        "rear_left": 71.2,
+        "rear_right": 75.8
+      },
+      "confidence": 0.95,
+      "explanation": ["High lateral G-forces", "15 braking events", "Lap 12"]
+    }
+  }
+}
+```
+
+### PostgreSQL Schema
+
+**Vehicles Table**:
+```sql
+CREATE TABLE vehicles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id VARCHAR(50) UNIQUE NOT NULL,
+    vehicle_number INTEGER NOT NULL,
+    chassis_type VARCHAR(20),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+**Laps Table**:
+```sql
+CREATE TABLE laps (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id UUID REFERENCES vehicles(id),
+    lap_number INTEGER NOT NULL,
+    lap_time_ms INTEGER,
+    sector_1_ms INTEGER,
+    sector_2_ms INTEGER,
+    sector_3_ms INTEGER,
+    track_id VARCHAR(50),
+    race_id UUID,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+**Predictions Table**:
+```sql
+CREATE TABLE predictions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vehicle_id UUID REFERENCES vehicles(id),
+    lap_number INTEGER NOT NULL,
+    tire_wear_fl DECIMAL(5,2),
+    tire_wear_fr DECIMAL(5,2),
+    tire_wear_rl DECIMAL(5,2),
+    tire_wear_rr DECIMAL(5,2),
+    predicted_laps_remaining INTEGER,
+    confidence DECIMAL(3,2),
+    model_version VARCHAR(20),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## 🔍 Monitoring & Observability
+
+### Metrics Collection
+
+**Prometheus Metrics**:
+
+```python
+# Telemetry ingestion rate
+telemetry_points_total{source="udp", track="cota"} 10000
+
+# ML inference latency
+ml_inference_duration_seconds{model="tire_wear", quantile="0.95"} 0.008
+
+# Agent processing time
+agent_processing_duration_seconds{agent="predictor", quantile="0.95"} 0.100
+
+# Redis Streams lag
+redis_stream_lag_seconds{stream="telemetry.stream", consumer_group="processors"} 0.05
+
+# WebSocket connections
+websocket_connections_active{server="realtime-01"} 150
+```
+
+### Grafana Dashboards
+
+**Dashboard 1: System Overview**
+- Telemetry ingestion rate (points/sec)
+- ML inference latency (P50, P95, P99)
+- Redis Streams lag
+- Active WebSocket connections
+- Error rate by component
+
+**Dashboard 2: Agent Performance**
+- Agent processing time by type
+- Agent queue depth
+- Agent success/failure rate
+- Agent CPU and memory usage
+
+**Dashboard 3: Business Metrics**
+- Predictions generated per minute
+- Average prediction confidence
+- Pit window recommendations
+- Driver coaching alerts
+
+### Logging Architecture
+
+```mermaid
+graph TB
+    A[Application Logs<br/>JSON Format] --> B[Log Aggregator<br/>Fluentd/Fluent Bit]
+    B --> C[Elasticsearch<br/>Log Storage]
+    C --> D[Kibana<br/>Log Visualization]
+    
+    E[Error Logs] --> F[Alert Manager<br/>PagerDuty/Slack]
+    F --> G[On-Call Engineer]
+    
+    style C fill:#4ecdc4
+    style D fill:#ffe66d
+    style F fill:#ff6b6b
+```
+
+**Log Levels**:
+- **DEBUG**: Detailed diagnostic information
+- **INFO**: General informational messages
+- **WARN**: Warning messages for potential issues
+- **ERROR**: Error messages for failed operations
+- **CRITICAL**: Critical errors requiring immediate attention
+
+**Structured Logging Format**:
+```json
+{
+  "timestamp": "2025-11-19T20:58:00.000Z",
+  "level": "INFO",
+  "service": "telemetry-processor",
+  "component": "feature-extraction",
+  "message": "Feature extraction completed",
+  "metadata": {
+    "vehicle_id": "GR86-001",
+    "lap": 12,
+    "sector": 1,
+    "processing_time_ms": 5.2
+  }
+}
+```
+
+---
+
+## 🛠️ Advanced Configuration
+
+### Environment Variables
+
+**Backend Configuration**:
+```bash
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/pitwall
+DATABASE_POOL_SIZE=10
+
+# ML Model Configuration
+MODEL_PATH=/app/models/tire_wear.onnx
+MODEL_VERSION=v1.2.0
+BATCH_SIZE=100
+
+# Performance Tuning
+WORKER_THREADS=4
+RING_BUFFER_SIZE=20000
+SECTOR_AGGREGATION_INTERVAL_MS=300
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FORMAT=json
+```
+
+**Frontend Configuration**:
+```typescript
+// config/environment.ts
+export const config = {
+  apiUrl: process.env.VITE_API_URL || 'http://localhost:8000',
+  wsUrl: process.env.VITE_WS_URL || 'ws://localhost:8081',
+  enableAnalytics: process.env.VITE_ENABLE_ANALYTICS === 'true',
+  enableDebugMode: process.env.VITE_DEBUG === 'true',
+};
+```
+
+### Performance Tuning Guide
+
+**1. Redis Optimization**:
+```bash
+# Increase memory limit
+maxmemory 2gb
+maxmemory-policy allkeys-lru
+
+# Enable persistence (optional)
+save 900 1
+save 300 10
+save 60 10000
+
+# Tune TCP settings
+tcp-backlog 511
+tcp-keepalive 300
+```
+
+**2. Python Backend Optimization**:
+```python
+# Use uvloop for better async performance
+import uvloop
+uvloop.install()
+
+# Configure worker processes
+workers = (cpu_count() * 2) + 1
+worker_class = "uvicorn.workers.UvicornWorker"
+```
+
+**3. Node.js Optimization**:
+```javascript
+// Enable worker threads for CPU-intensive tasks
+const { Worker } = require('worker_threads');
+
+// Use cluster mode for multi-core
+const cluster = require('cluster');
+if (cluster.isMaster) {
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+}
+```
+
+---
+
+## 🔧 Troubleshooting Guide
+
+### Common Issues & Solutions
+
+#### Issue 1: High Redis Streams Lag
+
+**Symptoms**:
+- Predictions delayed by several seconds
+- Consumer group lag increasing
+
+**Diagnosis**:
+```bash
+# Check consumer group lag
+redis-cli XINFO GROUPS telemetry.stream
+
+# Check pending messages
+redis-cli XPENDING telemetry.stream telemetry-processors
+```
+
+**Solutions**:
+1. Increase number of consumer workers
+2. Optimize feature extraction code
+3. Scale Redis cluster horizontally
+4. Check for slow ML inference
+
+#### Issue 2: ML Inference Timeout
+
+**Symptoms**:
+- Predictions failing with timeout errors
+- High P99 latency
+
+**Diagnosis**:
+```python
+# Profile model inference
+import cProfile
+cProfile.run('model.predict(features)')
+```
+
+**Solutions**:
+1. Reduce batch size
+2. Use ONNX Runtime with optimized execution provider
+3. Enable model quantization (INT8)
+4. Use GPU acceleration if available
+
+#### Issue 3: WebSocket Connection Drops
+
+**Symptoms**:
+- Frontend losing real-time updates
+- Frequent reconnection attempts
+
+**Diagnosis**:
+```javascript
+// Check WebSocket connection health
+ws.on('error', (error) => {
+  console.error('WebSocket error:', error);
+});
+```
+
+**Solutions**:
+1. Increase WebSocket timeout
+2. Implement exponential backoff reconnection
+3. Add connection health checks
+4. Scale WebSocket server horizontally
+
+#### Issue 4: Memory Leaks
+
+**Symptoms**:
+- Memory usage continuously increasing
+- Application crashes after extended runtime
+
+**Diagnosis**:
+```python
+# Use memory profiler
+from memory_profiler import profile
+
+@profile
+def process_telemetry(data):
+    # Your code here
+    pass
+```
+
+**Solutions**:
+1. Clear Redis Streams regularly (XTRIM)
+2. Implement proper cleanup in async functions
+3. Use weak references where appropriate
+4. Monitor and limit cache sizes
+
+---
+
+## 📚 Integration Examples
+
+### Example 1: Custom Telemetry Source
+
+```python
+# custom_telemetry_source.py
+import asyncio
+from aioredis import Redis
+
+async def custom_telemetry_ingestion():
+    redis = await Redis.from_url("redis://localhost:6379")
+    
+    while True:
+        # Read from your custom source
+        telemetry_data = await read_from_custom_source()
+        
+        # Format for PitWall A.I.
+        message = {
+            "vehicle_id": telemetry_data["car_id"],
+            "timestamp": telemetry_data["timestamp"],
+            "lap": telemetry_data["lap_number"],
+            "accx_can": telemetry_data["longitudinal_g"],
+            "accy_can": telemetry_data["lateral_g"],
+            "speed_kmh": telemetry_data["speed"],
+            # ... other fields
+        }
+        
+        # Publish to Redis Streams
+        await redis.xadd(
+            "telemetry.stream",
+            message
+        )
+        
+        await asyncio.sleep(0.02)  # 50Hz
+```
+
+### Example 2: Custom ML Model Integration
+
+```python
+# custom_model_integration.py
+import onnxruntime as ort
+import numpy as np
+
+class CustomTireWearModel:
+    def __init__(self, model_path):
+        self.session = ort.InferenceSession(
+            model_path,
+            providers=['CPUExecutionProvider']
+        )
+    
+    def predict(self, features):
+        # Prepare input
+        input_data = np.array([features], dtype=np.float32)
+        
+        # Run inference
+        outputs = self.session.run(
+            None,
+            {self.session.get_inputs()[0].name: input_data}
+        )
+        
+        # Format output
+        return {
+            "front_left": float(outputs[0][0][0]),
+            "front_right": float(outputs[0][0][1]),
+            "rear_left": float(outputs[0][0][2]),
+            "rear_right": float(outputs[0][0][3])
+        }
+```
+
+### Example 3: Frontend Custom Component
+
+```typescript
+// components/CustomTelemetryViewer.tsx
+import { useQuery } from '@tanstack/react-query';
+import { useWebSocket } from '@/hooks/useWebSocket';
+
+export function CustomTelemetryViewer({ vehicleId }: { vehicleId: string }) {
+  const { data: telemetry } = useQuery({
+    queryKey: ['telemetry', vehicleId],
+    queryFn: () => fetch(`/api/telemetry/${vehicleId}`).then(r => r.json()),
+    refetchInterval: 1000
+  });
+  
+  const { lastMessage } = useWebSocket(`ws://localhost:8081/telemetry`);
+  
+  return (
+    <div>
+      <h2>Telemetry for {vehicleId}</h2>
+      <pre>{JSON.stringify(telemetry, null, 2)}</pre>
+      <div>Last Update: {lastMessage?.timestamp}</div>
+    </div>
+  );
+}
+```
+
+---
+
+## 🎓 Learning Resources
+
+### Documentation Links
+
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [React Documentation](https://react.dev/)
+- [Redis Streams Guide](https://redis.io/docs/data-types/streams/)
+- [ONNX Runtime Documentation](https://onnxruntime.ai/docs/)
+- [XGBoost Documentation](https://xgboost.readthedocs.io/)
+
+### Related Projects
+
+- **Formula 1 Data Analysis**: Similar telemetry analysis projects
+- **Racing Game AI**: AI strategies for racing games
+- **Real-Time Analytics**: High-throughput data processing systems
+
+### Academic Papers
+
+1. **Tire Wear Prediction in Motorsports**: Physics-informed ML approaches
+2. **Real-Time Telemetry Processing**: High-frequency data ingestion patterns
+3. **Monte Carlo Simulation for Strategy**: Optimization techniques
+
+---
+
+## 📈 Performance Optimization Techniques
+
+### 1. Caching Strategies
+
+**Multi-Level Cache**:
+```python
+# L1: In-memory cache (fastest)
+from functools import lru_cache
+
+@lru_cache(maxsize=1000)
+def get_track_metadata(track_id):
+    # Expensive database query
+    return db.query_track(track_id)
+
+# L2: Redis cache (shared)
+async def get_cached_prediction(vehicle_id, lap):
+    cache_key = f"prediction:{vehicle_id}:{lap}"
+    cached = await redis.get(cache_key)
+    if cached:
+        return json.loads(cached)
+    
+    # Compute prediction
+    prediction = await compute_prediction(vehicle_id, lap)
+    await redis.setex(cache_key, 60, json.dumps(prediction))
+    return prediction
+```
+
+### 2. Batch Processing
+
+**Batch ML Inference**:
+```python
+async def batch_predict(feature_vectors):
+    # Process multiple predictions at once
+    batch_size = 100
+    results = []
+    
+    for i in range(0, len(feature_vectors), batch_size):
+        batch = feature_vectors[i:i+batch_size]
+        batch_results = await model.predict_batch(batch)
+        results.extend(batch_results)
+    
+    return results
+```
+
+### 3. Parallel Processing
+
+**Parallel Agent Processing**:
+```python
+import asyncio
+
+async def process_with_agents(tasks):
+    # Process multiple tasks in parallel
+    results = await asyncio.gather(
+        *[agent.process(task) for task in tasks],
+        return_exceptions=True
+    )
+    return results
+```
+
+---
+
+## 🔐 Security Best Practices
+
+### 1. API Authentication
+
+```python
+# JWT Token Validation
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer
+
+security = HTTPBearer()
+
+async def verify_token(token: str = Depends(security)):
+    try:
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+```
+
+### 2. Input Validation
+
+```python
+# Pydantic Models for Validation
+from pydantic import BaseModel, Field, validator
+
+class TelemetryInput(BaseModel):
+    vehicle_id: str = Field(..., min_length=1, max_length=50)
+    timestamp: datetime
+    lap: int = Field(..., ge=1, le=100)
+    accx_can: float = Field(..., ge=-5.0, le=5.0)
+    accy_can: float = Field(..., ge=-5.0, le=5.0)
+    
+    @validator('timestamp')
+    def validate_timestamp(cls, v):
+        if v > datetime.now():
+            raise ValueError('Timestamp cannot be in the future')
+        return v
+```
+
+### 3. Rate Limiting
+
+```python
+# Rate Limiting Middleware
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
+@app.post("/api/telemetry")
+@limiter.limit("100/minute")
+async def ingest_telemetry(request: Request, data: TelemetryInput):
+    # Process telemetry
+    pass
+```
+
+---
+
+## 🧪 Testing Strategy
+
+### Unit Tests
+
+```python
+# tests/test_tire_wear_model.py
+import pytest
+from app.services.tire_wear_predictor import TireWearPredictor
+
+def test_tire_wear_prediction():
+    predictor = TireWearPredictor()
+    features = [0.5, 1.2, 150.0, 850.0, 420.0, 6500, 15.3, 0.45, 12]
+    prediction = predictor.predict(features)
+    
+    assert prediction["front_left"] >= 0
+    assert prediction["front_left"] <= 100
+    assert prediction["confidence"] > 0.9
+```
+
+### Integration Tests
+
+```python
+# tests/integration/test_telemetry_pipeline.py
+import pytest
+from app.services.telemetry_service import TelemetryService
+
+@pytest.mark.asyncio
+async def test_telemetry_pipeline():
+    service = TelemetryService()
+    
+    # Ingest telemetry
+    await service.ingest_telemetry(test_data)
+    
+    # Wait for processing
+    await asyncio.sleep(1)
+    
+    # Check predictions
+    predictions = await service.get_predictions("GR86-001", 12)
+    assert predictions is not None
+    assert "tire_wear" in predictions
+```
+
+### End-to-End Tests
+
+```typescript
+// tests/e2e/telemetry-flow.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('telemetry flow', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  
+  // Wait for telemetry to load
+  await page.waitForSelector('[data-testid="telemetry-viewer"]');
+  
+  // Check tire wear predictions
+  const tireWear = await page.textContent('[data-testid="tire-wear-fl"]');
+  expect(tireWear).toMatch(/\d+\.\d+/);
+});
+```
+
+---
+
+## 📦 Deployment Checklist
+
+### Pre-Deployment
+
+- [ ] All tests passing (unit, integration, e2e)
+- [ ] Code coverage > 85%
+- [ ] Security scan completed
+- [ ] Performance benchmarks met
+- [ ] Documentation updated
+- [ ] Environment variables configured
+- [ ] Database migrations applied
+- [ ] Redis cluster healthy
+- [ ] Monitoring dashboards configured
+
+### Deployment Steps
+
+1. **Build Docker Images**:
+```bash
+docker build -t pitwall-backend:latest ./app
+docker build -t pitwall-frontend:latest .
+docker build -t pitwall-agents:latest ./agents
+```
+
+2. **Push to Registry**:
+```bash
+docker tag pitwall-backend:latest registry.example.com/pitwall-backend:latest
+docker push registry.example.com/pitwall-backend:latest
+```
+
+3. **Deploy to Kubernetes**:
+```bash
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/agents-statefulset.yaml
+```
+
+4. **Verify Deployment**:
+```bash
+kubectl get pods
+kubectl logs -f deployment/pitwall-backend
+curl http://api.example.com/api/health
+```
+
+### Post-Deployment
+
+- [ ] Health checks passing
+- [ ] Metrics collection working
+- [ ] Logs aggregating correctly
+- [ ] Alerts configured
+- [ ] Performance within expected ranges
+- [ ] User acceptance testing completed
+
+---
+
+## 🌐 API Integration Examples
+
+### REST API Client Example
+
+```python
+# python_client_example.py
+import requests
+
+class PitWallAPIClient:
+    def __init__(self, base_url, api_key):
+        self.base_url = base_url
+        self.headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+    
+    def get_tire_wear_prediction(self, vehicle_id, lap):
+        response = requests.get(
+            f"{self.base_url}/api/analytics/tire-wear",
+            params={"vehicle_id": vehicle_id, "lap": lap},
+            headers=self.headers
+        )
+        return response.json()
+    
+    def ingest_telemetry(self, telemetry_data):
+        response = requests.post(
+            f"{self.base_url}/api/telemetry",
+            json=telemetry_data,
+            headers=self.headers
+        )
+        return response.json()
+
+# Usage
+client = PitWallAPIClient("http://localhost:8000", "your-api-key")
+prediction = client.get_tire_wear_prediction("GR86-001", 12)
+print(prediction)
+```
+
+### WebSocket Client Example
+
+```javascript
+// websocket_client_example.js
+const WebSocket = require('ws');
+
+class PitWallWebSocketClient {
+  constructor(url) {
+    this.url = url;
+    this.ws = null;
+    this.reconnectInterval = 1000;
+    this.maxReconnectInterval = 30000;
+  }
+  
+  connect() {
+    this.ws = new WebSocket(this.url);
+    
+    this.ws.on('open', () => {
+      console.log('Connected to PitWall A.I.');
+      this.reconnectInterval = 1000;
+    });
+    
+    this.ws.on('message', (data) => {
+      const message = JSON.parse(data);
+      this.handleMessage(message);
+    });
+    
+    this.ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+    });
+    
+    this.ws.on('close', () => {
+      console.log('Connection closed, reconnecting...');
+      this.reconnect();
+    });
+  }
+  
+  handleMessage(message) {
+    switch (message.type) {
+      case 'telemetry.update':
+        console.log('Telemetry update:', message.data);
+        break;
+      case 'prediction.complete':
+        console.log('Prediction:', message.data);
+        break;
+      default:
+        console.log('Unknown message type:', message.type);
+    }
+  }
+  
+  reconnect() {
+    setTimeout(() => {
+      this.connect();
+      this.reconnectInterval = Math.min(
+        this.reconnectInterval * 2,
+        this.maxReconnectInterval
+      );
+    }, this.reconnectInterval);
+  }
+}
+
+// Usage
+const client = new PitWallWebSocketClient('ws://localhost:8081/telemetry');
+client.connect();
+```
+
+---
+
+## 📝 Changelog
+
+### Version 1.2.0 (2025-11-19)
+
+**Added**:
+- Multi-agent system with Redis Streams
+- ONNX Runtime integration for faster inference
+- WebSocket real-time updates
+- Driver fingerprinting and coaching alerts
+- Comprehensive monitoring and observability
+
+**Improved**:
+- ML model accuracy (95%+ R² score)
+- Inference latency (<5ms P50)
+- Telemetry ingestion throughput (10,000+ points/sec)
+- Frontend bundle size optimization
+
+**Fixed**:
+- Memory leaks in telemetry processing
+- WebSocket reconnection issues
+- Redis Streams consumer group lag
+
+### Version 1.1.0 (2025-10-15)
+
+**Added**:
+- Initial tire wear prediction model
+- Basic telemetry ingestion
+- Simple dashboard UI
+
+**Known Issues**:
+- High latency in ML inference
+- Limited scalability
+
+---
+
+## 🤝 Community & Support
+
+### Getting Help
+
+- **GitHub Issues**: Report bugs and request features
+- **Discussions**: Ask questions and share ideas
+- **Documentation**: Comprehensive guides and API reference
+- **Email**: support@pitwall.ai (for enterprise support)
+
+### Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Code of Conduct
+
+Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before participating.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Toyota Gazoo Racing** for the hackathon opportunity and support
+- **Open-source community** for excellent tools and libraries
+- **Racing teams** for feedback, testing, and real-world validation
+- **Contributors** who have helped improve the project
+
+---
+
 **Built with ❤️ for the racing community**
+
+*Last updated: November 19, 2025*
