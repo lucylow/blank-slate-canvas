@@ -4,10 +4,11 @@ import { StrategyProvider } from './useStrategy';
 import { useTelemetry } from './useTelemetry';
 
 export function StrategyProviderWrapper({ children }: { children: ReactNode }) {
+  // This component must be used within TelemetryProvider
   const telemetry = useTelemetry();
 
   const getTelemetryData = () => {
-    if (!telemetry.selectedDriver || !telemetry.trackData.name) {
+    if (!telemetry?.selectedDriver || !telemetry?.trackData?.name) {
       return null;
     }
     return {

@@ -500,7 +500,28 @@ export default function AISummaryReports() {
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const API_BASE = getAISummaryApiBase();
+
+  // Manage preview URL for mock content
+  useEffect(() => {
+    if (selected) {
+      const mockContent = MOCK_REPORT_CONTENT[selected];
+      if (mockContent) {
+        const blob = new Blob([mockContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        setPreviewUrl(url);
+        return () => {
+          URL.revokeObjectURL(url);
+        };
+      } else {
+        // For API-based reports, use the API URL directly
+        setPreviewUrl(null);
+      }
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selected]);
 
   useEffect(() => {
     setLoading(true);
@@ -735,95 +756,82 @@ export default function AISummaryReports() {
                   <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
               ) : selected ? (
-                (() => {
-                  // Check if we have mock content for this report
-                  const mockContent = MOCK_REPORT_CONTENT[selected];
-                  
-                  if (mockContent) {
-                    // Use mock content
-                    const blob = new Blob([mockContent], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
+                previewUrl ? (
+                  // Use mock content from blob URL
+                  <iframe
+                    src={previewUrl}
+                    title={`report-${selected}`}
+                    className="w-full h-full border-0"
+                  />
+                ) : (
+                  // Try API endpoint
+                  (() => {
+                    const trackAnalysisUrl = `${API_BASE}/api/reports/analysis/${selected}`;
+                    const originalUrl = `${API_BASE}/api/reports/${selected}/html`;
+                    
                     return (
                       <iframe
-                        src={url}
+                        src={originalUrl}
                         title={`report-${selected}`}
                         className="w-full h-full border-0"
-                      />
-                    );
-                  }
-                  
-                  // Try track analysis endpoint first, then fallback to original
-                  const trackAnalysisUrl = `${API_BASE}/api/reports/analysis/${selected}`;
-                  const originalUrl = `${API_BASE}/api/reports/${selected}/html`;
-                  
-                  return (
-                    <iframe
-                      src={originalUrl}
-                      title={`report-${selected}`}
-                      className="w-full h-full border-0"
-                      onError={(e) => {
-                        console.error("Failed to load report preview:", e);
-                        // Try loading raw text and displaying it
-                        fetch(trackAnalysisUrl)
-                          .then(async (r) => {
-                            if (r.ok) {
-                              const text = await r.text();
-                              // Create a simple HTML preview
-                              const previewHtml = `
-                                <html>
-                                  <head>
-                                    <style>
-                                      body { 
-                                        font-family: monospace; 
-                                        padding: 20px; 
-                                        background: #0a0a0a; 
-                                        color: #fff;
-                                        white-space: pre-wrap;
-                                      }
-                                    </style>
-                                  </head>
-                                  <body>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
-                                </html>
-                              `;
-                              const blob = new Blob([previewHtml], { type: 'text/html' });
-                              const url = URL.createObjectURL(blob);
-                              const iframe = document.querySelector('iframe[title*="report"]') as HTMLIFrameElement;
-                              if (iframe) {
-                                iframe.src = url;
-                              }
-                            } else {
-                              // Fallback to mock content if available
-                              const fallbackMock = MOCK_REPORT_CONTENT[selected];
-                              if (fallbackMock) {
-                                const blob = new Blob([fallbackMock], { type: 'text/html' });
+                        onError={(e) => {
+                          console.error("Failed to load report preview:", e);
+                          // Try loading raw text and displaying it
+                          fetch(trackAnalysisUrl)
+                            .then(async (r) => {
+                              if (r.ok) {
+                                const text = await r.text();
+                                // Create a simple HTML preview
+                                const previewHtml = `
+                                  <html>
+                                    <head>
+                                      <style>
+                                        body { 
+                                          font-family: monospace; 
+                                          padding: 20px; 
+                                          background: #0a0a0a; 
+                                          color: #fff;
+                                          white-space: pre-wrap;
+                                        }
+                                      </style>
+                                    </head>
+                                    <body>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
+                                  </html>
+                                `;
+                                const blob = new Blob([previewHtml], { type: 'text/html' });
                                 const url = URL.createObjectURL(blob);
                                 const iframe = document.querySelector('iframe[title*="report"]') as HTMLIFrameElement;
                                 if (iframe) {
                                   iframe.src = url;
                                 }
                               } else {
+                                // Fallback to mock content if available
+                                const fallbackMock = MOCK_REPORT_CONTENT[selected];
+                                if (fallbackMock) {
+                                  const blob = new Blob([fallbackMock], { type: 'text/html' });
+                                  const url = URL.createObjectURL(blob);
+                                  setPreviewUrl(url);
+                                } else {
+                                  setError("Failed to load report preview");
+                                }
+                              }
+                            })
+                            .catch(() => {
+                              // Fallback to mock content if available
+                              const fallbackMock = MOCK_REPORT_CONTENT[selected];
+                              if (fallbackMock) {
+                                const blob = new Blob([fallbackMock], { type: 'text/html' });
+                                const url = URL.createObjectURL(blob);
+                                setPreviewUrl(url);
+                              } else {
                                 setError("Failed to load report preview");
                               }
-                            }
-                          })
-                          .catch(() => {
-                            // Fallback to mock content if available
-                            const fallbackMock = MOCK_REPORT_CONTENT[selected];
-                            if (fallbackMock) {
-                              const blob = new Blob([fallbackMock], { type: 'text/html' });
-                              const url = URL.createObjectURL(blob);
-                              const iframe = document.querySelector('iframe[title*="report"]') as HTMLIFrameElement;
-                              if (iframe) {
-                                iframe.src = url;
-                              }
-                            } else {
-                              setError("Failed to load report preview");
-                            }
-                          });
-                      }}
-                    />
-                  );
-                })()
+                            });
+                        }}
+                      />
+                    );
+                  })()
+                )
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center p-8">
                   <FileText className="w-16 h-16 text-gray-400 mb-4 opacity-50" />
