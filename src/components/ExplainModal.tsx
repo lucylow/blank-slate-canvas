@@ -53,7 +53,8 @@ const ExplainModal: React.FC<Props> = ({ open, onClose, evidence }) => {
         <div className="mt-6 flex justify-end gap-3">
           <a
             href="/assets/telemetry_sample.csv"
-            className="rounded border border-gray-700 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800"
+            download="telemetry_sample.csv"
+            className="rounded border border-gray-700 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
           >
             Download sample telemetry
           </a>

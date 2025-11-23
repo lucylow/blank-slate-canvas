@@ -104,6 +104,7 @@ const Tracks = () => {
   ];
 
   return (
+    <>
     <main role="main" className="min-h-screen bg-[#0A0A0A] text-white relative overflow-hidden">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-gray-800 shadow-lg">
@@ -442,9 +443,10 @@ const Tracks = () => {
             </Card>
           </motion.div>
         </div>
-      </main>
+      </div>
+    </main>
 
-      {/* Track Map PDF Viewer Dialog */}
+    {/* Track Map PDF Viewer Dialog */}
       <Dialog open={!!viewingMap} onOpenChange={(open) => !open && setViewingMap(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
@@ -483,7 +485,7 @@ const Tracks = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </main>
+    </>
   );
 };
 

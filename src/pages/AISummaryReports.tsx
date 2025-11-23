@@ -36,21 +36,47 @@ export default function AISummaryReports() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch(`${API_BASE}/api/reports`)
-      .then(async (r) => {
-        if (!r.ok) {
-          throw new Error(`Failed to fetch reports: ${r.status} ${r.statusText}`);
-        }
-        return r.json();
-      })
-      .then((j) => {
-        setReports(j || []);
-        if (j && j.length) setSelected(j[0].id);
+    
+    // Try to fetch from track analysis API first (main source)
+    Promise.all([
+      fetch(`${API_BASE}/api/reports/analysis`)
+        .then(async (r) => {
+          if (r.ok) {
+            const data = await r.json();
+            // Convert track analysis format to report format
+            if (data.analyses && Array.isArray(data.analyses)) {
+              return data.analyses
+                .filter((a: any) => a.exists)
+                .map((a: any) => ({
+                  id: a.track_id,
+                  filename: a.filename,
+                  ext: a.filename.split('.').pop() || 'txt'
+                }));
+            }
+          }
+          return [];
+        })
+        .catch(() => []),
+      // Fallback: try original AI summaries endpoint
+      fetch(`${API_BASE}/api/reports`)
+        .then(async (r) => {
+          if (r.ok) {
+            return r.json();
+          }
+          return [];
+        })
+        .catch(() => [])
+    ])
+      .then(([trackReports, originalReports]) => {
+        // Merge reports, prefer track analysis reports
+        const allReports = trackReports.length > 0 ? trackReports : originalReports;
+        setReports(allReports || []);
+        if (allReports && allReports.length) setSelected(allReports[0].id);
         setError(null);
       })
       .catch(err => {
         console.error('Failed to load AI summary reports:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load AI summary reports. Make sure the AI summaries server is running on port 8001.');
+        setError(err instanceof Error ? err.message : 'Failed to load AI summary reports. Make sure the backend API is running.');
         setReports([]);
       })
       .finally(() => {
@@ -192,15 +218,55 @@ export default function AISummaryReports() {
                   <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                 </div>
               ) : selected ? (
-                <iframe
-                  src={`${API_BASE}/api/reports/${selected}/html`}
-                  title={`report-${selected}`}
-                  className="w-full h-full border-0"
-                  onError={(e) => {
-                    console.error("Failed to load report preview:", e);
-                    setError("Failed to load report preview");
-                  }}
-                />
+                (() => {
+                  // Try track analysis endpoint first, then fallback to original
+                  const trackAnalysisUrl = `${API_BASE}/api/reports/analysis/${selected}`;
+                  const originalUrl = `${API_BASE}/api/reports/${selected}/html`;
+                  
+                  return (
+                    <iframe
+                      src={originalUrl}
+                      title={`report-${selected}`}
+                      className="w-full h-full border-0"
+                      onError={(e) => {
+                        console.error("Failed to load report preview:", e);
+                        // Try loading raw text and displaying it
+                        fetch(trackAnalysisUrl)
+                          .then(async (r) => {
+                            if (r.ok) {
+                              const text = await r.text();
+                              // Create a simple HTML preview
+                              const previewHtml = `
+                                <html>
+                                  <head>
+                                    <style>
+                                      body { 
+                                        font-family: monospace; 
+                                        padding: 20px; 
+                                        background: #0a0a0a; 
+                                        color: #fff;
+                                        white-space: pre-wrap;
+                                      }
+                                    </style>
+                                  </head>
+                                  <body>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
+                                </html>
+                              `;
+                              const blob = new Blob([previewHtml], { type: 'text/html' });
+                              const url = URL.createObjectURL(blob);
+                              const iframe = document.querySelector('iframe[title*="report"]') as HTMLIFrameElement;
+                              if (iframe) {
+                                iframe.src = url;
+                              }
+                            } else {
+                              setError("Failed to load report preview");
+                            }
+                          })
+                          .catch(() => setError("Failed to load report preview"));
+                      }}
+                    />
+                  );
+                })()
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center p-8">
                   <FileText className="w-16 h-16 text-gray-400 mb-4 opacity-50" />

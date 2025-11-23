@@ -228,6 +228,13 @@ try:
 except ImportError as e:
     logger.warning(f"Driver fingerprint router not available: {e}")
 
+# Import and include track analysis router
+try:
+    from app.routes import track_analysis
+    app.include_router(track_analysis.router, tags=["Track Analysis"])
+except ImportError as e:
+    logger.warning(f"Track analysis router not available: {e}")
+
 # Metrics endpoint - mount Prometheus ASGI app for better compatibility
 from prometheus_client import make_asgi_app
 metrics_app = make_asgi_app()

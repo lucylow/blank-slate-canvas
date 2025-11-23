@@ -37,13 +37,34 @@ const Index: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // sample evidence used for demo - in your app you'll fetch these from /predict_tire
+  // Mock evidence data for demo - in your app you'll fetch these from /predict_tire
+  const mockEvidenceSets = [
+    [
+      "High tire_stress in S2 (braking-dominant sector) - 0.95 stress factor detected",
+      "Average speed on long straight increased 3.2 mph over last 3 laps",
+      "Driver brake bias changed from 52/48 to 55/45 -> increased rear slip by 12%"
+    ],
+    [
+      "Front-left tire temperature elevated to 202°F (optimal range: 185-195°F)",
+      "Lateral G-forces in Turn 3 exceeded 2.5G threshold for 4 consecutive laps",
+      "Tire pressure differential: FL 29.3psi vs FR 28.9psi indicates camber wear pattern"
+    ],
+    [
+      "Rear tire degradation rate increased 15% compared to baseline lap",
+      "Brake temperature spike in S2: 650°F (normal: 580°F) suggests late braking",
+      "Fuel consumption rate up 8% - potential drag from tire wear affecting efficiency"
+    ],
+    [
+      "Tire stress accumulation in S1-S2 transition zone: 0.88 cumulative factor",
+      "Steering angle variance increased 18% indicating reduced grip confidence",
+      "RPM drop in S3 suggests power delivery affected by tire condition"
+    ]
+  ];
+
   const openExplain = () => {
-    setEvidence([
-      "High tire_stress in S2 (braking-dominant sector)",
-      "Avg speed on long straight increased over last 3 laps",
-      "Driver brake bias changed -> increased rear slip"
-    ]);
+    // Randomly select one of the mock evidence sets for variety
+    const randomSet = mockEvidenceSets[Math.floor(Math.random() * mockEvidenceSets.length)];
+    setEvidence(randomSet);
     setExplainOpen(true);
   };
 

@@ -955,6 +955,62 @@ export async function requestAgentAnalysis(
 }
 
 // ============================================================================
+// AGENT CONSENSUS API FUNCTIONS
+// ============================================================================
+
+export interface AgentConsensusRequest {
+  track: string;
+  chassis: string;
+  lap: number;
+  telemetry?: Record<string, unknown>;
+  sessionState?: Record<string, unknown>;
+}
+
+export interface AgentVote {
+  vote: 'box_now' | 'stay_out' | 'box_later';
+  confidence: number;
+  rationale: string;
+  agent_type?: string;
+}
+
+export interface AgentConsensusResponse {
+  success: boolean;
+  agent_votes: Record<string, AgentVote>;
+  consensus: {
+    decision: 'box_now' | 'stay_out' | 'box_later';
+    confidence: number;
+    votes_for: number;
+    votes_against: number;
+    total_agents: number;
+  };
+  explanation: string;
+  disagreement_score?: number;
+  timestamp: string;
+}
+
+/**
+ * Run agent consensus - get all agents to vote on a decision
+ */
+export async function runAgentConsensus(
+  request: AgentConsensusRequest
+): Promise<AgentConsensusResponse> {
+  try {
+    const res = await client.post<AgentConsensusResponse>("/api/agents/run", request);
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Agent consensus API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+// ============================================================================
 // ANALYTICS API FUNCTIONS
 // ============================================================================
 
