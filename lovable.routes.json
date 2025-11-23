@@ -101,11 +101,6 @@
       "component": "GRTelemetryDashboard"
     },
     {
-      "path": "/edge-functions",
-      "name": "Edge Functions",
-      "component": "EdgeFunctionsPage"
-    },
-    {
       "path": "/about",
       "name": "About",
       "component": "About"

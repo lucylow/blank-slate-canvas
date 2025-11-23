@@ -15,7 +15,7 @@ import IndianapolisRaceResults from "@/components/IndianapolisRaceResults";
 import SebringRaceResults from "@/components/SebringRaceResults";
 import COTARaceResults from "@/components/COTARaceResults";
 import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
-import GRCarComparison from "@/components/GRCarComparison";
+import GRCarComparison from "@/components/GRCarComparisonWrapper";
 import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
 import { TelemetryComparisonCharts } from "@/components/TelemetryComparisonCharts";
 import Chatbot from "@/components/Chatbot";
@@ -64,26 +64,6 @@ import {
   type CoachingAlert,
   type CoachingPlan 
 } from "@/api/driverFingerprint";
-import { 
-  callCoaching, 
-  callPitWindow, 
-  callPredictTireWear,
-  getEdgeFunctionMetrics,
-  testEdgeFunction,
-  type CoachingOutput,
-  type PitWindowOutput,
-  type TireWearOutput 
-} from "@/api/edgeFunctions";
-import { 
-  getCurrentF1Season, 
-  getF1Season, 
-  getF1Race,
-  getF1StrategyComparison,
-  getF1DriverStandings,
-  getF1Circuits,
-  getOpenF1Sessions,
-  getOpenF1LapTimes,
-  type F1Race,
   type F1RaceResult 
 } from "@/api/f1Benchmarking";
 import { 
@@ -471,7 +451,6 @@ const Index = () => {
   const [anomalyHealth, setAnomalyHealth] = useState<{ status: string; pyod_available: boolean; active_connections: number } | null>(null);
   const [anomalyStats, setAnomalyStats] = useState<AnomalyStats | null>(null);
   const [f1Season, setF1Season] = useState<any>(null);
-  const [edgeMetrics, setEdgeMetrics] = useState<any>(null);
   const [slackStatus, setSlackStatus] = useState<string | null>(null);
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
@@ -524,19 +503,6 @@ const Index = () => {
     retry: 1,
   });
 
-  // Fetch edge function metrics
-  const { data: edgeMetricsData, refetch: refetchEdgeMetrics } = useQuery({
-    queryKey: ['edgeMetrics'],
-    queryFn: async () => {
-      try {
-        return await getEdgeFunctionMetrics();
-      } catch (error) {
-        console.error('Failed to fetch edge metrics:', error);
-        throw error;
-      }
-    },
-    enabled: false, // Fetch on demand
-    retry: 1,
   });
 
   // Update state when queries complete
@@ -553,10 +519,6 @@ const Index = () => {
   }, [anomalyHealthData]);
 
   useEffect(() => {
-    if (edgeMetricsData) {
-      setEdgeMetrics(edgeMetricsData);
-    }
-  }, [edgeMetricsData]);
 
   // Smooth scroll handler for anchor links with header offset
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -612,7 +574,7 @@ const Index = () => {
   // Scroll spy to detect active section and show scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'data-analytics-apis', 'anomaly-detection', 'driver-fingerprinting', 'edge-functions', 'f1-benchmarking', 'slack-integration', 'gr-cars', 'tracks'];
+      const sections = ['features', 'gemini-features', 'gemini-multimodal', 'gemini-zip-matcher', 'google-maps-integration', 'data-analytics-apis', 'anomaly-detection', 'driver-fingerprinting', 'f1-benchmarking', 'slack-integration', 'gr-cars', 'tracks'];
       const scrollPosition = window.scrollY + 100; // Offset for header
 
       // Show/hide scroll-to-top button
@@ -2891,139 +2853,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Edge Functions Section */}
-      <section id="edge-functions" className="py-24 px-6 bg-gradient-to-b from-background via-blue-500/5 to-background relative overflow-hidden scroll-mt-20">
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-6 shadow-xl shadow-blue-500/20">
-              <Zap className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Edge Functions
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Low-latency edge functions for real-time coaching, pit window optimization, and tire wear prediction
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <Card className="border-border/50 hover:border-blue-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Brain className="w-6 h-6 text-blue-500" />
-                  <h3 className="text-xl font-bold">Coaching Function</h3>
-                </div>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Real-time coaching advice based on telemetry windows with priority levels and confidence scores.
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Telemetry window analysis</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Priority-based alerts</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Evidence-based recommendations</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 hover:border-blue-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Clock className="w-6 h-6 text-blue-500" />
-                  <h3 className="text-xl font-bold">Pit Window Function</h3>
-                </div>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Optimize pit stop timing with scenario analysis and expected time gains.
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Optimal window calculation</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Multiple scenario analysis</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Expected gain prediction</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 hover:border-blue-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Flame className="w-6 h-6 text-blue-500" />
-                  <h3 className="text-xl font-bold">Tire Wear Prediction</h3>
-                </div>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Predict tire degradation with temperature mapping and confidence scores.
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Loss per lap prediction</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Laps until threshold</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span>Temperature mapping</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center space-y-4">
-            <Button 
-              onClick={() => refetchEdgeMetrics()}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"                                                      
-              disabled={edgeMetricsData === undefined && !edgeMetrics}
-            >
-              {edgeMetricsData !== undefined || edgeMetrics ? 'Refresh Function Metrics' : 'View Function Metrics'}
-            </Button>
-            
-            {edgeMetrics && (
-              <Card className="mt-6 max-w-2xl mx-auto border-border/50">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Edge Functions Status</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Available Functions:</span>
-                      <span className="text-lg font-semibold">{Object.keys(edgeMetrics).length}</span>
-                    </div>
-                    {Object.keys(edgeMetrics).length > 0 && (
-                      <div className="mt-4">
-                        <p className="text-sm text-muted-foreground mb-2">Functions:</p>
-                        <ul className="text-sm space-y-1">
-                          {Object.keys(edgeMetrics).map((funcName) => (
-                            <li key={funcName} className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-green-500" />
-                              <span>{funcName}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* F1 Benchmarking Section */}
       <section id="f1-benchmarking" className="py-24 px-6 bg-gradient-to-b from-background via-orange-500/5 to-background relative overflow-hidden scroll-mt-20">
@@ -3398,14 +3227,6 @@ const Index = () => {
                 </li>
                 <li>
                   <a 
-                    href="#edge-functions" 
-                    onClick={(e) => handleAnchorClick(e, '#edge-functions')}
-                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
-                  >
-                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
-                    Edge Functions
-                  </a>
-                </li>
                 <li>
                   <a 
                     href="#f1-benchmarking" 

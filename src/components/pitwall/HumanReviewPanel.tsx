@@ -48,6 +48,15 @@ export default function HumanReviewPanel({
   const submitReview = async () => {
     if (!reviewAction) return;
 
+    if (!decision.decision_id) {
+      toast({
+        title: "Invalid decision",
+        description: "Decision ID is missing. Cannot submit review.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (reviewAction === "modify" && !modifiedAction.trim()) {
       toast({
         title: "Modification required",
@@ -61,7 +70,7 @@ export default function HumanReviewPanel({
 
     try {
       const reviewRequest: ReviewRequest = {
-        action: reviewAction,
+        action: reviewAction as "approve" | "reject" | "modify",
         feedback: feedback.trim() || undefined,
         reviewer: reviewer.trim() || undefined,
         modified_action: reviewAction === "modify" ? modifiedAction.trim() : undefined,
@@ -79,9 +88,15 @@ export default function HumanReviewPanel({
 
       onReviewComplete?.();
     } catch (error) {
+      console.error("Review submission error:", error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null && 'message' in error
+        ? String(error.message)
+        : "Failed to submit review. Please check your connection and try again.";
       toast({
         title: "Review failed",
-        description: error instanceof Error ? error.message : "Failed to submit review",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

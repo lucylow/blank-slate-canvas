@@ -21,7 +21,6 @@ export { default as PitWindowOptimization } from "./pages/PitWindowOptimization"
 export { default as GRCarsAndDrivers } from "./pages/GRCarsAndDrivers";
 export { default as PostEventAnalysis } from "./pages/PostEventAnalysis";
 export { default as PreEventAnalysis } from "./pages/PreEventAnalysis";
-export { default as EdgeFunctionsPage } from "./pages/EdgeFunctionsPage";
 export { default as RaceStoryGenerator } from "./pages/RaceStoryGenerator";
 export { default as PredictiveExplanatory } from "./pages/PredictiveExplanatory";
 export { default as CoachingPage } from "./pages/CoachingPage";

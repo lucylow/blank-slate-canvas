@@ -24,10 +24,10 @@ import {
   Gauge,
   Network,
   MessageSquare,
-  Repeat,
-  Gauge as GaugeIcon,
   Layers,
-  Sparkles as SparklesIcon
+  Calendar,
+  GraduationCap,
+  Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
@@ -71,7 +71,7 @@ export function Sidebar() {
     {
       title: 'Strategy & AI',
       items: [
-        { icon: ClipboardList, label: 'Race Strategies', to: '/strategies' },
+        { icon: Award, label: 'Race Strategies', to: '/strategies' },
         { icon: Target, label: 'Strategy Console', to: '/pitwall' },
         { icon: BrainCircuit, label: 'Predictive AI', to: '/predictive-ai' },
         { icon: FileText, label: 'AI Summaries', to: '/ai-summaries' },
@@ -84,14 +84,13 @@ export function Sidebar() {
     {
       title: 'Tools',
       items: [
-        { icon: ClipboardList, label: 'Pre-Event Analysis', to: '/pre-event-analysis' },
+        { icon: Calendar, label: 'Pre-Event Analysis', to: '/pre-event-analysis' },
         { icon: BarChart3, label: 'Post-Event Analysis', to: '/post-event-analysis' },
         { icon: Zap, label: 'Pit Window', to: '/pit-window' },
         { icon: Users, label: 'Cars & Drivers', to: '/gr-cars-drivers' },
-        { icon: Users, label: 'Coaching', to: '/coaching' },
+        { icon: GraduationCap, label: 'Coaching', to: '/coaching' },
         { icon: Gauge, label: 'Telemetry', to: '/telemetry' },
         { icon: TrendingUp, label: 'F1 Benchmarking', to: '/f1-benchmarking' },
-        { icon: Network, label: 'Edge Functions', to: '/edge-functions' },
       ],
     },
     {

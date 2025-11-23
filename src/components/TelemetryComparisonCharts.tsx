@@ -11,7 +11,7 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer, 
-  Legend 
+  Legend
 } from 'recharts';
 import { 
   Gauge, 
@@ -286,7 +286,6 @@ export function TelemetryComparisonCharts({
                     borderRadius: '8px',
                   }}
                 />
-                <Legend />
                 {telemetryData.map(carData => (
                   <Line
                     key={carData.carModel}
@@ -300,6 +299,7 @@ export function TelemetryComparisonCharts({
                     animationDuration={300}
                   />
                 ))}
+                <Legend />
               </LineChart>
             </ResponsiveContainer>
           </div>

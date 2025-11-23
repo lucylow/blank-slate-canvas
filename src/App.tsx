@@ -32,7 +32,6 @@ import PitWindowOptimization from "./pages/PitWindowOptimization";
 import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
 import PostEventAnalysis from "./pages/PostEventAnalysis";
 import PreEventAnalysis from "./pages/PreEventAnalysis";
-import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
 import RaceStoryGenerator from "./pages/RaceStoryGenerator";
 import PredictiveExplanatory from "./pages/PredictiveExplanatory";
 import CoachingPage from "./pages/CoachingPage";
@@ -155,9 +154,6 @@ const App = () => (
                     
                     {/* GR Telemetry Comparison - Speed and G-force comparison dashboard */}
                     <Route path="/telemetry" element={<GRTelemetryDashboard />} />
-                    
-                    {/* Edge Functions - Real-time analytics functions dashboard */}
-                    <Route path="/edge-functions" element={<EdgeFunctionsPage />} />
                     
                     {/* ========== EXTERNAL API AI FEATURES ========== */}
                     {/* Gemini AI Features - Showcase, Multimodal, and Zip Matcher */}
