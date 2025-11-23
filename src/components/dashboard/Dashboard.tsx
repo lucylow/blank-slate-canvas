@@ -4,6 +4,8 @@ import { useTelemetry } from '@/hooks/useTelemetry';
 import { useStrategy } from '@/hooks/useStrategy';
 import { useQuery } from '@tanstack/react-query';
 import { getAgentStatus, type AgentStatusResponse } from '@/api/pitwall';
+import { generateMockAgentStatusResponse } from '@/lib/mockDemoData';
+import { useDemoMode } from '@/hooks/useDemoMode';
 import { Link } from 'react-router-dom';
 
 import { TrackMap } from '@/components/telemetry/TrackMap';
@@ -15,11 +17,24 @@ import { Card, CardContent } from '@/components/ui/card';
 export function Dashboard() {
   const { drivers, selectedDriver, trackData } = useTelemetry();
   const { strategy, alerts } = useStrategy();
+  const { isDemoMode } = useDemoMode();
   
-  // Fetch AI agent status
+  // Fetch AI agent status with error handling
   const { data: agentStatus } = useQuery<AgentStatusResponse>({
-    queryKey: ['agentStatus'],
-    queryFn: getAgentStatus,
+    queryKey: ['agentStatus', isDemoMode],
+    queryFn: async () => {
+      if (isDemoMode) {
+        // Use mock data in demo mode
+        return generateMockAgentStatusResponse();
+      }
+      try {
+        return await getAgentStatus();
+      } catch (error) {
+        // Fall back to mock data on error
+        console.warn('Failed to fetch agent status, using mock data:', error);
+        return generateMockAgentStatusResponse();
+      }
+    },
     refetchInterval: 30000,
     retry: 1,
   });

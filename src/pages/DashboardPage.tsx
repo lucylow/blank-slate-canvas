@@ -1,5 +1,5 @@
 import { Dashboard } from '../components/dashboard/Dashboard';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { checkHealth } from '@/api/pitwall';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, Play, Wifi } from 'lucide-react';
@@ -17,13 +17,15 @@ import { StrategyProviderWrapper } from '@/hooks/StrategyProviderWrapper';
 const DashboardPage = () => {
   const { isDemoMode, setIsDemoMode } = useDemoMode();
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // Start in demo mode by default
-    if (!isDemoMode) {
+    // Start in demo mode by default (only once on mount)
+    if (!hasInitialized.current && !isDemoMode) {
       setIsDemoMode(true);
+      hasInitialized.current = true;
     }
-  }, []);
+  }, [isDemoMode, setIsDemoMode]);
 
   useEffect(() => {
     const checkBackend = async () => {
