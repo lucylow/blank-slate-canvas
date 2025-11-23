@@ -17,6 +17,7 @@ import COTARaceResults from "@/components/COTARaceResults";
 import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
 import GRCarComparison from "@/components/GRCarComparison";
 import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
+import Chatbot from "@/components/Chatbot";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
 import { checkDemoHealth } from "@/api/demo";
@@ -1703,7 +1704,7 @@ const Index = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-8 right-8 z-50"
+            className="fixed bottom-8 left-8 z-50"
           >
             <Button
               onClick={scrollToTop}
@@ -1716,6 +1717,9 @@ const Index = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Chatbot */}
+      <Chatbot />
     </div>
   );
 };
