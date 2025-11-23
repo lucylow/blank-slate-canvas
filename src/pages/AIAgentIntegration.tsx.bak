@@ -131,36 +131,42 @@ const AIAgentIntegration = () => {
               </CardContent>
             </Card>
           )}
-
-          {/* Implementation Notes */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Implementation Notes</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Getting Started</h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>All three patterns are ready to use with your existing backend API</li>
-                  <li>Components use polling by default but can be upgraded to WebSocket streaming</li>
-                  <li>Agent frameworks (Mastra, OpenAI AgentKit, Microsoft Agent Framework) can be integrated when available</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Next Steps</h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>Add Redis caching for improved real-time performance</li>
-                  <li>Implement WebSocket connections for true streaming</li>
-                  <li>Connect to your actual agent backend services</li>
-                  <li>Add authentication and authorization for production use</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       )}
     </PageWithMiniTabs>
   );
 };
 
+        {/* Implementation Notes */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Implementation Notes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h3 className="font-semibold mb-2">Getting Started</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <li>All three patterns are ready to use with your existing backend API</li>
+                <li>Components use polling by default but can be upgraded to WebSocket streaming</li>
+                <li>Agent frameworks (Mastra, OpenAI AgentKit, Microsoft Agent Framework) can be integrated when available</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Next Steps</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <li>Add Redis caching for improved real-time performance</li>
+                <li>Implement WebSocket connections for true streaming</li>
+                <li>Connect to your actual agent backend services</li>
+                <li>Add authentication and authorization for production use</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 export default AIAgentIntegration;
+
+
