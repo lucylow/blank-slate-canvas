@@ -403,36 +403,273 @@
       "n_vehicles": 28,
       "avg_speed_kmh": 131.25,
       "std_speed_kmh": 4.5,
-      "avg_tire_temp": 92.4
+      "avg_tire_temp": 92.4,
+      "total_laps_analyzed": 50,
+      "fastest_lap_time": "2:01.234",
+      "avg_lap_time": "2:03.567",
+      "track_length_miles": 3.27,
+      "elevation_change_ft": 200
+    },
+    "track_characteristics": {
+      "layout_type": "High-speed flowing circuit with elevation changes and technical sections",
+      "primary_challenges": ["High-speed esses (Oak Tree to Roller Coaster)", "Elevation changes", "Blind crests", "Technical infield section"],
+      "overtaking_zones": ["Turn 1 (uphill braking)", "Turn 10 (Roller Coaster entry)", "Turn 14 (South Bend)"],
+      "critical_sections": ["Sector 1: High-speed esses and elevation (T1-T5)", "Sector 2: Technical infield and elevation changes (T6-T10)", "Sector 3: Fast flowing section to finish (T11-T17)"]
     },
     "top_insights": [
-      { "id": "ins-1", "title": "High-speed rolling pace", "detail": "Cluster 1 shows +2.1 km/h advantage in upper esses." },
-      { "id": "ins-2", "title": "Brake stability issues", "detail": "ABS cycles more frequently after lap 10." }
+      {
+        "id": "ins-1",
+        "title": "High-speed rolling pace in upper esses",
+        "detail": "Cluster 1 and Cluster 2 drivers show +2.1-3.5 km/h advantage through the upper esses (T3-T5). Top performers maintain minimum speed of 185-192 km/h through the sequence, while Cluster 0 drivers drop to 178-185 km/h. Key factor is minimal steering input (8-12° vs 15-20° for slower drivers) and maintaining throttle at 85-95% through the complex. Speed carried here directly impacts the following straight, with 0.4-0.6s lap time correlation.",
+        "impact": "high",
+        "affected_vehicles": 22
+      },
+      {
+        "id": "ins-2",
+        "title": "Brake stability degradation after lap 10",
+        "detail": "ABS activation frequency increases 35-45% after lap 10, particularly in Turn 1 (uphill braking) and Turn 10 (Roller Coaster entry). Brake pad temperature rises from 420°C (lap 1) to 580°C (lap 15), causing 8-12% reduction in initial bite. Top performers mitigate this by using 5-8% less initial brake pressure and relying more on engine braking. Brake bias adjustment from 60% front to 58% front after lap 10 shows 0.2-0.3s improvement.",
+        "impact": "high",
+        "affected_vehicles": 25
+      },
+      {
+        "id": "ins-3",
+        "title": "Roller Coaster section (T10-T12) critical for lap time",
+        "detail": "The Roller Coaster section shows highest time variance across the field. Top performers (Cluster 2) navigate this section in 12.8-13.2s, while Cluster 0 requires 14.1-14.6s. Key is maintaining momentum through the elevation changes - optimal technique uses 70-75% throttle through T10, minimal lift at T11 crest, and early throttle application at T12. Speed carried through this section determines 30% of overall lap time variance.",
+        "impact": "high",
+        "affected_vehicles": 28
+      },
+      {
+        "id": "ins-4",
+        "title": "Turn 1 uphill braking zone technique variance",
+        "detail": "Uphill braking into Turn 1 creates unique challenges with 200ft elevation change. Top performers brake 10-15 meters later, using 15-18% higher brake pressure than flat sections. Optimal entry speed is 195-200 km/h, with brake pressure curve: 90% initial, trailing to 50% at turn-in. Drivers who maintain trail-braking through 35% of corner radius gain 0.3-0.4s. Entry speed variance of ±10 km/h correlates with 0.5-0.7s lap time difference.",
+        "impact": "high",
+        "affected_vehicles": 28
+      },
+      {
+        "id": "ins-5",
+        "title": "Infield technical section (T6-T9) consistency determines race position",
+        "detail": "The technical infield section shows highest correlation with race finishing position (R²=0.68). Consistency within ±0.2s maintains positions, while variance >0.3s leads to position loss. Turn 8 (tight right-hander) is particularly critical - optimal technique uses late apex (65% of corner), maintaining 3-5% throttle through mid-corner to prevent understeer. Cluster 2 drivers show 0.4-0.6s advantage in this section.",
+        "impact": "high",
+        "affected_vehicles": 24
+      },
+      {
+        "id": "ins-6",
+        "title": "Tire temperature management critical in high-speed sections",
+        "detail": "High-speed sections (T3-T5, T13-T17) cause rapid tire temperature rise. Surface temperature increases from 90°C (lap 1) to 108°C (lap 12) in these zones. Top performers manage this by using 5-8% less steering input in esses, reducing scrub. Tire temperature differential between high-speed and technical sections reaches 8-12°C, requiring careful management to prevent oversteer in technical sections.",
+        "impact": "medium",
+        "affected_vehicles": 26
+      },
+      {
+        "id": "ins-7",
+        "title": "South Bend (T14) exit speed critical for final sector",
+        "detail": "Turn 14 exit speed directly impacts final sector performance. Top performers exit at 165-172 km/h vs 158-165 km/h for slower drivers. Key is early throttle application (60% at 25% corner exit) and using full track width. Speed carried here determines 0.3-0.5s advantage through the final flowing section to the finish line.",
+        "impact": "medium",
+        "affected_vehicles": 20
+      },
+      {
+        "id": "ins-8",
+        "title": "Elevation change impact on aero balance",
+        "detail": "200ft elevation change affects aero balance throughout the lap. Uphill sections (T1, T10) require 5-8% more downforce, while downhill sections (T5, T12) benefit from lower drag. Top performers adjust driving style: more aggressive in downhill sections (carrying 5-8 km/h more speed), more conservative in uphill sections (preserving momentum). This technique gains 0.2-0.4s per lap.",
+        "impact": "medium",
+        "affected_vehicles": 18
+      },
+      {
+        "id": "ins-9",
+        "title": "Tire degradation shows linear pattern with acceleration after lap 14",
+        "detail": "Tire performance shows linear 2-3% degradation per lap from laps 1-14, then accelerated 6-8% degradation from laps 15-18. Surface temperature progression: 90°C (lap 1) → 98°C (lap 8) → 105°C (lap 14) → 112°C (lap 18). Optimal pit window identified at lap 16-17, before performance cliff at lap 18-19. Inside edge shows 8-10°C higher temperature than outside edge.",
+        "impact": "high",
+        "affected_vehicles": 27
+      }
     ],
+    "sector_analysis": {
+      "sector_1": {
+        "turns": "T1-T5",
+        "avg_time": "42.34s",
+        "fastest_time": "41.12s",
+        "key_characteristics": "High-speed entry, critical uphill braking at T1, flowing esses (T3-T5), elevation changes",
+        "performance_factors": {
+          "uphill_braking_t1": "10-15m later braking for top performers, 90%→50% brake pressure curve, optimal entry 195-200 km/h",
+          "upper_esses": "Minimal steering input (8-12°), maintain 85-95% throttle, target speed 185-192 km/h",
+          "elevation_impact": "200ft elevation change requires 5-8% more downforce, affects aero balance"
+        },
+        "time_gain_potential": "0.6-0.8s"
+      },
+      "sector_2": {
+        "turns": "T6-T10",
+        "avg_time": "48.56s",
+        "fastest_time": "47.23s",
+        "key_characteristics": "Technical infield section, tight corners, Roller Coaster section (T10-T12), elevation changes",
+        "performance_factors": {
+          "infield_consistency": "Turn 8 late apex (65%), maintain 3-5% throttle through mid-corner, critical for race position",
+          "roller_coaster": "Maintain momentum through elevation, 70-75% throttle T10, minimal lift T11, early throttle T12",
+          "brake_management": "Brake pad temp rises to 580°C, use 5-8% less initial pressure, adjust bias to 58% front"
+        },
+        "time_gain_potential": "0.7-0.9s"
+      },
+      "sector_3": {
+        "turns": "T11-T17",
+        "avg_time": "32.67s",
+        "fastest_time": "31.89s",
+        "key_characteristics": "Fast flowing section, South Bend (T14), final complex to finish",
+        "performance_factors": {
+          "south_bend_exit": "Critical exit speed 165-172 km/h, early throttle (60% at 25% exit), use full track width",
+          "high_speed_flow": "Maintain momentum, minimal steering corrections, tire temp management critical",
+          "final_complex": "Consistency key, optimal line through T15-T17 gains 0.2-0.3s"
+        },
+        "time_gain_potential": "0.4-0.6s"
+      }
+    },
+    "tire_wear_analysis": {
+      "degradation_pattern": "Linear 2-3% per lap (laps 1-14), accelerated 6-8% per lap (laps 15-18)",
+      "temperature_progression": {
+        "lap_1": "90°C surface, 87°C inside edge, 85°C outside edge",
+        "lap_8": "98°C surface, 95°C inside edge, 92°C outside edge",
+        "lap_14": "105°C surface, 112°C inside edge, 98°C outside edge",
+        "lap_18": "112°C surface, 120°C inside edge, 105°C outside edge"
+      },
+      "wear_indicators": {
+        "performance_cliff": "Lap 18-19 shows 6-8% performance drop",
+        "optimal_window": "Laps 16-17 before significant degradation",
+        "pressure_evolution": "Starts at 22.8 PSI, rises to 25.2 PSI by lap 16"
+      },
+      "track_specific_factors": {
+        "high_speed_sections": "T3-T5 and T13-T17 cause rapid temp rise, 8-12°C differential vs technical sections",
+        "braking_zones": "T1 and T10 heavy braking show 10-15% front tire wear concentration",
+        "elevation_impact": "Uphill sections increase load, causing 3-4% additional wear"
+      }
+    },
+    "driver_performance_patterns": {
+      "cluster_0_characteristics": {
+        "description": "Conservative approach, early braking, lower entry speeds, high consistency",
+        "avg_lap_time": "2:05.123",
+        "strengths": ["Consistency", "Tire preservation", "Error avoidance"],
+        "weaknesses": ["High-speed sections", "Braking technique", "Momentum maintenance"],
+        "improvement_potential": "1.0-1.5s per lap"
+      },
+      "cluster_1_characteristics": {
+        "description": "Balanced performance, good high-speed technique, moderate aggression",
+        "avg_lap_time": "2:03.234",
+        "strengths": ["High-speed esses", "Roller Coaster section", "Tire management"],
+        "weaknesses": ["Infield consistency", "Turn 1 braking", "Final sector"],
+        "improvement_potential": "0.5-0.8s per lap"
+      },
+      "cluster_2_characteristics": {
+        "description": "Aggressive, optimal technique, high entry speeds, excellent momentum",
+        "avg_lap_time": "2:01.234",
+        "strengths": ["All sectors", "High-speed technique", "Braking", "Momentum maintenance"],
+        "weaknesses": ["Slight tire wear (manageable)", "Risk management"],
+        "improvement_potential": "0.2-0.4s per lap"
+      }
+    },
     "clusters": [
       {
         "cluster_id": "0",
         "size": 835,
-        "centroid": { "speed_kmh": 128.62, "tire_temp": 87.78 }
+        "centroid": { "speed_kmh": 128.62, "tire_temp": 87.78 },
+        "description": "Conservative drivers, 60% of field",
+        "avg_consistency": "±0.25s",
+        "tire_management": "Excellent"
       },
       {
         "cluster_id": "1",
         "size": 417,
-        "centroid": { "speed_kmh": 133.15, "tire_temp": 96.02 }
+        "centroid": { "speed_kmh": 133.15, "tire_temp": 96.02 },
+        "description": "Balanced performers, 30% of field",
+        "avg_consistency": "±0.18s",
+        "tire_management": "Good"
       },
       {
         "cluster_id": "2",
         "size": 139,
-        "centroid": { "speed_kmh": 141.81, "tire_temp": 103.63 }
+        "centroid": { "speed_kmh": 141.81, "tire_temp": 103.63 },
+        "description": "Top performers, 10% of field",
+        "avg_consistency": "±0.11s",
+        "tire_management": "Moderate"
       }
     ],
     "recommendations": [
-      { "type": "pit_window", "recommended_lap": 16, "confidence": 0.76 },
-      { "type": "driver_coach", "message": "Reduce steering input mid-esses to avoid scrubbing speed", "confidence": 0.73 }
+      {
+        "type": "pit_window",
+        "recommended_lap": 16,
+        "confidence": 0.76,
+        "rationale": "Linear degradation pattern shows optimal window at lap 16-17, before performance cliff at lap 18-19. Tire temperature reaches 105°C at lap 14, rising to 112°C by lap 18. Brake pad temperature also critical - reaches 580°C by lap 15, affecting stability.",
+        "alternative_windows": [
+          { "lap": 15, "confidence": 0.68, "note": "Early but safe, preserves tire and brake life" },
+          { "lap": 17, "confidence": 0.71, "note": "Maximum tire usage, slight risk of performance drop" }
+        ]
+      },
+      {
+        "type": "driver_coach",
+        "message": "Reduce steering input mid-esses (T3-T5) to avoid scrubbing speed. Maintain 8-12° steering angle vs 15-20°, and keep throttle at 85-95% through the complex. Target minimum speed of 185-192 km/h.",
+        "confidence": 0.73,
+        "expected_gain": "0.3-0.5s per lap",
+        "sector": "Sector 1"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Brake 10-15 meters later into Turn 1 uphill braking zone. Use progressive brake pressure: 90% initial, trailing to 50% at turn-in. Maintain trail-braking through 35% of corner radius. Target entry speed 195-200 km/h.",
+        "confidence": 0.79,
+        "expected_gain": "0.3-0.4s per lap",
+        "sector": "Sector 1"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Focus on Roller Coaster section (T10-T12) - maintain momentum through elevation changes. Use 70-75% throttle through T10, minimal lift at T11 crest, early throttle application at T12. Target section time 12.8-13.2s.",
+        "confidence": 0.81,
+        "expected_gain": "0.4-0.6s per lap",
+        "sector": "Sector 2"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Turn 8 (infield) - use late apex at 65% of corner, maintain 3-5% throttle through mid-corner to prevent understeer. Consistency in infield section is critical for race position.",
+        "confidence": 0.75,
+        "expected_gain": "0.2-0.3s per lap",
+        "sector": "Sector 2"
+      },
+      {
+        "type": "driver_coach",
+        "message": "South Bend (T14) exit speed critical - apply 60% throttle at 25% corner exit, use full track width. Target exit speed 165-172 km/h for optimal final sector performance.",
+        "confidence": 0.77,
+        "expected_gain": "0.2-0.3s per lap",
+        "sector": "Sector 3"
+      },
+      {
+        "type": "setup",
+        "message": "After lap 10, adjust brake bias from 60% front to 58% front to improve stability as brake pad temperature rises. Consider 5-8% more downforce for uphill sections, but balance with drag for high-speed sections.",
+        "confidence": 0.72,
+        "expected_gain": "0.2-0.3s per lap"
+      },
+      {
+        "type": "tire_management",
+        "message": "Monitor tire temperature in high-speed sections (T3-T5, T13-T17) - reduce steering input by 5-8% to prevent excessive temperature rise. Maintain 8-12°C differential between high-speed and technical sections.",
+        "confidence": 0.74,
+        "expected_gain": "Extended tire life by 2-3 laps"
+      }
     ],
+    "weather_impact": {
+      "temperature_effects": {
+        "below_20c": "3-5% grip reduction, 0.4-0.6s slower until lap 10-12, brake pad requires 2-3 laps to reach optimal temp",
+        "20_30c": "Optimal conditions, baseline performance",
+        "above_30c": "2-3% grip loss, 3-5°C higher tire temps, earlier pit window, brake pad temp rises faster"
+      },
+      "humidity_effects": {
+        "below_50": "Baseline tire and brake temperatures",
+        "50_70": "2-3% additional tire temperature, brake pad cooling affected",
+        "above_70": "3-4% additional tire temperature, brake pad cooling significantly reduced, consider earlier pit window"
+      },
+      "wind_effects": {
+        "headwind_sector_1": "4-6 km/h speed reduction in esses, affects momentum",
+        "crosswind_sector_2": "Requires 3-4% steering correction in technical sections",
+        "tailwind_sector_3": "3-5 km/h speed gain, but affects braking zones"
+      }
+    },
     "artifacts": {
       "cluster_plot": "/mnt/data/ai_summary_reports/vir_clusters.png",
-      "umap_html": "/mnt/data/ai_summary_reports/vir_umap.html"
+      "umap_html": "/mnt/data/ai_summary_reports/vir_umap.html",
+      "sector_analysis_plot": "/mnt/data/ai_summary_reports/vir_sectors.png",
+      "tire_wear_plot": "/mnt/data/ai_summary_reports/vir_tire_wear.png",
+      "elevation_profile": "/mnt/data/ai_summary_reports/vir_elevation.png",
+      "brake_temperature_plot": "/mnt/data/ai_summary_reports/vir_brake_temp.png"
     },
     "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
   },
@@ -446,36 +683,279 @@
       "n_vehicles": 29,
       "avg_speed_kmh": 132.25,
       "std_speed_kmh": 5.0,
-      "avg_tire_temp": 92.4
+      "avg_tire_temp": 92.4,
+      "total_laps_analyzed": 49,
+      "fastest_lap_time": "1:32.456",
+      "avg_lap_time": "1:34.789",
+      "track_length_miles": 2.38,
+      "elevation_change_ft": 80
+    },
+    "track_characteristics": {
+      "layout_type": "Technical, flowing circuit with elevation changes and compression zones",
+      "primary_challenges": ["Compression zones", "Elevation changes", "Tight technical sections", "High-speed sweepers"],
+      "overtaking_zones": ["Turn 1 (uphill braking)", "Turn 5 (Museum corner)", "Turn 8 (back straight entry)"],
+      "critical_sections": ["Sector 1: High-speed entry and technical sequence (T1-T5)", "Sector 2: Flowing middle section with elevation (T6-T10)", "Sector 3: Technical final complex (T11-T17)"]
     },
     "top_insights": [
-      { "id": "ins-1", "title": "Mid-corner stiffness variation", "detail": "Cars show 0.05–0.09° variance in roll stiffness." },
-      { "id": "ins-2", "title": "Acceleration delta", "detail": "Cluster 2 vehicles gain +0.3s out of T4 via earlier throttle application." }
+      {
+        "id": "ins-1",
+        "title": "Mid-corner stiffness variation in compression zones",
+        "detail": "Cars show 0.05–0.09° variance in roll stiffness, particularly in compression zones (T6, T9, T12). Top performers (Cluster 2) maintain consistent chassis attitude with minimal roll variation (±0.02°), while Cluster 0 shows 0.08-0.12° variation. This variance directly correlates with 0.2-0.4s lap time difference. Key factor is suspension setup and driver technique - maintaining smooth inputs through compression zones prevents chassis upset and maintains tire contact patch.",
+        "impact": "high",
+        "affected_vehicles": 23
+      },
+      {
+        "id": "ins-2",
+        "title": "Acceleration delta out of Turn 4",
+        "detail": "Cluster 2 vehicles gain +0.3-0.5s out of T4 via earlier throttle application. Top performers apply 60% throttle at 35% corner exit vs 40% throttle at 50% exit for slower drivers. This technique maintains 5-8 km/h higher exit speed (148-155 km/h vs 140-148 km/h), which translates to 0.3-0.5s advantage by Turn 8. Key is maintaining rear traction while applying throttle - optimal technique uses progressive throttle application (40%→60%→85%) rather than binary on/off.",
+        "impact": "high",
+        "affected_vehicles": 21
+      },
+      {
+        "id": "ins-3",
+        "title": "Museum Corner (T5) entry technique critical",
+        "detail": "Turn 5 (Museum Corner) shows largest performance spread across the field. Top performers use late apex strategy (apex at 70% of corner), maintaining 8-12 km/h higher mid-corner speed (125-132 km/h vs 115-125 km/h). Entry technique is key - optimal approach uses 85% of track width on entry, with brake pressure trailing from 80% to 30% at turn-in. Drivers who maintain trail-braking through 45% of corner radius gain 0.3-0.4s per lap.",
+        "impact": "high",
+        "affected_vehicles": 26
+      },
+      {
+        "id": "ins-4",
+        "title": "Compression zone handling determines sector times",
+        "detail": "Compression zones at T6, T9, and T12 show highest correlation with sector times (R²=0.71). Top performers maintain smooth inputs through compression, using 3-5% less steering input and maintaining 5-8% throttle to keep chassis settled. Cluster 0 drivers show 0.15-0.25s loss per compression zone due to chassis upset and tire load variation. Optimal technique: open steering 10-15% earlier in compression, maintain light throttle to keep rear loaded.",
+        "impact": "high",
+        "affected_vehicles": 24
+      },
+      {
+        "id": "ins-5",
+        "title": "Back straight entry speed variance",
+        "detail": "Speed carried onto the back straight (after T8) determines 35% of overall lap time variance. Top performers enter at 162-168 km/h vs 155-162 km/h for slower drivers. Key factors: T7 exit speed (optimal 138-145 km/h), T8 entry technique (late apex, maintain momentum), and early throttle application. Speed difference here translates to 0.4-0.6s advantage by Turn 11.",
+        "impact": "high",
+        "affected_vehicles": 22
+      },
+      {
+        "id": "ins-6",
+        "title": "Tire temperature management in flowing sections",
+        "detail": "Flowing middle section (T6-T10) causes rapid tire temperature rise due to sustained lateral load. Surface temperature increases from 90°C (lap 1) to 104°C (lap 14) in these zones. Top performers manage this by using 5-10% less steering input, reducing scrub. Tire temperature differential between flowing and technical sections reaches 6-10°C. Excessive temperature in flowing sections causes oversteer in subsequent technical sections (T11-T14).",
+        "impact": "medium",
+        "affected_vehicles": 25
+      },
+      {
+        "id": "ins-7",
+        "title": "Final complex (T11-T17) consistency critical",
+        "detail": "Final technical complex shows highest correlation with race finishing position (R²=0.69). Consistency within ±0.18s maintains positions, while variance >0.25s leads to position loss. Turn 14 (tight left-hander) is particularly critical - optimal technique uses late apex (65% of corner), maintaining 2-4% throttle through mid-corner. Cluster 2 drivers show 0.5-0.7s advantage in this section through superior technique and consistency.",
+        "impact": "high",
+        "affected_vehicles": 27
+      },
+      {
+        "id": "ins-8",
+        "title": "Elevation change impact on Turn 1 braking",
+        "detail": "Uphill braking into Turn 1 creates unique load transfer. Top performers brake 8-12 meters later, using 12-15% higher brake pressure than flat sections. Optimal entry speed is 175-180 km/h, with brake pressure curve: 85% initial, trailing to 45% at turn-in. Drivers who maintain trail-braking through 40% of corner radius gain 0.2-0.3s. Entry speed variance of ±8 km/h correlates with 0.4-0.6s lap time difference.",
+        "impact": "medium",
+        "affected_vehicles": 28
+      },
+      {
+        "id": "ins-9",
+        "title": "Tire degradation shows progressive pattern with acceleration after lap 15",
+        "detail": "Tire performance shows progressive 2-4% degradation per lap from laps 1-15, then accelerated 6-8% degradation from laps 16-19. Surface temperature progression: 90°C (lap 1) → 96°C (lap 8) → 104°C (lap 15) → 110°C (lap 19). Optimal pit window identified at lap 17-18, before performance cliff at lap 19-20. Inside edge shows 7-9°C higher temperature than outside edge, particularly in compression zones.",
+        "impact": "high",
+        "affected_vehicles": 28
+      },
+      {
+        "id": "ins-10",
+        "title": "Suspension setup variance affects compression zone performance",
+        "detail": "Suspension setup shows significant impact on compression zone performance. Vehicles with softer rear suspension (15-20% softer) show 0.2-0.3s advantage in compression zones (T6, T9, T12) due to better chassis compliance. However, this comes at cost of 0.1-0.2s in high-speed sections. Optimal setup balances compression zone performance with high-speed stability.",
+        "impact": "medium",
+        "affected_vehicles": 19
+      }
     ],
+    "sector_analysis": {
+      "sector_1": {
+        "turns": "T1-T5",
+        "avg_time": "26.78s",
+        "fastest_time": "25.89s",
+        "key_characteristics": "High-speed entry, uphill braking at T1, technical sequence, Museum Corner (T5)",
+        "performance_factors": {
+          "uphill_braking_t1": "8-12m later braking for top performers, 85%→45% brake pressure curve, optimal entry 175-180 km/h",
+          "turn_4_exit": "Critical acceleration zone, 60% throttle at 35% exit, target 148-155 km/h exit speed",
+          "museum_corner": "Late apex at 70%, maintain 8-12 km/h higher mid-corner speed, trail-brake through 45%"
+        },
+        "time_gain_potential": "0.5-0.7s"
+      },
+      "sector_2": {
+        "turns": "T6-T10",
+        "avg_time": "43.45s",
+        "fastest_time": "42.12s",
+        "key_characteristics": "Flowing middle section, compression zones (T6, T9), elevation changes, back straight entry",
+        "performance_factors": {
+          "compression_zones": "Open steering 10-15% earlier, maintain 5-8% throttle, 3-5% less steering input, smooth inputs critical",
+          "tire_temp_management": "5-10% less steering input to reduce scrub, prevent 6-10°C temp differential",
+          "back_straight_entry": "Target entry speed 162-168 km/h, key factors: T7 exit (138-145 km/h), T8 technique"
+        },
+        "time_gain_potential": "0.6-0.8s"
+      },
+      "sector_3": {
+        "turns": "T11-T17",
+        "avg_time": "24.56s",
+        "fastest_time": "23.89s",
+        "key_characteristics": "Technical final complex, tight corners, critical for race position",
+        "performance_factors": {
+          "turn_14_technique": "Late apex at 65%, maintain 2-4% throttle through mid-corner, critical for consistency",
+          "final_complex_consistency": "Within ±0.18s maintains positions, variance >0.25s leads to position loss",
+          "chassis_settlement": "Smooth inputs prevent chassis upset, maintain tire contact patch"
+        },
+        "time_gain_potential": "0.4-0.6s"
+      }
+    },
+    "tire_wear_analysis": {
+      "degradation_pattern": "Progressive 2-4% per lap (laps 1-15), accelerated 6-8% per lap (laps 16-19)",
+      "temperature_progression": {
+        "lap_1": "90°C surface, 87°C inside edge, 85°C outside edge",
+        "lap_8": "96°C surface, 93°C inside edge, 90°C outside edge",
+        "lap_15": "104°C surface, 111°C inside edge, 97°C outside edge",
+        "lap_19": "110°C surface, 118°C inside edge, 103°C outside edge"
+      },
+      "wear_indicators": {
+        "performance_cliff": "Lap 19-20 shows 6-8% performance drop",
+        "optimal_window": "Laps 17-18 before significant degradation",
+        "pressure_evolution": "Starts at 22.6 PSI, rises to 25.0 PSI by lap 17"
+      },
+      "track_specific_factors": {
+        "compression_zones": "T6, T9, T12 show 12-15% higher inside edge wear due to load transfer",
+        "flowing_sections": "Sustained lateral load in T6-T10 causes rapid temp rise, 6-10°C differential",
+        "braking_zones": "T1 and T5 heavy braking show 8-12% front tire wear concentration"
+      }
+    },
+    "driver_performance_patterns": {
+      "cluster_0_characteristics": {
+        "description": "Conservative approach, early braking, lower entry speeds, struggles with compression zones",
+        "avg_lap_time": "1:36.234",
+        "strengths": ["Consistency", "Tire preservation", "Error avoidance"],
+        "weaknesses": ["Compression zones", "Throttle application", "Momentum maintenance"],
+        "improvement_potential": "0.9-1.3s per lap"
+      },
+      "cluster_1_characteristics": {
+        "description": "Balanced performance, good technique, moderate aggression, handles compression zones well",
+        "avg_lap_time": "1:34.567",
+        "strengths": ["Compression zone handling", "Sector 2 performance", "Tire management"],
+        "weaknesses": ["Turn 4 exit", "Museum Corner", "Final complex consistency"],
+        "improvement_potential": "0.5-0.8s per lap"
+      },
+      "cluster_2_characteristics": {
+        "description": "Aggressive, optimal technique, high entry speeds, excellent compression zone handling",
+        "avg_lap_time": "1:32.456",
+        "strengths": ["All sectors", "Compression zones", "Throttle application", "Consistency"],
+        "weaknesses": ["Slight tire wear (manageable)", "Risk management"],
+        "improvement_potential": "0.2-0.4s per lap"
+      }
+    },
     "clusters": [
       {
         "cluster_id": "0",
         "size": 846,
-        "centroid": { "speed_kmh": 129.61, "tire_temp": 87.78 }
+        "centroid": { "speed_kmh": 129.61, "tire_temp": 87.78 },
+        "description": "Conservative drivers, 60% of field",
+        "avg_consistency": "±0.26s",
+        "tire_management": "Excellent"
       },
       {
         "cluster_id": "1",
         "size": 423,
-        "centroid": { "speed_kmh": 134.20, "tire_temp": 96.02 }
+        "centroid": { "speed_kmh": 134.20, "tire_temp": 96.02 },
+        "description": "Balanced performers, 30% of field",
+        "avg_consistency": "±0.17s",
+        "tire_management": "Good"
       },
       {
         "cluster_id": "2",
         "size": 141,
-        "centroid": { "speed_kmh": 142.83, "tire_temp": 103.63 }
+        "centroid": { "speed_kmh": 142.83, "tire_temp": 103.63 },
+        "description": "Top performers, 10% of field",
+        "avg_consistency": "±0.10s",
+        "tire_management": "Moderate"
       }
     ],
     "recommendations": [
-      { "type": "pit_window", "recommended_lap": 17, "confidence": 0.74 },
-      { "type": "driver_coach", "message": "Open steering earlier in compression zones", "confidence": 0.78 }
+      {
+        "type": "pit_window",
+        "recommended_lap": 17,
+        "confidence": 0.74,
+        "rationale": "Progressive degradation pattern shows optimal window at lap 17-18, before performance cliff at lap 19-20. Tire temperature reaches 104°C at lap 15, rising to 110°C by lap 19. Compression zones cause additional wear, requiring careful management.",
+        "alternative_windows": [
+          { "lap": 16, "confidence": 0.66, "note": "Early but safe, preserves tire life" },
+          { "lap": 18, "confidence": 0.69, "note": "Maximum tire usage, slight risk of performance drop" }
+        ]
+      },
+      {
+        "type": "driver_coach",
+        "message": "Open steering earlier in compression zones (T6, T9, T12) - 10-15% earlier steering input. Maintain 5-8% throttle to keep rear loaded and chassis settled. Use 3-5% less steering input overall to prevent chassis upset.",
+        "confidence": 0.78,
+        "expected_gain": "0.3-0.5s per lap",
+        "sector": "Sector 2"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Turn 4 exit - apply 60% throttle at 35% corner exit (not 50%). Use progressive throttle application (40%→60%→85%) rather than binary on/off. Target exit speed 148-155 km/h for optimal back straight performance.",
+        "confidence": 0.82,
+        "expected_gain": "0.3-0.5s per lap",
+        "sector": "Sector 1"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Museum Corner (T5) - use late apex at 70% of corner, maintain 8-12 km/h higher mid-corner speed (125-132 km/h). Trail-brake through 45% of corner radius. Use 85% of track width on entry.",
+        "confidence": 0.79,
+        "expected_gain": "0.3-0.4s per lap",
+        "sector": "Sector 1"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Back straight entry - focus on T7 exit speed (target 138-145 km/h) and T8 entry technique (late apex, maintain momentum). Target entry speed onto back straight 162-168 km/h.",
+        "confidence": 0.76,
+        "expected_gain": "0.2-0.3s per lap",
+        "sector": "Sector 2"
+      },
+      {
+        "type": "driver_coach",
+        "message": "Turn 14 (final complex) - use late apex at 65% of corner, maintain 2-4% throttle through mid-corner to prevent understeer. Consistency in final complex is critical for race position.",
+        "confidence": 0.77,
+        "expected_gain": "0.2-0.3s per lap",
+        "sector": "Sector 3"
+      },
+      {
+        "type": "setup",
+        "message": "Consider softer rear suspension (15-20% softer) for better compression zone compliance, but balance with high-speed stability. Slight increase in front downforce (3-5%) may help with Turn 1 uphill braking.",
+        "confidence": 0.71,
+        "expected_gain": "0.2-0.3s per lap"
+      },
+      {
+        "type": "tire_management",
+        "message": "Monitor tire temperature in flowing sections (T6-T10) - use 5-10% less steering input to reduce scrub and prevent excessive temperature rise. Maintain 6-10°C differential between flowing and technical sections.",
+        "confidence": 0.75,
+        "expected_gain": "Extended tire life by 2-3 laps"
+      }
     ],
+    "weather_impact": {
+      "temperature_effects": {
+        "below_22c": "2-3% grip reduction, 0.2-0.4s slower until lap 6-8",
+        "22_32c": "Optimal conditions, baseline performance",
+        "above_32c": "1-2% grip loss, 2-4°C higher tire temps, earlier pit window"
+      },
+      "humidity_effects": {
+        "below_55": "Baseline tire temperature",
+        "55_70": "1-2% additional tire temperature",
+        "above_70": "2-3% additional tire temperature, consider earlier pit window"
+      },
+      "wind_effects": {
+        "headwind_back_straight": "3-5 km/h speed reduction, affects T8 entry",
+        "crosswind_sector_2": "Requires 2-3% steering correction in compression zones"
+      }
+    },
     "artifacts": {
       "cluster_plot": "/mnt/data/ai_summary_reports/barber_clusters.png",
-      "umap_html": "/mnt/data/ai_summary_reports/barber_umap.html"
+      "umap_html": "/mnt/data/ai_summary_reports/barber_umap.html",
+      "sector_analysis_plot": "/mnt/data/ai_summary_reports/barber_sectors.png",
+      "tire_wear_plot": "/mnt/data/ai_summary_reports/barber_tire_wear.png",
+      "compression_zone_analysis": "/mnt/data/ai_summary_reports/barber_compression.png",
+      "elevation_profile": "/mnt/data/ai_summary_reports/barber_elevation.png"
     },
     "generated_by": "eda-cluster-agent-v0.9 / predictor-agent-v1.2 (mock)"
   }

@@ -3221,6 +3221,56 @@ const Index = () => {
                   </a>
                 </li>
                 <li>
+                  <a 
+                    href="#anomaly-detection" 
+                    onClick={(e) => handleAnchorClick(e, '#anomaly-detection')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Anomaly Detection
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#driver-fingerprinting" 
+                    onClick={(e) => handleAnchorClick(e, '#driver-fingerprinting')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Driver Fingerprinting
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#edge-functions" 
+                    onClick={(e) => handleAnchorClick(e, '#edge-functions')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Edge Functions
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#f1-benchmarking" 
+                    onClick={(e) => handleAnchorClick(e, '#f1-benchmarking')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    F1 Benchmarking
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="#slack-integration" 
+                    onClick={(e) => handleAnchorClick(e, '#slack-integration')}
+                    className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                  >
+                    <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
+                    Slack Integration
+                  </a>
+                </li>
+                <li>
                   <Link to="/tracks" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group">
                     <span className="w-0 group-hover:w-1.5 h-0.5 bg-primary transition-all duration-200"></span>
                     Tracks

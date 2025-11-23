@@ -759,3 +759,53 @@ export function generateMockAgentStatusResponse() {
   };
 }
 
+// Generate mock DashboardData for demo mode
+export function generateMockDashboardData(
+  track: string,
+  race: number,
+  vehicle: number,
+  lap: number
+): import("@/api/pitwall").DashboardData {
+  const trackInfo = TRACKS.find((t) => t.id === track) || TRACKS[0];
+  const baseTireWear = 45 + (lap * 2.5) + Math.random() * 10;
+  const tireWearVariation = 5;
+  const position = Math.floor(Math.random() * 10 + 1);
+  
+  return {
+    track: track,
+    race: race,
+    vehicle_number: vehicle,
+    lap: lap,
+    total_laps: 30,
+    tire_wear: {
+      front_left: Math.min(100, Math.max(0, baseTireWear + (Math.random() - 0.5) * tireWearVariation)),
+      front_right: Math.min(100, Math.max(0, baseTireWear + (Math.random() - 0.5) * tireWearVariation)),
+      rear_left: Math.min(100, Math.max(0, baseTireWear - 2 + (Math.random() - 0.5) * tireWearVariation)),
+      rear_right: Math.min(100, Math.max(0, baseTireWear - 2 + (Math.random() - 0.5) * tireWearVariation)),
+      predicted_laps_remaining: Math.max(5, 30 - lap - Math.floor(baseTireWear / 10)),
+      pit_window_optimal: [12, 13, 14, 15, 16],
+      confidence: 0.85 + Math.random() * 0.1,
+      model_version: "v2.1-demo",
+    },
+    performance: {
+      current_lap: `${Math.floor(Math.random() * 60 + 90)}.${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      best_lap: `${Math.floor(Math.random() * 60 + 88)}.${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      gap_to_leader: `+${(Math.random() * 5 + 1).toFixed(3)}s`,
+      predicted_finish: `P${Math.floor(Math.random() * 5 + 1)}`,
+      position: position,
+      lap_number: lap,
+      total_laps: 30,
+    },
+    gap_analysis: {
+      position: position,
+      gap_to_leader: `+${(Math.random() * 5 + 1).toFixed(3)}s`,
+      gap_to_ahead: Math.random() > 0.5 ? `+${(Math.random() * 2).toFixed(3)}s` : null,
+      gap_to_behind: Math.random() > 0.5 ? `-${(Math.random() * 2).toFixed(3)}s` : null,
+      overtaking_opportunity: Math.random() > 0.6,
+      under_pressure: Math.random() > 0.7,
+    },
+    timestamp: new Date().toISOString(),
+    live_data: false,
+  };
+}
+

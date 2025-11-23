@@ -74,19 +74,40 @@ const Analytics = () => {
 
   // Fetch dashboard data (includes analytics)
   const { data: dashboardData, isLoading, error, refetch, isRefetching } = useQuery<DashboardData>({
-    queryKey: ["analytics", selectedTrack, selectedRace, selectedVehicle, selectedLap],
+    queryKey: ["analytics", selectedTrack, selectedRace, selectedVehicle, selectedLap, isDemoMode],
     queryFn: async () => {
+      // Use demo mode fallback if enabled
+      if (isDemoMode) {
+        try {
+          const { generateMockDashboardData } = await import("@/lib/mockDemoData");
+          return generateMockDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+        } catch (importError) {
+          console.warn("Failed to load mock data generator, trying API:", importError);
+        }
+      }
+      
       try {
         return await getLiveDashboard(selectedTrack, selectedRace, selectedVehicle, selectedLap);
       } catch (error) {
+        // If API fails and not in demo mode, try demo fallback
+        if (!isDemoMode) {
+          console.warn("API failed, falling back to demo data:", error);
+          try {
+            const { generateMockDashboardData } = await import("@/lib/mockDemoData");
+            return generateMockDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+          } catch (fallbackError) {
+            console.error("Both API and demo fallback failed:", fallbackError);
+            throw error; // Throw original error if fallback also fails
+          }
+        }
         // Log error but don't throw - let React Query handle retries
         console.error("Dashboard API error:", error);
         throw error;
       }
     },
     enabled: !!selectedTrack,
-    refetchInterval: 30000, // Refetch every 30 seconds
-    retry: 2,
+    refetchInterval: isDemoMode ? false : 30000, // Don't refetch in demo mode
+    retry: isDemoMode ? 0 : 2, // Don't retry in demo mode
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 

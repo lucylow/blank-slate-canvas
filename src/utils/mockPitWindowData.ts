@@ -28,7 +28,7 @@ export interface MockRaceData {
  * - Tire wear effects
  */
 export function generateMockRaceReplay(): MockRaceData {
-  const replayId = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const replayId = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   const fileName = `demo_race_replay_${new Date().toISOString().split('T')[0]}.csv`;
   
   // Generate 10 cars
@@ -104,7 +104,7 @@ export function generateMockSimulationResults(
   car: string,
   currentLap: number
 ) {
-  const simId = `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const simId = `sim_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   
   // Generate base times for all cars
   const cars = ['7', '9', '11', '13', '15', '17', '19', '21', '23', '25'];

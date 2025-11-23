@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnomalyAlert, AnomalyDetectionResult } from '@/api/anomaly';
 import { AnomalyWebSocket } from '@/api/anomaly';
+import { useDemoMode } from '@/hooks/useDemoMode';
 
 interface AnomalyAlertsProps {
   vehicleId: string;
@@ -16,6 +17,58 @@ interface AnomalyAlertsProps {
   maxAlerts?: number;
   autoDismiss?: boolean;
   dismissAfter?: number; // milliseconds
+}
+
+// Generate mock anomaly detection results
+function generateMockAnomaly(vehicleId: string, vehicleNumber?: number): AnomalyDetectionResult {
+  const anomalies = [
+    {
+      sensor: 'Brake Temperature',
+      message: 'Brake temperature spike detected in Turn 5',
+      severity: 'high' as const,
+      features: ['brake_temp', 'deceleration_rate'],
+    },
+    {
+      sensor: 'Tire Pressure',
+      message: 'Unusual tire pressure variation detected',
+      severity: 'medium' as const,
+      features: ['tire_pressure_fl', 'tire_pressure_fr'],
+    },
+    {
+      sensor: 'Steering Input',
+      message: 'Abnormal steering pattern in sector 2',
+      severity: 'medium' as const,
+      features: ['steering_angle', 'lateral_g'],
+    },
+    {
+      sensor: 'Engine RPM',
+      message: 'RPM anomaly detected during acceleration',
+      severity: 'low' as const,
+      features: ['rpm', 'throttle_position'],
+    },
+  ];
+
+  const anomaly = anomalies[Math.floor(Math.random() * anomalies.length)];
+  const lap = Math.floor(Math.random() * 20) + 1;
+
+  return {
+    is_anomaly: true,
+    anomaly_score: 0.65 + Math.random() * 0.3,
+    alerts: [
+      {
+        type: 'ml_detected',
+        sensor: anomaly.sensor,
+        message: anomaly.message,
+        severity: anomaly.severity,
+        contributing_features: anomaly.features,
+        score: 0.65 + Math.random() * 0.3,
+      },
+    ],
+    timestamp: new Date().toISOString(),
+    vehicle_id: vehicleId,
+    vehicle_number: vehicleNumber,
+    lap: lap,
+  };
 }
 
 export function AnomalyAlerts({
@@ -28,37 +81,66 @@ export function AnomalyAlerts({
   const [alerts, setAlerts] = useState<AnomalyDetectionResult[]>([]);
   const [ws, setWs] = useState<AnomalyWebSocket | null>(null);
   const [connected, setConnected] = useState(false);
+  const { isDemoMode } = useDemoMode();
 
   useEffect(() => {
-    // Create WebSocket connection
-    const anomalyWs = new AnomalyWebSocket(vehicleId);
-    
-    anomalyWs.connect(
-      (result) => {
-        // Add new anomaly alert
-        setAlerts((prev) => {
-          const newAlerts = [result, ...prev];
-          return newAlerts.slice(0, maxAlerts);
-        });
-      },
-      (error) => {
-        console.error('Anomaly WebSocket error:', error);
-      },
-      () => {
-        setConnected(true);
-      },
-      () => {
-        setConnected(false);
+    if (isDemoMode) {
+      // In demo mode, generate mock anomalies periodically
+      setConnected(true);
+      
+      // Generate initial mock anomalies
+      const initialAlerts: AnomalyDetectionResult[] = [];
+      const numInitial = Math.min(3, maxAlerts);
+      for (let i = 0; i < numInitial; i++) {
+        initialAlerts.push(generateMockAnomaly(vehicleId, vehicleNumber));
       }
-    );
+      setAlerts(initialAlerts);
 
-    setWs(anomalyWs);
+      // Generate new mock anomalies periodically
+      const interval = setInterval(() => {
+        if (Math.random() > 0.7) { // 30% chance to generate new anomaly
+          const newAnomaly = generateMockAnomaly(vehicleId, vehicleNumber);
+          setAlerts((prev) => {
+            const newAlerts = [newAnomaly, ...prev];
+            return newAlerts.slice(0, maxAlerts);
+          });
+        }
+      }, 5000); // Check every 5 seconds
 
-    // Cleanup on unmount
-    return () => {
-      anomalyWs.disconnect();
-    };
-  }, [vehicleId, maxAlerts]);
+      return () => {
+        clearInterval(interval);
+      };
+    } else {
+      // Create WebSocket connection for real mode
+      const anomalyWs = new AnomalyWebSocket(vehicleId);
+      
+      anomalyWs.connect(
+        (result) => {
+          // Add new anomaly alert
+          setAlerts((prev) => {
+            const newAlerts = [result, ...prev];
+            return newAlerts.slice(0, maxAlerts);
+          });
+        },
+        (error) => {
+          console.error('Anomaly WebSocket error:', error);
+        },
+        () => {
+          setConnected(true);
+        },
+        () => {
+          setConnected(false);
+        }
+      );
+
+      setWs(anomalyWs);
+
+      // Cleanup on unmount
+      return () => {
+        anomalyWs.disconnect();
+      };
+    }
+  }, [vehicleId, maxAlerts, isDemoMode, vehicleNumber]);
 
   // Auto-dismiss alerts
   useEffect(() => {
@@ -109,7 +191,9 @@ export function AnomalyAlerts({
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {connected
+            {isDemoMode
+              ? 'Demo mode: Mock anomaly detection active'
+              : connected
               ? 'Monitoring telemetry for anomalies...'
               : 'Connecting to anomaly detection service...'}
           </p>

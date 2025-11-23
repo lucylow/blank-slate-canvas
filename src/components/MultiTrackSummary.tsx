@@ -29,29 +29,121 @@ export default function MultiTrackSummary({ chassis = "GR86-DEMO-01" }: { chassi
         let res: (TirePredictionResponse | { error: string; track: string })[];
         
         if (isDemoMode) {
-          // Use demo API for each track
-          const promises = TRACKS.map(async (track) => {
-            try {
-              const demoPred = await predictDemo(track, chassis);
-              // Convert demo response to TirePredictionResponse format
-              return {
-                chassis: demoPred.chassis,
-                track: demoPred.track,
-                predicted_loss_per_lap_s: demoPred.predicted_loss_per_lap_s,
-                laps_until_0_5s_loss: demoPred.laps_until_0_5s_loss,
-                recommended_pit_lap: demoPred.recommended_pit_lap,
-                feature_scores: demoPred.feature_scores,
-                explanation: demoPred.explanation,
-                meta: demoPred.meta
-              } as TirePredictionResponse;
-            } catch (e) {
-              return {
-                error: e instanceof Error ? e.message : String(e),
-                track: track,
-              };
+          // Try to use mock data first, then fallback to demo API
+          try {
+            const { getTrackMockData } = await import("@/lib/mockDemoData");
+            
+            // Extract vehicle number from chassis
+            let vehicleNumber = 7;
+            if (chassis) {
+              const parts = chassis.split('-');
+              const lastPart = parts[parts.length - 1];
+              const num = parseInt(lastPart);
+              if (!isNaN(num)) {
+                vehicleNumber = num;
+              } else if (parts.length > 2) {
+                const num2 = parseInt(parts[parts.length - 2]);
+                if (!isNaN(num2)) {
+                  vehicleNumber = num2;
+                }
+              }
             }
-          });
-          res = await Promise.all(promises);
+            
+            // Get mock predictions for all tracks
+            const promises = TRACKS.map(async (track) => {
+              try {
+                const trackData = getTrackMockData(track);
+                let predictions = trackData.tirePredictions.filter(
+                  (p) => p.vehicle_number === vehicleNumber
+                );
+                
+                // If no predictions for this vehicle, use any prediction
+                if (predictions.length === 0 && trackData.tirePredictions.length > 0) {
+                  predictions = [trackData.tirePredictions[trackData.tirePredictions.length - 1]];
+                }
+                
+                if (predictions.length > 0) {
+                  const latest = predictions[predictions.length - 1];
+                  return {
+                    chassis: latest.chassis || chassis,
+                    track: latest.track || track,
+                    predicted_loss_per_lap_s: latest.predicted_loss_per_lap_s,
+                    laps_until_0_5s_loss: latest.laps_until_0_5s_loss,
+                    recommended_pit_lap: latest.recommended_pit_lap,
+                    feature_scores: latest.feature_scores,
+                    explanation: latest.explanation,
+                    meta: {
+                      model_version: "v2.1-mock",
+                      generated_at: new Date().toISOString(),
+                      demo: true,
+                      points_analyzed: 1000,
+                    }
+                  } as TirePredictionResponse;
+                }
+              } catch (e) {
+                console.warn(`Failed to get mock data for ${track}:`, e);
+              }
+              
+              // Fallback to demo API
+              try {
+                const demoPred = await predictDemo(track, chassis);
+                return {
+                  chassis: demoPred.chassis,
+                  track: demoPred.track,
+                  predicted_loss_per_lap_s: demoPred.predicted_loss_per_lap_s,
+                  laps_until_0_5s_loss: demoPred.laps_until_0_5s_loss,
+                  recommended_pit_lap: demoPred.recommended_pit_lap,
+                  feature_scores: demoPred.feature_scores,
+                  explanation: demoPred.explanation,
+                  meta: demoPred.meta
+                } as TirePredictionResponse;
+              } catch (e) {
+                // Final fallback: generate basic mock
+                return {
+                  chassis: chassis,
+                  track: track,
+                  predicted_loss_per_lap_s: 0.3 + Math.random() * 0.2,
+                  laps_until_0_5s_loss: 1.5 + Math.random() * 0.5,
+                  recommended_pit_lap: 8 + Math.floor(Math.random() * 5),
+                  feature_scores: [
+                    { name: "tire_stress_S2", score: 0.35 + Math.random() * 0.1 },
+                    { name: "brake_energy_S1", score: 0.19 + Math.random() * 0.1 },
+                  ],
+                  explanation: ["Mock prediction data"],
+                  meta: {
+                    model_version: "v2.1-mock-fallback",
+                    generated_at: new Date().toISOString(),
+                    demo: true,
+                  }
+                } as TirePredictionResponse;
+              }
+            });
+            res = await Promise.all(promises);
+          } catch (error) {
+            console.warn("Failed to load mock data, using demo API:", error);
+            // Fallback to demo API for each track
+            const promises = TRACKS.map(async (track) => {
+              try {
+                const demoPred = await predictDemo(track, chassis);
+                return {
+                  chassis: demoPred.chassis,
+                  track: demoPred.track,
+                  predicted_loss_per_lap_s: demoPred.predicted_loss_per_lap_s,
+                  laps_until_0_5s_loss: demoPred.laps_until_0_5s_loss,
+                  recommended_pit_lap: demoPred.recommended_pit_lap,
+                  feature_scores: demoPred.feature_scores,
+                  explanation: demoPred.explanation,
+                  meta: demoPred.meta
+                } as TirePredictionResponse;
+              } catch (e) {
+                return {
+                  error: e instanceof Error ? e.message : String(e),
+                  track: track,
+                };
+              }
+            });
+            res = await Promise.all(promises);
+          }
         } else {
           // Use real backend API
           res = await predictMultiple(TRACKS, chassis);

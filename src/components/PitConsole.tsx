@@ -469,33 +469,114 @@ export default function PitConsole() {
             <CardTitle>Simulation Results</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto">
-              {Object.keys(scenarios.naive).map((k) => (
-                <Card key={k} className="min-w-[260px]">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{prettyScenarioKey(k)}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div>
-                        <strong>Naive Simulation:</strong>
-                        <pre className="text-xs mt-1 p-2 bg-muted rounded overflow-auto max-h-48">
-                          {JSON.stringify(scenarios.naive[k], null, 2)}
-                        </pre>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Object.keys(scenarios.naive).map((k) => {
+                const scenario = scenarios.naive[k];
+                const modelScenario = scenarios.model?.[k];
+                const positionChange = scenario.baseline_pos && scenario.sim_pos 
+                  ? scenario.sim_pos - scenario.baseline_pos 
+                  : 0;
+                const isBest = positionChange < 0;
+                
+                return (
+                  <Card 
+                    key={k} 
+                    className={`relative overflow-hidden ${
+                      isBest ? 'border-green-500/50 bg-green-900/10' : ''
+                    }`}
+                  >
+                    {isBest && (
+                      <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                        <Award className="w-3 h-3" />
+                        Best
                       </div>
-                      {scenarios.model && scenarios.model[k] && (
+                    )}
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        {prettyScenarioKey(k)}
+                        {positionChange !== 0 && (
+                          <span className={`text-sm flex items-center gap-1 ${
+                            positionChange < 0 ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {positionChange < 0 ? (
+                              <>
+                                <TrendingUp className="w-4 h-4" />
+                                +{Math.abs(positionChange)}
+                              </>
+                            ) : (
+                              <>
+                                <TrendingDown className="w-4 h-4" />
+                                -{Math.abs(positionChange)}
+                              </>
+                            )}
+                          </span>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <strong>Model Prediction:</strong>
-                          <pre className="text-xs mt-1 p-2 bg-muted rounded overflow-auto max-h-48">
-                            {JSON.stringify(scenarios.model[k], null, 2)}
-                          </pre>
+                          <div className="text-xs text-muted-foreground mb-1">Current Position</div>
+                          <div className="text-lg font-bold">{scenario.baseline_pos || 'N/A'}</div>
                         </div>
+                        <div>
+                          <div className="text-xs text-muted-foreground mb-1">Predicted Position</div>
+                          <div className={`text-lg font-bold ${
+                            positionChange < 0 ? 'text-green-400' : positionChange > 0 ? 'text-red-400' : ''
+                          }`}>
+                            {scenario.sim_pos || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-xs text-muted-foreground mb-2">Top 5 Finishers</div>
+                        <div className="space-y-1">
+                          {scenario.ordered?.slice(0, 5).map((entry, idx) => (
+                            <div 
+                              key={entry.car}
+                              className={`flex items-center justify-between text-xs p-2 rounded ${
+                                entry.car === scenario.target_car 
+                                  ? 'bg-primary/20 border border-primary/50' 
+                                  : 'bg-muted/50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold w-4">{idx + 1}.</span>
+                                <span>Car #{entry.car}</span>
+                                {entry.car === scenario.target_car && (
+                                  <span className="text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-muted-foreground font-mono">
+                                {entry.pred_time.toFixed(1)}s
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {scenario.note && (
+                        <Alert>
+                          <AlertTriangle className="w-4 h-4" />
+                          <AlertDescription className="text-xs">{scenario.note}</AlertDescription>
+                        </Alert>
                       )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
+            
+            {isDemoMode && (
+              <Alert className="mt-4 bg-blue-900/20 border-blue-500/30">
+                <AlertDescription className="text-sm text-muted-foreground">
+                  <strong>Demo Mode:</strong> These results are generated from mock data for demonstration purposes.
+                </AlertDescription>
+              </Alert>
+            )}
           </CardContent>
         </Card>
       )}

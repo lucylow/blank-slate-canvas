@@ -94,56 +94,70 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-secondary/30">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-secondary/20 relative overflow-hidden">
+      {/* Subtle animated background pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.03),transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(168,85,247,0.03),transparent_50%)] pointer-events-none" />
       {/* Quick Stats Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="px-6 py-4 border-b border-border/50 bg-card/40 backdrop-blur-sm flex-shrink-0"
+        className="px-6 py-5 border-b border-border/50 bg-card/60 backdrop-blur-md flex-shrink-0 shadow-sm"
       >
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
               Live Race Dashboard
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {trackData?.name || 'Circuit of the Americas'} • Real-time Analytics
+            <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
+              <span>{trackData?.name || 'Circuit of the Americas'}</span>
+              <span className="text-border">•</span>
+              <span>Real-time Analytics</span>
             </p>
           </div>
           <div className="flex items-center gap-3">
             {activeAgents > 0 && (
               <Link to="/agents">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors cursor-pointer group">
-                  <Bot className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-medium text-primary">{activeAgents} AI Agents</span>
-                </div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all duration-200 cursor-pointer group shadow-sm hover:shadow-md"
+                >
+                  <Bot className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-semibold text-primary">{activeAgents} AI Agents</span>
+                </motion.div>
               </Link>
             )}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-primary">LIVE</span>
-            </div>
+            <motion.div 
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 shadow-sm"
+            >
+              <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-lg shadow-primary/50" />
+              <span className="text-sm font-semibold text-primary">LIVE</span>
+            </motion.div>
           </div>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           {quickStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                whileHover={{ scale: 1.03, y: -2 }}
               >
-                <Card className={`${stat.bgColor} ${stat.borderColor} border-2 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]`}>
+                <Card className={`${stat.bgColor} ${stat.borderColor} border-2 hover:shadow-xl transition-all duration-300 cursor-pointer group`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-1">{stat.label}</p>
-                        <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-muted-foreground mb-1.5 truncate">{stat.label}</p>
+                        <p className={`text-2xl font-bold ${stat.color} truncate`}>{stat.value}</p>
                       </div>
-                      <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                      <div className={`p-2.5 rounded-lg ${stat.bgColor} group-hover:scale-110 transition-transform duration-200 flex-shrink-0 ml-2`}>
                         <Icon className={`w-5 h-5 ${stat.color}`} />
                       </div>
                     </div>
@@ -157,14 +171,15 @@ export function Dashboard() {
 
       {/* Main Dashboard Grid */}
       <div className="flex-1 p-4 md:p-6 overflow-y-auto">
-        <div className="grid grid-cols-12 gap-4 auto-rows-fr min-h-[800px]">
+        <div className="grid grid-cols-12 gap-4 md:gap-6 auto-rows-fr min-h-[800px]">
           {/* Track Map - Top Left */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/90 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/20 hover:shadow-2xl transition-all duration-300 overflow-hidden group hover:border-primary/40 hover:scale-[1.01]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.03),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <TrackMap />
           </motion.div>
 
@@ -173,9 +188,10 @@ export function Dashboard() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/90 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/20 hover:shadow-2xl transition-all duration-300 overflow-hidden group hover:border-primary/40 hover:scale-[1.01]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.03),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <DriverList />
           </motion.div>
 
@@ -184,9 +200,10 @@ export function Dashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 md:col-span-4 min-h-[400px] bg-card/90 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/20 hover:shadow-2xl transition-all duration-300 overflow-hidden group hover:border-primary/40 hover:scale-[1.01]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.03),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <StrategyConsole />
           </motion.div>
 
@@ -195,9 +212,10 @@ export function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="col-span-12 min-h-[500px] bg-card/80 backdrop-blur-lg rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300 overflow-hidden group hover:border-primary/30"
+            className="col-span-12 min-h-[500px] bg-card/90 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl shadow-primary/5 hover:shadow-primary/20 hover:shadow-2xl transition-all duration-300 overflow-hidden group hover:border-primary/40 hover:scale-[1.005]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.03),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <TelemetryCharts />
           </motion.div>
         </div>
