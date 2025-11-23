@@ -57,84 +57,13 @@ import {
   type CoachingPlan
 } from '@/api/driverFingerprint';
 
-// Mock driver IDs for demo
-const MOCK_DRIVERS = [
-  { id: 'driver-1', name: 'Driver #13' },
-  { id: 'driver-2', name: 'Driver #22' },
-  { id: 'driver-3', name: 'Driver #0' },
-  { id: 'driver-4', name: 'Driver #46' },
-  { id: 'driver-5', name: 'Driver #47' },
-];
-
-// Mock data generators
-function generateMockFingerprint(driverId: string): DriverFingerprint {
-  const baseScore = 75 + Math.random() * 20;
-  return {
-    id: `fp-${driverId}`,
-    driver_id: driverId,
-    features: {
-      braking_consistency: Math.round(70 + Math.random() * 25),
-      throttle_smoothness: Math.round(65 + Math.random() * 30),
-      cornering_style: Math.round(75 + Math.random() * 20),
-      lap_consistency: Math.round(80 + Math.random() * 15),
-      tire_stress_index: Math.round(60 + Math.random() * 35),
-      overall_score: Math.round(baseScore),
-    },
-    created_at: new Date().toISOString(),
-    session_type: 'race',
-  };
-}
-
-function generateMockAlerts(driverId: string): CoachingAlert[] {
-  const alerts: CoachingAlert[] = [];
-  const priorities: Array<'critical' | 'high' | 'medium' | 'low'> = ['critical', 'high', 'medium', 'low'];
-  const categories = ['Braking', 'Throttle', 'Cornering', 'Consistency', 'Tire Management'];
-  
-  for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
-    alerts.push({
-      id: `alert-${driverId}-${i}`,
-      type: 'performance',
-      category: categories[Math.floor(Math.random() * categories.length)],
-      message: `Improve ${categories[Math.floor(Math.random() * categories.length)].toLowerCase()} technique`,
-      priority: priorities[Math.floor(Math.random() * priorities.length)],
-      improvement_area: categories[Math.floor(Math.random() * categories.length)],
-      feature_value: Math.round(50 + Math.random() * 40),
-      threshold: 75,
-      confidence: Math.round(80 + Math.random() * 15),
-      timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
-    });
-  }
-  
-  return alerts.sort((a, b) => {
-    const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
-  });
-}
-
-function generateMockCoachingPlan(driverId: string): CoachingPlan {
-  return {
-    driver_id: driverId,
-    generated_at: new Date().toISOString(),
-    overall_score: Math.round(75 + Math.random() * 20),
-    priority_areas: ['Braking Consistency', 'Throttle Smoothness', 'Lap Consistency'],
-    weekly_focus: [
-      'Practice trail braking on entry',
-      'Work on throttle application smoothness',
-      'Maintain consistent lap times within 0.5s window'
-    ],
-    specific_drills: [
-      '10 laps focusing on late braking points',
-      '5 laps with throttle control exercises',
-      '15 laps maintaining consistent pace'
-    ],
-    progress_metrics: {
-      target_braking_consistency: 85,
-      target_throttle_smoothness: 80,
-      target_lap_consistency: 90,
-      target_overall_score: 85,
-    },
-  };
-}
+import {
+  generateMockFingerprint,
+  generateMockAlerts,
+  generateMockCoachingPlan,
+  generateMockComparison,
+  MOCK_DRIVERS,
+} from '@/lib/mockDriverFingerprintData';
 
 // Priority badge component
 function PriorityBadge({ priority }: { priority: CoachingAlert['priority'] }) {
@@ -224,19 +153,7 @@ export default function DriverFingerprintingPage() {
         return await compareDrivers(selectedDriver, comparisonDriver);
       } catch (error) {
         console.warn('Comparison failed, using mock data:', error);
-        // Return mock comparison
-        const driver1Fp = fingerprint || generateMockFingerprint(selectedDriver);
-        const driver2Fp = generateMockFingerprint(comparisonDriver);
-        return {
-          driver1: driver1Fp.features,
-          driver2: driver2Fp.features,
-          differences: Object.keys(driver1Fp.features).map(key => ({
-            feature: key,
-            driver1_value: driver1Fp.features[key],
-            driver2_value: driver2Fp.features[key],
-            difference: driver1Fp.features[key] - driver2Fp.features[key],
-          })),
-        };
+        return generateMockComparison(selectedDriver, comparisonDriver);
       }
     },
     enabled: !!comparisonDriver,

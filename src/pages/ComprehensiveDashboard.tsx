@@ -31,9 +31,22 @@ import { RealTimeAnalyticsCard } from "@/components/dashboard/RealTimeAnalyticsC
 import { TrackSpecificModelsCard } from "@/components/dashboard/TrackSpecificModelsCard";
 import { LiveGapAnalysisCard } from "@/components/dashboard/LiveGapAnalysisCard";
 
-import { getLiveDashboard, getTracks, type DashboardData, type TrackList } from "@/api/pitwall";
+import { getLiveDashboard, getTracks, type DashboardData, type TrackList, type Track } from "@/api/pitwall";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { DemoButton } from "@/components/DemoButton";
+
+// Default tracks fallback if API fails
+const DEFAULT_TRACKS: TrackList = {
+  tracks: [
+    { id: "sebring", name: "Sebring International", location: "Sebring, Florida", length_miles: 3.74, turns: 17, available_races: [1, 2] },
+    { id: "cota", name: "Circuit of the Americas", location: "Austin, Texas", length_miles: 3.427, turns: 20, available_races: [1, 2] },
+    { id: "road_atlanta", name: "Road Atlanta", location: "Braselton, Georgia", length_miles: 2.54, turns: 12, available_races: [1, 2] },
+    { id: "barber", name: "Barber Motorsports Park", location: "Birmingham, Alabama", length_miles: 2.38, turns: 17, available_races: [1, 2] },
+    { id: "virginia", name: "Virginia International Raceway", location: "Alton, Virginia", length_miles: 3.27, turns: 17, available_races: [1, 2] },
+    { id: "watkins_glen", name: "Watkins Glen International", location: "Watkins Glen, New York", length_miles: 3.4, turns: 11, available_races: [1, 2] },
+    { id: "laguna_seca", name: "WeatherTech Raceway Laguna Seca", location: "Monterey, California", length_miles: 2.238, turns: 11, available_races: [1, 2] },
+  ],
+};
 
 /**
  * Comprehensive Dashboard
@@ -55,10 +68,10 @@ export default function ComprehensiveDashboard() {
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
   const [selectedLap, setSelectedLap] = useState(12);
-  const [tracks, setTracks] = useState<TrackList | null>(null);
+  const [tracks, setTracks] = useState<TrackList>(DEFAULT_TRACKS);
   const hasInitializedTracks = useRef(false);
 
-  // Fetch tracks list
+  // Fetch tracks list with fallback
   useEffect(() => {
     if (hasInitializedTracks.current) return;
     
@@ -71,20 +84,53 @@ export default function ComprehensiveDashboard() {
         }
         hasInitializedTracks.current = true;
       } catch (error) {
-        console.error("Failed to fetch tracks:", error);
+        console.warn("Failed to fetch tracks, using default tracks:", error);
+        // Use default tracks as fallback
+        setTracks(DEFAULT_TRACKS);
+        hasInitializedTracks.current = true;
       }
     };
     fetchTracks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch dashboard data
+  // Fetch dashboard data with demo mode fallback
   const { data: dashboardData, isLoading, error, refetch, isRefetching } = useQuery<DashboardData>({
-    queryKey: ["comprehensive-dashboard", selectedTrack, selectedRace, selectedVehicle, selectedLap],
-    queryFn: () => getLiveDashboard(selectedTrack, selectedRace, selectedVehicle, selectedLap),
+    queryKey: ["comprehensive-dashboard", selectedTrack, selectedRace, selectedVehicle, selectedLap, isDemoMode],
+    queryFn: async () => {
+      // If in demo mode, try mock data first
+      if (isDemoMode) {
+        try {
+          const { generateMockDashboardData } = await import("@/lib/mockDemoData");
+          return generateMockDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+        } catch (importError) {
+          console.warn("Failed to load mock data generator, trying API:", importError);
+        }
+      }
+      
+      try {
+        return await getLiveDashboard(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+      } catch (error) {
+        // If API fails and not in demo mode, try demo fallback
+        if (!isDemoMode) {
+          console.warn("API failed, falling back to demo data:", error);
+          try {
+            const { generateMockDashboardData } = await import("@/lib/mockDemoData");
+            return generateMockDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+          } catch (fallbackError) {
+            console.error("Both API and demo fallback failed:", fallbackError);
+            throw error; // Throw original error if fallback also fails
+          }
+        }
+        // Log error but don't throw - let React Query handle retries
+        console.error("Dashboard API error:", error);
+        throw error;
+      }
+    },
     enabled: !!selectedTrack,
-    refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
-    retry: 2,
+    refetchInterval: isDemoMode ? false : 5000, // Don't refetch in demo mode, otherwise every 5 seconds
+    retry: isDemoMode ? 0 : 2, // Don't retry in demo mode
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const features = [
