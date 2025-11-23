@@ -35,6 +35,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 const MotionLink = motion(Link);
 
@@ -52,7 +53,7 @@ interface MenuSection {
 
 export function Sidebar() {
   const location = useLocation();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { isExpanded, setIsExpanded } = useSidebar();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   // Grouped navigation structure
@@ -142,7 +143,7 @@ export function Sidebar() {
   const sidebarContent = (
     <div className={cn(
       "h-full bg-background/95 backdrop-blur-xl border-r border-border/50 flex flex-col transition-all duration-300",
-      isExpanded ? "w-64" : "w-16"
+      "w-64"
     )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50">
@@ -271,9 +272,27 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block fixed left-0 top-0 h-screen z-40">
+      <aside 
+        className={cn(
+          "hidden lg:block fixed top-0 h-screen z-40 transition-transform duration-300 ease-in-out",
+          isExpanded ? "left-0" : "-left-64"
+        )}
+      >
         {sidebarContent}
       </aside>
+      
+      {/* Collapsed Sidebar Toggle Button - Only visible when sidebar is hidden */}
+      {!isExpanded && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden lg:flex fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-accent"
+          onClick={() => setIsExpanded(true)}
+          aria-label="Show sidebar"
+        >
+          <Menu className="w-5 h-5" />
+        </Button>
+      )}
 
       {/* Mobile Menu Button */}
       <Button

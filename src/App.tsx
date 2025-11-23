@@ -11,6 +11,7 @@ import { DeliveryProvider } from "@/components/DeliveryProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { RouteLayout } from "@/components/layout/RouteLayout";
 import { NotificationProvider } from "@/components/NotificationProvider";
+import { SidebarProvider } from "@/contexts/SidebarContext";
 
 import Index from "./pages/Index";
 import RaceStrategiesPage from "./pages/RaceStrategiesPage";
@@ -21,6 +22,7 @@ import Analytics from "./pages/Analytics";
 import Tracks from "./pages/Tracks";
 import About from "./pages/About";
 import Settings from "./pages/Settings";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import AgentDashboard from "./components/AgentDashboard/AgentDashboard";
 import AgentReviewDashboard from "./pages/AgentReviewDashboard";
@@ -76,10 +78,11 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
-              <Suspense fallback={<PageLoader />}>
-                <ErrorBoundary>
-                  <RouteLayout>
-                  <Routes>
+              <SidebarProvider>
+                <Suspense fallback={<PageLoader />}>
+                  <ErrorBoundary>
+                    <RouteLayout>
+                    <Routes>
                     {/* ========== LANDING PAGE ========== */}
                     {/* Main landing page */}
                     <Route path="/" element={<Index />} />
@@ -183,6 +186,9 @@ const App = () => (
                     {/* Settings - App configuration */}
                     <Route path="/settings" element={<Settings />} />
                     
+                    {/* Login - Authentication page (demo) */}
+                    <Route path="/login" element={<Login />} />
+                    
                     {/* Lovable Cloud Config - Configuration and debugging page */}
                     <Route path="/lovable-config" element={<LovableCloudConfig />} />
                     
@@ -193,9 +199,10 @@ const App = () => (
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </RouteLayout>
-                </ErrorBoundary>
-              </Suspense>
+                    </RouteLayout>
+                  </ErrorBoundary>
+                </Suspense>
+              </SidebarProvider>
             </BrowserRouter>
           </NotificationProvider>
         </DeliveryProvider>

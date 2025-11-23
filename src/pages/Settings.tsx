@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { PageWithMiniTabs, type MiniTab } from "@/components/PageWithMiniTabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings as SettingsIcon, Wifi, Bell, Palette, Database, Key, Server, Globe } from "lucide-react";
+import { Settings as SettingsIcon, Wifi, Bell, Palette, Database, Key, Server, Globe, User, Mail, Phone, MapPin, Calendar, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Settings = () => {
   const [liveUpdates, setLiveUpdates] = useState(true);
@@ -14,6 +15,7 @@ const Settings = () => {
   const [apiUrl, setApiUrl] = useState("http://localhost:8000");
 
   const tabs: MiniTab[] = [
+    { id: 'profile', label: 'Profile', icon: <User className="h-4 w-4" /> },
     { id: 'external', label: 'External APIs', icon: <Globe className="h-4 w-4" /> },
     { id: 'keys', label: 'Keys & Secrets', icon: <Key className="h-4 w-4" /> },
     { id: 'demo', label: 'Demo Server', icon: <Server className="h-4 w-4" /> },
@@ -25,10 +27,137 @@ const Settings = () => {
       pageTitle="Settings"
       pageSubtitle="Configure your PitWall AI experience"
       tabs={tabs}
-      initial="external"
+      initial="profile"
     >
       {(active) => (
         <div className="space-y-6">
+          {active === 'profile' && (
+            <>
+              <Card className="bg-card/60 backdrop-blur-md border-border/50">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                      <User className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <CardTitle>Profile Information</CardTitle>
+                      <CardDescription>
+                        Manage your personal information and account settings
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Avatar Section */}
+                  <div className="flex items-center gap-6 pb-6 border-b border-border/50">
+                    <Avatar className="w-24 h-24 border-4 border-primary/20">
+                      <AvatarImage src="" alt="Profile" />
+                      <AvatarFallback className="bg-primary/20 text-primary text-2xl font-bold">
+                        JD
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-1">John Doe</h3>
+                      <p className="text-sm text-muted-foreground mb-4">john.doe@example.com</p>
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Change Photo
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Personal Information */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Personal Information
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="profile-name">Full Name</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="profile-name"
+                            type="text"
+                            defaultValue="John Doe"
+                            className="pl-10 bg-background/50 border-border/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="profile-email">Email</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="profile-email"
+                            type="email"
+                            defaultValue="john.doe@example.com"
+                            className="pl-10 bg-background/50 border-border/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="profile-phone">Phone</Label>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="profile-phone"
+                            type="tel"
+                            placeholder="+1 (555) 123-4567"
+                            className="pl-10 bg-background/50 border-border/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="profile-location">Location</Label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="profile-location"
+                            type="text"
+                            placeholder="City, State"
+                            className="pl-10 bg-background/50 border-border/50"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Account Information */}
+                  <div className="space-y-4 pt-4 border-t border-border/50">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Account Information
+                    </h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg bg-accent/50 border border-border/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Member Since</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">January 2024</p>
+                      </div>
+                      <div className="p-4 rounded-lg bg-accent/50 border border-border/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Account Type</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Premium</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-4 pt-4 border-t border-border/50">
+                    <Button variant="outline">Cancel</Button>
+                    <Button className="bg-primary hover:bg-primary/90">
+                      Save Changes
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
           {active === 'external' && (
             <>
               <Card className="bg-card/60 backdrop-blur-md border-border/50">
