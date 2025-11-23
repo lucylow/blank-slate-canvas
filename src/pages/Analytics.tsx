@@ -14,6 +14,7 @@ import { getLiveDashboard, getTracks, getAgentStatus, type DashboardData, type T
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { DemoButton } from "@/components/DemoButton";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Default tracks fallback if API fails
 const DEFAULT_TRACKS: TrackList = {
@@ -655,7 +656,14 @@ const Analytics = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-64">
-                    <LapTimeTrendsChart />
+                    <ErrorBoundary fallback={
+                      <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Unable to load chart data
+                      </div>
+                    }>
+                      <LapTimeTrendsChart />
+                    </ErrorBoundary>
                   </div>
                 </CardContent>
               </Card>
@@ -675,7 +683,14 @@ const Analytics = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="h-64">
-                    <TireWearDistributionChart />
+                    <ErrorBoundary fallback={
+                      <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Unable to load chart data
+                      </div>
+                    }>
+                      <TireWearDistributionChart />
+                    </ErrorBoundary>
                   </div>
                 </CardContent>
               </Card>

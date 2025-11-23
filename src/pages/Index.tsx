@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2, Brain, Globe } from "lucide-react";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2, Brain, Globe, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -495,7 +495,7 @@ const Index = () => {
   });
 
   // Fetch F1 season data
-  const { data: f1SeasonData, refetch: refetchF1Season } = useQuery({
+  const { data: f1SeasonData, refetch: refetchF1Season, isLoading: isLoadingF1Season, isError: isErrorF1Season } = useQuery({
     queryKey: ['f1Season'],
     queryFn: async () => {
       try {
@@ -510,7 +510,7 @@ const Index = () => {
   });
 
   // Fetch anomaly health
-  const { data: anomalyHealthData, refetch: refetchAnomalyHealth } = useQuery({
+  const { data: anomalyHealthData, refetch: refetchAnomalyHealth, isLoading: isLoadingAnomalyHealth, isError: isErrorAnomalyHealth } = useQuery({
     queryKey: ['anomalyHealth'],
     queryFn: async () => {
       try {
@@ -2951,14 +2951,41 @@ const Index = () => {
             </Card>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <Button 
               onClick={() => refetchEdgeMetrics()}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"                                                      
               disabled={edgeMetricsData === undefined && !edgeMetrics}
             >
-              View Function Metrics
+              {edgeMetricsData !== undefined || edgeMetrics ? 'Refresh Function Metrics' : 'View Function Metrics'}
             </Button>
+            
+            {edgeMetrics && (
+              <Card className="mt-6 max-w-2xl mx-auto border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4">Edge Functions Status</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Available Functions:</span>
+                      <span className="text-lg font-semibold">{Object.keys(edgeMetrics).length}</span>
+                    </div>
+                    {Object.keys(edgeMetrics).length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm text-muted-foreground mb-2">Functions:</p>
+                        <ul className="text-sm space-y-1">
+                          {Object.keys(edgeMetrics).map((funcName) => (
+                            <li key={funcName} className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-green-500" />
+                              <span>{funcName}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </section>

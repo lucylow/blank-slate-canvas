@@ -195,7 +195,17 @@ export function useAnalyticsData(): AnalyticsData {
         setLoading(true);
         setError(null);
         
-        const index = await loadTracksIndex();
+        let index;
+        try {
+          index = await loadTracksIndex();
+        } catch (err) {
+          console.warn('Failed to load tracks index, using empty data:', err);
+          setLapTimes([]);
+          setTireWear([]);
+          setLoading(false);
+          return;
+        }
+        
         const allLapTimes: LapTimeData[] = [];
         const allTireWear: TireWearData[] = [];
         
@@ -211,6 +221,7 @@ export function useAnalyticsData(): AnalyticsData {
               allTireWear.push(...trackTireWear);
             } catch (err) {
               console.warn(`Failed to load data for ${track.track_id}:`, err);
+              // Continue loading other tracks even if one fails
             }
           }
         }
@@ -220,6 +231,9 @@ export function useAnalyticsData(): AnalyticsData {
       } catch (err) {
         console.error('Error loading analytics data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load analytics data');
+        // Set empty arrays on error so charts can still render with empty state
+        setLapTimes([]);
+        setTireWear([]);
       } finally {
         setLoading(false);
       }
