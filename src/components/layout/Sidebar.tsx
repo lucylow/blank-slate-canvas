@@ -1,4 +1,4 @@
-import { LayoutDashboard, Map, TrendingUp, Settings, Flag, Target, Info, FileText } from 'lucide-react';
+import { LayoutDashboard, Map, TrendingUp, Settings, Flag, Target, Info, FileText, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -16,8 +16,9 @@ export function Sidebar() {
   // 4. Analytics (performance metrics and analysis)
   // 5. Strategy (race strategy console - PitWall dashboard)
   // 6. AI Summaries (AI-generated race analysis reports)
-  // 7. About (information about the app)
-  // 8. Settings (app configuration)
+  // 7. Race Story Generator (Broadcast & Debrief - key race moments)
+  // 8. About (information about the app)
+  // 9. Settings (app configuration)
   const menuItems = [
     { icon: Flag, label: 'Home', to: '/' },
     { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
@@ -25,6 +26,7 @@ export function Sidebar() {
     { icon: TrendingUp, label: 'Analytics', to: '/analytics' },
     { icon: Target, label: 'Strategy', to: '/pitwall' },
     { icon: FileText, label: 'AI Summaries', to: '/ai-summaries' },
+    { icon: Sparkles, label: 'Race Story', to: '/race-story' },
     { icon: Info, label: 'About', to: '/about' },
     { icon: Settings, label: 'Settings', to: '/settings' },
   ];

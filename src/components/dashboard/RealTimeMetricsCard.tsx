@@ -161,9 +161,9 @@ export const RealTimeMetricsCard: React.FC<RealTimeMetricsCardProps> = ({
   };
 
   const getPerformanceColor = (score: number) => {
-    if (score >= 80) return "text-green-500";
-    if (score >= 60) return "text-yellow-500";
-    return "text-red-500";
+    if (score >= 80) return "text-green-50 bg-green-700 border-green-500";
+    if (score >= 60) return "text-yellow-50 bg-yellow-700 border-yellow-500";
+    return "text-red-50 bg-red-700 border-red-500";
   };
 
   const getPerformanceBgColor = (score: number) => {
@@ -183,11 +183,13 @@ export const RealTimeMetricsCard: React.FC<RealTimeMetricsCardProps> = ({
   }, [metrics]);
 
   return (
-    <Card className={`border-border/50 bg-card/60 backdrop-blur-sm ${className}`}>
-      <CardHeader className="pb-3">
+    <Card className={`border-2 border-foreground/20 bg-background/95 backdrop-blur-sm shadow-xl ${className}`}>
+      <CardHeader className="pb-4 border-b-2 border-foreground/10">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Activity className="w-5 h-5 text-primary" />
+          <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/20 border-2 border-primary/30">
+              <Activity className="w-6 h-6 text-primary" />
+            </div>
             Real-Time Metrics
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -197,152 +199,174 @@ export const RealTimeMetricsCard: React.FC<RealTimeMetricsCardProps> = ({
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                  <Wifi className="w-3 h-3 mr-1" />
-                  Live
+                <Badge className="bg-green-600 text-green-50 border-2 border-green-400 px-3 py-1.5 font-bold">
+                  <Wifi className="w-4 h-4 mr-1.5" />
+                  LIVE
                 </Badge>
               </motion.div>
             ) : (
-              <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
-                <WifiOff className="w-3 h-3 mr-1" />
-                Offline
+              <Badge className="bg-red-600 text-red-50 border-2 border-red-400 px-3 py-1.5 font-bold">
+                <WifiOff className="w-4 h-4 mr-1.5" />
+                OFFLINE
               </Badge>
             )}
           </div>
         </div>
         {connected && updateTimestamp && (
-          <p className="text-xs text-muted-foreground mt-1">
-            Last update: {updateTimestamp.toLocaleTimeString()}
+          <p className="text-sm text-foreground/80 font-medium mt-2">
+            Last update: <span className="font-bold">{updateTimestamp.toLocaleTimeString()}</span>
           </p>
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Performance Score */}
-        <div className="p-3 rounded-lg border-2 border-border/50 bg-gradient-to-br from-background to-accent/20">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              Overall Performance
-            </span>
-            <span className={`text-lg font-bold ${getPerformanceColor(performanceScore)}`}>
+        {/* Performance Score - High Contrast */}
+        <div className={`p-5 rounded-xl border-4 ${getPerformanceColor(performanceScore)} shadow-lg mb-6`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Target className="w-6 h-6" />
+              <span className="text-base font-bold uppercase tracking-wide">
+                Overall Performance
+              </span>
+            </div>
+            <span className="text-4xl font-black">
               {performanceScore.toFixed(0)}%
             </span>
           </div>
-          <div className="flex items-center justify-between mb-2">
-            <Progress value={performanceScore} className="h-3 flex-1 mr-2" />
-            <span className={`text-xs font-semibold ${getPerformanceColor(performanceScore)}`}>
+          <div className="flex items-center justify-between mb-3">
+            <Progress 
+              value={performanceScore} 
+              className="h-4 flex-1 mr-3 bg-black/20 border-2 border-white/30" 
+            />
+            <span className="text-sm font-bold uppercase">
               {getPerformanceLabel(performanceScore)}
             </span>
           </div>
-          <div className={`text-xs p-2 rounded ${getPerformanceBgColor(performanceScore)} border mt-2`}>
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-3 h-3" />
-              <span>Based on tire wear, consistency, and telemetry analysis</span>
-            </div>
+          <div className="flex items-center gap-2 text-sm font-medium opacity-90">
+            <BarChart3 className="w-4 h-4" />
+            <span>Based on tire wear, consistency, and telemetry analysis</span>
           </div>
         </div>
 
-        {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Key Metrics Grid - High Contrast */}
+        <div className="grid grid-cols-2 gap-4">
           <AnimatePresence mode="wait">
-            {keyMetrics.map((metric, index) => (
-              <motion.div
-                key={metric.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-3 rounded-lg bg-accent/30 border border-border/50 hover:border-primary/30 transition-all duration-300"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5">
-                    {metric.label === "Speed" && <Zap className="w-3.5 h-3.5 text-blue-500" />}
-                    {metric.label === "RPM" && <GaugeIcon className="w-3.5 h-3.5 text-orange-500" />}
-                    {metric.label === "Lateral G" && <Activity className="w-3.5 h-3.5 text-purple-500" />}
-                    {metric.label === "Tire Health" && <Target className="w-3.5 h-3.5 text-green-500" />}
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {metric.label}
-                    </span>
+            {keyMetrics.map((metric, index) => {
+              // High contrast color mapping
+              const bgColor = metric.label === "Speed" ? "bg-blue-600" :
+                            metric.label === "RPM" ? "bg-orange-600" :
+                            metric.label === "Lateral G" ? "bg-purple-600" :
+                            metric.label === "Tire Health" ? 
+                              (metric.value > 70 ? "bg-green-600" : metric.value > 50 ? "bg-yellow-600" : "bg-red-600") :
+                            "bg-gray-600";
+              const textColor = "text-white";
+              const borderColor = metric.label === "Speed" ? "border-blue-400" :
+                                metric.label === "RPM" ? "border-orange-400" :
+                                metric.label === "Lateral G" ? "border-purple-400" :
+                                metric.label === "Tire Health" ?
+                                  (metric.value > 70 ? "border-green-400" : metric.value > 50 ? "border-yellow-400" : "border-red-400") :
+                                "border-gray-400";
+              
+              return (
+                <motion.div
+                  key={metric.label}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                  className={`${bgColor} ${borderColor} border-4 rounded-xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {metric.label === "Speed" && <Zap className={`w-5 h-5 ${textColor}`} />}
+                      {metric.label === "RPM" && <GaugeIcon className={`w-5 h-5 ${textColor}`} />}
+                      {metric.label === "Lateral G" && <Activity className={`w-5 h-5 ${textColor}`} />}
+                      {metric.label === "Tire Health" && <Target className={`w-5 h-5 ${textColor}`} />}
+                      <span className={`text-xs font-bold ${textColor} uppercase tracking-wide`}>
+                        {metric.label}
+                      </span>
+                    </div>
+                    {metric.trend && (
+                      <motion.div
+                        animate={{ y: metric.trend === 'up' ? [-2, 2, -2] : metric.trend === 'down' ? [2, -2, 2] : 0 }}
+                        transition={{ duration: 0.5, repeat: Infinity }}
+                      >
+                        {metric.trend === 'up' && (
+                          <TrendingUp className={`w-5 h-5 ${textColor}`} />
+                        )}
+                        {metric.trend === 'down' && (
+                          <TrendingDown className={`w-5 h-5 ${textColor}`} />
+                        )}
+                      </motion.div>
+                    )}
                   </div>
-                  {metric.trend && (
-                    <motion.div
-                      animate={{ y: metric.trend === 'up' ? [-2, 2, -2] : metric.trend === 'down' ? [2, -2, 2] : 0 }}
-                      transition={{ duration: 0.5 }}
+                  <div className="flex items-baseline gap-2">
+                    <motion.span
+                      key={metric.value}
+                      initial={{ scale: 1.3, opacity: 0.5 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className={`${textColor} text-3xl font-black font-mono`}
                     >
-                      {metric.trend === 'up' && (
-                        <TrendingUp className="w-3 h-3 text-green-500" />
-                      )}
-                      {metric.trend === 'down' && (
-                        <TrendingDown className="w-3 h-3 text-red-500" />
-                      )}
-                    </motion.div>
-                  )}
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <motion.span
-                    key={metric.value}
-                    initial={{ scale: 1.2, opacity: 0.5 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className={`text-xl font-bold font-mono ${metric.color || "text-foreground"}`}
-                  >
-                    {metric.value.toFixed(metric.unit === '%' ? 0 : metric.unit === 'g' ? 2 : 0)}
-                  </motion.span>
-                  <span className="text-xs text-muted-foreground">{metric.unit}</span>
-                  {metric.delta !== undefined && Math.abs(metric.delta) > 0.1 && (
-                    <span className={`text-xs font-semibold ${
-                      metric.delta > 0 ? 'text-green-500' : 'text-red-500'
-                    }`}>
-                      {metric.delta > 0 ? '+' : ''}{metric.delta.toFixed(1)}
+                      {metric.value.toFixed(metric.unit === '%' ? 0 : metric.unit === 'g' ? 2 : 0)}
+                    </motion.span>
+                    <span className={`${textColor} text-sm font-bold opacity-90`}>
+                      {metric.unit}
                     </span>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                    {metric.delta !== undefined && Math.abs(metric.delta) > 0.1 && (
+                      <span className={`${textColor} text-xs font-bold opacity-75`}>
+                        {metric.delta > 0 ? '+' : ''}{metric.delta.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
 
-        {/* Additional Metrics */}
+        {/* Additional Metrics - High Contrast */}
         {metrics.throttle && metrics.brake && (
-          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
-            <div className="p-2 rounded-lg bg-accent/20">
-              <div className="flex items-center gap-1 mb-1">
-                <TrendingUp className="w-3 h-3 text-green-500" />
-                <span className="text-xs text-muted-foreground">Throttle</span>
+          <div className="grid grid-cols-2 gap-4 pt-4 border-t-2 border-foreground/10">
+            <div className="bg-green-600 border-2 border-green-400 rounded-lg p-3 shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-4 h-4 text-green-50" />
+                <span className="text-xs font-bold text-green-50 uppercase tracking-wide">Throttle</span>
               </div>
-              <div className="text-lg font-bold font-mono text-green-500">
+              <div className="text-2xl font-black font-mono text-green-50">
                 {metrics.throttle.value.toFixed(0)}%
               </div>
             </div>
-            <div className="p-2 rounded-lg bg-accent/20">
-              <div className="flex items-center gap-1 mb-1">
-                <AlertTriangle className="w-3 h-3 text-red-500" />
-                <span className="text-xs text-muted-foreground">Brake</span>
+            <div className="bg-red-600 border-2 border-red-400 rounded-lg p-3 shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-red-50" />
+                <span className="text-xs font-bold text-red-50 uppercase tracking-wide">Brake</span>
               </div>
-              <div className="text-lg font-bold font-mono text-red-500">
+              <div className="text-2xl font-black font-mono text-red-50">
                 {metrics.brake.value.toFixed(0)}%
               </div>
             </div>
           </div>
         )}
 
-        {/* Live Insights */}
+        {/* Live Insights - High Contrast */}
         {data && (
-          <div className="pt-3 border-t border-border/50 space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-              <Clock className="w-3 h-3" />
-              Live Insights
-            </p>
+          <div className="pt-4 border-t-2 border-foreground/10 space-y-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-5 h-5 text-foreground" />
+              <span className="text-base font-bold text-foreground uppercase tracking-wide">
+                Live Insights
+              </span>
+            </div>
             <AnimatePresence>
               {data.gap_analysis?.overtaking_opportunity && (
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
-                  className="flex items-center justify-between text-xs p-2 rounded bg-green-500/10 border border-green-500/20"
+                  className="flex items-center justify-between text-sm p-3 rounded-lg bg-green-700 text-green-50 border-2 border-green-400 font-bold"
                 >
-                  <span className="text-green-600 font-medium">Overtaking Opportunity</span>
-                  <Badge variant="outline" className="bg-green-500/20 text-green-600 border-green-500/30 text-xs">
+                  <span>Overtaking Opportunity</span>
+                  <Badge className="bg-green-600 text-green-50 border border-green-400">
                     Active
                   </Badge>
                 </motion.div>
@@ -352,10 +376,10 @@ export const RealTimeMetricsCard: React.FC<RealTimeMetricsCardProps> = ({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
-                  className="flex items-center justify-between text-xs p-2 rounded bg-yellow-500/10 border border-yellow-500/20"
+                  className="flex items-center justify-between text-sm p-3 rounded-lg bg-yellow-700 text-yellow-50 border-2 border-yellow-400 font-bold"
                 >
-                  <span className="text-yellow-600 font-medium">Under Pressure</span>
-                  <Badge variant="outline" className="bg-yellow-500/20 text-yellow-600 border-yellow-500/30 text-xs">
+                  <span>Under Pressure</span>
+                  <Badge className="bg-yellow-600 text-yellow-50 border border-yellow-400">
                     Warning
                   </Badge>
                 </motion.div>
@@ -364,10 +388,10 @@ export const RealTimeMetricsCard: React.FC<RealTimeMetricsCardProps> = ({
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center justify-between text-xs p-2 rounded bg-blue-500/10 border border-blue-500/20"
+                  className="flex items-center justify-between text-sm p-3 rounded-lg bg-blue-700 text-blue-50 border-2 border-blue-400 font-bold"
                 >
-                  <span className="text-blue-600 font-medium">Tire Life Remaining</span>
-                  <span className="font-bold text-blue-600">
+                  <span>Tire Life Remaining</span>
+                  <span className="text-lg font-black">
                     {data.tire_wear.predicted_laps_remaining} laps
                   </span>
                 </motion.div>
@@ -377,11 +401,11 @@ export const RealTimeMetricsCard: React.FC<RealTimeMetricsCardProps> = ({
         )}
 
         {error && (
-          <div className="pt-2 border-t border-border/50">
-            <p className="text-xs text-red-500 flex items-center gap-2">
-              <AlertTriangle className="w-3 h-3" />
-              Connection Error: {error}
-            </p>
+          <div className="pt-4 border-t-2 border-foreground/10">
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-700 text-red-50 border-2 border-red-400">
+              <AlertTriangle className="w-5 h-5" />
+              <span className="font-bold">Connection Error: {error}</span>
+            </div>
           </div>
         )}
       </CardContent>

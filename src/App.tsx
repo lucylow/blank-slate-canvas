@@ -32,6 +32,7 @@ import LovableCloudConfig from "./pages/LovableCloudConfig";
 import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
 import PostEventAnalysis from "./pages/PostEventAnalysis";
 import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
+import RaceStoryGenerator from "./pages/RaceStoryGenerator";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,6 +125,9 @@ const App = () => (
                     
                     {/* Edge Functions - Real-time analytics functions dashboard */}
                     <Route path="/edge-functions" element={<EdgeFunctionsPage />} />
+                    
+                    {/* Race Story Generator - Broadcast & Debrief - Automatically identifies key race moments */}
+                    <Route path="/race-story" element={<RaceStoryGenerator />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />

@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useAnalyticsData } from '@/hooks/useAnalyticsData';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PerformanceData {
@@ -97,26 +97,74 @@ export function PerformanceComparisonChart() {
     );
   }
 
+  // Calculate insights
+  const insights = useMemo(() => {
+    if (chartData.length === 0) return null;
+    const bestVehicle = chartData[0];
+    const avgConsistency = chartData.reduce((sum, v) => sum + v.consistency, 0) / chartData.length;
+    const topPerformer = chartData.find(v => v.bestLapTime === Math.min(...chartData.map(d => d.bestLapTime)));
+    
+    return {
+      bestVehicle: bestVehicle?.vehicle,
+      bestLapTime: bestVehicle?.bestLapTime,
+      avgConsistency: avgConsistency.toFixed(1),
+      topPerformer: topPerformer?.vehicle,
+      performanceGap: chartData.length > 1 
+        ? (chartData[chartData.length - 1].bestLapTime - chartData[0].bestLapTime).toFixed(2)
+        : '0.00',
+    };
+  }, [chartData]);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Performance Comparison by Vehicle</CardTitle>
+    <Card className="border-primary/20 bg-card/60 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-300">
+      <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-primary/20">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Performance Comparison by Vehicle
+          </CardTitle>
+          {insights && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                Top: {insights.bestVehicle}
+              </span>
+            </div>
+          )}
+        </div>
+        {insights && (
+          <div className="mt-3 grid grid-cols-3 gap-3 text-xs">
+            <div className="p-2 rounded bg-accent/30 border border-border/50">
+              <div className="text-muted-foreground">Best Lap</div>
+              <div className="font-bold text-foreground">{insights.bestLapTime}s</div>
+            </div>
+            <div className="p-2 rounded bg-accent/30 border border-border/50">
+              <div className="text-muted-foreground">Avg Consistency</div>
+              <div className="font-bold text-foreground">{insights.avgConsistency}%</div>
+            </div>
+            <div className="p-2 rounded bg-accent/30 border border-border/50">
+              <div className="text-muted-foreground">Performance Gap</div>
+              <div className="font-bold text-foreground">{insights.performanceGap}s</div>
+            </div>
+          </div>
+        )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
             <XAxis
               dataKey="vehicle"
               stroke="hsl(var(--muted-foreground))"
               fontSize={12}
               tickLine={false}
+              tick={{ fill: 'hsl(var(--muted-foreground))' }}
             />
             <YAxis
               stroke="hsl(var(--muted-foreground))"
               fontSize={12}
               tickLine={false}
-              label={{ value: 'Lap Time (seconds)', angle: -90, position: 'insideLeft' }}
+              tick={{ fill: 'hsl(var(--muted-foreground))' }}
+              label={{ value: 'Lap Time (seconds)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'hsl(var(--muted-foreground))' } }}
             />
             <Tooltip
               contentStyle={{
@@ -124,26 +172,40 @@ export function PerformanceComparisonChart() {
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
                 color: 'hsl(var(--foreground))',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               }}
-              formatter={(value: number, name: string) => {
+              formatter={(value: number, name: string, props: any) => {
                 if (name === 'avgLapTime' || name === 'bestLapTime') {
-                  return [`${value.toFixed(2)}s`, name === 'avgLapTime' ? 'Avg Lap Time' : 'Best Lap Time'];
+                  const label = name === 'avgLapTime' ? 'Avg Lap Time' : 'Best Lap Time';
+                  const consistency = props.payload?.consistency;
+                  return [
+                    <div key={name} className="space-y-1">
+                      <div className="font-semibold">{`${value.toFixed(2)}s`}</div>
+                      {consistency && <div className="text-xs text-muted-foreground">Consistency: {consistency.toFixed(1)}%</div>}
+                    </div>,
+                    label
+                  ];
                 }
                 return [value, name];
               }}
             />
-            <Legend />
+            <Legend 
+              wrapperStyle={{ paddingTop: '20px' }}
+              iconType="square"
+            />
             <Bar
               dataKey="avgLapTime"
-              fill="#ef4444"
+              fill="hsl(var(--primary))"
               name="Average Lap Time"
-              radius={[4, 4, 0, 0]}
+              radius={[6, 6, 0, 0]}
+              opacity={0.8}
             />
             <Bar
               dataKey="bestLapTime"
               fill="#10b981"
               name="Best Lap Time"
-              radius={[4, 4, 0, 0]}
+              radius={[6, 6, 0, 0]}
+              opacity={0.9}
             />
           </BarChart>
         </ResponsiveContainer>

@@ -7,7 +7,7 @@ import {
   Download,
   Filter,
   Search,
-  Compare,
+  GitGitCompare,
   Calendar,
   MapPin,
   Users,
@@ -341,8 +341,8 @@ export default function PostEventAnalysis() {
               onClick={() => setComparisonMode(!comparisonMode)}
               className="gap-2"
             >
-              <Compare className="w-4 h-4" />
-              Compare
+              <GitCompare className="w-4 h-4" />
+              GitCompare
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -432,8 +432,8 @@ export default function PostEventAnalysis() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Compare className="w-5 h-5" />
-                Select Races to Compare
+                <GitCompare className="w-5 h-5" />
+                Select Races to GitCompare
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -675,7 +675,7 @@ export default function PostEventAnalysis() {
             ) : (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <Compare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <GitCompare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">
                     Select races in comparison mode to view detailed comparisons
                   </p>

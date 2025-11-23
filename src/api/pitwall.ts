@@ -954,3 +954,203 @@ export async function requestAgentAnalysis(
   }
 }
 
+// ============================================================================
+// ANALYTICS API FUNCTIONS
+// ============================================================================
+
+export interface TireWearEvalByTrack {
+  rmse_mean: number;
+  rmse_std: number;
+  rmse_list: number[];
+  r2_mean: number;
+  r2_list: number[];
+  n_samples: number;
+  folds: number;
+}
+
+export interface TireWearEvalResponse {
+  eval_metric: string;
+  model_version: string;
+  by_track: Record<string, TireWearEvalByTrack>;
+  summary: {
+    avg_rmse: number;
+    timestamp: number;
+  };
+}
+
+export interface DatasetCoverage {
+  n_laps: number;
+  n_drivers: number;
+  n_sessions: number;
+  date_min: string;
+  date_max: string;
+  tire_compounds: string[];
+  data_sha: string;
+}
+
+export interface DatasetCoverageResponse {
+  by_track: Record<string, DatasetCoverage>;
+  summary: {
+    total_laps: number;
+    total_drivers: number;
+    total_sessions: number;
+    training_complete: boolean;
+  };
+}
+
+export interface AnomalySummary {
+  anomalies: Record<string, {
+    count: number;
+    severity: string;
+  }>;
+  track: string | null;
+  period: string;
+}
+
+/**
+ * Evaluate tire wear prediction model
+ */
+export async function evaluateTireWearModel(
+  track?: string,
+  foldN: number = 5
+): Promise<TireWearEvalResponse> {
+  try {
+    const params: Record<string, string | number> = { fold_n: foldN };
+    if (track) params.track = track;
+    
+    const res = await client.get<TireWearEvalResponse>("/api/analytics/eval/tire-wear", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Tire wear eval API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get dataset coverage information
+ */
+export async function getDatasetCoverage(): Promise<DatasetCoverageResponse> {
+  try {
+    const res = await client.get<DatasetCoverageResponse>("/api/analytics/dataset/coverage");
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Dataset coverage API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get anomaly summary
+ */
+export async function getAnomalySummary(
+  track?: string,
+  limit: number = 10
+): Promise<AnomalySummary> {
+  try {
+    const params: Record<string, string | number> = { limit };
+    if (track) params.track = track;
+    
+    const res = await client.get<AnomalySummary>("/api/analytics/alerts/anomaly-summary", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Anomaly summary API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+// ============================================================================
+// INSIGHTS API FUNCTIONS
+// ============================================================================
+
+export interface Insight {
+  insight_id: string;
+  type: string;
+  created_at: number;
+}
+
+export interface InsightsListResponse {
+  insights: Insight[];
+}
+
+export interface InsightDetail {
+  insight_id: string;
+  type: string;
+  title?: string;
+  lap?: number;
+  sector?: string;
+  severity?: string;
+  evidence?: Record<string, unknown>;
+  trace?: {
+    timestamps: number[];
+    brake_pressure?: number[];
+    speed_kmh?: number[];
+  };
+}
+
+/**
+ * List recent insights
+ */
+export async function listInsights(
+  vehicleId?: string,
+  limit: number = 20
+): Promise<InsightsListResponse> {
+  try {
+    const params: Record<string, string | number> = { limit };
+    if (vehicleId) params.vehicle_id = vehicleId;
+    
+    const res = await client.get<InsightsListResponse>("/api/insights", { params });
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Insights list API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
+/**
+ * Get insight details
+ */
+export async function getInsight(insightId: string): Promise<InsightDetail> {
+  try {
+    const res = await client.get<InsightDetail>(`/api/insights/${encodeURIComponent(insightId)}`);
+    return res.data;
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: { message?: string }; statusText?: string } };
+      throw new Error(`Insight API error (${axiosError.response?.status}): ${axiosError.response?.data?.message || axiosError.response?.statusText}`);
+    } else if (error && typeof error === 'object' && 'request' in error) {
+      throw new Error("Network error: Backend server may be unavailable");
+    } else {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Request error: ${message}`);
+    }
+  }
+}
+
