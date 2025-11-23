@@ -31,6 +31,7 @@ import PitWindowOptimization from "./pages/PitWindowOptimization";
 import LovableCloudConfig from "./pages/LovableCloudConfig";
 import GRCarsAndDrivers from "./pages/GRCarsAndDrivers";
 import PostEventAnalysis from "./pages/PostEventAnalysis";
+import EdgeFunctionsPage from "./pages/EdgeFunctionsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -120,6 +121,9 @@ const App = () => (
                     
                     {/* Post-Event Analysis - Comprehensive race analysis and comparisons */}
                     <Route path="/post-event-analysis" element={<PostEventAnalysis />} />
+                    
+                    {/* Edge Functions - Real-time analytics functions dashboard */}
+                    <Route path="/edge-functions" element={<EdgeFunctionsPage />} />
                     
                     {/* 404 - Catch-all route */}
                     <Route path="*" element={<NotFound />} />

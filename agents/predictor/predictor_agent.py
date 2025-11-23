@@ -199,7 +199,15 @@ def main_loop():
             task_id = task.get('task_id')
             payload = task.get('payload', {})
             features = predict_feature_vector(payload)
-            pred = float(model.predict([features])[0])
+            
+            # Use improved prediction function
+            if isinstance(model, dict) and 'phys_model' in model:
+                pred_array = predict_with_model(model, [features])
+                pred = float(pred_array[0] if hasattr(pred_array, '__len__') else pred_array)
+            else:
+                # Legacy format
+                pred = float(model.predict([features])[0] if hasattr(model, 'predict') else predict_with_model(model, [features])[0])
+            
             insight_id = f"insight-{uuid.uuid4().hex[:8]}"
             # Enhanced feature importance extraction
             top_features = []
@@ -223,7 +231,7 @@ def main_loop():
                 "insight_id": insight_id,
                 "track": task.get('track'),
                 "chassis": task.get('chassis'),
-                "model_version": getattr(model, 'version', 'v0'),
+                "model_version": model.get('model_name', 'v0') if isinstance(model, dict) else getattr(model, 'version', 'v0'),
                 "predictions": {"predicted_loss_per_lap_seconds": pred, "laps_until_0_5s_loss": max(1.0, round(0.5 / (pred or 0.01), 2))},
                 "explanation": {"top_features": top_features, "evidence":[payload.get('sample')]},
                 "feature_scores": top_features,  # Add feature_scores for UI compatibility

@@ -4,7 +4,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+// Environment variable validation
+function getEnvVar(name: string): string {
+  const value = Deno.env.get(name);
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+// Create Supabase client with validation
+function createSupabaseClient() {
+  try {
+    const url = getEnvVar('SUPABASE_URL');
+    const serviceRoleKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY');
+    return createClient(url, serviceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    // Return a client with empty strings - operations will fail gracefully
+    return createClient('', '');
+  }
+}
 
 // Simple in-memory cache (30s TTL)
 const cache = new Map<string, { data: any; expires: number }>();
@@ -65,43 +93,40 @@ async function fetchModelPrediction(payload: any): Promise<any> {
 
 // Fallback to AI gateway
 async function fetchAIFallback(payload: any): Promise<any> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  if (!LOVABLE_API_KEY) {
-    throw new Error('LOVABLE_API_KEY not configured');
-  }
+  const LOVABLE_API_KEY = getEnvVar('LOVABLE_API_KEY');
 
-  const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert motorsports tire engineer. Analyze telemetry and predict tire wear. Always respond with valid JSON only, no markdown.'
-        },
-        {
-          role: 'user',
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert motorsports tire engineer. Analyze telemetry and predict tire wear. Always respond with valid JSON only, no markdown.'
+          },
+          {
+            role: 'user',
           content: `Predict tire wear. Respond with JSON: { "pred_loss_per_lap_seconds": 0, "laps_until_0_5s": 0, "temp_map": [[0]], "confidence": 0.0-1.0 }`
-        }
-      ]
-    }),
-  });
+          }
+        ]
+      }),
+    });
 
-  if (!aiResponse.ok) {
-    throw new Error(`AI gateway error: ${aiResponse.status}`);
-  }
+    if (!aiResponse.ok) {
+      throw new Error(`AI gateway error: ${aiResponse.status}`);
+    }
 
-  const data = await aiResponse.json();
-  const content = data.choices[0].message.content;
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('Invalid AI response format');
-  }
-  
+    const data = await aiResponse.json();
+    const content = data.choices[0].message.content;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Invalid AI response format');
+    }
+    
   return JSON.parse(jsonMatch[0]);
 }
 
@@ -188,20 +213,16 @@ serve(async (req) => {
     console.log(JSON.stringify(logEntry));
 
     // Store metrics
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabase = createSupabaseClient();
 
     try {
-      await supabase.from('api_logs').insert({
-        endpoint: '/predict-tire-wear',
-        method: 'POST',
+    await supabase.from('api_logs').insert({
+      endpoint: '/predict-tire-wear',
+      method: 'POST',
         request_body: { chassisId: body.chassisId },
-        response_code: 200,
-        latency_ms: latency,
-        request_id: reqId,
-      });
+      response_code: 200,
+      latency_ms: latency,
+    });
     } catch (dbError) {
       console.error('DB log insert failed:', dbError);
     }

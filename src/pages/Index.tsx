@@ -18,7 +18,7 @@ import {
 import { TopNav } from "@/components/layout/TopNav";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import DemoLauncher from "@/components/DemoLauncher";
 import AIAgentResults from "@/components/AIAgentResults";
@@ -34,6 +34,14 @@ import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
 import { RealTimeMetricsCard } from "@/components/dashboard/RealTimeMetricsCard";
 import { RealTimeAlerts } from "@/components/dashboard/RealTimeAlerts";
 import { LivePerformanceComparison } from "@/components/dashboard/LivePerformanceComparison";
+import { PerformanceComparisonChart } from "@/components/analytics/PerformanceComparisonChart";
+import { SectorAnalysisChart } from "@/components/analytics/SectorAnalysisChart";
+import { SpeedDistributionChart } from "@/components/analytics/SpeedDistributionChart";
+import { PositionTrackingChart } from "@/components/analytics/PositionTrackingChart";
+import { GForceAnalysisChart } from "@/components/analytics/GForceAnalysisChart";
+import { ConsistencyMetricsChart } from "@/components/analytics/ConsistencyMetricsChart";
+import { LapTimeTrendsChart } from "@/components/analytics/LapTimeTrendsChart";
+import { TireWearDistributionChart } from "@/components/analytics/TireWearDistributionChart";
 
 import {
   checkHealth,
@@ -2182,6 +2190,85 @@ const Index = () => {
                 className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
               >
                 Explore Full Dashboard
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Comprehensive Analytics Dashboard Section */}
+      <section
+        id="comprehensive-analytics"
+        className="py-24 px-6 bg-gradient-to-b from-background via-accent/10 to-background relative overflow-hidden scroll-mt-20"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.08),transparent_70%)]" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">
+                Advanced Analytics
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Comprehensive Performance Analytics
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Deep dive into performance metrics, lap time trends, sector analysis, 
+              position tracking, and consistency measurements across all tracks and vehicles.
+            </p>
+          </div>
+
+          {/* Chart Grid - Row 1: Performance & Sector Analysis */}
+          <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <PerformanceComparisonChart />
+            <SectorAnalysisChart />
+          </div>
+
+          {/* Chart Grid - Row 2: Lap Time Trends & Tire Wear */}
+          <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Lap Time Trends</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-96">
+                  <LapTimeTrendsChart />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tire Wear Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-96">
+                  <TireWearDistributionChart />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Chart Grid - Row 3: Position Tracking & Speed Distribution */}
+          <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <PositionTrackingChart />
+            <SpeedDistributionChart />
+          </div>
+
+          {/* Chart Grid - Row 4: G-Force Analysis & Consistency Metrics */}
+          <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <GForceAnalysisChart />
+            <ConsistencyMetricsChart />
+          </div>
+
+          <div className="text-center mt-8">
+            <Link to="/analytics">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
+              >
+                View Full Analytics Dashboard
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>

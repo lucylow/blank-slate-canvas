@@ -40,12 +40,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import {
   getEdgeFunctionMetrics,
   testEdgeFunction,
   type EdgeFunctionMetrics,
 } from '@/api/edgeFunctions';
+import { useEdgeFunctionMetrics } from '@/hooks/useEdgeFunctionMetrics';
 
 interface FunctionStatus {
   name: string;
@@ -145,18 +146,18 @@ export function EdgeFunctionsDashboard() {
     functionName: '',
     trace: null,
   });
-  const { toast } = useToast();
+  // Toast is imported directly
+
+  const { data: metrics, isLoading } = useEdgeFunctionMetrics();
 
   useEffect(() => {
-    loadMetrics();
-    const interval = setInterval(loadMetrics, 30000); // Refresh every 30s
-    return () => clearInterval(interval);
-  }, []);
+    if (metrics) {
+      loadMetrics(metrics);
+    }
+  }, [metrics]);
 
-  async function loadMetrics() {
-    try {
-      const metrics = await getEdgeFunctionMetrics();
-      const functionList: FunctionStatus[] = Object.entries(metrics).map(([name, m]) => {
+  function loadMetrics(metricsData: Record<string, EdgeFunctionMetrics>) {
+      const functionList: FunctionStatus[] = Object.entries(metricsData).map(([name, m]) => {
         const def = FUNCTION_DEFINITIONS[name as keyof typeof FUNCTION_DEFINITIONS];
         const status: FunctionStatus['status'] =
           m.invocations === 0 && new Date(m.last_seen).getTime() < Date.now() - 86400000 * 2
@@ -199,12 +200,8 @@ export function EdgeFunctionsDashboard() {
         }
       });
 
-      setFunctions(functionList);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to load metrics:', error);
-      setLoading(false);
-    }
+    setFunctions(functionList);
+    setLoading(false);
   }
 
   async function handleTest(functionName: string) {
@@ -257,7 +254,7 @@ export function EdgeFunctionsDashboard() {
     });
   }
 
-  if (loading) {
+  if (loading || isLoading) {
     return (
       <Card>
         <CardContent className="p-6">
