@@ -70,8 +70,8 @@ const Analytics = () => {
   const analyticsData = dashboardData ? [
     {
       title: "Lap Time Analysis",
-      value: dashboardData.performance.current_lap || "N/A",
-      change: dashboardData.performance.best_lap ? `Best: ${dashboardData.performance.best_lap}` : "N/A",
+      value: dashboardData.performance?.current_lap || "N/A",
+      change: dashboardData.performance?.best_lap ? `Best: ${dashboardData.performance.best_lap}` : "N/A",
       trend: "improving",
       icon: <Activity className="w-5 h-5" />,
       color: "text-green-500",
@@ -79,8 +79,10 @@ const Analytics = () => {
     },
     {
       title: "Tire Performance",
-      value: `${Math.round((dashboardData.tire_wear.front_left + dashboardData.tire_wear.front_right + dashboardData.tire_wear.rear_left + dashboardData.tire_wear.rear_right) / 4)}%`,
-      change: dashboardData.tire_wear.confidence ? `${Math.round(dashboardData.tire_wear.confidence * 100)}% confidence` : "N/A",
+      value: dashboardData.tire_wear && typeof dashboardData.tire_wear.front_left === 'number' && typeof dashboardData.tire_wear.front_right === 'number' && typeof dashboardData.tire_wear.rear_left === 'number' && typeof dashboardData.tire_wear.rear_right === 'number' 
+        ? `${Math.round((dashboardData.tire_wear.front_left + dashboardData.tire_wear.front_right + dashboardData.tire_wear.rear_left + dashboardData.tire_wear.rear_right) / 4)}%` 
+        : "N/A",
+      change: dashboardData.tire_wear?.confidence ? `${Math.round(dashboardData.tire_wear.confidence * 100)}% confidence` : "N/A",
       trend: "stable",
       icon: <PieChart className="w-5 h-5" />,
       color: "text-blue-500",
@@ -88,17 +90,17 @@ const Analytics = () => {
     },
     {
       title: "Gap to Leader",
-      value: dashboardData.gap_analysis.gap_to_leader || "N/A",
-      change: dashboardData.gap_analysis.overtaking_opportunity ? "Overtaking opportunity" : "Maintaining position",
-      trend: dashboardData.gap_analysis.overtaking_opportunity ? "improving" : "stable",
+      value: dashboardData.gap_analysis?.gap_to_leader || "N/A",
+      change: dashboardData.gap_analysis?.overtaking_opportunity ? "Overtaking opportunity" : "Maintaining position",
+      trend: dashboardData.gap_analysis?.overtaking_opportunity ? "improving" : "stable",
       icon: <BarChart3 className="w-5 h-5" />,
-      color: dashboardData.gap_analysis.overtaking_opportunity ? "text-green-500" : "text-blue-500",
+      color: dashboardData.gap_analysis?.overtaking_opportunity ? "text-green-500" : "text-blue-500",
       description: "Real-time gap analysis to race leader"
     },
     {
       title: "Race Position",
-      value: `P${dashboardData.performance.position || "N/A"}`,
-      change: dashboardData.performance.predicted_finish ? `Predicted: ${dashboardData.performance.predicted_finish}` : "N/A",
+      value: `P${dashboardData.performance?.position || "N/A"}`,
+      change: dashboardData.performance?.predicted_finish ? `Predicted: ${dashboardData.performance.predicted_finish}` : "N/A",
       trend: "improving",
       icon: <Target className="w-5 h-5" />,
       color: "text-purple-500",
@@ -111,41 +113,49 @@ const Analytics = () => {
     if (!dashboardData) return [];
 
     const insights = [];
-    const avgTireWear = (dashboardData.tire_wear.front_left + dashboardData.tire_wear.front_right + dashboardData.tire_wear.rear_left + dashboardData.tire_wear.rear_right) / 4;
+    
+    // Tire wear insight - safely check if tire_wear exists and has valid values
+    if (dashboardData.tire_wear && 
+        typeof dashboardData.tire_wear.front_left === 'number' && 
+        typeof dashboardData.tire_wear.front_right === 'number' && 
+        typeof dashboardData.tire_wear.rear_left === 'number' && 
+        typeof dashboardData.tire_wear.rear_right === 'number') {
+      const avgTireWear = (dashboardData.tire_wear.front_left + dashboardData.tire_wear.front_right + dashboardData.tire_wear.rear_left + dashboardData.tire_wear.rear_right) / 4;
 
-    // Tire wear insight
-    if (avgTireWear > 75) {
-      insights.push({
-        type: "warning",
-        icon: <AlertTriangle className="w-4 h-4" />,
-        title: "High Tire Wear Detected",
-        message: `Average tire wear is at ${Math.round(avgTireWear)}%. Consider pit strategy evaluation.`,
-        color: "text-amber-500"
-      });
-    } else if (avgTireWear < 50) {
-      insights.push({
-        type: "success",
-        icon: <CheckCircle2 className="w-4 h-4" />,
-        title: "Optimal Tire Condition",
-        message: `Tires are in excellent condition at ${Math.round(avgTireWear)}% wear.`,
-        color: "text-green-500"
-      });
+      if (avgTireWear > 75) {
+        insights.push({
+          type: "warning",
+          icon: <AlertTriangle className="w-4 h-4" />,
+          title: "High Tire Wear Detected",
+          message: `Average tire wear is at ${Math.round(avgTireWear)}%. Consider pit strategy evaluation.`,
+          color: "text-amber-500"
+        });
+      } else if (avgTireWear < 50) {
+        insights.push({
+          type: "success",
+          icon: <CheckCircle2 className="w-4 h-4" />,
+          title: "Optimal Tire Condition",
+          message: `Tires are in excellent condition at ${Math.round(avgTireWear)}% wear.`,
+          color: "text-green-500"
+        });
+      }
     }
 
-    // Gap analysis insight
-    if (dashboardData.gap_analysis.overtaking_opportunity) {
+    // Gap analysis insight - safely check if gap_analysis exists
+    if (dashboardData.gap_analysis?.overtaking_opportunity) {
       insights.push({
         type: "info",
         icon: <TrendingUp className="w-4 h-4" />,
         title: "Overtaking Opportunity",
-        message: `Gaining on competitor ahead. Gap: ${dashboardData.gap_analysis.gap_to_leader}`,
+        message: `Gaining on competitor ahead. Gap: ${dashboardData.gap_analysis?.gap_to_leader || "N/A"}`,
         color: "text-blue-500"
       });
     }
 
-    // Position prediction insight
-    if (dashboardData.performance.predicted_finish && dashboardData.performance.position) {
-      const currentPos = parseInt(dashboardData.performance.predicted_finish.replace('P', '')) || dashboardData.performance.position;
+    // Position prediction insight - safely check if performance exists
+    if (dashboardData.performance?.predicted_finish && dashboardData.performance?.position) {
+      const predictedFinish = dashboardData.performance.predicted_finish.replace('P', '');
+      const currentPos = parseInt(predictedFinish) || dashboardData.performance.position;
       if (currentPos < dashboardData.performance.position) {
         insights.push({
           type: "success",
@@ -527,15 +537,15 @@ const Analytics = () => {
                         <Clock className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-semibold">Lap Progress</span>
                       </div>
-                      <p className="text-2xl font-bold">{dashboardData.performance.lap_number || selectedLap}</p>
-                      <p className="text-xs text-muted-foreground mt-1">of {dashboardData.performance.total_laps || 30} total laps</p>
+                      <p className="text-2xl font-bold">{dashboardData.performance?.lap_number || selectedLap}</p>
+                      <p className="text-xs text-muted-foreground mt-1">of {dashboardData.performance?.total_laps || 30} total laps</p>
                     </div>
                     <div className="p-4 rounded-lg bg-accent/50 border border-border/30">
                       <div className="flex items-center gap-2 mb-2">
                         <Award className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-semibold">Current Position</span>
                       </div>
-                      <p className="text-2xl font-bold">P{dashboardData.performance.position || "N/A"}</p>
+                      <p className="text-2xl font-bold">P{dashboardData.performance?.position || "N/A"}</p>
                       <p className="text-xs text-muted-foreground mt-1">in Race {selectedRace}</p>
                     </div>
                     <div className="p-4 rounded-lg bg-accent/50 border border-border/30">
@@ -544,15 +554,15 @@ const Analytics = () => {
                         <span className="text-sm font-semibold">Performance Trend</span>
                       </div>
                       <p className="text-2xl font-bold flex items-center gap-2">
-                        {dashboardData.performance.predicted_finish || "P" + (dashboardData.performance.position || "N/A")}
-                        {dashboardData.performance.predicted_finish && parseInt(dashboardData.performance.predicted_finish.replace('P', '')) < (dashboardData.performance.position || 999) && (
+                        {dashboardData.performance?.predicted_finish || "P" + (dashboardData.performance?.position || "N/A")}
+                        {dashboardData.performance?.predicted_finish && dashboardData.performance?.position && parseInt(dashboardData.performance.predicted_finish.replace('P', '')) < dashboardData.performance.position && (
                           <ArrowUpRight className="w-5 h-5 text-green-500" />
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">Predicted finish</p>
                     </div>
                   </div>
-                  {dashboardData.tire_wear.pit_window_optimal && dashboardData.tire_wear.pit_window_optimal.length > 0 && (
+                  {dashboardData.tire_wear?.pit_window_optimal && Array.isArray(dashboardData.tire_wear.pit_window_optimal) && dashboardData.tire_wear.pit_window_optimal.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-border/50">
                       <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Optimal Pit Window</h4>
                       <div className="flex flex-wrap gap-2">
@@ -652,10 +662,10 @@ const Analytics = () => {
                         <Clock className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <span className="font-medium block">Current Lap</span>
-                          <span className="text-xs text-muted-foreground">Lap {dashboardData?.performance.lap_number || selectedLap}/{dashboardData?.performance.total_laps || 30}</span>
+                          <span className="text-xs text-muted-foreground">Lap {dashboardData?.performance?.lap_number || selectedLap}/{dashboardData?.performance?.total_laps || 30}</span>
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-lg">{dashboardData?.performance.current_lap || "N/A"}</span>
+                      <span className="font-mono font-bold text-lg">{dashboardData?.performance?.current_lap || "N/A"}</span>
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 transition-colors">
                       <div className="flex items-center gap-3">
@@ -665,18 +675,18 @@ const Analytics = () => {
                           <span className="text-xs text-muted-foreground">Personal best</span>
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-lg text-primary">{dashboardData?.performance.best_lap || "N/A"}</span>
+                      <span className="font-mono font-bold text-lg text-primary">{dashboardData?.performance?.best_lap || "N/A"}</span>
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 transition-colors">
                       <div className="flex items-center gap-3">
                         <TrendingUp className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <span className="font-medium block">Gap to Leader</span>
-                          <span className="text-xs text-muted-foreground">{dashboardData?.gap_analysis.overtaking_opportunity ? "Closing gap" : "Maintaining"}</span>
+                          <span className="text-xs text-muted-foreground">{dashboardData?.gap_analysis?.overtaking_opportunity ? "Closing gap" : "Maintaining"}</span>
                         </div>
                       </div>
-                      <span className={`font-mono font-bold text-lg ${dashboardData?.gap_analysis.overtaking_opportunity ? "text-green-500" : ""}`}>
-                        {dashboardData?.gap_analysis.gap_to_leader || "N/A"}
+                      <span className={`font-mono font-bold text-lg ${dashboardData?.gap_analysis?.overtaking_opportunity ? "text-green-500" : ""}`}>
+                        {dashboardData?.gap_analysis?.gap_to_leader || "N/A"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-4 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
@@ -690,7 +700,7 @@ const Analytics = () => {
                           </span>
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-lg text-primary">{dashboardData?.performance.predicted_finish || "N/A"}</span>
+                      <span className="font-mono font-bold text-lg text-primary">{dashboardData?.performance?.predicted_finish || "N/A"}</span>
                     </div>
                     {dashboardData?.gap_analysis && (
                       <div className="mt-4 pt-4 border-t border-border/50">
@@ -725,7 +735,7 @@ const Analytics = () => {
             </motion.div>
 
             {/* Tire Wear Analysis */}
-            {dashboardData?.tire_wear && (
+            {dashboardData?.tire_wear && typeof dashboardData.tire_wear.front_left === 'number' && typeof dashboardData.tire_wear.front_right === 'number' && typeof dashboardData.tire_wear.rear_left === 'number' && typeof dashboardData.tire_wear.rear_right === 'number' && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -764,7 +774,7 @@ const Analytics = () => {
                                 dashboardData.tire_wear.front_left > 50 ? "bg-amber-500" :
                                 "bg-green-500"
                               }`}
-                              style={{ width: `${dashboardData.tire_wear.front_left}%` }}
+                              style={{ width: `${Math.min(100, Math.max(0, dashboardData.tire_wear.front_left))}%` }}
                             />
                           </div>
                         </div>
@@ -785,7 +795,7 @@ const Analytics = () => {
                                 dashboardData.tire_wear.front_right > 50 ? "bg-amber-500" :
                                 "bg-green-500"
                               }`}
-                              style={{ width: `${dashboardData.tire_wear.front_right}%` }}
+                              style={{ width: `${Math.min(100, Math.max(0, dashboardData.tire_wear.front_right))}%` }}
                             />
                           </div>
                         </div>
@@ -806,7 +816,7 @@ const Analytics = () => {
                                 dashboardData.tire_wear.rear_left > 50 ? "bg-amber-500" :
                                 "bg-green-500"
                               }`}
-                              style={{ width: `${dashboardData.tire_wear.rear_left}%` }}
+                              style={{ width: `${Math.min(100, Math.max(0, dashboardData.tire_wear.rear_left))}%` }}
                             />
                           </div>
                         </div>
@@ -827,7 +837,7 @@ const Analytics = () => {
                                 dashboardData.tire_wear.rear_right > 50 ? "bg-amber-500" :
                                 "bg-green-500"
                               }`}
-                              style={{ width: `${dashboardData.tire_wear.rear_right}%` }}
+                              style={{ width: `${Math.min(100, Math.max(0, dashboardData.tire_wear.rear_right))}%` }}
                             />
                           </div>
                         </div>
@@ -840,7 +850,7 @@ const Analytics = () => {
                           </div>
                         </div>
                       )}
-                      {dashboardData.tire_wear.confidence && (
+                      {dashboardData.tire_wear.confidence && typeof dashboardData.tire_wear.confidence === 'number' && (
                         <div className="mt-2">
                           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                             <span>Model Confidence</span>
@@ -849,7 +859,7 @@ const Analytics = () => {
                           <div className="h-2 bg-background rounded-full overflow-hidden">
                             <div 
                               className="h-full bg-primary"
-                              style={{ width: `${dashboardData.tire_wear.confidence * 100}%` }}
+                              style={{ width: `${Math.min(100, Math.max(0, dashboardData.tire_wear.confidence * 100))}%` }}
                             />
                           </div>
                         </div>

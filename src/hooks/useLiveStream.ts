@@ -15,12 +15,14 @@ export function useLiveStream(
   useEffect(() => {
     if (!track || !race || !vehicle) return;
     
-    const API_URL = getBackendUrl() || (import.meta.env.DEV ? '/api' : '');
-    if (!API_URL) {
-      setError('API URL not configured');
-      return;
-    }
-
+    // getBackendUrl() returns empty string for relative paths, which is valid
+    // Only check for null/undefined, not empty string
+    const backendUrl = getBackendUrl();
+    const API_URL = backendUrl !== null && backendUrl !== undefined 
+      ? backendUrl 
+      : (import.meta.env.DEV ? '' : '');
+    
+    // Empty string is valid (means use relative paths), so we don't need to check for it
     const url = `${API_URL}/api/live/stream?track=${track}&race=${race}&vehicle=${vehicle}&start_lap=${startLap}&interval=1.0`;
     const eventSource = new EventSource(url);
 

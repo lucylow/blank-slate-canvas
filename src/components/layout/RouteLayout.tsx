@@ -7,7 +7,7 @@ interface RouteLayoutProps {
 }
 
 // Routes that should NOT use the AppLayout (full-page layouts)
-const NO_LAYOUT_ROUTES = ['/', '/about'];
+const NO_LAYOUT_ROUTES = ['/'];
 
 export function RouteLayout({ children }: RouteLayoutProps) {
   const location = useLocation();

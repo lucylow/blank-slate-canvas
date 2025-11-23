@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Flag, ArrowLeft, ArrowRight, Sparkles, Target, Users, Zap } from "lucide-react";
+import { Flag, ArrowRight, Sparkles, Target, Users, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -34,32 +34,8 @@ const About = () => {
       {/* Animated grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
       
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30">
-                <Flag className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h1 className="text-2xl font-bold">About PitWall AI</h1>
-            </div>
-          </div>
-          <Link to="/dashboard">
-            <Button className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105">
-              View Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-6 relative z-10">
+      <main className="py-12 px-6 relative z-10">
         <div className="container mx-auto max-w-4xl">
           {/* Hero Section */}
           <motion.div

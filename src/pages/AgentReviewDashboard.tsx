@@ -221,7 +221,7 @@ export default function AgentReviewDashboard() {
                   {pendingLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
-                    pendingDecisions.filter(d => d.risk_level === "critical").length
+                    pendingDecisions.filter(d => d.risk_level === "critical" || d.risk_level === undefined).length
                   )}
                 </p>
               </div>
@@ -282,31 +282,39 @@ export default function AgentReviewDashboard() {
                       key={decision.decision_id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className={`p-4 rounded-lg border ${getRiskColor(decision.risk_level)}`}
+                      className={`p-4 rounded-lg border ${getRiskColor(decision.risk_level || "moderate")}`}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline" className="text-xs">
-                              {decision.agent_type?.replace("_", " ") || "agent"}
+                              {(decision as any).agent_type?.replace("_", " ") || decision.agent_id || decision.decision_type || "agent"}
                             </Badge>
                             <Badge
                               variant="outline"
-                              className={`text-xs ${getRiskColor(decision.risk_level)}`}
+                              className={`text-xs ${getRiskColor(decision.risk_level || "moderate")}`}
                             >
-                              {decision.risk_level}
+                              {decision.risk_level || "moderate"}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              {new Date(decision.created_at || decision.timestamp).toLocaleString()}
+                              {decision.created_at 
+                                ? new Date(decision.created_at).toLocaleString()
+                                : (decision as any).timestamp 
+                                ? new Date((decision as any).timestamp).toLocaleString()
+                                : "N/A"}
                             </span>
                           </div>
-                          <h3 className="font-semibold mb-1">{decision.action}</h3>
+                          <h3 className="font-semibold mb-1">{decision.action || "No action specified"}</h3>
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="uppercase">{decision.track}</span>
+                            <span className="uppercase">{decision.track || "N/A"}</span>
                             <span>•</span>
-                            <span>{decision.chassis}</span>
+                            <span>{decision.chassis || "N/A"}</span>
                             <span>•</span>
-                            <span>{(decision.confidence * 100).toFixed(0)}% confidence</span>
+                            <span>
+                              {decision.confidence !== undefined && decision.confidence !== null
+                                ? `${(decision.confidence * 100).toFixed(0)}% confidence`
+                                : "Confidence N/A"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -390,7 +398,7 @@ export default function AgentReviewDashboard() {
                                 {review.action}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
-                                Decision ID: {review.decision_id.slice(0, 8)}...
+                                Decision ID: {review.decision_id ? review.decision_id.slice(0, 8) + "..." : "N/A"}
                               </span>
                             </div>
                             {review.modified_action && (
@@ -411,10 +419,14 @@ export default function AgentReviewDashboard() {
                                   <span>{review.reviewer}</span>
                                 </>
                               )}
-                              <Clock className="w-3 h-3" />
-                              <span>
-                                {new Date(review.reviewed_at).toLocaleString()}
-                              </span>
+                              {review.reviewed_at && (
+                                <>
+                                  <Clock className="w-3 h-3" />
+                                  <span>
+                                    {new Date(review.reviewed_at).toLocaleString()}
+                                  </span>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
