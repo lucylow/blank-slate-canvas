@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TelemetryProvider } from '@/hooks/useTelemetry';
 import { StrategyProviderWrapper } from '@/hooks/StrategyProviderWrapper';
+import { useMockNotifications } from '@/hooks/useMockNotifications';
 
 // Dashboard component requires both TelemetryProvider and StrategyProvider
 // StrategyProviderWrapper must be inside TelemetryProvider since it uses useTelemetry()
@@ -18,6 +19,9 @@ const DashboardPage = () => {
   const { isDemoMode, setIsDemoMode } = useDemoMode();
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const hasInitialized = useRef(false);
+  
+  // Enable mock notifications throughout the dashboard
+  useMockNotifications({ enabled: true, intervalMs: 30000, autoStart: true });
 
   useEffect(() => {
     // Start in demo mode by default (only once on mount)

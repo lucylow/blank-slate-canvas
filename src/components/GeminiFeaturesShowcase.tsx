@@ -376,6 +376,98 @@ export function GeminiFeaturesShowcase() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {features.map((feature, index) => {
           const Icon = feature.icon;
+          
+          // Add mock data previews for specific features
+          const getMockPreview = () => {
+            if (feature.title === 'Video Processing') {
+              return (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border/50">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="text-muted-foreground">Mock Analysis</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockVideoData.frames} frames
+                    </Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    {mockVideoData.insights.slice(0, 2).map((insight, idx) => (
+                      <div key={idx} className="text-xs text-muted-foreground flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        {insight.description}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            if (feature.title === 'Large Context Windows') {
+              return (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold">Mock Processing Stats</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockDatasetData.totalTokens.toLocaleString()} tokens
+                    </Badge>
+                  </div>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tracks:</span>
+                      <span className="font-medium">{mockDatasetData.tracks.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Time:</span>
+                      <span className="font-medium">{mockDatasetData.analysisTime}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            if (feature.title === 'Audio Processing') {
+              return (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border/50">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="text-muted-foreground">Mock Transcript</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockAudioData.duration}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic line-clamp-2">
+                    "{mockAudioData.transcript.substring(0, 80)}..."
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {mockAudioData.keywords.slice(0, 3).map((keyword, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            if (feature.title === 'Advanced Race Data Analysis') {
+              return (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border/50">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="text-muted-foreground">Mock Race Data</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockRaceData.vehicles.length} vehicles
+                    </Badge>
+                  </div>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Data Points:</span>
+                      <span className="font-medium">{(mockRaceData.totalDataPoints / 1000).toFixed(0)}K</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tracks:</span>
+                      <span className="font-medium">{mockRaceData.tracksAnalyzed}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          };
+
           return (
             <motion.div
               key={feature.title}
@@ -383,19 +475,21 @@ export function GeminiFeaturesShowcase() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="h-full hover:shadow-lg transition-shadow">
+              <Card className="h-full hover:shadow-lg transition-all duration-300 hover:border-primary/30 group">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-2">
-                    <div className={`w-12 h-12 ${feature.bgColor} rounded-xl flex items-center justify-center`}>
+                    <div className={`w-12 h-12 ${feature.bgColor} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                       <Icon className={`w-6 h-6 ${feature.color}`} />
                     </div>
+                    <Badge variant="secondary" className="text-xs">Active</Badge>
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base leading-relaxed">
+                  <CardDescription className="text-base leading-relaxed mb-3">
                     {feature.description}
                   </CardDescription>
+                  {getMockPreview()}
                 </CardContent>
               </Card>
             </motion.div>
@@ -403,6 +497,131 @@ export function GeminiFeaturesShowcase() {
         })}
       </div>
 
+      {/* Performance Metrics Section */}
+      <Card className="border-primary/20 bg-gradient-to-br from-muted/30 to-muted/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            Mock Performance Metrics
+          </CardTitle>
+          <CardDescription>
+            Simulated analytics showing Gemini AI processing capabilities with mock race data
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-4 gap-4 mb-6">
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Database className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Data Processed</span>
+              </div>
+              <div className="text-2xl font-bold">{mockDatasetData.dataPoints.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground mt-1">telemetry points</div>
+            </div>
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Avg Processing</span>
+              </div>
+              <div className="text-2xl font-bold">{mockDatasetData.analysisTime}</div>
+              <div className="text-xs text-muted-foreground mt-1">per dataset</div>
+            </div>
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Layers className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Context Window</span>
+              </div>
+              <div className="text-2xl font-bold">1M+</div>
+              <div className="text-xs text-muted-foreground mt-1">tokens supported</div>
+            </div>
+            <div className="p-4 bg-background/50 rounded-lg border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <FileCode className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Tracks Analyzed</span>
+              </div>
+              <div className="text-2xl font-bold">{mockDatasetData.tracks.length}</div>
+              <div className="text-xs text-muted-foreground mt-1">complete datasets</div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="border-border/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-primary" />
+                  Race Analytics Breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {mockRaceData.vehicles.slice(0, 5).map((vehicle, idx) => (
+                  <div key={vehicle.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold">
+                        #{vehicle.number}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Vehicle {vehicle.number}</div>
+                        <div className="text-xs text-muted-foreground">Lap {vehicle.lap}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">+{vehicle.gapToLeader}s</div>
+                      <div className="text-xs text-muted-foreground">{vehicle.speed.toFixed(0)} mph</div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Processing Capabilities
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Video Processing</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockVideoData.frames} fps
+                    </Badge>
+                  </div>
+                  <Progress value={95} className="h-2" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Audio Transcription</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockAudioData.duration}
+                    </Badge>
+                  </div>
+                  <Progress value={92} className="h-2" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Dataset Matching</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockDatasetData.tracks.length} tracks
+                    </Badge>
+                  </div>
+                  <Progress value={98} className="h-2" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Real-time Analytics</span>
+                    <Badge variant="outline" className="text-xs">
+                      {mockRaceData.vehicles.length} vehicles
+                    </Badge>
+                  </div>
+                  <Progress value={100} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Use Cases */}
       <div className="grid md:grid-cols-2 gap-6">

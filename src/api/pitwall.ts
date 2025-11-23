@@ -95,6 +95,14 @@ export interface DashboardData {
   tire_wear: TireWearData;
   performance: PerformanceMetrics;
   gap_analysis: GapAnalysis;
+  strategy?: StrategyOptimization;
+  meta?: {
+    ok: boolean;
+    track: string;
+    lap: number;
+    total_laps: number;
+    enhanced_features?: boolean;
+  };
   timestamp: string;
   live_data: boolean;
 }

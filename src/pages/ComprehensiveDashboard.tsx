@@ -384,7 +384,7 @@ export default function ComprehensiveDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
                   >
-                    <StrategyCard strategy={dashboardData.strategy} />
+                    <StrategyCard strategy={dashboardData.strategy as any} />
                   </motion.div>
 
                   {/* Live Gap Analysis */}

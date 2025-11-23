@@ -27,6 +27,7 @@ import { GeminiMultimodalInput } from "@/components/GeminiMultimodalInput";
 import { processMultimodalInput } from "@/api/geminiMultimodal";
 import { GoogleMapsIntegration } from "@/components/GoogleMapsIntegration";
 import { GoogleMapsComprehensive } from "@/components/GoogleMapsComprehensive";
+import F1Benchmarking from "@/components/F1Benchmarking";
 import type { TrackId } from "@/lib/grCarTypes";
 
 import { checkHealth, getAgentStatus, type AgentStatusResponse } from "@/api/pitwall";
@@ -928,32 +929,20 @@ const Index = () => {
           </div>
           
           {/* Mobile Menu */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
+          {mobileMenuOpen && (
               <>
                 {/* Backdrop */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                <div
                   className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
                   onClick={() => setMobileMenuOpen(false)}
                   aria-hidden="true"
                 />
                 {/* Menu */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                <div
                   className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-2xl md:hidden z-50"
                 >
                   <nav className="container mx-auto px-6 py-4 flex flex-col gap-1" role="navigation" aria-label="Mobile navigation">
-                    <motion.a
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 }}
+                    <a
                       href="#features" 
                       onClick={(e) => handleAnchorClick(e, '#features')}
                       className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 ${
@@ -963,11 +952,8 @@ const Index = () => {
                       }`}
                     >
                       Features
-                    </motion.a>
-                    <motion.a
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.06 }}
+                    </a>
+                    <a
                       href="#gemini-features" 
                       onClick={(e) => handleAnchorClick(e, '#gemini-features')}
                       className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 ${
@@ -977,11 +963,8 @@ const Index = () => {
                       }`}
                     >
                       A.I. Features
-                    </motion.a>
-                    <motion.a
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.07 }}
+                    </a>
+                    <a
                       href="#gr-cars" 
                       onClick={(e) => handleAnchorClick(e, '#gr-cars')}
                       className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
@@ -991,12 +974,8 @@ const Index = () => {
                       }`}
                     >
                       GR Cars
-                    </motion.a>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.09 }}
-                    >
+                    </a>
+                    <div>
                       <Link 
                         to="/tracks" 
                         className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
@@ -1007,12 +986,8 @@ const Index = () => {
                       >
                         Tracks
                       </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.09 }}
-                    >
+                    </div>
+                    <div>
                       <Link 
                         to="/analytics" 
                         className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
@@ -1023,12 +998,8 @@ const Index = () => {
                       >
                         Analytics
                       </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
+                    </div>
+                    <div>
                       <Link 
                         to="/f1-benchmarking"
                         onClick={() => {
@@ -1039,12 +1010,8 @@ const Index = () => {
                       >
                         F1 Benchmarking
                       </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.11 }}
-                    >
+                    </div>
+                    <div>
                       <Link 
                         to="/dashboard" 
                         className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
@@ -1055,12 +1022,8 @@ const Index = () => {
                       >
                         Dashboard
                       </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.13 }}
-                    >
+                    </div>
+                    <div>
                       <Link 
                         to="/agents" 
                         className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
@@ -1071,12 +1034,8 @@ const Index = () => {
                       >
                         AI Agents
                       </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.13 }}
-                    >
+                    </div>
+                    <div>
                       <Link 
                         to="/about" 
                         className={`text-base font-medium transition-all duration-200 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 block ${
@@ -1087,11 +1046,8 @@ const Index = () => {
                       >
                         About
                       </Link>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.15 }}
+                    </div>
+                    <div
                       className="mt-2 pt-2 border-t border-border/50 space-y-2"
                     >
                       <Button
@@ -1115,12 +1071,11 @@ const Index = () => {
                           View Dashboard
                         </Button>
                       </Link>
-                    </motion.div>
+                    </div>
                   </nav>
                 </motion.div>
               </>
             )}
-          </AnimatePresence>
         </div>
       </header>
 
@@ -2861,10 +2816,10 @@ const Index = () => {
               <Flag className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              F1 Benchmarking Integration
+              F1 Benchmarking Dashboard
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Compare GR Cup performance with F1 data using free APIs: Ergast, OpenF1, and F1API.dev
+              Comprehensive Formula 1 performance analysis with detailed mock data for strategy comparison
             </p>
           </div>
 

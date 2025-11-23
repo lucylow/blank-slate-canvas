@@ -22,6 +22,7 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import { useDemoWs } from "@/hooks/useDemoWs";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useMockAgentDecisions, useMockTelemetryStream } from "@/hooks/useMockDemoData";
+import { useMockNotifications } from "@/hooks/useMockNotifications";
 
 import { getWsUrl } from "@/utils/wsUrl";
 
@@ -38,6 +39,9 @@ export default function PitWallDashboard() {
     // This ensures demo data is activated when visiting the pitwall page
     setIsDemoMode(true);
   }, [setIsDemoMode]);
+
+  // Enable mock notifications throughout the pitwall dashboard
+  useMockNotifications({ enabled: true, intervalMs: 25000, autoStart: true });
 
   // Handle demo data loading
   const handleLoadDemo = (data: DemoData) => {
