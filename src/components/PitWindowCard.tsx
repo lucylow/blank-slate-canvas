@@ -37,7 +37,7 @@ export default function PitWindowCard({ insight }: PitWindowCardProps) {
   }
 
   const { predictions, explanation, model_version } = insight;
-  const predNow = predictions?.pit_now_delta ?? predictions?.pred_median ?? null;
+  const predNow = predictions?.pit_now_delta ?? explanation?.pred_median ?? null;
   const stayOut = predictions?.stay_out_delta ?? null;
 
   return (

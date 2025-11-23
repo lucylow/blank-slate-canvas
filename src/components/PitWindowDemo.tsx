@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import PitWindowCard from "./PitWindowCard";
 import { useSSE } from "@/hooks/useSSE";
-import { useBackendConfig } from "@/hooks/useBackendConfig";
+import { getBackendUrl } from "@/utils/backendUrl";
 
 interface PitWindowInsight {
   predictions?: {
@@ -27,11 +27,11 @@ interface PitWindowInsight {
 export default function PitWindowDemo() {
   const [demoMode, setDemoMode] = useState(true);
   const [insight, setInsight] = useState<PitWindowInsight | null>(null);
-  const { backendUrl } = useBackendConfig();
 
   useEffect(() => {
     // In demo mode, fetch sample insight from demo endpoint or static file
     if (demoMode) {
+      const backendUrl = getBackendUrl();
       // Try to fetch from demo endpoint
       fetch(`${backendUrl}/demo/seed/pit_window_demo.json`)
         .then((r) => r.json())
@@ -60,9 +60,10 @@ export default function PitWindowDemo() {
             });
         });
     }
-  }, [demoMode, backendUrl]);
+  }, [demoMode]);
 
   // Example SSE hook for live updates (when demoMode==false)
+  const backendUrl = getBackendUrl();
   useSSE(
     demoMode ? "" : `${backendUrl}/sse/live/GR86-002`,
     (msg) => {

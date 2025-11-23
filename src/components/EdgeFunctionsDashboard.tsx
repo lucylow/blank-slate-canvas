@@ -217,7 +217,12 @@ export function EdgeFunctionsDashboard() {
       });
       
       // Refresh metrics
-      await loadMetrics();
+      if (metrics) {
+        loadMetrics(metrics);
+      } else {
+        const freshMetrics = await getEdgeFunctionMetrics();
+        loadMetrics(freshMetrics);
+      }
     } catch (error) {
       toast({
         title: 'Heads-up',

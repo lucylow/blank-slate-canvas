@@ -425,11 +425,11 @@ const Index = () => {
     }
   };
 
-      // Scroll spy to detect active section and show scroll-to-top button
-      useEffect(() => {
-        const handleScroll = () => {
-          const sections = ['features', 'gr-cars', 'tracks'];
-          const scrollPosition = window.scrollY + 100; // Offset for header
+  // Scroll spy to detect active section and show scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['features', 'gr-cars', 'tracks'];
+      const scrollPosition = window.scrollY + 100; // Offset for header
 
       // Show/hide scroll-to-top button
       setShowScrollTop(window.scrollY > 400);

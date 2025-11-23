@@ -281,12 +281,12 @@ export default function RaceAnalysis({ trackName }: RaceAnalysisProps) {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="summary" className="w-full">
-            <TabsList className={`grid w-full ${analysisData.aiAnalysis ? 'grid-cols-5' : 'grid-cols-4'}`}>
+            <TabsList className={`grid w-full ${'aiAnalysis' in analysisData && analysisData.aiAnalysis ? 'grid-cols-5' : 'grid-cols-4'}`}>
               <TabsTrigger value="summary">Summary</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="insights">Insights</TabsTrigger>
               <TabsTrigger value="metrics">Metrics</TabsTrigger>
-              {analysisData.aiAnalysis && (
+              {'aiAnalysis' in analysisData && analysisData.aiAnalysis && (
                 <TabsTrigger value="ai">AI Analysis</TabsTrigger>
               )}
             </TabsList>
@@ -319,9 +319,9 @@ export default function RaceAnalysis({ trackName }: RaceAnalysisProps) {
                       <span className="text-sm text-muted-foreground">DNF</span>
                     </div>
                     <p className="text-2xl font-bold">{analysisData.raceSummary.dnf}</p>
-                    {analysisData.raceSummary.dnfCar ? (
+                    {'dnfCar' in analysisData.raceSummary && analysisData.raceSummary.dnfCar ? (
                       <p className="text-xs text-muted-foreground mt-1">Car {analysisData.raceSummary.dnfCar}</p>
-                    ) : analysisData.raceSummary.dnfCars ? (
+                    ) : 'dnfCars' in analysisData.raceSummary && analysisData.raceSummary.dnfCars ? (
                       <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
                         {analysisData.raceSummary.dnfCars.map((car, idx) => (
                           <p key={idx}>{car}</p>
@@ -337,7 +337,7 @@ export default function RaceAnalysis({ trackName }: RaceAnalysisProps) {
                       <span className="text-sm text-muted-foreground">Class</span>
                     </div>
                     <p className="text-lg font-bold">{analysisData.raceSummary.class}</p>
-                    {analysisData.raceSummary.raceLength && (
+                    {'raceLength' in analysisData.raceSummary && analysisData.raceSummary.raceLength && (
                       <p className="text-xs text-muted-foreground mt-1">{analysisData.raceSummary.raceLength}</p>
                     )}
                   </CardContent>
@@ -505,7 +505,7 @@ export default function RaceAnalysis({ trackName }: RaceAnalysisProps) {
                   </CardContent>
                 </Card>
               )}
-              {trackName === "Virginia International" && analysisData.aiAnalysis?.anomalies && (
+              {trackName === "Virginia International" && 'aiAnalysis' in analysisData && analysisData.aiAnalysis?.anomalies && (
                 <Card className="bg-yellow-500/10 border-yellow-500/30">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -565,7 +565,7 @@ export default function RaceAnalysis({ trackName }: RaceAnalysisProps) {
                       <div className="text-xs text-muted-foreground mt-1">finishers</div>
                     </CardContent>
                   </Card>
-                  {analysisData.advancedMetrics.top4Gap && (
+                  {'top4Gap' in analysisData.advancedMetrics && analysisData.advancedMetrics.top4Gap && (
                     <Card className="bg-card/60 border-border/50">
                       <CardContent className="p-4">
                         <div className="text-sm text-muted-foreground mb-1">Top 4 Gap</div>
@@ -606,7 +606,7 @@ export default function RaceAnalysis({ trackName }: RaceAnalysisProps) {
               </div>
             </TabsContent>
 
-            {analysisData.aiAnalysis && (
+            {'aiAnalysis' in analysisData && analysisData.aiAnalysis && (
               <TabsContent value="ai" className="space-y-6 mt-6">
                 {/* AI Cluster Analysis */}
                 <div>
