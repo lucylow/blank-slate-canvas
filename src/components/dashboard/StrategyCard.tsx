@@ -9,7 +9,24 @@ interface Props {
 }
 
 export function StrategyCard({ strategy }: Props) {
-  const recommended = strategy.strategies.find(s => s.name === strategy.recommended_strategy);
+  const strategies = strategy?.strategies || [];
+  const recommended = strategies.find(s => s.name === strategy?.recommended_strategy);
+  
+  if (!strategy || !Array.isArray(strategies) || strategies.length === 0) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-primary" />
+            Strategy Recommendation
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-sm">No strategy data available</p>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card className="h-full">
@@ -41,11 +58,11 @@ export function StrategyCard({ strategy }: Props) {
             <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{recommended.reasoning}</p>
           </div>
         )}
-        {strategy.strategies.filter(s => s.name !== strategy.recommended_strategy).length > 0 && (
+        {strategies.filter(s => s.name !== strategy.recommended_strategy).length > 0 && (
           <div>
             <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Alternatives</h4>
             <div className="space-y-2">
-              {strategy.strategies
+              {strategies
                 .filter(s => s.name !== strategy.recommended_strategy)
                 .map(s => (
                   <div key={s.name} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg text-sm">
