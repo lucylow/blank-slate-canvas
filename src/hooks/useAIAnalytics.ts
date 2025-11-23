@@ -9,6 +9,7 @@ import {
   type AIAnalyticsResponse,
   type AdvancedAnalyticsRequest,
   type RaceDataAnalytics,
+  type GeminiOptions,
 } from '@/api/aiAnalytics';
 
 /**
@@ -64,11 +65,13 @@ export function useAnalyzeRaceData() {
       data,
       analysisType,
       model,
+      geminiOptions,
     }: {
       data: RaceDataAnalytics;
       analysisType?: 'comprehensive' | 'tire' | 'performance' | 'strategy' | 'predictive';
       model?: 'openai' | 'gemini' | 'both';
-    }) => analyzeRaceData(data, analysisType, model),
+      geminiOptions?: GeminiOptions;
+    }) => analyzeRaceData(data, analysisType, model, geminiOptions),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-analytics'] });
     },
