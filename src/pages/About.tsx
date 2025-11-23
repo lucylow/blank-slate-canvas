@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Flag, ArrowLeft, Sparkles, Target, Users, Zap } from "lucide-react";
+import { Flag, ArrowLeft, ArrowRight, Sparkles, Target, Users, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -181,22 +181,32 @@ const About = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <Card className="bg-card/60 backdrop-blur-md border-border/50">
+            <Card className="bg-card/60 backdrop-blur-md border-border/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
               <CardContent className="p-8">
-                <h3 className="text-2xl font-bold mb-6">Powered by Data</h3>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Zap className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Powered by Data</h3>
+                </div>
                 <div className="grid md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-primary mb-2">41.9M+</p>
-                    <p className="text-sm text-muted-foreground">Telemetry Data Points</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-primary mb-2">7</p>
-                    <p className="text-sm text-muted-foreground">Track Models</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-primary mb-2">95%</p>
-                    <p className="text-sm text-muted-foreground">Prediction Accuracy</p>
-                  </div>
+                  {[
+                    { value: "41.9M+", label: "Telemetry Data Points" },
+                    { value: "7", label: "Track Models" },
+                    { value: "95%", label: "Prediction Accuracy" }
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      className="text-center p-6 rounded-lg bg-accent/50 border border-border/30 hover:bg-accent/70 hover:border-primary/30 transition-all duration-300"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.9 + index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <p className="text-3xl font-bold text-primary mb-2">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -210,8 +220,12 @@ const About = () => {
             className="mt-12 text-center"
           >
             <Link to="/dashboard">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30">
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 group"
+              >
                 Try PitWall AI Now
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </motion.div>
