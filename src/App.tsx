@@ -12,6 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { RouteLayout } from "@/components/layout/RouteLayout";
 
 import Index from "./pages/Index";
+import RaceStrategiesPage from "./pages/RaceStrategiesPage";
 import DashboardPage from "./pages/DashboardPage";
 import PitWallDashboard from "./pages/PitWallDashboard";
 import ComprehensiveDashboard from "./pages/ComprehensiveDashboard";
@@ -70,6 +71,9 @@ const App = () => (
                   <Routes>
                     {/* Main landing page */}
                     <Route path="/" element={<Index />} />
+                    
+                    {/* Race Strategies - Strategy selection and analysis */}
+                    <Route path="/strategies" element={<RaceStrategiesPage />} />
                     
                     {/* Dashboard - Main race dashboard with live data and telemetry */}
                     <Route path="/dashboard" element={<DashboardPage />} />
