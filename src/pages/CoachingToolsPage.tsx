@@ -30,9 +30,9 @@ interface CoachingToolsProps {
 }
 
 export const CoachingToolsPage: React.FC<CoachingToolsProps> = ({
-  metrics,
-  alerts,
-  tips,
+  metrics = exampleMetrics,
+  alerts = exampleAlerts,
+  tips = exampleTips,
 }) => {
   const [selectedTip, setSelectedTip] = useState<CoachingTip | null>(null);
 
@@ -210,3 +210,5 @@ export const exampleTips: CoachingTip[] = [
   },
 ];
 
+// Default export for routing
+export default CoachingToolsPage;

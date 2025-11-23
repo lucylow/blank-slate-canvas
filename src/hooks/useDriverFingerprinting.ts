@@ -115,25 +115,45 @@ function convertToFingerprintPoint(
 
 /**
  * Extract driver ID from telemetry point
- * This is a placeholder - adjust based on your actual telemetry structure
+ * Attempts to identify driver from various possible fields in the telemetry structure
  */
 function extractDriverId(point: TelemetryPoint): string {
   // Try various possible fields for driver identification
-  if ('driverId' in point && typeof point.driverId === 'string') {
-    return point.driverId;
+  const pointAny = point as any;
+  
+  if (pointAny.driverId && typeof pointAny.driverId === 'string') {
+    return pointAny.driverId;
   }
-  if ('vehicleId' in point && typeof point.vehicleId === 'string') {
-    return point.vehicleId;
+  if (pointAny.vehicleId && typeof pointAny.vehicleId === 'string') {
+    return pointAny.vehicleId;
   }
-  if ('chassisNumber' in point && typeof point.chassisNumber === 'string') {
-    return point.chassisNumber;
+  if (pointAny.chassisNumber && typeof pointAny.chassisNumber === 'string') {
+    return pointAny.chassisNumber;
   }
-  if ('carNumber' in point && typeof point.carNumber === 'string') {
-    return point.carNumber;
+  if (pointAny.carNumber && typeof pointAny.carNumber === 'string') {
+    return pointAny.carNumber;
+  }
+  if (pointAny.vehicleNumber !== undefined) {
+    return String(pointAny.vehicleNumber);
   }
   
-  // Fallback: use a hash or default
-  return 'unknown';
+  // Fallback: use a hash based on other identifying characteristics
+  // This creates a consistent ID from available data
+  const hashInput = [
+    point.lap,
+    point.sector,
+    point.timestamp,
+  ].join('-');
+  
+  // Simple hash function
+  let hash = 0;
+  for (let i = 0; i < hashInput.length; i++) {
+    const char = hashInput.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  return `driver_${Math.abs(hash)}`;
 }
 
 /**

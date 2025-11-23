@@ -42,7 +42,7 @@ const mockStrategies: Strategy[] = [
   {
     id: 'two-stop',
     name: 'Two-Stop Strategy',
-      description:
+    description:
       'Plan two pit stops to maximize tire performance but balance track time loss.',
     expectedGainSec: 5.2,
     riskLevel: 'High',
@@ -52,6 +52,141 @@ const mockStrategies: Strategy[] = [
       { label: 'Fuel Load', value: 'Medium' },
     ],
     visualDataUrl: '/images/two-stop-strategy.png',
+  },
+  {
+    id: 'one-stop',
+    name: 'One-Stop Strategy',
+    description:
+      'Minimize pit stops to reduce track time loss, relying on tire preservation and fuel management.',
+    expectedGainSec: 1.8,
+    riskLevel: 'Medium',
+    keyMetrics: [
+      { label: 'Pit Stops', value: 1 },
+      { label: 'Tire Management', value: 'Critical' },
+      { label: 'Fuel Load', value: 'High' },
+      { label: 'Optimal Pit Window', value: 'Laps 20-25' },
+    ],
+    visualDataUrl: '/images/one-stop-strategy.png',
+  },
+  {
+    id: 'aggressive-start',
+    name: 'Aggressive Start',
+    description:
+      'Push hard in opening laps to gain positions early, accepting higher tire degradation.',
+    expectedGainSec: 4.3,
+    riskLevel: 'High',
+    keyMetrics: [
+      { label: 'Opening Laps Push', value: 'Laps 1-5' },
+      { label: 'Position Gain', value: '+3 positions' },
+      { label: 'Tire Degradation', value: 'Very High' },
+      { label: 'Safety Car Risk', value: 'Medium' },
+    ],
+    visualDataUrl: '/images/aggressive-start-strategy.png',
+  },
+  {
+    id: 'defensive',
+    name: 'Defensive Strategy',
+    description:
+      'Maintain position and preserve tires, responding to threats rather than attacking.',
+    expectedGainSec: 0.5,
+    riskLevel: 'Low',
+    keyMetrics: [
+      { label: 'Position Target', value: 'Maintain' },
+      { label: 'Tire Preservation', value: 'Maximum' },
+      { label: 'Overtake Attempts', value: 'Minimal' },
+      { label: 'Fuel Saving', value: 'High' },
+    ],
+    visualDataUrl: '/images/defensive-strategy.png',
+  },
+  {
+    id: 'rain-strategy',
+    name: 'Wet Weather Strategy',
+    description:
+      'Adapt pit strategy for wet conditions, optimizing timing for tire changes as track dries.',
+    expectedGainSec: 8.7,
+    riskLevel: 'High',
+    keyMetrics: [
+      { label: 'Weather Window', value: 'Laps 8-12' },
+      { label: 'Tire Switch', value: 'Wet to Dry' },
+      { label: 'Track Conditions', value: 'Drying' },
+      { label: 'Visibility Risk', value: 'High' },
+    ],
+    visualDataUrl: '/images/rain-strategy.png',
+  },
+  {
+    id: 'safety-car',
+    name: 'Safety Car Opportunity',
+    description:
+      'Optimize pit timing during safety car periods to minimize time loss while gaining positions.',
+    expectedGainSec: 6.2,
+    riskLevel: 'Medium',
+    keyMetrics: [
+      { label: 'Safety Car Window', value: 'Laps 10-15' },
+      { label: 'Pit Under SC', value: 'Yes' },
+      { label: 'Track Position', value: '+5 positions' },
+      { label: 'SC Duration', value: '3-5 laps' },
+    ],
+    visualDataUrl: '/images/safety-car-strategy.png',
+  },
+  {
+    id: 'split-strategy',
+    name: 'Split Strategy',
+    description:
+      'Different tire compounds for each stint to capitalize on changing track conditions.',
+    expectedGainSec: 3.9,
+    riskLevel: 'Medium',
+    keyMetrics: [
+      { label: 'Stint 1 Compound', value: 'Soft' },
+      { label: 'Stint 2 Compound', value: 'Medium' },
+      { label: 'Track Evolution', value: 'Improving' },
+      { label: 'Temperature Delta', value: '-5°C' },
+    ],
+    visualDataUrl: '/images/split-strategy.png',
+  },
+  {
+    id: 'long-run',
+    name: 'Long First Stint',
+    description:
+      'Extend first stint significantly to run fewer overall laps on older tires later.',
+    expectedGainSec: 2.7,
+    riskLevel: 'Medium',
+    keyMetrics: [
+      { label: 'First Stint Length', value: '28 laps' },
+      { label: 'Final Stint Length', value: '15 laps' },
+      { label: 'Tire Performance', value: 'Declining' },
+      { label: 'Fuel Efficiency', value: 'High' },
+    ],
+    visualDataUrl: '/images/long-run-strategy.png',
+  },
+  {
+    id: 'undercut-defense',
+    name: 'Undercut Defense',
+    description:
+      'React to rivals attempting undercut by pitting earlier than planned to maintain position.',
+    expectedGainSec: 1.2,
+    riskLevel: 'Low',
+    keyMetrics: [
+      { label: 'Reaction Window', value: 'Laps 13-14' },
+      { label: 'Position Maintained', value: 'Yes' },
+      { label: 'Tire Age Loss', value: '2 laps' },
+      { label: 'Out Lap Performance', value: 'Critical' },
+    ],
+    visualDataUrl: '/images/undercut-defense-strategy.png',
+  },
+  {
+    id: 'fuel-save',
+    name: 'Fuel Saving Mode',
+    description:
+      'Lift and coast strategy to save fuel, enabling lighter car and better tire performance.',
+    expectedGainSec: 1.5,
+    riskLevel: 'Low',
+    keyMetrics: [
+      { label: 'Fuel Saved', value: '3.5 kg' },
+      { label: 'Lift Points', value: '8 zones' },
+      { label: 'Time Loss per Lap', value: '0.3s' },
+      { label: 'Tire Benefit', value: '+2 laps' },
+    ],
+    visualDataUrl: '/images/fuel-save-strategy.png',
   },
 ];
 
@@ -97,9 +232,9 @@ export const RaceStrategiesPage: React.FC = () => {
               >
                 <div className="text-gray-400 text-sm">{label}</div>
                 <div className="text-xl font-bold mt-1">{value}</div>
-                  </li>
+              </li>
             ))}
-                </ul>
+          </ul>
 
           {/* Visual Explanation */}
           {selectedStrategy.visualDataUrl && (
@@ -109,10 +244,14 @@ export const RaceStrategiesPage: React.FC = () => {
                 alt={`${selectedStrategy.name} visualization`}
                 className="w-full h-auto object-contain"
               />
-                    </div>
+            </div>
           )}
       </section>
       )}
     </div>
   );
 };
+
+// Default export for routing
+const Index = RaceStrategiesPage;
+export default Index;

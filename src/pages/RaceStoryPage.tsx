@@ -150,3 +150,5 @@ export const RaceStoryPage: React.FC = () => {
   );
 };
 
+// Default export for routing
+export default RaceStoryPage;
