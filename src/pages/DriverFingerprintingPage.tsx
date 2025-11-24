@@ -47,6 +47,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { cn } from '@/lib/utils';
 
 import { 
   getFingerprint, 
@@ -107,6 +109,7 @@ function FeatureMetric({ label, value, max = 100 }: { label: string; value: numb
 export default function DriverFingerprintingPage() {
   const [selectedDriver, setSelectedDriver] = useState<string>('driver-1');
   const [comparisonDriver, setComparisonDriver] = useState<string>('');
+  const { isExpanded } = useSidebar();
 
   // Fetch fingerprint
   const { data: fingerprint, isLoading: fingerprintLoading, refetch: refetchFingerprint } = useQuery({
@@ -182,7 +185,10 @@ export default function DriverFingerprintingPage() {
 
   return (
     <RouteLayout>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className={cn(
+        "container mx-auto py-6 space-y-6",
+        isExpanded ? "px-4 sm:px-6 lg:px-6" : "px-4 sm:px-6 lg:px-8"
+      )}>
         {/* Header */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">

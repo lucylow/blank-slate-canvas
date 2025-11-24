@@ -14,6 +14,8 @@ import { Switch } from '@/components/ui/switch';
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { checkAnomalyHealth, type AnomalyDetectionResult, type AnomalyAlert, type AnomalyStats } from '@/api/anomaly';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { cn } from '@/lib/utils';
 import {
   LineChart,
   Line,
@@ -150,6 +152,7 @@ export default function AnomalyDetectionPage() {
   const [sensorFilter, setSensorFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('24h');
   const [sortBy, setSortBy] = useState<string>('timestamp');
+  const { isExpanded } = useSidebar();
 
   const { data: anomalyHealth, refetch: refetchAnomalyHealth, isLoading } = useQuery({
     queryKey: ['anomaly-health'],
@@ -326,7 +329,10 @@ export default function AnomalyDetectionPage() {
 
   return (
     <RouteLayout>
-      <div className="container mx-auto py-8 space-y-8">
+      <div className={cn(
+        "container mx-auto py-8 space-y-8",
+        isExpanded ? "px-4 sm:px-6 lg:px-6" : "px-4 sm:px-6 lg:px-8"
+      )}>
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-4 flex-1">

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MiniTabs } from "./MiniTabs";
 import type { MiniTab } from "./MiniTabs";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 // Re-export MiniTab type for convenience
 export type { MiniTab };
@@ -39,13 +40,17 @@ export function PageWithMiniTabs({
   const [active, setActive] = useState<string>(
     initial || (tabs[0]?.id) || ""
   );
+  const { isExpanded } = useSidebar();
 
   // If children is a function, call it with active tab
   const content = typeof children === "function" ? children(active) : children;
 
   return (
     <main className={cn("min-h-screen bg-[#0A0A0A] text-white", className)}>
-      <section className="max-w-6xl mx-auto py-8 px-6">
+      <section className={cn(
+        "max-w-6xl mx-auto py-8",
+        isExpanded ? "px-4 lg:px-6" : "px-6"
+      )}>
         {/* Header */}
         <div className="space-y-2 mb-6">
           <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">
