@@ -44,10 +44,12 @@ import LovableCloudConfig from "./pages/LovableCloudConfig";
 import RaceStoryPage from "./pages/RaceStoryPage";
 import GeminiFeaturesPage from "./pages/GeminiFeaturesPage";
 import GoogleMapsPage from "./pages/GoogleMapsPage";
+import TechnicalDocs from "./pages/TechnicalDocs";
 import AIDataAnalyticsPage from "./pages/AIDataAnalyticsPage";
 import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
 import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
 import SlackIntegrationPage from "./pages/SlackIntegrationPage";
+import RaceDashboard from "./pages/RaceDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -135,6 +137,9 @@ const App = () => (
                     {/* F1 Benchmarking - Compare GR Cup strategies with F1 historical data (Free APIs) */}
                     <Route path="/f1-benchmarking" element={<F1Benchmarking />} />
                     
+                    {/* Technical Documentation - Comprehensive technical guides and API reference */}
+                    <Route path="/technical-docs" element={<TechnicalDocs />} />
+                    
                     {/* ========== ADDITIONAL FEATURES ========== */}
                     {/* Demo Sandbox - Interactive demo with 7-track mock data */}
                     <Route path="/demo" element={<DemoSandbox />} />
@@ -178,6 +183,9 @@ const App = () => (
                     
                     {/* Slack Integration - Real-time race alerts and notifications */}
                     <Route path="/slack-integration" element={<SlackIntegrationPage />} />
+                    
+                    {/* Race Dashboard - Real-time telemetry with 7-track CV analysis */}
+                    <Route path="/race-dashboard" element={<RaceDashboard />} />
                     
                     {/* ========== SETTINGS ========== */}
                     {/* About - Information about the app */}

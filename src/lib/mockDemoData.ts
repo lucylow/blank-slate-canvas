@@ -8,6 +8,108 @@
 
 import type { AgentDecision } from "@/components/pitwall/AIAgentDecisions";
 
+// Configuration interface for mock data generation
+export interface MockDataConfig {
+  seed?: number; // Seed for deterministic random generation
+  enableCache?: boolean; // Enable caching of generated data
+  cacheExpiryMs?: number; // Cache expiry time in milliseconds
+  tireDegradationRate?: number; // Base tire degradation rate per lap
+  lapTimeBase?: number; // Base lap time in seconds
+  lapTimeVariation?: number; // Lap time variation range
+  enableRealisticPatterns?: boolean; // Use realistic racing patterns
+}
+
+// Default configuration
+const DEFAULT_CONFIG: Required<MockDataConfig> = {
+  seed: 12345,
+  enableCache: true,
+  cacheExpiryMs: 5 * 60 * 1000, // 5 minutes
+  tireDegradationRate: 2.5,
+  lapTimeBase: 90,
+  lapTimeVariation: 2,
+  enableRealisticPatterns: true,
+};
+
+// Seeded random number generator for consistent data
+class SeededRandom {
+  private seed: number;
+
+  constructor(seed: number) {
+    this.seed = seed;
+  }
+
+  next(): number {
+    this.seed = (this.seed * 9301 + 49297) % 233280;
+    return this.seed / 233280;
+  }
+
+  nextInRange(min: number, max: number): number {
+    return min + this.next() * (max - min);
+  }
+
+  nextInt(max: number): number {
+    return Math.floor(this.next() * max);
+  }
+
+  choice<T>(array: T[]): T {
+    return array[this.nextInt(array.length)];
+  }
+}
+
+// Cache for generated mock data
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+class MockDataCache {
+  private cache: Map<string, CacheEntry<any>> = new Map();
+  private expiryMs: number;
+
+  constructor(expiryMs: number) {
+    this.expiryMs = expiryMs;
+  }
+
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+
+    const age = Date.now() - entry.timestamp;
+    if (age > this.expiryMs) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.data as T;
+  }
+
+  set<T>(key: string, data: T): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+    });
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  generateKey(prefix: string, ...args: any[]): string {
+    return `${prefix}:${args.join(':')}`;
+  }
+}
+
+// Global cache instance
+let globalCache: MockDataCache | null = null;
+
+function getCache(config: MockDataConfig): MockDataCache | null {
+  if (!config.enableCache) return null;
+  if (!globalCache) {
+    globalCache = new MockDataCache(config.cacheExpiryMs ?? DEFAULT_CONFIG.cacheExpiryMs);
+  }
+  return globalCache;
+}
+
 export interface MockTelemetryPoint {
   timestamp: string;
   vehicle_id: string;
@@ -93,19 +195,73 @@ function generateTimestamp(baseTime: Date, offsetSeconds: number): string {
   return time.toISOString();
 }
 
+// Realistic tire degradation curve (exponential decay with acceleration)
+function calculateTireWear(
+  lap: number,
+  baseWear: number,
+  degradationRate: number,
+  rng: SeededRandom,
+  config: Required<MockDataConfig>
+): number {
+  if (!config.enableRealisticPatterns) {
+    return baseWear + (lap * degradationRate) + rng.next() * 5;
+  }
+
+  // Exponential degradation: wear increases faster as tires get older
+  const exponentialFactor = 1 + (lap / 30) * 0.3; // 30% faster degradation by lap 30
+  const baseDegradation = lap * degradationRate * exponentialFactor;
+  const variation = rng.next() * 3 - 1.5; // ±1.5% variation
+  return Math.min(100, Math.max(0, baseWear + baseDegradation + variation));
+}
+
+// Realistic lap time calculation with tire degradation impact
+function calculateLapTime(
+  baseLapTime: number,
+  tireWear: number,
+  lap: number,
+  rng: SeededRandom,
+  config: Required<MockDataConfig>
+): number {
+  if (!config.enableRealisticPatterns) {
+    return baseLapTime + rng.next() * config.lapTimeVariation;
+  }
+
+  // Tire wear impact: 0.01s per 1% wear above 50%
+  const tirePenalty = Math.max(0, (tireWear - 50) * 0.01);
+  
+  // Driver consistency: slight improvement over first few laps, then degradation
+  const consistencyFactor = lap < 5 ? -0.1 : (lap - 5) * 0.02;
+  
+  // Random variation
+  const variation = (rng.next() - 0.5) * config.lapTimeVariation;
+  
+  return baseLapTime + tirePenalty + consistencyFactor + variation;
+}
+
 // Generate AI Agent Decisions for all 7 agents
 export function generateAgentDecisions(
   trackId: string,
   vehicleNumber: number,
-  baseTime: Date = new Date()
+  baseTime: Date = new Date(),
+  config: MockDataConfig = {}
 ): AgentDecision[] {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const cache = getCache(fullConfig);
+  const cacheKey = cache?.generateKey('agentDecisions', trackId, vehicleNumber, baseTime.getTime());
+  
+  if (cache && cacheKey) {
+    const cached = cache.get<AgentDecision[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   const track = TRACKS.find((t) => t.id === trackId) || TRACKS[0];
+  const rng = new SeededRandom(fullConfig.seed + trackId.charCodeAt(0) + vehicleNumber);
   const decisions: AgentDecision[] = [];
   let decisionId = 1;
 
   // Strategy Agent - Pit recommendations
   for (let lap = 5; lap <= 25; lap += 5) {
-    const tireWear = 50 + (lap * 2) + Math.random() * 10;
+    const tireWear = calculateTireWear(lap, 50, fullConfig.tireDegradationRate, rng, fullConfig);
     if (tireWear > 70) {
       decisions.push({
         decision_id: `strategy-${trackId}-${vehicleNumber}-${decisionId++}`,
@@ -114,22 +270,22 @@ export function generateAgentDecisions(
         track: trackId,
         chassis: `GR86-${vehicleNumber}`,
         vehicle_number: vehicleNumber,
-        timestamp: generateTimestamp(baseTime, lap * 90),
+        timestamp: generateTimestamp(baseTime, lap * fullConfig.lapTimeBase),
         decision_type: "pit",
         action: `Recommend pit stop on lap ${lap + 2} for tire change`,
-        confidence: 0.85 + Math.random() * 0.1,
+        confidence: 0.85 + rng.next() * 0.1,
         risk_level: tireWear > 80 ? "critical" : "moderate",
         reasoning: [
           `Tire wear at ${Math.round(tireWear)}% on lap ${lap}`,
           `Optimal pit window: Laps ${lap + 1} to ${lap + 3}`,
-          `Predicted time loss: ${(tireWear - 70) * 0.1}s per lap`,
-          `Competitor analysis: ${Math.random() > 0.5 ? "Undercut opportunity" : "Maintain position"}`,
+          `Predicted time loss: ${((tireWear - 70) * 0.1).toFixed(2)}s per lap`,
+          `Competitor analysis: ${rng.next() > 0.5 ? "Undercut opportunity" : "Maintain position"}`,
         ],
         evidence: {
           tire_wear_front_left: tireWear,
           tire_wear_rear_right: tireWear - 5,
           laps_remaining: 30 - lap,
-          gap_to_leader: 2.5 + Math.random() * 5,
+          gap_to_leader: 2.5 + rng.next() * 5,
         },
         alternatives: [
           {
@@ -150,7 +306,12 @@ export function generateAgentDecisions(
       "Aggressive throttle application",
       "Smooth cornering improvement needed",
     ];
-    const issue = issues[Math.floor(Math.random() * issues.length)];
+    const issue = rng.choice(issues);
+    
+    const sector1 = 25 + rng.next() * 2;
+    const sector2 = 40 + rng.next() * 3;
+    const sector3 = 28 + rng.next() * 2;
+    const consistency = 85 + rng.next() * 10;
     
     decisions.push({
       decision_id: `coach-${trackId}-${vehicleNumber}-${decisionId++}`,
@@ -159,37 +320,37 @@ export function generateAgentDecisions(
       track: trackId,
       chassis: `GR86-${vehicleNumber}`,
       vehicle_number: vehicleNumber,
-      timestamp: generateTimestamp(baseTime, lap * 90),
+      timestamp: generateTimestamp(baseTime, lap * fullConfig.lapTimeBase),
       decision_type: "coach",
       action: `Driver coaching: ${issue}`,
-      confidence: 0.75 + Math.random() * 0.15,
+      confidence: 0.75 + rng.next() * 0.15,
       risk_level: "safe",
       reasoning: [
         `Lap ${lap} analysis: ${issue}`,
-        `Potential time gain: ${(0.1 + Math.random() * 0.3).toFixed(2)}s per lap`,
-        `Consistency score: ${(85 + Math.random() * 10).toFixed(1)}%`,
-        `Sector breakdown: S1 ${(25 + Math.random() * 2).toFixed(2)}s, S2 ${(40 + Math.random() * 3).toFixed(2)}s, S3 ${(28 + Math.random() * 2).toFixed(2)}s`,
+        `Potential time gain: ${(0.1 + rng.next() * 0.3).toFixed(2)}s per lap`,
+        `Consistency score: ${consistency.toFixed(1)}%`,
+        `Sector breakdown: S1 ${sector1.toFixed(2)}s, S2 ${sector2.toFixed(2)}s, S3 ${sector3.toFixed(2)}s`,
       ],
       evidence: {
         sector_times: {
-          s1: 25 + Math.random() * 2,
-          s2: 40 + Math.random() * 3,
-          s3: 28 + Math.random() * 2,
+          s1: sector1,
+          s2: sector2,
+          s3: sector3,
         },
-        consistency: 85 + Math.random() * 10,
+        consistency: consistency,
       },
     });
   }
 
   // Anomaly Detective - Safety alerts
-  if (Math.random() > 0.7) {
+  if (rng.next() > 0.7) {
     const anomalies = [
       "Brake lockup detected in Turn 5",
       "Unusual steering input pattern",
       "Temperature spike in rear tires",
       "GPS signal anomaly detected",
     ];
-    const anomaly = anomalies[Math.floor(Math.random() * anomalies.length)];
+    const anomaly = rng.choice(anomalies);
     
     decisions.push({
       decision_id: `anomaly-${trackId}-${vehicleNumber}-${decisionId++}`,
@@ -198,10 +359,10 @@ export function generateAgentDecisions(
       track: trackId,
       chassis: `GR86-${vehicleNumber}`,
       vehicle_number: vehicleNumber,
-      timestamp: generateTimestamp(baseTime, 10 * 90),
+      timestamp: generateTimestamp(baseTime, 10 * fullConfig.lapTimeBase),
       decision_type: "anomaly",
       action: `Safety alert: ${anomaly}`,
-      confidence: 0.9 + Math.random() * 0.1,
+      confidence: 0.9 + rng.next() * 0.1,
       risk_level: "critical",
       reasoning: [
         anomaly,
@@ -219,7 +380,11 @@ export function generateAgentDecisions(
 
   // Predictor Agent - Tire predictions
   for (let lap = 8; lap <= 22; lap += 3) {
-    const tireWear = 40 + (lap * 2.5) + Math.random() * 8;
+    const tireWear = calculateTireWear(lap, 40, fullConfig.tireDegradationRate, rng, fullConfig);
+    const predictedLoss = 0.05 + ((tireWear - 50) * 0.01);
+    const lapsUntilLoss = Math.max(1, Math.round((75 - tireWear) / fullConfig.tireDegradationRate));
+    const modelConfidence = 88 + rng.next() * 10;
+    
     decisions.push({
       decision_id: `predictor-${trackId}-${vehicleNumber}-${decisionId++}`,
       agent_id: "predictor-01",
@@ -227,27 +392,28 @@ export function generateAgentDecisions(
       track: trackId,
       chassis: `GR86-${vehicleNumber}`,
       vehicle_number: vehicleNumber,
-      timestamp: generateTimestamp(baseTime, lap * 90),
+      timestamp: generateTimestamp(baseTime, lap * fullConfig.lapTimeBase),
       decision_type: "prediction",
       action: `Tire wear prediction: ${Math.round(tireWear)}% at lap ${lap}`,
-      confidence: 0.88 + Math.random() * 0.1,
+      confidence: 0.88 + rng.next() * 0.1,
       risk_level: tireWear > 75 ? "moderate" : "safe",
       reasoning: [
         `Current tire wear: ${Math.round(tireWear)}%`,
-        `Predicted loss per lap: ${(0.05 + (tireWear - 50) * 0.01).toFixed(3)}s`,
-        `Laps until 0.5s loss: ${Math.max(1, Math.round((75 - tireWear) / 2.5))}`,
-        `Model confidence: ${(88 + Math.random() * 10).toFixed(1)}%`,
+        `Predicted loss per lap: ${predictedLoss.toFixed(3)}s`,
+        `Laps until 0.5s loss: ${lapsUntilLoss}`,
+        `Model confidence: ${modelConfidence.toFixed(1)}%`,
       ],
       evidence: {
         tire_wear: tireWear,
-        predicted_laps_remaining: Math.max(1, Math.round((75 - tireWear) / 2.5)),
+        predicted_laps_remaining: lapsUntilLoss,
         model_version: "v2.1",
       },
     });
   }
 
   // Simulator Agent - Strategy scenarios
-  if (Math.random() > 0.5) {
+  if (rng.next() > 0.5) {
+    const winProb = 0.1 + rng.next() * 0.1;
     decisions.push({
       decision_id: `simulator-${trackId}-${vehicleNumber}-${decisionId++}`,
       agent_id: "simulator-01",
@@ -255,10 +421,10 @@ export function generateAgentDecisions(
       track: trackId,
       chassis: `GR86-${vehicleNumber}`,
       vehicle_number: vehicleNumber,
-      timestamp: generateTimestamp(baseTime, 12 * 90),
+      timestamp: generateTimestamp(baseTime, 12 * fullConfig.lapTimeBase),
       decision_type: "strategy",
       action: "Strategy simulation: 2-stop vs 1-stop analysis",
-      confidence: 0.82 + Math.random() * 0.1,
+      confidence: 0.82 + rng.next() * 0.1,
       risk_level: "moderate",
       reasoning: [
         "Simulated 1000 race scenarios",
@@ -269,13 +435,19 @@ export function generateAgentDecisions(
       evidence: {
         scenarios_tested: 1000,
         optimal_strategy: "2-stop",
-        win_probability: 0.15,
+        win_probability: winProb,
       },
     });
   }
 
   // Explainer Agent - AI explanations
   for (let lap = 6; lap <= 18; lap += 6) {
+    const tireStress = 0.3 + rng.next() * 0.1;
+    const trackTemp = 0.25 + rng.next() * 0.1;
+    const driverConsistency = 0.2 + rng.next() * 0.1;
+    const sectorTimes = 0.15 + rng.next() * 0.1;
+    const confidenceInterval = 0.05 + rng.next() * 0.1;
+    
     decisions.push({
       decision_id: `explainer-${trackId}-${vehicleNumber}-${decisionId++}`,
       agent_id: "explainer-01",
@@ -283,33 +455,34 @@ export function generateAgentDecisions(
       track: trackId,
       chassis: `GR86-${vehicleNumber}`,
       vehicle_number: vehicleNumber,
-      timestamp: generateTimestamp(baseTime, lap * 90),
+      timestamp: generateTimestamp(baseTime, lap * fullConfig.lapTimeBase),
       decision_type: "strategy",
       action: "AI decision explanation and confidence intervals",
-      confidence: 0.92 + Math.random() * 0.08,
+      confidence: 0.92 + rng.next() * 0.08,
       risk_level: "safe",
       reasoning: [
         `Feature attribution for lap ${lap} prediction:`,
-        `- Tire stress: 35% contribution`,
-        `- Track temperature: 28% contribution`,
-        `- Driver consistency: 22% contribution`,
-        `- Sector times: 15% contribution`,
-        `Confidence interval: ±${(0.05 + Math.random() * 0.1).toFixed(3)}s`,
+        `- Tire stress: ${(tireStress * 100).toFixed(0)}% contribution`,
+        `- Track temperature: ${(trackTemp * 100).toFixed(0)}% contribution`,
+        `- Driver consistency: ${(driverConsistency * 100).toFixed(0)}% contribution`,
+        `- Sector times: ${(sectorTimes * 100).toFixed(0)}% contribution`,
+        `Confidence interval: ±${confidenceInterval.toFixed(3)}s`,
       ],
       evidence: {
         feature_attribution: {
-          tire_stress: 0.35,
-          track_temp: 0.28,
-          driver_consistency: 0.22,
-          sector_times: 0.15,
+          tire_stress: tireStress,
+          track_temp: trackTemp,
+          driver_consistency: driverConsistency,
+          sector_times: sectorTimes,
         },
-        confidence_interval: 0.05 + Math.random() * 0.1,
+        confidence_interval: confidenceInterval,
       },
     });
   }
 
   // EDA Agent - Data insights
-  if (Math.random() > 0.6) {
+  if (rng.next() > 0.6) {
+    const cluster = 1 + rng.nextInt(3);
     decisions.push({
       decision_id: `eda-${trackId}-${vehicleNumber}-${decisionId++}`,
       agent_id: "eda-01",
@@ -317,23 +490,27 @@ export function generateAgentDecisions(
       track: trackId,
       chassis: `GR86-${vehicleNumber}`,
       vehicle_number: vehicleNumber,
-      timestamp: generateTimestamp(baseTime, 15 * 90),
+      timestamp: generateTimestamp(baseTime, 15 * fullConfig.lapTimeBase),
       decision_type: "strategy",
       action: "EDA insights: Performance clustering and patterns",
-      confidence: 0.78 + Math.random() * 0.15,
+      confidence: 0.78 + rng.next() * 0.15,
       risk_level: "safe",
       reasoning: [
         "Clustered 5000 telemetry points into 3 performance groups",
-        "Vehicle in Cluster 2: Consistent mid-pack performance",
+        `Vehicle in Cluster ${cluster}: ${cluster === 1 ? 'Elite' : cluster === 2 ? 'Consistent mid-pack' : 'Developing'} performance`,
         "Pattern detected: Strong sector 1, weak sector 3",
         "Recommendation: Focus on sector 3 optimization",
       ],
       evidence: {
         clusters_identified: 3,
-        current_cluster: 2,
+        current_cluster: cluster,
         data_points_analyzed: 5000,
       },
     });
+  }
+
+  if (cache && cacheKey) {
+    cache.set(cacheKey, decisions);
   }
 
   return decisions;
@@ -344,9 +521,20 @@ export function generateTimeSeriesData(
   trackId: string,
   vehicleNumber: number,
   numPoints: number = 100,
-  baseTime: Date = new Date()
+  baseTime: Date = new Date(),
+  config: MockDataConfig = {}
 ): MockTimeSeriesData[] {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const cache = getCache(fullConfig);
+  const cacheKey = cache?.generateKey('timeSeries', trackId, vehicleNumber, numPoints, baseTime.getTime());
+  
+  if (cache && cacheKey) {
+    const cached = cache.get<MockTimeSeriesData[]>(cacheKey);
+    if (cached) return cached;
+  }
+
   const track = TRACKS.find((t) => t.id === trackId) || TRACKS[0];
+  const rng = new SeededRandom(fullConfig.seed + trackId.charCodeAt(0) + vehicleNumber + numPoints);
   const data: MockTimeSeriesData[] = [];
   
   let currentLap = 1;
@@ -355,42 +543,58 @@ export function generateTimeSeriesData(
   let tireWearFR = 47;
   let tireWearRL = 43;
   let tireWearRR = 45;
-  let gapToLeader = 2.5 + Math.random() * 3;
-  const position = 3 + Math.floor(Math.random() * 5);
+  let gapToLeader = 2.5 + rng.next() * 3;
+  const position = 3 + rng.nextInt(5);
+  const baseSpeed = 120 + rng.next() * 20; // Vehicle-specific base speed
 
   for (let i = 0; i < numPoints; i++) {
     const timestamp = generateTimestamp(baseTime, i * 0.5);
     
     // Update lap progress
-    lapProgress += (track.length / 100); // Progress through lap
+    lapProgress += (track.length / numPoints); // Progress through lap
     if (lapProgress >= track.length) {
       lapProgress = 0;
       currentLap++;
-      // Tire wear increases per lap
-      tireWearFL += 2.5 + Math.random() * 1;
-      tireWearFR += 2.5 + Math.random() * 1;
-      tireWearRL += 2.3 + Math.random() * 1;
-      tireWearRR += 2.3 + Math.random() * 1;
+      // Tire wear increases per lap using realistic degradation
+      tireWearFL = calculateTireWear(currentLap, 45, fullConfig.tireDegradationRate, rng, fullConfig);
+      tireWearFR = calculateTireWear(currentLap, 47, fullConfig.tireDegradationRate, rng, fullConfig);
+      tireWearRL = calculateTireWear(currentLap, 43, fullConfig.tireDegradationRate * 0.92, rng, fullConfig);
+      tireWearRR = calculateTireWear(currentLap, 45, fullConfig.tireDegradationRate * 0.92, rng, fullConfig);
     }
 
-    // Simulate gap changes
-    gapToLeader += (Math.random() - 0.5) * 0.2;
+    // Simulate gap changes with realistic patterns
+    if (fullConfig.enableRealisticPatterns) {
+      // Gap tends to increase slightly over time due to tire degradation
+      const degradationImpact = (tireWearFL - 45) * 0.01;
+      gapToLeader += (rng.next() - 0.5) * 0.2 + degradationImpact;
+    } else {
+      gapToLeader += (rng.next() - 0.5) * 0.2;
+    }
     gapToLeader = Math.max(0, gapToLeader);
+
+    // Speed varies based on track position and tire wear
+    const speedVariation = fullConfig.enableRealisticPatterns
+      ? baseSpeed - (tireWearFL - 45) * 0.2 + (rng.next() - 0.5) * 10
+      : baseSpeed + (rng.next() - 0.5) * 20;
 
     data.push({
       timestamp,
       track: trackId,
       vehicle_number: vehicleNumber,
       lap: currentLap,
-      speed: 120 + Math.random() * 40,
-      tire_wear_front_left: Math.min(100, tireWearFL + Math.random() * 2),
-      tire_wear_front_right: Math.min(100, tireWearFR + Math.random() * 2),
-      tire_wear_rear_left: Math.min(100, tireWearRL + Math.random() * 2),
-      tire_wear_rear_right: Math.min(100, tireWearRR + Math.random() * 2),
-      gap_to_leader: gapToLeader,
+      speed: Math.max(80, Math.min(180, speedVariation)),
+      tire_wear_front_left: Math.min(100, Math.max(0, tireWearFL + (rng.next() - 0.5) * 2)),
+      tire_wear_front_right: Math.min(100, Math.max(0, tireWearFR + (rng.next() - 0.5) * 2)),
+      tire_wear_rear_left: Math.min(100, Math.max(0, tireWearRL + (rng.next() - 0.5) * 2)),
+      tire_wear_rear_right: Math.min(100, Math.max(0, tireWearRR + (rng.next() - 0.5) * 2)),
+      gap_to_leader: Math.max(0, gapToLeader),
       position: position,
       predicted_finish: `P${position}`,
     });
+  }
+
+  if (cache && cacheKey) {
+    cache.set(cacheKey, data);
   }
 
   return data;
@@ -400,40 +604,56 @@ export function generateTimeSeriesData(
 export function generateTirePredictions(
   trackId: string,
   vehicleNumber: number,
-  baseTime: Date = new Date()
+  baseTime: Date = new Date(),
+  config: MockDataConfig = {}
 ): MockTirePrediction[] {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const cache = getCache(fullConfig);
+  const cacheKey = cache?.generateKey('tirePredictions', trackId, vehicleNumber, baseTime.getTime());
+  
+  if (cache && cacheKey) {
+    const cached = cache.get<MockTirePrediction[]>(cacheKey);
+    if (cached) return cached;
+  }
+
+  const rng = new SeededRandom(fullConfig.seed + trackId.charCodeAt(0) + vehicleNumber);
   const predictions: MockTirePrediction[] = [];
   
   for (let lap = 5; lap <= 25; lap += 2) {
-    const baseWear = 40 + (lap * 2.5);
-    const frontLeft = baseWear + Math.random() * 5;
-    const frontRight = baseWear + 1 + Math.random() * 5;
-    const rearLeft = baseWear - 2 + Math.random() * 5;
-    const rearRight = baseWear - 1 + Math.random() * 5;
+    const baseWear = 40 + (lap * fullConfig.tireDegradationRate);
+    const frontLeft = calculateTireWear(lap, 40, fullConfig.tireDegradationRate, rng, fullConfig);
+    const frontRight = calculateTireWear(lap, 41, fullConfig.tireDegradationRate, rng, fullConfig);
+    const rearLeft = calculateTireWear(lap, 38, fullConfig.tireDegradationRate * 0.92, rng, fullConfig);
+    const rearRight = calculateTireWear(lap, 39, fullConfig.tireDegradationRate * 0.92, rng, fullConfig);
     const avgWear = (frontLeft + frontRight + rearLeft + rearRight) / 4;
     
     const predictedLoss = 0.05 + ((avgWear - 50) * 0.01);
-    const lapsUntilLoss = Math.max(1, Math.round((75 - avgWear) / 2.5));
+    const lapsUntilLoss = Math.max(1, Math.round((75 - avgWear) / fullConfig.tireDegradationRate));
     const recommendedPit = avgWear > 70 ? lap + 2 : lap + 5;
+
+    const tireStress = 0.3 + rng.next() * 0.1;
+    const trackTemp = 0.25 + rng.next() * 0.1;
+    const driverConsistency = 0.2 + rng.next() * 0.1;
+    const sectorTimes = 0.15 + rng.next() * 0.1;
 
     predictions.push({
       chassis: `GR86-${vehicleNumber}`,
       track: trackId,
       vehicle_number: vehicleNumber,
       lap: lap,
-      front_left: Math.min(100, frontLeft),
-      front_right: Math.min(100, frontRight),
-      rear_left: Math.min(100, rearLeft),
-      rear_right: Math.min(100, rearRight),
-      predicted_loss_per_lap_s: predictedLoss,
+      front_left: Math.min(100, Math.max(0, frontLeft)),
+      front_right: Math.min(100, Math.max(0, frontRight)),
+      rear_left: Math.min(100, Math.max(0, rearLeft)),
+      rear_right: Math.min(100, Math.max(0, rearRight)),
+      predicted_loss_per_lap_s: Math.max(0, predictedLoss),
       laps_until_0_5s_loss: lapsUntilLoss,
       recommended_pit_lap: recommendedPit,
-      confidence: 0.85 + Math.random() * 0.1,
+      confidence: 0.85 + rng.next() * 0.1,
       feature_scores: [
-        { name: "tire_stress", score: 0.35 },
-        { name: "track_temp", score: 0.28 },
-        { name: "driver_consistency", score: 0.22 },
-        { name: "sector_times", score: 0.15 },
+        { name: "tire_stress", score: tireStress },
+        { name: "track_temp", score: trackTemp },
+        { name: "driver_consistency", score: driverConsistency },
+        { name: "sector_times", score: sectorTimes },
       ],
       explanation: [
         `Tire wear analysis for lap ${lap}`,
@@ -444,22 +664,36 @@ export function generateTirePredictions(
     });
   }
 
+  if (cache && cacheKey) {
+    cache.set(cacheKey, predictions);
+  }
+
   return predictions;
 }
 
 // Generate comprehensive mock data for all tracks
-export function generateAllTracksMockData(): {
+export function generateAllTracksMockData(config: MockDataConfig = {}): {
   agentDecisions: Record<string, AgentDecision[]>;
   timeSeries: Record<string, MockTimeSeriesData[]>;
   tirePredictions: Record<string, MockTirePrediction[]>;
   telemetry: Record<string, MockTelemetryPoint[]>;
 } {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const cache = getCache(fullConfig);
+  const cacheKey = cache?.generateKey('allTracksData', JSON.stringify(config));
+  
+  if (cache && cacheKey) {
+    const cached = cache.get<ReturnType<typeof generateAllTracksMockData>>(cacheKey);
+    if (cached) return cached;
+  }
+
   const agentDecisions: Record<string, AgentDecision[]> = {};
   const timeSeries: Record<string, MockTimeSeriesData[]> = {};
   const tirePredictions: Record<string, MockTirePrediction[]> = {};
   const telemetry: Record<string, MockTelemetryPoint[]> = {};
 
   const baseTime = new Date();
+  const rng = new SeededRandom(fullConfig.seed);
 
   for (const track of TRACKS) {
     const trackKey = track.id;
@@ -470,21 +704,27 @@ export function generateAllTracksMockData(): {
 
     for (const vehicle of VEHICLES) {
       // Generate agent decisions
-      const decisions = generateAgentDecisions(track.id, vehicle, baseTime);
+      const decisions = generateAgentDecisions(track.id, vehicle, baseTime, fullConfig);
       agentDecisions[trackKey].push(...decisions);
 
       // Generate time series
-      const series = generateTimeSeriesData(track.id, vehicle, 200, baseTime);
+      const series = generateTimeSeriesData(track.id, vehicle, 200, baseTime, fullConfig);
       timeSeries[trackKey].push(...series);
 
       // Generate tire predictions
-      const predictions = generateTirePredictions(track.id, vehicle, baseTime);
+      const predictions = generateTirePredictions(track.id, vehicle, baseTime, fullConfig);
       tirePredictions[trackKey].push(...predictions);
 
-      // Generate telemetry points
+      // Generate telemetry points with realistic patterns
+      const vehicleRng = new SeededRandom(fullConfig.seed + track.id.charCodeAt(0) + vehicle);
+      const baseSpeed = 120 + vehicleRng.next() * 20;
+      const baseRPM = 5000 + vehicleRng.next() * 2000;
+      
       for (let i = 0; i < 100; i++) {
         const lap = Math.floor(i / 10) + 1;
         const lapdist = ((i % 10) / 10) * track.length;
+        const isBraking = vehicleRng.next() > 0.7;
+        const isCornering = vehicleRng.next() > 0.6;
         
         telemetry[trackKey].push({
           timestamp: generateTimestamp(baseTime, i * 0.5),
@@ -493,38 +733,44 @@ export function generateAllTracksMockData(): {
           lap: lap,
           lapdist_m: lapdist,
           track_total_m: track.length,
-          Speed: 120 + Math.random() * 40,
-          gear: 3 + Math.floor(Math.random() * 3),
-          nmot: 5000 + Math.random() * 2000,
-          aps: 50 + Math.random() * 50,
-          pbrake_f: Math.random() > 0.7 ? 20 + Math.random() * 30 : 0,
-          pbrake_r: Math.random() > 0.7 ? 15 + Math.random() * 25 : 0,
-          accx_can: -2 + Math.random() * 4,
-          accy_can: -1.5 + Math.random() * 3,
-          Steering_Angle: -30 + Math.random() * 60,
-          VBOX_Long_Minutes: Math.random(),
-          VBOX_Lat_Min: Math.random(),
-          AIR_TEMP: 25 + Math.random() * 5,
-          TRACK_TEMP: 35 + Math.random() * 10,
-          HUMIDITY: 50 + Math.random() * 20,
-          WIND_SPEED: 5 + Math.random() * 10,
+          Speed: Math.max(80, Math.min(180, baseSpeed + (vehicleRng.next() - 0.5) * 20)),
+          gear: isCornering ? 3 + vehicleRng.nextInt(2) : 4 + vehicleRng.nextInt(2),
+          nmot: Math.max(3000, Math.min(7000, baseRPM + (vehicleRng.next() - 0.5) * 1000)),
+          aps: isBraking ? 0 : 50 + vehicleRng.next() * 50,
+          pbrake_f: isBraking ? 20 + vehicleRng.next() * 30 : 0,
+          pbrake_r: isBraking ? 15 + vehicleRng.next() * 25 : 0,
+          accx_can: isBraking ? -2 - vehicleRng.next() * 2 : -1 + vehicleRng.next() * 2,
+          accy_can: isCornering ? -1.5 + vehicleRng.next() * 3 : -0.5 + vehicleRng.next() * 1,
+          Steering_Angle: isCornering ? -30 + vehicleRng.next() * 60 : -5 + vehicleRng.next() * 10,
+          VBOX_Long_Minutes: vehicleRng.next(),
+          VBOX_Lat_Min: vehicleRng.next(),
+          AIR_TEMP: 25 + vehicleRng.next() * 5,
+          TRACK_TEMP: 35 + vehicleRng.next() * 10,
+          HUMIDITY: 50 + vehicleRng.next() * 20,
+          WIND_SPEED: 5 + vehicleRng.next() * 10,
           RAIN: 0,
         });
       }
     }
   }
 
-  return {
+  const result = {
     agentDecisions,
     timeSeries,
     tirePredictions,
     telemetry,
   };
+
+  if (cache && cacheKey) {
+    cache.set(cacheKey, result);
+  }
+
+  return result;
 }
 
 // Get mock data for a specific track
-export function getTrackMockData(trackId: string) {
-  const allData = generateAllTracksMockData();
+export function getTrackMockData(trackId: string, config: MockDataConfig = {}) {
+  const allData = generateAllTracksMockData(config);
   
   return {
     agentDecisions: allData.agentDecisions[trackId] || [],
@@ -533,6 +779,16 @@ export function getTrackMockData(trackId: string) {
     telemetry: allData.telemetry[trackId] || [],
   };
 }
+
+// Utility function to clear mock data cache
+export function clearMockDataCache(): void {
+  if (globalCache) {
+    globalCache.clear();
+  }
+}
+
+// Export default configuration for external use
+export { DEFAULT_CONFIG };
 
 // Agent System Mock Data
 export interface MockAgent {
@@ -587,20 +843,23 @@ export interface MockQueueStats {
 }
 
 // Generate mock agents
-export function generateMockAgents(): MockAgent[] {
+export function generateMockAgents(config: MockDataConfig = {}): MockAgent[] {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const rng = new SeededRandom(fullConfig.seed);
   const agents: MockAgent[] = [];
   
   for (let i = 0; i < AGENT_TYPES.length; i++) {
     const agentType = AGENT_TYPES[i];
     const statuses: ('active' | 'idle' | 'error')[] = ['active', 'active', 'idle', 'idle'];
     const status = statuses[i % statuses.length] || 'active';
+    const numTracks = 2 + rng.nextInt(3);
     
     agents.push({
       id: `${agentType}-${String(i + 1).padStart(2, '0')}`,
       status,
       types: [agentType],
-      tracks: TRACKS.slice(0, Math.floor(Math.random() * 3) + 2).map(t => t.id),
-      capacity: Math.floor(Math.random() * 3) + 1,
+      tracks: TRACKS.slice(0, numTracks).map(t => t.id),
+      capacity: 1 + rng.nextInt(3),
     });
   }
   
@@ -610,24 +869,27 @@ export function generateMockAgents(): MockAgent[] {
 // Generate mock insights from agent decisions
 export function generateMockInsights(
   numInsights: number = 15,
-  baseTime: Date = new Date()
+  baseTime: Date = new Date(),
+  config: MockDataConfig = {}
 ): MockInsight[] {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const rng = new SeededRandom(fullConfig.seed + numInsights);
   const insights: MockInsight[] = [];
-  const track = TRACKS[Math.floor(Math.random() * TRACKS.length)];
-  const vehicle = VEHICLES[Math.floor(Math.random() * VEHICLES.length)];
+  const track = rng.choice(TRACKS);
+  const vehicle = rng.choice(VEHICLES);
   
   const priorities: Array<'critical' | 'high' | 'normal' | 'low'> = ['critical', 'high', 'normal', 'normal', 'low'];
   const agentTypes = [...AGENT_TYPES];
   
   for (let i = 0; i < numInsights; i++) {
     const agentType = agentTypes[i % agentTypes.length];
-    const priority = priorities[Math.floor(Math.random() * priorities.length)];
-    const lap = 5 + Math.floor(Math.random() * 20);
+    const priority = rng.choice(priorities);
+    const lap = 5 + rng.nextInt(20);
     const timestamp = generateTimestamp(baseTime, -(numInsights - i) * 30);
     
-    const tireWear = 45 + (lap * 2.5) + Math.random() * 15;
+    const tireWear = calculateTireWear(lap, 45, fullConfig.tireDegradationRate, rng, fullConfig);
     const predictedLoss = 0.05 + ((tireWear - 50) * 0.01);
-    const lapsUntilLoss = Math.max(1, Math.round((75 - tireWear) / 2.5));
+    const lapsUntilLoss = Math.max(1, Math.round((75 - tireWear) / fullConfig.tireDegradationRate));
     
     let action = '';
     let decisionType = '';
@@ -638,11 +900,11 @@ export function generateMockInsights(
         decisionType = 'pit';
         break;
       case 'coach':
-        action = `Driver coaching: ${['Early braking', 'Late apex', 'Smooth cornering'][Math.floor(Math.random() * 3)]}`;
+        action = `Driver coaching: ${rng.choice(['Early braking', 'Late apex', 'Smooth cornering'])}`;
         decisionType = 'coach';
         break;
       case 'anomaly_detective':
-        action = `Safety alert: ${['Brake lockup detected', 'Unusual steering pattern', 'Temperature spike'][Math.floor(Math.random() * 3)]}`;
+        action = `Safety alert: ${rng.choice(['Brake lockup detected', 'Unusual steering pattern', 'Temperature spike'])}`;
         decisionType = 'anomaly';
         break;
       case 'predictor':
@@ -663,6 +925,11 @@ export function generateMockInsights(
         break;
     }
     
+    const tireStress = 0.3 + rng.next() * 0.1;
+    const trackTemp = 0.25 + rng.next() * 0.1;
+    const driverConsistency = 0.2 + rng.next() * 0.1;
+    const modelConfidence = 85 + rng.next() * 10;
+    
     insights.push({
       insight_id: `${agentType}-${track.id}-${vehicle}-${i + 1}`,
       decision_id: `${agentType}-${track.id}-${vehicle}-${i + 1}`,
@@ -675,13 +942,13 @@ export function generateMockInsights(
       agent_id: `${agentType}-01`,
       agent_type: agentType,
       action,
-      confidence: 0.75 + Math.random() * 0.2,
+      confidence: 0.75 + rng.next() * 0.2,
       risk_level: priority === 'critical' ? 'critical' : priority === 'high' ? 'moderate' : 'safe',
       reasoning: [
         `Lap ${lap} analysis: ${action}`,
         `Current tire wear: ${Math.round(tireWear)}%`,
         `Predicted time loss: ${predictedLoss.toFixed(3)}s per lap`,
-        `Model confidence: ${(85 + Math.random() * 10).toFixed(1)}%`,
+        `Model confidence: ${modelConfidence.toFixed(1)}%`,
       ],
       predictions: {
         predicted_loss_per_lap_seconds: predictedLoss,
@@ -689,9 +956,9 @@ export function generateMockInsights(
       },
       explanation: {
         top_features: [
-          { name: 'tire_stress', value: (0.3 + Math.random() * 0.1).toFixed(3) },
-          { name: 'track_temp', value: (0.25 + Math.random() * 0.1).toFixed(3) },
-          { name: 'driver_consistency', value: (0.2 + Math.random() * 0.1).toFixed(3) },
+          { name: 'tire_stress', value: tireStress.toFixed(3) },
+          { name: 'track_temp', value: trackTemp.toFixed(3) },
+          { name: 'driver_consistency', value: driverConsistency.toFixed(3) },
         ],
       },
       evidence: {
@@ -707,13 +974,15 @@ export function generateMockInsights(
 }
 
 // Generate mock queue stats
-export function generateMockQueueStats(agents: MockAgent[]): MockQueueStats {
-  const tasksLength = Math.floor(Math.random() * 50) + 10;
-  const resultsLength = Math.floor(Math.random() * 30) + 5;
+export function generateMockQueueStats(agents: MockAgent[], config: MockDataConfig = {}): MockQueueStats {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const rng = new SeededRandom(fullConfig.seed);
+  const tasksLength = 10 + rng.nextInt(50);
+  const resultsLength = 5 + rng.nextInt(30);
   
   const inboxLengths = agents.map(agent => ({
     agentId: agent.id,
-    length: Math.floor(Math.random() * 20),
+    length: rng.nextInt(20),
   }));
   
   return {
@@ -724,10 +993,10 @@ export function generateMockQueueStats(agents: MockAgent[]): MockQueueStats {
 }
 
 // Generate all agent system mock data
-export function generateAgentSystemMockData() {
-  const agents = generateMockAgents();
-  const insights = generateMockInsights(20);
-  const queueStats = generateMockQueueStats(agents);
+export function generateAgentSystemMockData(config: MockDataConfig = {}) {
+  const agents = generateMockAgents(config);
+  const insights = generateMockInsights(20, new Date(), config);
+  const queueStats = generateMockQueueStats(agents, config);
   
   return {
     agents,
@@ -737,16 +1006,18 @@ export function generateAgentSystemMockData() {
 }
 
 // Generate mock AgentStatusResponse for API fallback
-export function generateMockAgentStatusResponse() {
-  const agents = generateMockAgents();
-  const queueStats = generateMockQueueStats(agents);
+export function generateMockAgentStatusResponse(config: MockDataConfig = {}) {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const rng = new SeededRandom(fullConfig.seed);
+  const agents = generateMockAgents(fullConfig);
+  const queueStats = generateMockQueueStats(agents, fullConfig);
   
   // Convert MockAgent[] to Agent[] format matching AgentStatusResponse
-  const convertedAgents = agents.map(agent => ({
+  const convertedAgents = agents.map((agent, index) => ({
     id: agent.id,
     type: agent.types?.[0] || 'strategy',
     status: agent.status,
-    registered_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+    registered_at: new Date(Date.now() - rng.next() * 7 * 24 * 60 * 60 * 1000).toISOString(),
     tracks: agent.tracks || [],
   }));
   
@@ -768,12 +1039,25 @@ export function generateMockDashboardData(
   track: string,
   race: number,
   vehicle: number,
-  lap: number
+  lap: number,
+  config: MockDataConfig = {}
 ): import("@/api/pitwall").DashboardData {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const rng = new SeededRandom(fullConfig.seed + track.charCodeAt(0) + vehicle + lap);
   const trackInfo = TRACKS.find((t) => t.id === track) || TRACKS[0];
-  const baseTireWear = 45 + (lap * 2.5) + Math.random() * 10;
-  const tireWearVariation = 5;
-  const position = Math.floor(Math.random() * 10 + 1);
+  
+  const baseTireWear = calculateTireWear(lap, 45, fullConfig.tireDegradationRate, rng, fullConfig);
+  const tireWearVariation = 3;
+  const position = 1 + rng.nextInt(10);
+  
+  const frontLeft = Math.min(100, Math.max(0, baseTireWear + (rng.next() - 0.5) * tireWearVariation));
+  const frontRight = Math.min(100, Math.max(0, baseTireWear + (rng.next() - 0.5) * tireWearVariation));
+  const rearLeft = Math.min(100, Math.max(0, baseTireWear - 2 + (rng.next() - 0.5) * tireWearVariation));
+  const rearRight = Math.min(100, Math.max(0, baseTireWear - 2 + (rng.next() - 0.5) * tireWearVariation));
+  
+  const currentLapTime = calculateLapTime(fullConfig.lapTimeBase, baseTireWear, lap, rng, fullConfig);
+  const bestLapTime = fullConfig.lapTimeBase - 2 + rng.next() * 2;
+  const gapToLeader = 1 + rng.next() * 5;
   
   return {
     track: track,
@@ -782,31 +1066,31 @@ export function generateMockDashboardData(
     lap: lap,
     total_laps: 30,
     tire_wear: {
-      front_left: Math.min(100, Math.max(0, baseTireWear + (Math.random() - 0.5) * tireWearVariation)),
-      front_right: Math.min(100, Math.max(0, baseTireWear + (Math.random() - 0.5) * tireWearVariation)),
-      rear_left: Math.min(100, Math.max(0, baseTireWear - 2 + (Math.random() - 0.5) * tireWearVariation)),
-      rear_right: Math.min(100, Math.max(0, baseTireWear - 2 + (Math.random() - 0.5) * tireWearVariation)),
+      front_left: frontLeft,
+      front_right: frontRight,
+      rear_left: rearLeft,
+      rear_right: rearRight,
       predicted_laps_remaining: Math.max(5, 30 - lap - Math.floor(baseTireWear / 10)),
       pit_window_optimal: [12, 13, 14, 15, 16],
-      confidence: 0.85 + Math.random() * 0.1,
+      confidence: 0.85 + rng.next() * 0.1,
       model_version: "v2.1-demo",
     },
     performance: {
-      current_lap: `${Math.floor(Math.random() * 60 + 90)}.${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-      best_lap: `${Math.floor(Math.random() * 60 + 88)}.${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-      gap_to_leader: `+${(Math.random() * 5 + 1).toFixed(3)}s`,
-      predicted_finish: `P${Math.floor(Math.random() * 5 + 1)}`,
+      current_lap: `${Math.floor(currentLapTime)}.${Math.floor((currentLapTime % 1) * 1000).toString().padStart(3, '0')}`,
+      best_lap: `${Math.floor(bestLapTime)}.${Math.floor((bestLapTime % 1) * 1000).toString().padStart(3, '0')}`,
+      gap_to_leader: `+${gapToLeader.toFixed(3)}s`,
+      predicted_finish: `P${1 + rng.nextInt(5)}`,
       position: position,
       lap_number: lap,
       total_laps: 30,
     },
     gap_analysis: {
       position: position,
-      gap_to_leader: `+${(Math.random() * 5 + 1).toFixed(3)}s`,
-      gap_to_ahead: Math.random() > 0.5 ? `+${(Math.random() * 2).toFixed(3)}s` : null,
-      gap_to_behind: Math.random() > 0.5 ? `-${(Math.random() * 2).toFixed(3)}s` : null,
-      overtaking_opportunity: Math.random() > 0.6,
-      under_pressure: Math.random() > 0.7,
+      gap_to_leader: `+${gapToLeader.toFixed(3)}s`,
+      gap_to_ahead: rng.next() > 0.5 ? `+${(rng.next() * 2).toFixed(3)}s` : null,
+      gap_to_behind: rng.next() > 0.5 ? `-${(rng.next() * 2).toFixed(3)}s` : null,
+      overtaking_opportunity: rng.next() > 0.6,
+      under_pressure: rng.next() > 0.7,
     },
     timestamp: new Date().toISOString(),
     live_data: false,

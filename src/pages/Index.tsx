@@ -453,7 +453,7 @@ const Index = () => {
   // API feature states
   const [anomalyHealth, setAnomalyHealth] = useState<{ status: string; pyod_available: boolean; active_connections: number } | null>(null);
   const [anomalyStats, setAnomalyStats] = useState<AnomalyStats | null>(null);
-  const [f1Season, setF1Season] = useState<any>(null);
+  const [f1Season, setF1Season] = useState<{ success: boolean; data: unknown[]; count: number } | null>(null);
   const [slackStatus, setSlackStatus] = useState<string | null>(null);
   const location = useLocation();
   const { isDemoMode } = useDemoMode();
@@ -2923,10 +2923,10 @@ const Index = () => {
                       <span className="text-muted-foreground">Total Races:</span>
                       <span className="text-lg font-semibold">{f1Season.count || 0}</span>
                     </div>
-                    {f1Season.season && (
+                    {f1Season.data && f1Season.data.length > 0 && (
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Season:</span>
-                        <span className="text-lg font-semibold">{f1Season.season}</span>
+                        <span className="text-muted-foreground">Races Available:</span>
+                        <span className="text-lg font-semibold">{f1Season.data.length}</span>
                       </div>
                     )}
                   </div>

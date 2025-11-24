@@ -66,6 +66,7 @@ export function Sidebar() {
         { icon: Map, label: 'Track Map', to: '/tracks' },
         { icon: TrendingUp, label: 'Analytics', to: '/analytics' },
         { icon: Activity, label: 'Live Insights', to: '/live-insights' },
+        { icon: Zap, label: 'Race Dashboard', to: '/race-dashboard', badge: 'LIVE' },
         { icon: Layers, label: 'Comprehensive', to: '/comprehensive' },
       ],
     },
