@@ -2724,9 +2724,9 @@ const Index = () => {
             <Button 
               onClick={() => refetchAnomalyHealth()}
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
-              disabled={anomalyHealthData === undefined && !anomalyHealth}
+              disabled={!anomalyHealthData && !anomalyHealth}
             >
-              {anomalyHealthData !== undefined || anomalyHealth ? 'Refresh Service Health' : 'Check Service Health'}
+              {anomalyHealthData || anomalyHealth ? 'Refresh Service Health' : 'Check Service Health'}
             </Button>
             
             {anomalyHealth && (
@@ -2930,9 +2930,9 @@ const Index = () => {
             <Button 
               onClick={() => refetchF1Season()}
               className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-              disabled={f1SeasonData === undefined && !f1Season}
+              disabled={!f1SeasonData && !f1Season}
             >
-              {f1SeasonData !== undefined || f1Season ? 'Refresh Season Data' : 'View Current Season'}
+              {f1SeasonData || f1Season ? 'Refresh Season Data' : 'View Current Season'}
             </Button>
             
             {f1Season && (
