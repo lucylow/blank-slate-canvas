@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Sparkles, Activity, RefreshCw } from 'lucide-react';
+import { Loader2, Sparkles, Activity, RefreshCw, AlertCircle } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -55,7 +55,7 @@ export function Dashboard() {
       },
       tire_wear: baseData.tire_wear,
       performance: baseData.performance,
-      gap_analysis: baseData.gap_analysis,
+      gap_analysis: baseData.gap_analysis as any,
       strategy: baseData.strategy || {
         recommended_strategy: '2-stop strategy',
         strategies: [
@@ -148,9 +148,7 @@ export function Dashboard() {
               className="bg-card/60 backdrop-blur-md border-border/50"
             >
               <div className="flex items-start gap-3">
-                <div className={getErrorColor(configError.type)}>
-                  {getErrorIcon(configError.type)}
-                </div>
+                <AlertCircle className="w-4 h-4 mt-0.5" />
                 <div className="flex-1">
                   <AlertTitle className="flex items-center gap-2">
                     {isDemoMode ? 'Backend Configuration Warning' : 'Configuration Error'}
