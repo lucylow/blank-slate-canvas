@@ -9,7 +9,11 @@ const s3 = new AWS.S3({ region: process.env.AWS_REGION || "us-east-1" });
 
 export async function fetchS3CsvToBuffer(bucket: string, key: string, ring: RingBuffer<TelemetryPoint>, onParsed?: (p: TelemetryPoint) => void) {
   const stream = s3.getObject({ Bucket: bucket, Key: key }).createReadStream();
-  const parser = parse({ columns: true, relax: true, skip_empty_lines: true });
+  const parser = parse({ 
+    columns: true, 
+    relax_column_count: true, 
+    skip_empty_lines: true 
+  } as any);
 
   stream.pipe(parser);
 

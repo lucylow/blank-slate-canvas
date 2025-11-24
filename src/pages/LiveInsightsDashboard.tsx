@@ -553,7 +553,7 @@ export default function LiveInsightsDashboard() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-slate-800/50 [&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-500">
                     <AnimatePresence>
                       {insightOrder.map((id, index) => {
                         const item = insights[id];
