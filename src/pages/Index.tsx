@@ -15,6 +15,8 @@ import IndianapolisRaceResults from "@/components/IndianapolisRaceResults";
 import SebringRaceResults from "@/components/SebringRaceResults";
 import COTARaceResults from "@/components/COTARaceResults";
 import COTAPDFReportGenerator from "@/components/COTAPDFReportGenerator";
+import RoadAmericaRaceResults from "@/components/RoadAmericaRaceResults";
+import RoadAmericaPDFReportGenerator from "@/components/RoadAmericaPDFReportGenerator";
 import GRCarComparison from "@/components/GRCarComparisonWrapper";
 import { GRTelemetryComparison } from "@/components/GRTelemetryComparison";
 import { TelemetryComparisonCharts } from "@/components/TelemetryComparisonCharts";
@@ -1628,6 +1630,23 @@ const Index = () => {
             </div>
             <COTARaceResults />
           </div>
+
+          {/* Road America Race Results Section */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Road America - Race Results & Analysis
+              </h3>
+              <p className="text-muted-foreground">
+                Comprehensive analysis of the Road America race weekend featuring incredibly close competition, 
+                weather conditions, and strategic insights from both Race 1 and Race 2
+              </p>
+            </div>
+            <RoadAmericaRaceResults />
+            <div className="mt-6 flex justify-center">
+              <RoadAmericaPDFReportGenerator />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1657,7 +1676,7 @@ const Index = () => {
                   <h3 className="text-2xl font-bold mb-1">PitWall AI - Live Race Analytics</h3>
                   <p className="text-muted-foreground flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    Circuit of the Americas - Lap 12/25
+                    Road America - Lap 8/15
                   </p>
                 </div>
                 <button
@@ -1965,9 +1984,9 @@ const Index = () => {
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="font-semibold mb-1">Corner Entry Analysis</p>
+                        <p className="font-semibold mb-1">Road America - Long Straight Analysis</p>
                         <p className="text-sm text-muted-foreground">
-                          Turn 11 entry speed 2.3 mph below optimal. Early braking detected in last 3 laps.
+                          Drafting opportunity on main straight. Car #7 within 0.652s - maximize slipstream advantage.
                         </p>
                       </div>
                     </div>
@@ -2096,36 +2115,38 @@ const Index = () => {
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold">P1 - Car #13</span>
+                    <span className="text-sm font-semibold">P1 - Car #55</span>
                     <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full">Leader</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-2">Last Pit: Lap 12</p>
-                  <p className="text-xs text-muted-foreground">Predicted Pit: Lap 20-21</p>
+                  <p className="text-xs text-muted-foreground mb-2">Last Pit: Lap 5</p>
+                  <p className="text-xs text-muted-foreground">Predicted Pit: Lap 10-11</p>
                   <div className="mt-2 pt-2 border-t border-border/50">
-                    <p className="text-xs font-medium text-green-500">Gap: +1.24s</p>
+                    <p className="text-xs font-medium text-green-500">Gap: +0.652s</p>
+                    <p className="text-xs text-muted-foreground mt-1">Fastest lap holder</p>
                   </div>
                 </div>
                 <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold">P2 - Car #22</span>
+                    <span className="text-sm font-semibold">P2 - Car #7</span>
                     <span className="text-xs px-2 py-1 bg-yellow-500/20 text-yellow-500 rounded-full">Target</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-2">Last Pit: Lap 11</p>
-                  <p className="text-xs text-muted-foreground">Predicted Pit: Lap 19-20</p>
+                  <p className="text-xs text-muted-foreground mb-2">Last Pit: Lap 4</p>
+                  <p className="text-xs text-muted-foreground">Predicted Pit: Lap 9-10</p>
                   <div className="mt-2 pt-2 border-t border-border/50">
-                    <p className="text-xs font-medium text-blue-500">Gap: -0.45s</p>
-                    <p className="text-xs text-muted-foreground mt-1">⚠️ Undercut opportunity</p>
+                    <p className="text-xs font-medium text-blue-500">Gap: -0.652s</p>
+                    <p className="text-xs text-muted-foreground mt-1">⚠️ Draft opportunity on long straight</p>
                   </div>
                 </div>
                 <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold">P4 - Car #7</span>
+                    <span className="text-sm font-semibold">P3 - Car #13</span>
                     <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-full">Behind</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-2">Last Pit: Lap 13</p>
-                  <p className="text-xs text-muted-foreground">Predicted Pit: Lap 22-23</p>
+                  <p className="text-xs text-muted-foreground mb-2">Last Pit: Lap 5</p>
+                  <p className="text-xs text-muted-foreground">Predicted Pit: Lap 10-11</p>
                   <div className="mt-2 pt-2 border-t border-border/50">
-                    <p className="text-xs font-medium text-red-500">Gap: +2.18s</p>
+                    <p className="text-xs font-medium text-red-500">Gap: +0.801s</p>
+                    <p className="text-xs text-muted-foreground mt-1">Strong Race 2 performance</p>
                   </div>
                 </div>
               </div>
@@ -2151,16 +2172,16 @@ const Index = () => {
                     <div>
                       <p className="font-semibold text-sm mb-1">Pit Stop Strategy</p>
                       <p className="text-xs text-muted-foreground">
-                        Pit between Laps 20-22. Early pit on Lap 20 recommended to undercut P2.
+                        Road America: Pit between Laps 9-11. Maximize draft on long straights before pitting.
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-card/60 border border-primary/20">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-sm mb-1">Tire Management</p>
+                      <p className="font-semibold text-sm mb-1">Drafting Strategy</p>
                       <p className="text-xs text-muted-foreground">
-                        Monitor rear left tire closely. Performance degradation expected after Lap 21.
+                        Use slipstream on Road America's long straights. Car #7 within 0.652s - perfect draft opportunity.
                       </p>
                     </div>
                   </div>
@@ -2171,7 +2192,7 @@ const Index = () => {
                     <div>
                       <p className="font-semibold text-sm mb-1">Driver Coaching</p>
                       <p className="text-xs text-muted-foreground">
-                        Focus on Turn 11 entry. Increase entry speed by 2-3 mph for optimal lap time.
+                        Road America: Focus on consistent lap times. Top 9 within 6 seconds - consistency wins.
                       </p>
                     </div>
                   </div>
@@ -2180,7 +2201,7 @@ const Index = () => {
                     <div>
                       <p className="font-semibold text-sm mb-1">Race Position</p>
                       <p className="text-xs text-muted-foreground">
-                        On track for P2 finish. Maintain current pace and execute pit strategy.
+                        On track for P2 finish. Photo finish expected - maintain drafting position.
                       </p>
                     </div>
                   </div>
