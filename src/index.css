@@ -127,6 +127,18 @@ All colors MUST be HSL.
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Ensure proper responsive behavior */
+  html {
+    overflow-x: hidden;
+  }
+
+  /* Prevent horizontal scroll on containers */
+  main, section, article, aside {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   /* Enhanced typography */

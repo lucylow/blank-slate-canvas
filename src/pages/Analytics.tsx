@@ -516,7 +516,7 @@ const Analytics = () => {
     <main role="main" className="min-h-screen bg-[#0A0A0A] text-white relative overflow-hidden">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-gray-800 shadow-lg">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/">
               <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-all duration-300">
@@ -552,9 +552,9 @@ const Analytics = () => {
 
       {/* Main Content */}
       <div className="pt-24 pb-12 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumbs */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Breadcrumbs />
           </div>
           

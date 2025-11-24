@@ -231,22 +231,22 @@ export function CreateAgentPageContent() {
   const AgentIcon = selectedAgentType?.icon || Bot;
 
   return (
-    <div className="space-y-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full space-y-6 py-4 sm:py-6">
+      <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Bot className="w-8 h-8 text-primary" />
-            <h1 className="text-4xl font-bold">Create Your Own AI Agent</h1>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
+            <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Create Your Own AI Agent</h1>
           </div>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg">
             Build custom AI agents that work with real-time track data and strategy analytics
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column: Agent Configuration */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -500,7 +500,7 @@ export function CreateAgentPageContent() {
           </div>
 
           {/* Right Column: Real-Time Data & Decisions */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <Tabs defaultValue="decisions" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="decisions">Agent Decisions</TabsTrigger>

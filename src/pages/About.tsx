@@ -35,8 +35,8 @@ const About = () => {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
       
       {/* Main Content */}
-      <main className="py-12 px-6 relative z-10">
-        <div className="container mx-auto max-w-4xl">
+      <main className="py-8 sm:py-12 px-4 sm:px-6 relative z-10">
+        <div className="w-full max-w-4xl mx-auto">
           {/* Hero Section */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

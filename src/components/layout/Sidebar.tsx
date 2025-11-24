@@ -274,7 +274,7 @@ export function Sidebar() {
       {/* Desktop Sidebar */}
       <aside 
         className={cn(
-          "hidden lg:block fixed top-0 h-screen z-40 transition-transform duration-300 ease-in-out",
+          "hidden lg:block fixed top-0 h-screen z-40 transition-all duration-300 ease-in-out",
           isExpanded ? "left-0" : "-left-64"
         )}
       >
@@ -298,11 +298,11 @@ export function Sidebar() {
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm"
+        className="lg:hidden fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border/50 shadow-md hover:bg-accent transition-all"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label="Toggle menu"
       >
-        {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </Button>
 
       {/* Mobile Sidebar */}

@@ -35,13 +35,25 @@ export function AppLayout({
       <Sidebar />
       <div 
         className={cn(
-          "flex-1 flex flex-col transition-all duration-300 ease-in-out",
+          "flex-1 flex flex-col transition-all duration-300 ease-in-out w-full",
+          // Mobile: no padding (sidebar is overlay)
+          // Desktop: add padding when sidebar is expanded
           isExpanded ? "lg:pl-64" : "lg:pl-0"
         )}
       >
         <TopNav />
-        <main className="flex-1 pt-16 lg:pt-20">
-          {children}
+        <main className={cn(
+          "flex-1 w-full",
+          // Responsive top padding for TopNav
+          "pt-16 lg:pt-20",
+          // Responsive horizontal padding
+          "px-4 sm:px-6 lg:px-8",
+          // Add extra padding when sidebar is expanded on desktop
+          isExpanded && "lg:px-8"
+        )}>
+          <div className="w-full max-w-full">
+            {children}
+          </div>
         </main>
         <CommandPalette />
       </div>

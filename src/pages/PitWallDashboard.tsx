@@ -214,7 +214,7 @@ export default function PitWallDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-6 relative z-10 space-y-6">
+      <main className="w-full max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 relative z-10 space-y-4 sm:space-y-6">
         {/* Track Selector and Stats */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
