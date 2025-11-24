@@ -109,10 +109,11 @@ export function CreateAgentPageContent() {
   
   // Update strategy when track/vehicle changes
   useEffect(() => {
-    if (liveData?.meta?.lap) {
-      const normalizedTrack = agentConfig.track.toLowerCase().replace(/\s+/g, '_');
-      refreshPrediction(normalizedTrack, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
-    }
+    const normalizedTrack = agentConfig.track.toLowerCase().replace(/\s+/g, '_');
+    const currentLap = liveData?.meta?.lap ?? 1;
+    refreshPrediction(normalizedTrack, `GR86-016-${agentConfig.vehicle}`, currentLap).catch((err) => {
+      console.error('Failed to refresh prediction:', err);
+    });
   }, [agentConfig.track, agentConfig.vehicle, liveData?.meta?.lap, refreshPrediction]);
 
   const generateAgentDecision = useCallback(() => {
@@ -221,7 +222,10 @@ export function CreateAgentPageContent() {
     
     // Refresh strategy data
     const normalizedTrack = agentConfig.track.toLowerCase().replace(/\s+/g, '_');
-    refreshPrediction(normalizedTrack, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
+    const currentLap = liveData?.meta?.lap ?? 1;
+    refreshPrediction(normalizedTrack, `GR86-016-${agentConfig.vehicle}`, currentLap).catch((err) => {
+      console.error('Failed to refresh prediction:', err);
+    });
   };
 
   const handleStopAgent = () => {
