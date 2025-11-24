@@ -1070,9 +1070,9 @@ export async function generateSingleTrackAISummaryPDF(trackId: string, trackName
 
     if (summary) {
       const stats = summary.summary_stats || {};
-      const insights = summary.top_insights || [];
-      const clusters = summary.clusters || [];
-      const recommendations = summary.recommendations || [];
+      const insights = Array.isArray(summary.top_insights) ? summary.top_insights : [];
+      const clusters = Array.isArray(summary.clusters) ? summary.clusters : [];
+      const recommendations = Array.isArray(summary.recommendations) ? summary.recommendations : [];
 
       markdownContent += `### 📈 Summary Statistics\n\n`;
       markdownContent += `- **Track Name:** ${summary.track_name || displayName}\n`;
@@ -1275,9 +1275,9 @@ This comprehensive report provides AI-powered data analysis for all 7 tracks in 
 
       if (summary) {
         const stats = summary.summary_stats || {};
-        const insights = summary.top_insights || [];
-        const clusters = summary.clusters || [];
-        const recommendations = summary.recommendations || [];
+        const insights = Array.isArray(summary.top_insights) ? summary.top_insights : [];
+        const clusters = Array.isArray(summary.clusters) ? summary.clusters : [];
+        const recommendations = Array.isArray(summary.recommendations) ? summary.recommendations : [];
 
         markdownContent += `### 📈 Summary Statistics\n\n`;
         markdownContent += `- **Track Name:** ${summary.track_name || trackName}\n`;
