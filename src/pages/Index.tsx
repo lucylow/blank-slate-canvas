@@ -771,12 +771,12 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
-              <Flag className="w-6 h-6 text-primary-foreground" />
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform duration-300">
+              <Flag className="w-4 h-4 sm:w-6 sm:h-6 text-primary-foreground" />
             </div>
-            <div className="text-2xl font-bold tracking-tight">
+            <div className="text-lg sm:text-2xl font-bold tracking-tight">
               PitWall<span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">AI</span>
             </div>
           </Link>
@@ -1084,7 +1084,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-32 px-6 relative overflow-hidden" role="main" aria-label="Hero section">
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-24 md:pb-32 px-4 sm:px-6 relative overflow-hidden" role="main" aria-label="Hero section">
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
@@ -1095,45 +1095,45 @@ const Index = () => {
         
         <div className="container mx-auto max-w-5xl text-center relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 mb-8 backdrop-blur-md shadow-lg shadow-primary/10">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-primary">AI-Powered Race Intelligence</span>
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-full bg-primary/10 border border-primary/20 mb-6 sm:mb-8 backdrop-blur-md shadow-lg shadow-primary/10">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+            <span className="text-xs sm:text-sm font-semibold text-primary">AI-Powered Race Intelligence</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 sm:mb-8 leading-[1.1] tracking-tight px-2">
             <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
               PitWall{" "}
             </span>
             <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent">
               A.I.
             </span>
-            <br className="hidden md:block" />
-            <span className="text-4xl md:text-6xl block mt-2 bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/70 bg-clip-text text-transparent">
+            <br className="hidden sm:block" />
+            <span className="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl block mt-1 sm:mt-2 bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/70 bg-clip-text text-transparent">
               Real-time race strategy & tire intelligence for the GR Cup
             </span>
           </h1>
-          <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
             Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
           </p>
           {agentStatus?.agents && agentStatus?.agents.length > 0 && (
-            <div className="mb-12 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto backdrop-blur-md shadow-lg shadow-primary/10">
+            <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto backdrop-blur-md shadow-lg shadow-primary/10">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm font-semibold text-primary">
+                <span className="text-xs sm:text-sm font-semibold text-primary">
                   {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} AI Agents Active
                 </span>
               </div>
-              <span className="text-muted-foreground">•</span>
+              <span className="text-muted-foreground hidden sm:inline">•</span>
               <span className="text-xs text-muted-foreground">
                 {agentStatus?.agents?.length ?? 0} Total Agents
               </span>
             </div>
           )}
           
-          <div className="flex flex-col items-center gap-5 mb-12 max-w-2xl mx-auto">
-            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-lg text-foreground font-medium">
+          <div className="flex flex-col items-center gap-3 sm:gap-4 md:gap-5 mb-8 sm:mb-12 max-w-2xl mx-auto px-2">
+            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
                 Real-time tire predictions (per-sector) → Laps-until-cliff
               </p>
             </div>
