@@ -114,17 +114,6 @@ function CreateAgentPageContent() {
     }
   }, [agentConfig.track, agentConfig.vehicle, liveData?.meta.lap, refreshPrediction]);
 
-  // Simulate agent decisions based on live data
-  useEffect(() => {
-    if (!isActive || !liveData) return;
-
-    const interval = setInterval(() => {
-      generateAgentDecision();
-    }, agentConfig.parameters.updateFrequency * 1000);
-
-    return () => clearInterval(interval);
-  }, [isActive, liveData, agentConfig]);
-
   const generateAgentDecision = useCallback(() => {
     if (!liveData) return;
 
@@ -145,6 +134,17 @@ function CreateAgentPageContent() {
 
     setDecisions(prev => [decision, ...prev.slice(0, 19)]); // Keep last 20
   }, [liveData, strategy, agentConfig.type]);
+
+  // Simulate agent decisions based on live data
+  useEffect(() => {
+    if (!isActive || !liveData) return;
+
+    const interval = setInterval(() => {
+      generateAgentDecision();
+    }, agentConfig.parameters.updateFrequency * 1000);
+
+    return () => clearInterval(interval);
+  }, [isActive, liveData, agentConfig.parameters.updateFrequency, generateAgentDecision]);
 
   const getActionForType = (type: string): string => {
     switch (type) {
