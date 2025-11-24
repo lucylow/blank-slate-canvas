@@ -292,3 +292,4 @@ useEffect(() => {
 - Track geometry: Precomputed centerlines in `public/tracks/`
 - Demo data: `data/demo_slices/track-demo-positions.json`
 
+

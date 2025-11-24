@@ -56,3 +56,4 @@ export async function saveInsight(insight: any): Promise<{ success: boolean; ins
   }
 }
 
+

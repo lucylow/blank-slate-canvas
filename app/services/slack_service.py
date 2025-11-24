@@ -474,3 +474,4 @@ class SlackNotificationService:
 # Global instance
 slack_notification_service = SlackNotificationService()
 
+

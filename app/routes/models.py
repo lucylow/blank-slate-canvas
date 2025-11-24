@@ -154,3 +154,4 @@ async def get_model_details(model_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+

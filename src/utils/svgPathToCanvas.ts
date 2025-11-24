@@ -90,3 +90,4 @@ export function getAngleAtRatio(points: Point[], ratio: number): number {
   
   return Math.atan2(next.y - current.y, next.x - current.x);
 }
+

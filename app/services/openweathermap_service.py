@@ -415,3 +415,4 @@ def get_openweathermap_service() -> Optional[OpenWeatherMapService]:
     
     return _openweathermap_service
 
+

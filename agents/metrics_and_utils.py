@@ -36,3 +36,4 @@ async def periodic_trim(redis_url, stream, maxlen=200000, interval_s=30):
         await asyncio.sleep(interval_s)
 
 
+

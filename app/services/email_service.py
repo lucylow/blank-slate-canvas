@@ -380,3 +380,4 @@ class EmailNotificationService:
 # Global instance
 email_notification_service = EmailNotificationService()
 
+

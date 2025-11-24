@@ -526,3 +526,4 @@ class ComputerVisionService:
             "words": words
         }
 
+

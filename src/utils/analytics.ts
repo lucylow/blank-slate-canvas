@@ -204,3 +204,4 @@ export const trackSectionView = (sectionName: string, metadata?: Record<string, 
 export const trackFeatureUse = (featureName: string, metadata?: Record<string, unknown>) =>
   analyticsTracker.trackFeatureUse(featureName, metadata);
 
+

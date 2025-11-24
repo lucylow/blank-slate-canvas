@@ -1521,3 +1521,4 @@ export function getAllTrackCoordinates(): Record<string, { lat: number; lng: num
   return TRACK_COORDINATES;
 }
 
+

@@ -80,3 +80,4 @@ curl -X POST "http://localhost:8000/api/vision/tire-wear" \
 
 See [COMPUTER_VISION_INTEGRATION.md](./COMPUTER_VISION_INTEGRATION.md) for full documentation.
 
+

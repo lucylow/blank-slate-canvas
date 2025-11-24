@@ -156,3 +156,4 @@ const InsightModal: React.FC<InsightModalProps> = ({ isOpen, onClose, insight })
 export default InsightModal;
 
 
+

@@ -430,3 +430,4 @@ Based on Race 1 & 2 data at Circuit of the Americas, teams should:
 **Total Telemetry Points Analyzed:** 6,214,023
 
 
+

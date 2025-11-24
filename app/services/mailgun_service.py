@@ -324,3 +324,4 @@ def get_mailgun_service() -> Optional[MailgunService]:
     
     return _mailgun_service
 
+

@@ -218,3 +218,4 @@ For issues or questions:
 3. Check backend logs in Lovable Cloud dashboard
 
 
+

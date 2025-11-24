@@ -287,3 +287,4 @@ async def list_tracks_with_coordinates() -> Dict[str, Any]:
         "count": len(tracks_info)
     }
 
+

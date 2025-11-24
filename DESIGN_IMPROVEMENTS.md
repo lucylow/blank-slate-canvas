@@ -170,3 +170,4 @@ All improvements use modern CSS features that are well-supported:
 - Utilities follow Tailwind CSS conventions
 - All animations respect `prefers-reduced-motion`
 
+

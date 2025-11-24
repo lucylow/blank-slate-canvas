@@ -35,3 +35,4 @@ def test_metrics():
     assert "text/plain" in r.headers.get("content-type", "")
 
 
+

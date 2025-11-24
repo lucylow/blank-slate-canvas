@@ -447,3 +447,4 @@ If the service returns "not available":
 - [AWS Rekognition Documentation](https://docs.aws.amazon.com/rekognition/)
 - [Computer Vision API Research Summary](./COMPUTER_VISION_APIS.md) (if created)
 
+
