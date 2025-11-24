@@ -50,6 +50,7 @@ import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
 import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
 import SlackIntegrationPage from "./pages/SlackIntegrationPage";
 import COTADashboard from "./pages/COTADashboard";
+import COTA22DriversDashboard from "./pages/COTA22DriversDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +99,9 @@ const App = () => (
                     
                     {/* COTA Dashboard - Circuit of the Americas dashboard with mock data */}
                     <Route path="/cota-dashboard" element={<COTADashboard />} />
+                    
+                    {/* COTA 22 Drivers Dashboard - All 22 drivers telemetry dashboard */}
+                    <Route path="/cota-22-drivers" element={<COTA22DriversDashboard />} />
                     
                     {/* Analytics - Performance metrics and analysis */}
                     <Route path="/analytics" element={<Analytics />} />

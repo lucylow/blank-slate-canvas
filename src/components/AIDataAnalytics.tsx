@@ -43,7 +43,7 @@ import {
   analyzeRaceDataWithURLs,
 } from '@/api/aiAnalytics';
 import { useDemoMode } from '@/hooks/useDemoMode';
-import { shouldUseMockData } from '@/lib/geminiMockData';
+import { shouldUseMockData, getExampleMockAnalytics } from '@/lib/geminiMockData';
 
 interface AIDataAnalyticsProps {
   track?: string;
@@ -798,20 +798,115 @@ export function AIDataAnalytics({
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty State with Example Outputs */}
       {!currentData && !isLoading && !error && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Brain className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
-              <p className="text-lg font-semibold mb-2">Ready for AI Analysis</p>
-              <p className="text-sm text-muted-foreground max-w-md">
-                Select analysis type and AI model, then click "Run Analysis" to generate
-                comprehensive insights using OpenAI or Gemini.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Brain className="w-16 h-16 text-muted-foreground mb-4 opacity-50" />
+                <p className="text-lg font-semibold mb-2">Ready for AI Analysis</p>
+                <p className="text-sm text-muted-foreground max-w-md mb-6">
+                  Select analysis type and AI model, then click "Run Analysis" to generate
+                  comprehensive insights using OpenAI or Gemini.
+                </p>
+                
+                {/* Example Outputs Section */}
+                <div className="w-full max-w-4xl mt-8">
+                  <h3 className="text-sm font-semibold mb-4 text-left">Example AI Analytics Outputs</h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {/* Photo Analysis Example */}
+                    <Card className="border-primary/20 hover:border-primary/40 transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <ImageIcon className="w-4 h-4 text-primary" />
+                          <CardTitle className="text-sm">Photo Analysis</CardTitle>
+                        </div>
+                        <CardDescription className="text-xs">
+                          Analyzing: overtake-turn3.jpg
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="text-xs text-muted-foreground line-clamp-3">
+                          Image analysis reveals optimal racing line through Turn 3 with clean inside line entry...
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            const example = getExampleMockAnalytics('photo');
+                            setGeminiResult(example);
+                          }}
+                        >
+                          View Example Output
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Video Analysis Example */}
+                    <Card className="border-primary/20 hover:border-primary/40 transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <Video className="w-4 h-4 text-primary" />
+                          <CardTitle className="text-sm">Video Analysis</CardTitle>
+                        </div>
+                        <CardDescription className="text-xs">
+                          Analyzing: personal-best-sebring.mp4
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="text-xs text-muted-foreground line-clamp-3">
+                          Video analysis shows complete lap execution with optimal sector transitions and consistent braking...
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            const example = getExampleMockAnalytics('video');
+                            setGeminiResult(example);
+                          }}
+                        >
+                          View Example Output
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Link Analysis Example */}
+                    <Card className="border-primary/20 hover:border-primary/40 transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <LinkIcon className="w-4 h-4 text-primary" />
+                          <CardTitle className="text-sm">Link Analysis</CardTitle>
+                        </div>
+                        <CardDescription className="text-xs">
+                          Analyzing: racing-reference.info
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="text-xs text-muted-foreground line-clamp-3">
+                          URL context analysis provides comprehensive track data for strategy planning with historical race data...
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            const example = getExampleMockAnalytics('link');
+                            setGeminiResult(example);
+                          }}
+                        >
+                          View Example Output
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );
