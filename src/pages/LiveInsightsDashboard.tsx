@@ -1,5 +1,5 @@
 // src/pages/LiveInsightsDashboard.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, 
@@ -26,8 +26,13 @@ import {
   Award,
   AlertCircle,
   CheckCircle2,
-  Info
+  Info,
+  Gauge as GaugeIcon,
+  Timer,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 
 import { DeliveryProvider } from '../components/DeliveryProvider';
 import { InsightList } from '../components/InsightList';
@@ -46,6 +51,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAgentStore } from '../stores/agentStore';
 import type { DashboardData } from '@/lib/types';
 
@@ -55,6 +61,10 @@ export default function LiveInsightsDashboard() {
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
   const [selectedLap, setSelectedLap] = useState(12);
+  const [selectedMetric, setSelectedMetric] = useState('speed');
+  const [chartExpanded, setChartExpanded] = useState(false);
+  const [telemetryHistory, setTelemetryHistory] = useState<Array<{time: number; speed: number; rpm: number; throttle: number; brake: number; tireHealth: number}>>([]);
+  const historyRef = useRef<typeof telemetryHistory>([]);
 
   const { 
     data, 
@@ -67,6 +77,31 @@ export default function LiveInsightsDashboard() {
 
   const insights = useAgentStore((s) => s.insights);
   const insightOrder = useAgentStore((s) => s.insightOrder);
+
+  // Build telemetry history for charts
+  useEffect(() => {
+    if (data) {
+      const avgTireWear = data.tire_wear
+        ? (data.tire_wear.front_left +
+           data.tire_wear.front_right +
+           data.tire_wear.rear_left +
+           data.tire_wear.rear_right) / 4
+        : 50;
+      const tireHealth = 100 - avgTireWear;
+      
+      const newPoint = {
+        time: Date.now(),
+        speed: 145 + Math.random() * 20, // Simulated - replace with actual data
+        rpm: 6000 + Math.random() * 2000,
+        throttle: 75 + Math.random() * 20,
+        brake: Math.random() * 30,
+        tireHealth: tireHealth
+      };
+
+      historyRef.current = [...historyRef.current.slice(-59), newPoint]; // Keep last 60 points
+      setTelemetryHistory(historyRef.current);
+    }
+  }, [data]);
 
   // Calculate real-time metrics from telemetry data
   const metrics = useMemo(() => {
@@ -115,35 +150,67 @@ export default function LiveInsightsDashboard() {
       .filter(Boolean);
   }, [insightOrder, insights]);
 
+  // Format chart data
+  const chartData = useMemo(() => {
+    return telemetryHistory.map((point, index) => ({
+      time: new Date(point.time).toLocaleTimeString(),
+      timestamp: point.time,
+      speed: point.speed,
+      rpm: point.rpm,
+      throttle: point.throttle,
+      brake: point.brake,
+      tireHealth: point.tireHealth,
+      index
+    }));
+  }, [telemetryHistory]);
+
+  const metricConfig = {
+    speed: { color: '#3B82F6', label: 'Speed', unit: 'mph', icon: Speed },
+    rpm: { color: '#F59E0B', label: 'RPM', unit: 'rpm', icon: GaugeIcon },
+    throttle: { color: '#10B981', label: 'Throttle', unit: '%', icon: Flame },
+    brake: { color: '#EF4444', label: 'Brake', unit: '%', icon: AlertTriangle },
+    tireHealth: { color: '#8B5CF6', label: 'Tire Health', unit: '%', icon: Droplet }
+  };
+
   return (
     <DeliveryProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 space-y-6">
+        {/* Enhanced Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between"
+        >
           <div className="flex items-center gap-4">
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="p-3 rounded-xl bg-primary/20 border-2 border-primary/30"
+              initial={{ scale: 0.9, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="p-3 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 border-2 border-primary/40 shadow-lg shadow-primary/20"
             >
               <Brain className="w-8 h-8 text-primary" />
             </motion.div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <h1 className="text-4xl font-bold text-white flex items-center gap-3">
                 Live Insights Dashboard
                 {connected && (
                   <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
+                    animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <Badge className="bg-green-600 text-green-50 border-2 border-green-400 px-3 py-1">
-                      <Wifi className="w-3 h-3 mr-1.5" />
+                    <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-400 px-4 py-1.5 shadow-lg shadow-green-500/50">
+                      <motion.div
+                        animate={{ opacity: [1, 0.5, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <Wifi className="w-4 h-4 mr-1.5" />
+                      </motion.div>
                       LIVE
                     </Badge>
                   </motion.div>
                 )}
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-slate-400 mt-1.5 text-sm font-medium">
                 Real-time telemetry insights and AI-powered analysis
               </p>
             </div>
@@ -155,20 +222,21 @@ export default function LiveInsightsDashboard() {
                 size="sm"
                 onClick={retryStream}
                 disabled={reconnectAttempts >= maxReconnectAttempts}
+                className="border-red-500/50 text-red-400 hover:bg-red-500/10"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw className={`w-4 h-4 mr-2 ${reconnectAttempts > 0 ? 'animate-spin' : ''}`} />
                 Retry Connection
               </Button>
             )}
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800">
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Connection Status & Controls */}
-        <Card className="border-2 border-foreground/20 bg-background/95 backdrop-blur-sm">
+        {/* Enhanced Connection Status & Controls */}
+        <Card className="border-2 border-slate-800/50 bg-slate-900/50 backdrop-blur-xl shadow-2xl">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-3">
@@ -258,20 +326,21 @@ export default function LiveInsightsDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Real-time Metrics */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Performance Overview */}
+            {/* Enhanced Performance Overview */}
             {metrics && (
-              <Card className="border-2 border-foreground/20 bg-background/95 backdrop-blur-sm shadow-xl">
-                <CardHeader className="pb-4 border-b-2 border-foreground/10">
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/20 border-2 border-primary/30">
+              <Card className="border-2 border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/90 backdrop-blur-xl shadow-2xl">
+                <CardHeader className="pb-4 border-b-2 border-slate-800/50">
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border-2 border-primary/40 shadow-lg shadow-primary/20">
                       <Target className="w-6 h-6 text-primary" />
                     </div>
                     Performance Overview
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className={`p-6 rounded-xl border-4 ${getPerformanceColor(metrics.performanceScore)} mb-6 shadow-lg`}>
-                    <div className="flex items-center justify-between mb-4">
+                  <div className={`p-6 rounded-xl border-4 ${getPerformanceColor(metrics.performanceScore)} mb-6 shadow-2xl relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                    <div className="relative z-10 flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <Target className="w-8 h-8" />
                         <div>
@@ -282,53 +351,79 @@ export default function LiveInsightsDashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-5xl font-black">
+                        <motion.div
+                          key={metrics.performanceScore}
+                          initial={{ scale: 1.2, opacity: 0.5 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                          className="text-5xl font-black"
+                        >
                           {metrics.performanceScore.toFixed(0)}
-                        </div>
+                        </motion.div>
                         <div className="text-lg font-bold opacity-90">%</div>
                       </div>
                     </div>
                     <Progress 
                       value={metrics.performanceScore} 
-                      className="h-4 bg-black/20 border-2 border-white/30"
+                      className="h-4 bg-black/30 border-2 border-white/30 relative z-10"
                     />
                   </div>
 
-                  {/* Key Metrics Grid */}
+                  {/* Enhanced Key Metrics Grid */}
                   <div className="grid grid-cols-2 gap-4">
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-blue-600 border-4 border-blue-400 rounded-xl p-5 shadow-xl"
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="bg-gradient-to-br from-blue-600 to-blue-700 border-4 border-blue-400 rounded-xl p-5 shadow-2xl hover:shadow-blue-500/50 transition-all relative overflow-hidden group"
                     >
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative z-10">
                       <div className="flex items-center gap-2 mb-2">
                         <Droplet className="w-5 h-5 text-blue-50" />
                         <span className="text-xs font-bold text-blue-50 uppercase tracking-wide">Tire Health</span>
                       </div>
-                      <div className="text-4xl font-black font-mono text-blue-50">
+                        <motion.div
+                          key={metrics.tireHealth}
+                          initial={{ scale: 1.2, opacity: 0.5 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="text-4xl font-black font-mono text-blue-50"
+                        >
                         {metrics.tireHealth.toFixed(0)}%
-                      </div>
+                        </motion.div>
                       {metrics.predictedLapsRemaining && (
-                        <div className="text-sm text-blue-50/80 mt-2">
+                          <div className="text-sm text-blue-50/80 mt-2 flex items-center gap-1">
+                            <Timer className="w-3 h-3" />
                           ~{metrics.predictedLapsRemaining} laps remaining
                         </div>
                       )}
+                      </div>
                     </motion.div>
 
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-purple-600 border-4 border-purple-400 rounded-xl p-5 shadow-xl"
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="bg-gradient-to-br from-purple-600 to-purple-700 border-4 border-purple-400 rounded-xl p-5 shadow-2xl hover:shadow-purple-500/50 transition-all relative overflow-hidden group"
                     >
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative z-10">
                       <div className="flex items-center gap-2 mb-2">
                         <Award className="w-5 h-5 text-purple-50" />
                         <span className="text-xs font-bold text-purple-50 uppercase tracking-wide">Position</span>
                       </div>
-                      <div className="text-4xl font-black font-mono text-purple-50">
+                        <motion.div
+                          key={metrics.position}
+                          initial={{ scale: 1.2, opacity: 0.5 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="text-4xl font-black font-mono text-purple-50"
+                        >
                         #{metrics.position}
+                        </motion.div>
+                        <div className="text-sm text-purple-50/80 mt-2 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Gap: {metrics.gapToLeader}s
                       </div>
-                      <div className="text-sm text-purple-50/80 mt-2">
-                        Gap: {metrics.gapToLeader}s
                       </div>
                     </motion.div>
                   </div>
@@ -336,14 +431,108 @@ export default function LiveInsightsDashboard() {
               </Card>
             )}
 
-            {/* Live Insights Feed */}
-            <Card className="border-2 border-foreground/20 bg-background/95 backdrop-blur-sm shadow-xl">
-              <CardHeader className="pb-4 border-b-2 border-foreground/10">
-                <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/20 border-2 border-primary/30">
+            {/* Real-time Telemetry Charts */}
+            {chartData.length > 0 && (
+              <Card className="border-2 border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/90 backdrop-blur-xl shadow-2xl">
+                <CardHeader className="pb-4 border-b-2 border-slate-800/50">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border-2 border-primary/40 shadow-lg shadow-primary/20">
+                        <BarChart3 className="w-6 h-6 text-primary" />
+                      </div>
+                      Real-Time Telemetry
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setChartExpanded(!chartExpanded)}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      {chartExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <Tabs value={selectedMetric} onValueChange={setSelectedMetric} className="w-full">
+                    <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-slate-700">
+                      {Object.entries(metricConfig).map(([key, config]) => {
+                        const Icon = config.icon;
+                        return (
+                          <TabsTrigger
+                            key={key}
+                            value={key}
+                            className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400"
+                          >
+                            <Icon className="w-4 h-4 mr-1" />
+                            {config.label}
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+                    {Object.entries(metricConfig).map(([key, config]) => (
+                      <TabsContent key={key} value={key} className="mt-4">
+                        <div className={`${chartExpanded ? 'h-[500px]' : 'h-[300px]'} w-full`}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id={`gradient-${key}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor={config.color} stopOpacity={0.3}/>
+                                  <stop offset="95%" stopColor={config.color} stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                              <XAxis 
+                                dataKey="time" 
+                                stroke="#94a3b8"
+                                fontSize={11}
+                                tickLine={false}
+                                interval="preserveStartEnd"
+                              />
+                              <YAxis 
+                                stroke="#94a3b8"
+                                fontSize={11}
+                                tickLine={false}
+                              />
+                              <Tooltip
+                                contentStyle={{ 
+                                  backgroundColor: '#1e293b',
+                                  border: '1px solid #334155',
+                                  borderRadius: '8px',
+                                  color: '#f1f5f9',
+                                }}
+                                labelStyle={{ color: '#cbd5e1' }}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey={key}
+                                stroke={config.color}
+                                strokeWidth={2}
+                                fill={`url(#gradient-${key})`}
+                                name={config.label}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Enhanced Live Insights Feed */}
+            <Card className="border-2 border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/90 backdrop-blur-xl shadow-2xl">
+              <CardHeader className="pb-4 border-b-2 border-slate-800/50">
+                <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border-2 border-primary/40 shadow-lg shadow-primary/20">
                     <Sparkles className="w-6 h-6 text-primary" />
                   </div>
                   Live Insights Feed
+                  {insightOrder.length > 0 && (
+                    <Badge className="ml-auto bg-primary/20 text-primary border-primary/30">
+                      {insightOrder.length} active
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -352,19 +541,19 @@ export default function LiveInsightsDashboard() {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="inline-block p-4 rounded-full bg-muted/50 mb-4"
+                      className="inline-block p-4 rounded-full bg-slate-800/50 mb-4"
                     >
-                      <Brain className="w-12 h-12 text-muted-foreground" />
+                      <Brain className="w-12 h-12 text-slate-500" />
                     </motion.div>
-                    <p className="text-muted-foreground text-lg font-medium">
+                    <p className="text-slate-400 text-lg font-medium">
                       Waiting for insights...
                     </p>
-                    <p className="text-muted-foreground text-sm mt-2">
+                    <p className="text-slate-500 text-sm mt-2">
                       AI agents are analyzing telemetry data. Insights will appear here in real-time.
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
                     <AnimatePresence>
                       {insightOrder.map((id, index) => {
                         const item = insights[id];
@@ -372,38 +561,39 @@ export default function LiveInsightsDashboard() {
                         return (
                           <motion.div
                             key={id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
+                            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 20, scale: 0.95 }}
                             transition={{ delay: index * 0.05 }}
-                            className="p-4 rounded-xl border-2 border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer"
+                            className="p-4 rounded-xl border-2 border-slate-800 bg-gradient-to-br from-slate-800/50 to-slate-900/50 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20 transition-all cursor-pointer group"
                             onClick={() => setOpenId(id)}
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Badge variant="outline" className="text-xs">
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                  <Badge variant="outline" className="text-xs border-slate-700 text-slate-300 bg-slate-800/50">
                                     {item.track}
                                   </Badge>
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="outline" className="text-xs border-slate-700 text-slate-300 bg-slate-800/50">
                                     {item.chassis}
                                   </Badge>
-                                  <span className="text-xs text-muted-foreground">
+                                  <span className="text-xs text-slate-500 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
                                     {new Date(item.created_at).toLocaleTimeString()}
                                   </span>
                                 </div>
-                                <p className="text-base font-medium text-foreground line-clamp-2">
+                                <p className="text-base font-medium text-white line-clamp-2 group-hover:text-primary transition-colors">
                                   {item.summary || 'New insight available'}
                                 </p>
                                 {item.short_explanation && (
-                                  <p className="text-sm text-muted-foreground mt-2 line-clamp-1">
+                                  <p className="text-sm text-slate-400 mt-2 line-clamp-1">
                                     {item.short_explanation}
                                   </p>
                                 )}
                               </div>
                               <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                className="p-2 rounded-lg bg-primary/10 border border-primary/20"
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors"
                               >
                                 <Info className="w-4 h-4 text-primary" />
                               </motion.div>
@@ -417,12 +607,12 @@ export default function LiveInsightsDashboard() {
               </CardContent>
             </Card>
 
-            {/* Real-time Alerts */}
+            {/* Enhanced Real-time Alerts */}
             {metrics && (metrics.overtakingOpportunity || metrics.underPressure || metrics.pitWindow) && (
-              <Card className="border-2 border-foreground/20 bg-background/95 backdrop-blur-sm shadow-xl">
-                <CardHeader className="pb-4 border-b-2 border-foreground/10">
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/20 border-2 border-primary/30">
+              <Card className="border-2 border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/90 backdrop-blur-xl shadow-2xl">
+                <CardHeader className="pb-4 border-b-2 border-slate-800/50">
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3 text-white">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 border-2 border-primary/40 shadow-lg shadow-primary/20">
                       <AlertTriangle className="w-6 h-6 text-primary" />
                     </div>
                     Real-time Alerts
@@ -432,47 +622,60 @@ export default function LiveInsightsDashboard() {
                   <AnimatePresence>
                     {metrics.overtakingOpportunity && (
                       <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        className="flex items-center justify-between p-4 rounded-lg bg-green-700 text-green-50 border-2 border-green-400 font-bold"
+                        initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                        className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-400 font-bold shadow-lg shadow-green-500/30 relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                        <div className="relative z-10 flex items-center gap-3">
+                          <motion.div
+                            animate={{ rotate: [0, 10, -10, 0] }}
+                            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                          >
                           <CheckCircle2 className="w-5 h-5" />
+                          </motion.div>
                           <span>Overtaking Opportunity Detected</span>
                         </div>
-                        <Badge className="bg-green-600 text-green-50 border border-green-400">
+                        <Badge className="bg-green-700 text-white border border-green-400 relative z-10">
                           Active
                         </Badge>
                       </motion.div>
                     )}
                     {metrics.underPressure && (
                       <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        className="flex items-center justify-between p-4 rounded-lg bg-yellow-700 text-yellow-50 border-2 border-yellow-400 font-bold"
+                        initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                        className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-yellow-600 to-amber-600 text-white border-2 border-yellow-400 font-bold shadow-lg shadow-yellow-500/30 relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                        <div className="relative z-10 flex items-center gap-3">
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          >
                           <AlertTriangle className="w-5 h-5" />
+                          </motion.div>
                           <span>Under Pressure</span>
                         </div>
-                        <Badge className="bg-yellow-600 text-yellow-50 border border-yellow-400">
+                        <Badge className="bg-yellow-700 text-white border border-yellow-400 relative z-10">
                           Warning
                         </Badge>
                       </motion.div>
                     )}
                     {metrics.pitWindow && metrics.pitWindow.length > 0 && (
                       <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center justify-between p-4 rounded-lg bg-blue-700 text-blue-50 border-2 border-blue-400 font-bold"
+                        initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-2 border-blue-400 font-bold shadow-lg shadow-blue-500/30 relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                        <div className="relative z-10 flex items-center gap-3">
                           <Clock className="w-5 h-5" />
                           <span>Optimal Pit Window</span>
                         </div>
-                        <span className="text-lg font-black">
+                        <span className="text-lg font-black relative z-10">
                           Laps {metrics.pitWindow[0]}-{metrics.pitWindow[metrics.pitWindow.length - 1]}
                         </span>
                       </motion.div>
@@ -483,17 +686,22 @@ export default function LiveInsightsDashboard() {
             )}
           </div>
 
-          {/* Right Column - Sidebar */}
+          {/* Enhanced Right Column - Sidebar */}
           <div className="space-y-6">
             <AgentStatusPanel />
             <TaskQueuePanel />
             
-            {/* Connection Status */}
-            <Card className="border-2 border-foreground/20 bg-background/95 backdrop-blur-sm">
-              <CardHeader className="pb-4 border-b-2 border-foreground/10">
-                <CardTitle className="text-lg font-bold flex items-center gap-2">
+            {/* Enhanced Connection Status */}
+            <Card className="border-2 border-slate-800/50 bg-gradient-to-br from-slate-900/90 to-slate-950/90 backdrop-blur-xl shadow-2xl">
+              <CardHeader className="pb-4 border-b-2 border-slate-800/50">
+                <CardTitle className="text-lg font-bold flex items-center gap-2 text-white">
                   {connected ? (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
                     <Wifi className="w-5 h-5 text-green-500" />
+                    </motion.div>
                   ) : (
                     <WifiOff className="w-5 h-5 text-red-500" />
                   )}
@@ -503,11 +711,11 @@ export default function LiveInsightsDashboard() {
               <CardContent className="pt-6">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Telemetry Stream</span>
+                    <span className="text-sm text-slate-400">Telemetry Stream</span>
                     <Badge 
                       className={connected 
-                        ? "bg-green-600 text-green-50 border-green-400" 
-                        : "bg-red-600 text-red-50 border-red-400"
+                        ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-400 shadow-lg shadow-green-500/30" 
+                        : "bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-400"
                       }
                     >
                       {connected ? 'Connected' : 'Disconnected'}
@@ -515,18 +723,27 @@ export default function LiveInsightsDashboard() {
                   </div>
                   {data && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Last Update</span>
-                      <span className="text-sm font-medium">
+                      <span className="text-sm text-slate-400">Last Update</span>
+                      <span className="text-sm font-medium text-white flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
                         {new Date().toLocaleTimeString()}
                       </span>
                     </div>
                   )}
                   {reconnectAttempts > 0 && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Reconnect Attempts</span>
-                      <span className="text-sm font-medium">
+                      <span className="text-sm text-slate-400">Reconnect Attempts</span>
+                      <span className="text-sm font-medium text-white">
                         {reconnectAttempts}/{maxReconnectAttempts}
                       </span>
+                    </div>
+                  )}
+                  {connected && (
+                    <div className="pt-3 border-t border-slate-800">
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <Activity className="w-3 h-3" />
+                        <span>Streaming at ~20Hz</span>
+                      </div>
                     </div>
                   )}
                 </div>

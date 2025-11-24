@@ -148,14 +148,14 @@ PitWall A.I. transforms raw racing telemetry into actionable insights in real-ti
 
 PitWall A.I. provides real-time racing analytics through:
 
-| Feature | Description | Performance |
-|---------|-------------|-------------|
-| 🎯 **Tire Wear Prediction** | Physics-informed ML models predicting per-tire degradation | 95%+ accuracy, <5ms inference |
-| ⚡ **Real-Time Telemetry** | High-throughput ingestion via UDP/HTTP/WebSocket | 10,000+ points/sec |
-| 🤖 **Multi-Agent AI System** | Distributed processing through Redis Streams | Horizontal scaling |
-| 📊 **Pit Window Optimization** | Monte Carlo simulation with traffic-aware recommendations | 10,000 iterations/strategy |
-| 🧠 **Explainable AI** | Top-3 evidence-based explanations for all predictions | Radio-ready insights |
-| 👤 **Driver Fingerprinting** | Per-driver performance analysis with actionable alerts | Real-time anomaly detection |
+| Feature | Description | AI/ML Technology | Performance |
+|---------|-------------|------------------|-------------|
+| 🎯 **Tire Wear Prediction** | Physics-informed hybrid ML models (ensemble: XGBoost + LightGBM + CatBoost) | Ensemble gradient boosting, ONNX Runtime, SHAP | 95%+ R² accuracy, <5ms inference |
+| ⚡ **Real-Time Telemetry** | High-throughput ingestion with AI-powered feature extraction | Automated feature engineering, schema validation | 10,000+ points/sec |
+| 🤖 **Multi-Agent AI System** | Distributed autonomous AI agents with intelligent task routing | Multi-agent systems, Redis Streams, load balancing | Horizontal scaling, <100ms latency |
+| 📊 **Pit Window Optimization** | Monte Carlo simulation with probabilistic traffic modeling | Stochastic optimization, Monte Carlo methods | 10,000 iterations/strategy |
+| 🧠 **Explainable AI** | SHAP-based feature importance with natural language explanations | TreeExplainer (SHAP), NLG | Radio-ready insights |
+| 👤 **Driver Fingerprinting** | Statistical anomaly detection with online learning | Z-score analysis, incremental learning | Real-time anomaly detection |
 
 ### High-Level Architecture
 

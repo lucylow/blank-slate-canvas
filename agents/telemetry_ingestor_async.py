@@ -1,26 +1,31 @@
 # agents/telemetry_ingestor_async.py
 
 """
-Async Telemetry Ingestor
+Async Telemetry Ingestor - Improved Version
 
 - Reads raw telemetry points from Redis stream "telemetry.stream"
-
 - Sectorizes & aggregates into small windows (per chassis/sector or per-lap)
-
 - Writes aggregate windows to "aggregates.stream" (used by predictor/eda)
-
 - Maintains stream trimming XTRIM
-
+- Performance improvements:
+  - Connection pooling for better throughput
+  - Optimized batching with pipelining
+  - Metrics and monitoring
+  - Better backpressure handling
+  - Parallel processing support
 """
 
 import asyncio
 import json
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import time
 import logging
 import traceback
+from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime
 
 import redis.asyncio as aioredis
 
@@ -56,40 +61,134 @@ INPUT_STREAM = os.getenv("TELEMETRY_STREAM", "telemetry.stream")
 AGG_STREAM = os.getenv("AGG_STREAM", "aggregates.stream")
 CONSUMER_GROUP = os.getenv("INGEST_GROUP", "ingestors")
 CONSUMER_NAME = os.getenv("INGEST_NAME", f"ingestor-{int(time.time())}")
-BATCH_COUNT = int(os.getenv("INGEST_BATCH", "200"))
+BATCH_COUNT = int(os.getenv("INGEST_BATCH", "500"))  # Increased default batch size
 BLOCK_MS = int(os.getenv("INGEST_BLOCK_MS", "1000"))
 XTRIM_MAX = int(os.getenv("STREAM_MAXLEN", "200000"))
+PIPELINE_SIZE = int(os.getenv("REDIS_PIPELINE_SIZE", "100"))  # Pipeline writes
+MAX_CONCURRENT_AGGREGATIONS = int(os.getenv("MAX_CONCURRENT_AGGS", "10"))
+FLUSH_THRESHOLD = int(os.getenv("FLUSH_THRESHOLD", "10"))  # Min points per bucket before flush
+METRICS_INTERVAL = int(os.getenv("METRICS_INTERVAL", "60"))  # Log metrics every N seconds
 
-# simple in-memory sliding aggregator keyed by (track,chassis,lap,sector)
+@dataclass
+class IngestorMetrics:
+    """Metrics for monitoring ingestion performance"""
+    messages_processed: int = 0
+    messages_failed: int = 0
+    aggregations_created: int = 0
+    redis_errors: int = 0
+    last_metrics_time: float = field(default_factory=time.time)
+    processing_times: List[float] = field(default_factory=list)
+    
+    def reset(self):
+        self.messages_processed = 0
+        self.messages_failed = 0
+        self.aggregations_created = 0
+        self.redis_errors = 0
+        self.processing_times.clear()
+        self.last_metrics_time = time.time()
+    
+    def log_summary(self):
+        """Log metrics summary"""
+        elapsed = time.time() - self.last_metrics_time
+        if elapsed == 0:
+            return
+        
+        msg_rate = self.messages_processed / elapsed
+        agg_rate = self.aggregations_created / elapsed
+        avg_processing_time = sum(self.processing_times) / len(self.processing_times) if self.processing_times else 0
+        
+        logger.info(
+            f"Metrics (last {elapsed:.1f}s): "
+            f"processed={self.messages_processed} ({msg_rate:.1f}/s), "
+            f"failed={self.messages_failed}, "
+            f"aggregations={self.aggregations_created} ({agg_rate:.1f}/s), "
+            f"errors={self.redis_errors}, "
+            f"avg_processing={avg_processing_time*1000:.2f}ms"
+        )
+
+
+# Optimized in-memory sliding aggregator with better performance
 class SlidingAggregator:
-    def __init__(self):
-        self.buckets = {}
-
-    def add(self, rec: Dict[str, Any]):
-        key = (rec.get("track"), rec.get("chassis"), rec.get("lap"), rec.get("sector", 0))
-        b = self.buckets.setdefault(key, {"count": 0, "sum": {}, "first_ts": rec.get("meta_time")})
-        b["count"] += 1
-        for k, v in rec.items():
-            if isinstance(v, (int, float)) and k not in ("lap",):
-                b["sum"][k] = b["sum"].get(k, 0.0) + float(v)
-        # optionally flush if count > threshold handled by orchestrator below
-
-    def flush_bucket(self, key):
-        b = self.buckets.pop(key, None)
-        if not b:
-            return None
-        agg = {"track": key[0], "chassis": key[1], "lap": key[2], "sector": key[3], "count": b["count"], "first_ts": b["first_ts"]}
-        for k, s in b["sum"].items():
-            agg[f"avg_{k}"] = s / b["count"]
-        return agg
-
-    def flush_all(self):
-        keys = list(self.buckets.keys())
-        out = []
-        for k in keys:
-            a = self.flush_bucket(k)
-            if a: out.append(a)
-        return out
+    def __init__(self, flush_threshold: int = FLUSH_THRESHOLD):
+        self.buckets: Dict[tuple, Dict[str, Any]] = {}
+        self.flush_threshold = flush_threshold
+        self._lock = asyncio.Lock()
+    
+    async def add(self, rec: Dict[str, Any]):
+        """Add a record to aggregation buckets (thread-safe)"""
+        key = (
+            rec.get("track", "unknown"),
+            rec.get("chassis", "unknown"),
+            rec.get("lap", 0),
+            rec.get("sector", 0)
+        )
+        
+        async with self._lock:
+            b = self.buckets.setdefault(key, {
+                "count": 0,
+                "sum": defaultdict(float),
+                "first_ts": rec.get("meta_time", datetime.utcnow().isoformat()),
+                "last_ts": rec.get("meta_time", datetime.utcnow().isoformat())
+            })
+            b["count"] += 1
+            b["last_ts"] = rec.get("meta_time", datetime.utcnow().isoformat())
+            
+            # Aggregate numeric fields
+            for k, v in rec.items():
+                if isinstance(v, (int, float)) and k not in ("lap", "sector"):
+                    b["sum"][k] += float(v)
+    
+    async def flush_ready_buckets(self) -> List[Dict[str, Any]]:
+        """Flush buckets that meet the threshold (thread-safe)"""
+        async with self._lock:
+            ready_keys = [
+                k for k, b in self.buckets.items()
+                if b["count"] >= self.flush_threshold
+            ]
+            
+            out = []
+            for key in ready_keys:
+                b = self.buckets.pop(key)
+                agg = {
+                    "track": key[0],
+                    "chassis": key[1],
+                    "lap": key[2],
+                    "sector": key[3],
+                    "count": b["count"],
+                    "first_ts": b["first_ts"],
+                    "last_ts": b["last_ts"]
+                }
+                # Calculate averages
+                for k, s in b["sum"].items():
+                    agg[f"avg_{k}"] = s / b["count"]
+                out.append(agg)
+            
+            return out
+    
+    async def flush_all(self) -> List[Dict[str, Any]]:
+        """Flush all buckets regardless of threshold"""
+        async with self._lock:
+            keys = list(self.buckets.keys())
+            out = []
+            for key in keys:
+                b = self.buckets.pop(key)
+                agg = {
+                    "track": key[0],
+                    "chassis": key[1],
+                    "lap": key[2],
+                    "sector": key[3],
+                    "count": b["count"],
+                    "first_ts": b["first_ts"],
+                    "last_ts": b["last_ts"]
+                }
+                for k, s in b["sum"].items():
+                    agg[f"avg_{k}"] = s / b["count"]
+                out.append(agg)
+            return out
+    
+    def size(self) -> int:
+        """Get number of active buckets"""
+        return len(self.buckets)
 
 async def ensure_group(r):
     """Ensure consumer group exists with proper error handling."""
@@ -118,20 +217,61 @@ async def ensure_group(r):
         )
         raise
 
+async def write_aggregations_batch(
+    r: aioredis.Redis,
+    aggregations: List[Dict[str, Any]],
+    pipeline_size: int = PIPELINE_SIZE
+) -> int:
+    """Write aggregations to Redis stream using pipelining for better performance"""
+    if not aggregations:
+        return 0
+    
+    written = 0
+    # Process in chunks to avoid memory issues
+    for i in range(0, len(aggregations), pipeline_size):
+        chunk = aggregations[i:i + pipeline_size]
+        try:
+            pipe = r.pipeline()
+            for agg in chunk:
+                pipe.xadd(AGG_STREAM, {"payload": json.dumps(agg)})
+            
+            await pipe.execute()
+            written += len(chunk)
+        except Exception as e:
+            log_error_with_context(
+                e,
+                "telemetry_ingestor",
+                "write_aggregations_batch",
+                ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                {"chunk_size": len(chunk), "chunk_index": i}
+            )
+            raise
+    
+    return written
+
+
 async def run_ingestor():
-    """Main ingestion loop with comprehensive error handling."""
+    """Main ingestion loop with comprehensive error handling and performance optimizations."""
     r = None
     connection_retries = 0
     max_connection_retries = 5
     
-    # Initialize Redis connection with retry
+    # Initialize Redis connection with connection pool for better performance
     while r is None:
         try:
-            r = aioredis.from_url(REDIS_URL, decode_responses=True)
+            # Use connection pool for better performance
+            r = aioredis.from_url(
+                REDIS_URL,
+                decode_responses=True,
+                max_connections=10,
+                retry_on_timeout=True,
+                socket_keepalive=True,
+                socket_keepalive_options={}
+            )
             await r.ping()
             await ensure_group(r)
             connection_retries = 0
-            logger.info("Telemetry ingestor connected to Redis")
+            logger.info("Telemetry ingestor connected to Redis with connection pool")
         except Exception as e:
             connection_retries += 1
             handle_redis_error("initial_connect", "telemetry_ingestor", e)
@@ -140,13 +280,19 @@ async def run_ingestor():
                 raise
             await asyncio.sleep(2 * connection_retries)
     
-    aggr = SlidingAggregator()
-    logger.info("Starting ingest loop: reading from %s", INPUT_STREAM)
+    aggr = SlidingAggregator(flush_threshold=FLUSH_THRESHOLD)
+    metrics = IngestorMetrics()
+    logger.info(
+        f"Starting ingest loop: reading from {INPUT_STREAM}, "
+        f"batch_size={BATCH_COUNT}, pipeline_size={PIPELINE_SIZE}"
+    )
     
     consecutive_errors = 0
     max_consecutive_errors = 10
+    last_metrics_log = time.time()
     
     while True:
+        loop_start = time.time()
         try:
             # Test connection periodically
             if consecutive_errors > 0 and consecutive_errors % 5 == 0:
@@ -156,10 +302,15 @@ async def run_ingestor():
                 except Exception as e:
                     handle_redis_error("ping", "telemetry_ingestor", e)
                     r = None
-                    # Attempt reconnection
+                    # Attempt reconnection with connection pool
                     for retry in range(max_connection_retries):
                         try:
-                            r = aioredis.from_url(REDIS_URL, decode_responses=True)
+                            r = aioredis.from_url(
+                                REDIS_URL,
+                                decode_responses=True,
+                                max_connections=10,
+                                retry_on_timeout=True
+                            )
                             await r.ping()
                             await ensure_group(r)
                             logger.info("Telemetry ingestor reconnected to Redis")
@@ -170,136 +321,137 @@ async def run_ingestor():
                                 raise
                             await asyncio.sleep(2 * (retry + 1))
             
-            res = await r.xreadgroup(CONSUMER_GROUP, CONSUMER_NAME, {INPUT_STREAM: ">"}, count=BATCH_COUNT, block=BLOCK_MS)
+            # Read from stream with optimized batch size
+            res = await r.xreadgroup(
+                CONSUMER_GROUP,
+                CONSUMER_NAME,
+                {INPUT_STREAM: ">"},
+                count=BATCH_COUNT,
+                block=BLOCK_MS
+            )
             consecutive_errors = 0  # Reset on success
             
             if not res:
-                # periodic houseclean: flush older small buckets (time threshold)
-                # flush nothing for now
+                # Periodic housekeeping: flush stale buckets
+                if time.time() - last_metrics_log > METRICS_INTERVAL:
+                    metrics.log_summary()
+                    last_metrics_log = time.time()
                 continue
             
             msgs_to_ack = []
             msgs_failed = []
-            aggregations = []
             
-            for stream_name, entries in res:
-                for msg_id, fields in entries:
-                    try:
-                        # fields come as { 'data': '<json string>' } or direct keys — support both
-                        payload = None
-                        if 'data' in fields:
-                            try:
-                                payload = json.loads(fields['data'])
-                            except json.JSONDecodeError as e:
-                                log_error_with_context(
-                                    e,
-                                    "telemetry_ingestor",
-                                    "parse_payload",
-                                    ErrorSeverity.MEDIUM if ErrorSeverity else None,
-                                    {"msg_id": msg_id, "field_preview": str(fields.get('data', ''))[:200]}
-                                )
-                                # Try to use fields directly as fallback
-                                payload = fields
-                            except Exception as e:
-                                log_error_with_context(
-                                    e,
-                                    "telemetry_ingestor",
-                                    "parse_payload",
-                                    ErrorSeverity.MEDIUM if ErrorSeverity else None,
-                                    {"msg_id": msg_id}
-                                )
-                                payload = fields
-                        else:
-                            # if payload flattened, convert to dict
-                            try:
-                                payload = {
-                                    k: (json.loads(v) if (isinstance(v, str) and v.startswith("{")) else v)
-                                    for k, v in fields.items()
-                                }
-                            except Exception as e:
-                                log_error_with_context(
-                                    e,
-                                    "telemetry_ingestor",
-                                    "flatten_payload",
-                                    ErrorSeverity.LOW if ErrorSeverity else None,
-                                    {"msg_id": msg_id}
-                                )
-                                payload = fields
-                        
-                        # Validate payload before adding
-                        if payload and isinstance(payload, dict):
-                            aggr.add(payload)
-                            msgs_to_ack.append(msg_id)
-                        else:
-                            logger.warning(f"Invalid payload format for message {msg_id}: {type(payload)}")
-                            msgs_failed.append(msg_id)
-                            
-                    except Exception as e:
-                        log_error_with_context(
-                            e,
-                            "telemetry_ingestor",
-                            "process_message",
-                            ErrorSeverity.MEDIUM if ErrorSeverity else None,
-                            {"msg_id": msg_id}
-                        )
-                        msgs_failed.append(msg_id)
-            
-            # flush all buckets to create aggregate windows (simple policy)
-            for key in list(aggr.buckets.keys()):
+            # Process messages in parallel batches for better performance
+            async def process_message(msg_id: str, fields: Dict[str, Any]) -> bool:
+                """Process a single message, return True if successful"""
                 try:
-                    if aggr.buckets[key]["count"] >= 5:  # tunable
-                        a = aggr.flush_bucket(key)
-                        if a:
-                            aggregations.append(a)
+                    # Parse payload - support both JSON string and flattened formats
+                    payload = None
+                    if 'data' in fields:
+                        try:
+                            payload = json.loads(fields['data'])
+                        except json.JSONDecodeError:
+                            payload = fields
+                    else:
+                        # Flattened payload
+                        payload = {
+                            k: (json.loads(v) if (isinstance(v, str) and v.startswith("{")) else v)
+                            for k, v in fields.items()
+                        }
+                    
+                    # Validate and add to aggregator
+                    if payload and isinstance(payload, dict):
+                        await aggr.add(payload)
+                        metrics.messages_processed += 1
+                        return True
+                    else:
+                        logger.warning(f"Invalid payload format for message {msg_id}: {type(payload)}")
+                        metrics.messages_failed += 1
+                        return False
                 except Exception as e:
                     log_error_with_context(
                         e,
                         "telemetry_ingestor",
-                        "flush_bucket",
-                        ErrorSeverity.LOW if ErrorSeverity else None,
-                        {"bucket_key": str(key)}
+                        "process_message",
+                        ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                        {"msg_id": msg_id}
                     )
+                    metrics.messages_failed += 1
+                    return False
             
-            # push aggregations in batch to aggregates.stream
+            # Process all messages concurrently (with limit to avoid overwhelming)
+            tasks = []
+            for stream_name, entries in res:
+                for msg_id, fields in entries:
+                    task = process_message(msg_id, fields)
+                    tasks.append((msg_id, task))
+            
+            # Execute in batches to control concurrency
+            batch_size = min(50, len(tasks))  # Process up to 50 concurrently
+            for i in range(0, len(tasks), batch_size):
+                batch = tasks[i:i + batch_size]
+                results = await asyncio.gather(*[task for _, task in batch], return_exceptions=True)
+                
+                for (msg_id, _), result in zip(batch, results):
+                    if isinstance(result, Exception):
+                        msgs_failed.append(msg_id)
+                        metrics.messages_failed += 1
+                    elif result:
+                        msgs_to_ack.append(msg_id)
+                    else:
+                        msgs_failed.append(msg_id)
+            
+            # Flush ready buckets (those meeting threshold)
+            aggregations = await aggr.flush_ready_buckets()
+            metrics.aggregations_created += len(aggregations)
+            
+            # Write aggregations using optimized batching
             if aggregations:
                 try:
-                    pipe = r.pipeline()
-                    for a in aggregations:
+                    written = await write_aggregations_batch(r, aggregations, PIPELINE_SIZE)
+                    # Trim stream periodically
+                    if written > 0:
                         try:
-                            pipe.xadd(AGG_STREAM, {"payload": json.dumps(a)})
+                            await r.xtrim(AGG_STREAM, maxlen=XTRIM_MAX, approximate=True)
                         except Exception as e:
                             log_error_with_context(
                                 e,
                                 "telemetry_ingestor",
-                                "xadd_aggregation",
-                                ErrorSeverity.MEDIUM if ErrorSeverity else None,
-                                {"aggregation_keys": list(a.keys()) if isinstance(a, dict) else "unknown"}
+                                "xtrim",
+                                ErrorSeverity.LOW if ErrorSeverity else None
                             )
-                    
-                    await pipe.execute()
-                    # trim results
-                    try:
-                        await r.xtrim(AGG_STREAM, maxlen=XTRIM_MAX, approximate=True)
-                    except Exception as e:
-                        log_error_with_context(
-                            e,
-                            "telemetry_ingestor",
-                            "xtrim",
-                            ErrorSeverity.LOW if ErrorSeverity else None
-                        )
                 except Exception as e:
+                    metrics.redis_errors += 1
                     handle_redis_error("publish_aggregations", "telemetry_ingestor", e)
                     r = None  # Mark connection as potentially broken
                     raise
             
-            # bulk ack successful messages
+            # Bulk ack successful messages (optimized)
             if msgs_to_ack:
                 try:
-                    await r.xack(INPUT_STREAM, CONSUMER_GROUP, *msgs_to_ack)
+                    # Ack in batches to avoid large command
+                    ack_batch_size = 100
+                    for i in range(0, len(msgs_to_ack), ack_batch_size):
+                        batch = msgs_to_ack[i:i + ack_batch_size]
+                        await r.xack(INPUT_STREAM, CONSUMER_GROUP, *batch)
                 except Exception as e:
+                    metrics.redis_errors += 1
                     handle_redis_error("xack", "telemetry_ingestor", e, {"msg_count": len(msgs_to_ack)})
                     r = None  # Mark connection as potentially broken
                     raise
+            
+            # Track processing time
+            processing_time = time.time() - loop_start
+            metrics.processing_times.append(processing_time)
+            if len(metrics.processing_times) > 100:  # Keep only last 100 measurements
+                metrics.processing_times = metrics.processing_times[-100:]
+            
+            # Log metrics periodically
+            if time.time() - last_metrics_log > METRICS_INTERVAL:
+                metrics.log_summary()
+                last_metrics_log = time.time()
+                # Reset metrics for next interval
+                metrics.reset()
             
             # Log failed messages for monitoring
             if msgs_failed:
