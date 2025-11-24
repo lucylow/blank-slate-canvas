@@ -20,7 +20,8 @@ import {
   Sparkles,
   Activity,
   Gauge,
-  Zap
+  Zap,
+  UserPlus
 } from 'lucide-react';
 import { 
   RadarChart, 
@@ -64,6 +65,8 @@ import {
   generateMockComparison,
   MOCK_DRIVERS,
 } from '@/lib/mockDriverFingerprintData';
+
+import DriverProfileUpload from '@/components/DriverProfileUpload';
 
 // Priority badge component
 function PriorityBadge({ priority }: { priority: CoachingAlert['priority'] }) {
@@ -112,7 +115,7 @@ export default function DriverFingerprintingPage() {
       try {
         return await getFingerprint(selectedDriver);
       } catch (error) {
-        console.warn('Using mock fingerprint data:', error);
+        console.warn('Using demo fingerprint data:', error);
         return generateMockFingerprint(selectedDriver);
       }
     },
@@ -125,7 +128,7 @@ export default function DriverFingerprintingPage() {
       try {
         return await getAlerts(selectedDriver);
       } catch (error) {
-        console.warn('Using mock alerts data:', error);
+        console.warn('Using demo alerts data:', error);
         return generateMockAlerts(selectedDriver);
       }
     },
@@ -138,7 +141,7 @@ export default function DriverFingerprintingPage() {
       try {
         return await getCoachingPlan(selectedDriver);
       } catch (error) {
-        console.warn('Using mock coaching plan data:', error);
+        console.warn('Using demo coaching plan data:', error);
         return generateMockCoachingPlan(selectedDriver);
       }
     },
@@ -152,7 +155,7 @@ export default function DriverFingerprintingPage() {
       try {
         return await compareDrivers(selectedDriver, comparisonDriver);
       } catch (error) {
-        console.warn('Comparison failed, using mock data:', error);
+        console.warn('Comparison failed, using demo data:', error);
         return generateMockComparison(selectedDriver, comparisonDriver);
       }
     },
@@ -179,9 +182,9 @@ export default function DriverFingerprintingPage() {
 
   return (
     <RouteLayout>
-      <div className="container mx-auto py-8 space-y-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Header */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl shadow-purple-500/20">
@@ -241,7 +244,7 @@ export default function DriverFingerprintingPage() {
 
         {/* Main Content Tabs */}
         {!isLoading && (
-          <Tabs defaultValue="fingerprint" className="space-y-6">
+          <Tabs defaultValue="fingerprint" className="space-y-4">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="fingerprint" className="flex items-center gap-2">
                 <Target className="w-4 h-4" />
@@ -264,10 +267,14 @@ export default function DriverFingerprintingPage() {
                 <TrendingUp className="w-4 h-4" />
                 Comparison
               </TabsTrigger>
+              <TabsTrigger value="upload" className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Upload Profile
+              </TabsTrigger>
             </TabsList>
 
             {/* Fingerprint Tab */}
-            <TabsContent value="fingerprint" className="space-y-6">
+            <TabsContent value="fingerprint" className="space-y-4">
               {fingerprint && (
                 <>
                   {/* Overall Score Card */}
@@ -294,7 +301,7 @@ export default function DriverFingerprintingPage() {
                     </CardContent>
                   </Card>
 
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-4">
                     {/* Radar Chart */}
                     <Card>
                       <CardHeader>
@@ -439,7 +446,7 @@ export default function DriverFingerprintingPage() {
             </TabsContent>
 
             {/* Coaching Plan Tab */}
-            <TabsContent value="coaching" className="space-y-6">
+            <TabsContent value="coaching" className="space-y-4">
               {coachingPlan && (
                 <>
                   <Card className="border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-purple-600/5">
@@ -453,7 +460,7 @@ export default function DriverFingerprintingPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <h3 className="font-semibold mb-3 flex items-center gap-2">
                             <Target className="w-4 h-4" />
@@ -537,7 +544,7 @@ export default function DriverFingerprintingPage() {
             </TabsContent>
 
             {/* Comparison Tab */}
-            <TabsContent value="comparison" className="space-y-6">
+            <TabsContent value="comparison" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Compare Drivers</CardTitle>
@@ -593,6 +600,11 @@ export default function DriverFingerprintingPage() {
                   )}
                 </>
               )}
+            </TabsContent>
+
+            {/* Upload Profile Tab */}
+            <TabsContent value="upload" className="space-y-6">
+              <DriverProfileUpload />
             </TabsContent>
           </Tabs>
         )}

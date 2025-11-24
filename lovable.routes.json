@@ -164,6 +164,21 @@
       "path": "/lovable-config",
       "name": "Lovable Cloud Config",
       "component": "LovableCloudConfig"
+    },
+    {
+      "path": "/technical-docs",
+      "name": "Technical Documentation",
+      "component": "TechnicalDocs"
+    },
+    {
+      "path": "/race-dashboard",
+      "name": "Race Dashboard",
+      "component": "RaceDashboard"
+    },
+    {
+      "path": "/login",
+      "name": "Login",
+      "component": "Login"
     }
   ]
 }

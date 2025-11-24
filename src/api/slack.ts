@@ -1,5 +1,5 @@
 // src/api/slack.ts
-// Slack Webhook integration for notifications with mock data fallback
+// Slack Webhook integration for notifications with demo data fallback
 
 import axios, { AxiosError } from "axios";
 
@@ -9,18 +9,24 @@ const SLACK_WEBHOOK_URL =
   import.meta.env.SLACK_WEBHOOK_URL || 
   'https://hooks.slack.com/triggers/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';
 
-// Check if we're in demo/mock mode
-const isMockMode = () => {
+// Legacy exports for backward compatibility
+export const getMockMessages = getDemoMessages;
+export const clearMockMessages = clearDemoMessages;
+export const isSlackMockMode = isSlackDemoMode;
+export type MockSlackMessage = DemoSlackMessage;
+
+// Check if we're in demo mode
+const isDemoMode = () => {
   return (
     !SLACK_WEBHOOK_URL ||
-    import.meta.env.VITE_SLACK_MOCK_MODE === 'true' ||
-    import.meta.env.DEV && import.meta.env.VITE_SLACK_ENABLE_MOCK !== 'false'
+    import.meta.env.VITE_SLACK_DEMO_MODE === 'true' ||
+    import.meta.env.DEV && import.meta.env.VITE_SLACK_ENABLE_DEMO !== 'false'
   );
 };
 
-// Mock messages storage (for demo/dev mode)
-const MOCK_STORAGE_KEY = 'slack_mock_messages';
-const MAX_MOCK_MESSAGES = 100;
+// Demo messages storage (for demo/dev mode)
+const DEMO_STORAGE_KEY = 'slack_demo_messages';
+const MAX_DEMO_MESSAGES = 100;
 
 export interface SlackMessage {
   text?: string;
@@ -71,7 +77,7 @@ export interface SlackWebhookResponse {
   messageId?: string;
 }
 
-export interface MockSlackMessage {
+export interface DemoSlackMessage {
   id: string;
   timestamp: number;
   payload: SlackMessage;
@@ -79,15 +85,15 @@ export interface MockSlackMessage {
 }
 
 /**
- * Store mock message in localStorage
+ * Store demo message in localStorage
  */
-function storeMockMessage(payload: SlackMessage, response: SlackWebhookResponse): string {
+function storeDemoMessage(payload: SlackMessage, response: SlackWebhookResponse): string {
   try {
-    const stored = localStorage.getItem(MOCK_STORAGE_KEY);
-    const messages: MockSlackMessage[] = stored ? JSON.parse(stored) : [];
+    const stored = localStorage.getItem(DEMO_STORAGE_KEY);
+    const messages: DemoSlackMessage[] = stored ? JSON.parse(stored) : [];
     
-    const messageId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const mockMessage: MockSlackMessage = {
+    const messageId = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const demoMessage: DemoSlackMessage = {
       id: messageId,
       timestamp: Date.now(),
       payload,
@@ -98,48 +104,48 @@ function storeMockMessage(payload: SlackMessage, response: SlackWebhookResponse)
       },
     };
     
-    messages.unshift(mockMessage); // Add to beginning
-    if (messages.length > MAX_MOCK_MESSAGES) {
+    messages.unshift(demoMessage); // Add to beginning
+    if (messages.length > MAX_DEMO_MESSAGES) {
       messages.pop(); // Remove oldest
     }
     
-    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(messages));
+    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(messages));
     return messageId;
   } catch (error) {
-    console.warn('[Slack] Failed to store mock message:', error);
-    return `mock_${Date.now()}`;
+    console.warn('[Slack] Failed to store demo message:', error);
+    return `demo_${Date.now()}`;
   }
 }
 
 /**
- * Get stored mock messages
+ * Get stored demo messages
  */
-export function getMockMessages(limit: number = 50): MockSlackMessage[] {
+export function getDemoMessages(limit: number = 50): DemoSlackMessage[] {
   try {
-    const stored = localStorage.getItem(MOCK_STORAGE_KEY);
+    const stored = localStorage.getItem(DEMO_STORAGE_KEY);
     if (!stored) return [];
     
-    const messages: MockSlackMessage[] = JSON.parse(stored);
+    const messages: DemoSlackMessage[] = JSON.parse(stored);
     return messages.slice(0, limit);
   } catch (error) {
-    console.warn('[Slack] Failed to get mock messages:', error);
+    console.warn('[Slack] Failed to get demo messages:', error);
     return [];
   }
 }
 
 /**
- * Clear stored mock messages
+ * Clear stored demo messages
  */
-export function clearMockMessages(): void {
+export function clearDemoMessages(): void {
   try {
-    localStorage.removeItem(MOCK_STORAGE_KEY);
+    localStorage.removeItem(DEMO_STORAGE_KEY);
   } catch (error) {
-    console.warn('[Slack] Failed to clear mock messages:', error);
+    console.warn('[Slack] Failed to clear demo messages:', error);
   }
 }
 
 /**
- * Simulate sending a message (mock mode)
+ * Simulate sending a message (demo mode)
  */
 function simulateSlackMessage(payload: SlackMessage): SlackWebhookResponse {
   // Simulate network delay
@@ -150,19 +156,19 @@ function simulateSlackMessage(payload: SlackMessage): SlackWebhookResponse {
     payload.attachments?.[0]?.text || 
     'No message content';
   
-  console.log('[Slack Mock] Simulating message:', {
+  console.log('[Slack Demo] Simulating message:', {
     text: messageText.substring(0, 100),
     timestamp: new Date().toISOString(),
   });
   
   const response: SlackWebhookResponse = {
     success: true,
-    message: 'Message sent successfully (MOCK MODE)',
+    message: 'Message sent successfully (DEMO MODE)',
     timestamp: Date.now(),
     mock: true,
   };
   
-  const messageId = storeMockMessage(payload, response);
+  const messageId = storeDemoMessage(payload, response);
   response.messageId = messageId;
   
   return response;
@@ -189,8 +195,8 @@ export async function sendSlackMessage(
     payload.icon_emoji = ':race_car:';
   }
 
-  // Use mock mode if webhook URL is not configured or in demo mode
-  if (isMockMode()) {
+  // Use demo mode if webhook URL is not configured or in demo mode
+  if (isDemoMode()) {
     return simulateSlackMessage(payload);
   }
 
@@ -234,9 +240,9 @@ export async function sendSlackMessage(
 
     console.error('[Slack] Failed to send message:', errorMessage);
     
-    // Fallback to mock mode on error if in dev mode
+    // Fallback to demo mode on error if in dev mode
     if (import.meta.env.DEV) {
-      console.warn('[Slack] Falling back to mock mode due to error');
+      console.warn('[Slack] Falling back to demo mode due to error');
       return simulateSlackMessage(payload);
     }
     
@@ -453,10 +459,10 @@ export async function sendTireWearAlert(
 }
 
 /**
- * Get mock mode status
+ * Get demo mode status
  */
-export function isSlackMockMode(): boolean {
-  return isMockMode();
+export function isSlackDemoMode(): boolean {
+  return isDemoMode();
 }
 
 

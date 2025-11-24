@@ -226,18 +226,18 @@ const Analytics = () => {
       // Use demo mode fallback if enabled
       if (isDemoMode) {
         try {
-          const { generateMockDashboardData } = await import("@/lib/mockDemoData");
-          const mockData = generateMockDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+          const { generateDemoDashboardData } = await import("@/lib/mockDemoData");
+          const demoData = generateDemoDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
           
-          // Validate mock data structure
-          if (!mockData || typeof mockData !== 'object') {
-            throw new Error('Invalid mock data structure');
+          // Validate demo data structure
+          if (!demoData || typeof demoData !== 'object') {
+            throw new Error('Invalid demo data structure');
           }
           
-          return mockData;
+          return demoData;
         } catch (importError) {
           const errorInfo = formatError(importError);
-          console.warn("Failed to load mock data generator, trying API:", errorInfo);
+          console.warn("Failed to load demo data generator, trying API:", errorInfo);
           // Continue to API call
         }
       }
@@ -258,8 +258,8 @@ const Analytics = () => {
         if (!isDemoMode && errorInfo.retryable) {
           console.warn("API failed, falling back to demo data:", errorInfo);
           try {
-            const { generateMockDashboardData } = await import("@/lib/mockDemoData");
-            const fallbackData = generateMockDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
+            const { generateDemoDashboardData } = await import("@/lib/mockDemoData");
+            const fallbackData = generateDemoDashboardData(selectedTrack, selectedRace, selectedVehicle, selectedLap);
             
             if (!fallbackData || typeof fallbackData !== 'object') {
               throw new Error('Invalid fallback data structure');

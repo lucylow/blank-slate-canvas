@@ -85,36 +85,108 @@ async function requeueTask(task, delayMs = 500) {
   }, delayMs);
 }
 
-// Router loop: read new tasks and push to agent inbox
+// Router loop: read new tasks and push to agent inbox with error handling
 async function routeLoop() {
   let lastId = '$';
+  let consecutiveErrors = 0;
+  const maxConsecutiveErrors = 10;
+
   while (true) {
     try {
+      // Test connection periodically
+      if (consecutiveErrors > 0 && consecutiveErrors % 5 === 0) {
+        try {
+          await redis.ping();
+          consecutiveErrors = 0;
+        } catch (pingErr) {
+          console.error('[Orchestrator] Redis connection lost, attempting reconnect:', pingErr.message);
+          try {
+            await redis.connect();
+            console.log('[Orchestrator] Redis reconnected');
+          } catch (reconnectErr) {
+            console.error('[Orchestrator] Reconnection failed:', reconnectErr.message);
+            consecutiveErrors++;
+            if (consecutiveErrors >= maxConsecutiveErrors) {
+              throw new Error('Too many consecutive connection errors');
+            }
+            await new Promise(r => setTimeout(r, 5000 * consecutiveErrors));
+            continue;
+          }
+        }
+      }
+
       // block read for new tasks for up to 2s
       const res = await redis.xread('BLOCK', 2000, 'COUNT', 1, 'STREAMS', TASK_STREAM, lastId);
+      consecutiveErrors = 0; // Reset on success
+
       if (!res) continue;
+      
       const [stream, entries] = res[0];
       for (const [id, fields] of entries) {
-        // fields format: ['task', '<json>']
-        const taskJson = fields[1];
-        const task = JSON.parse(taskJson);
-        task._stream_id = id;
-        // simple routing
-        const agentId = await pickAgentForTask(task.task_type, task.track);
-        if (!agentId) {
-          // put back with delay
-          await requeueTask(task, 1000);
-          await redis.hset(TASK_META_HASH, task.task_id || uuidv4(), JSON.stringify({ status: 'pending_no_agent', created_at: new Date().toISOString() }));
-        } else {
-          const inboxKey = `agent:${agentId}:inbox`;
-          await redis.rpush(inboxKey, JSON.stringify(task));
-          await redis.hset(TASK_META_HASH, task.task_id, JSON.stringify({ status: 'assigned', assigned_to: agentId, assigned_at: new Date().toISOString() }));
+        try {
+          // fields format: ['task', '<json>']
+          const taskJson = fields[1];
+          if (!taskJson) {
+            console.warn(`[Orchestrator] No task data in message ${id}`);
+            continue;
+          }
+
+          let task;
+          try {
+            task = JSON.parse(taskJson);
+          } catch (parseErr) {
+            console.error(`[Orchestrator] Failed to parse task JSON for message ${id}:`, parseErr.message);
+            continue;
+          }
+
+          task._stream_id = id;
+          
+          // simple routing
+          const agentId = await pickAgentForTask(task.task_type, task.track);
+          if (!agentId) {
+            // put back with delay
+            await requeueTask(task, 1000);
+            await redis.hset(TASK_META_HASH, task.task_id || uuidv4(), JSON.stringify({ 
+              status: 'pending_no_agent', 
+              created_at: new Date().toISOString() 
+            })).catch(err => {
+              console.error('[Orchestrator] Failed to update task meta:', err.message);
+            });
+          } else {
+            try {
+              const inboxKey = `agent:${agentId}:inbox`;
+              await redis.rpush(inboxKey, JSON.stringify(task));
+              await redis.hset(TASK_META_HASH, task.task_id, JSON.stringify({ 
+                status: 'assigned', 
+                assigned_to: agentId, 
+                assigned_at: new Date().toISOString() 
+              })).catch(err => {
+                console.warn('[Orchestrator] Failed to update task meta:', err.message);
+              });
+            } catch (routingErr) {
+              console.error(`[Orchestrator] Failed to route task to ${agentId}:`, routingErr.message);
+              // Try to requeue the task
+              await requeueTask(task, 2000).catch(err => {
+                console.error('[Orchestrator] Failed to requeue task:', err.message);
+              });
+            }
+          }
+          lastId = id;
+        } catch (err) {
+          console.error(`[Orchestrator] Error processing task message ${id}:`, err.message);
+          // Continue processing other messages
         }
-        lastId = id;
       }
     } catch (err) {
-      console.error('Route loop error', err);
-      await new Promise(r => setTimeout(r, 1000));
+      consecutiveErrors++;
+      console.error(`[Orchestrator] Route loop error (${consecutiveErrors}/${maxConsecutiveErrors}):`, err.message);
+      
+      if (consecutiveErrors >= maxConsecutiveErrors) {
+        console.error('[Orchestrator] Too many consecutive errors, shutting down');
+        throw err;
+      }
+      
+      await new Promise(r => setTimeout(r, 1000 * consecutiveErrors));
     }
   }
 }

@@ -37,7 +37,7 @@ import { checkDemoHealth } from "@/api/demo";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useQuery } from "@tanstack/react-query";
-import { generateMockAgentStatusResponse } from "@/lib/mockDemoData";
+import { generateDemoAgentStatusResponse } from "@/lib/mockDemoData";
 import { telemetryWS } from "@/lib/api";
 
 // New API imports
@@ -79,14 +79,14 @@ import {
   sendLapTimeNotification,
   sendPitStopNotification,
   sendTireWearAlert,
-  getMockMessages,
-  isSlackMockMode,
+  getDemoMessages,
+  isSlackDemoMode,
   type SlackWebhookResponse 
 } from "@/api/slack";
 
 /* ================================================================================
 
-PITBULL A.I. - MOCK DATA INTEGRATION OUTPUT
+PITBULL A.I. - DEMO DATA INTEGRATION OUTPUT
 
 ================================================================================
 
@@ -248,19 +248,19 @@ NUMBER  mean_lap_time  std_lap_time  consistency_score
 
 
 
-### EXAMPLE 2: MOCK REAL-TIME DATA STREAM ###
+### EXAMPLE 2: DEMO REAL-TIME DATA STREAM ###
 
 
 
 ================================================================================
 
-MOCK REAL-TIME DATA STREAM
+DEMO REAL-TIME DATA STREAM
 
 ================================================================================
 
 
 
-✓ Generated 500 mock data points
+✓ Generated 500 demo data points
 
 
 
@@ -292,7 +292,7 @@ timestamp                   vehicle_id      vehicle_number  lap  Speed    gear  
 
 
 
-Mock Live Gaps:
+Demo Live Gaps:
 
 
 
@@ -320,7 +320,7 @@ GR86-010-100   100             6    0.000
 
 
 
-Mock Tire Wear (last 10 data points):
+Demo Tire Wear (last 10 data points):
 
 
 
@@ -468,9 +468,9 @@ const Index = () => {
       try {
         return await getAgentStatus();
       } catch (error) {
-        // Fall back to mock data on error
-        console.warn('Failed to fetch agent status, using mock data:', error);
-        return generateMockAgentStatusResponse();
+        // Fall back to demo data on error
+        console.warn('Failed to fetch agent status, using demo data:', error);
+        return generateDemoAgentStatusResponse();
       }
     },
     enabled: !isDemoMode,
@@ -2356,7 +2356,7 @@ const Index = () => {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Complete Google Maps Platform integration with all APIs: Air Quality, Solar, Weather, Pollen, 
               Maps, Places, Routes, Elevation, Time Zone, Address Validation, and more. 
-              Comprehensive mock data fallbacks ensure all features work even without API keys.
+              Comprehensive demo data fallbacks ensure all features work even without API keys.
             </p>
           </div>
           <GoogleMapsComprehensive />
@@ -2839,7 +2839,7 @@ const Index = () => {
               F1 Benchmarking Dashboard
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive Formula 1 performance analysis with detailed mock data for strategy comparison
+              Comprehensive Formula 1 performance analysis with detailed demo data for strategy comparison
             </p>
           </div>
           <F1Benchmarking />
@@ -2969,7 +2969,7 @@ const Index = () => {
               Slack Notifications
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Real-time race alerts and notifications via Slack webhooks with rich formatting and mock mode support
+              Real-time race alerts and notifications via Slack webhooks with rich formatting and demo mode support
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" style={{ display: 'none' }}>
@@ -3042,7 +3042,7 @@ const Index = () => {
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-4">
-              {isSlackMockMode() ? 'Mock Mode: Messages stored in localStorage' : 'Production Mode: Messages sent to Slack'}
+              {isSlackDemoMode() ? 'Demo Mode: Messages stored in localStorage' : 'Production Mode: Messages sent to Slack'}
             </p>
             <div className="flex gap-4 justify-center">
               <Button 
@@ -3063,13 +3063,13 @@ const Index = () => {
               </Button>
               <Button 
                 onClick={() => {
-                  const messages = getMockMessages(10);
-                  console.log('Mock messages:', messages);
-                  alert(`${messages.length} mock messages stored`);
+                  const messages = getDemoMessages(10);
+                  console.log('Demo messages:', messages);
+                  alert(`${messages.length} demo messages stored`);
                 }}
                 variant="outline"
               >
-                View Mock Messages
+                View Demo Messages
               </Button>
             </div>
           </div>

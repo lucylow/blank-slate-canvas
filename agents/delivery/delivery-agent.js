@@ -20,54 +20,87 @@ class DeliveryAgent {
     this.maxHistory = 1000;
   }
 
-  // Register with orchestrator
+  // Register with orchestrator with retry logic
   async register() {
-    try {
-      const http = require('http');
-      const url = require('url');
-      const parsedUrl = url.parse(this.orchestratorUrl);
-      
-      return new Promise((resolve) => {
-        const postData = JSON.stringify({
-          agent_id: this.agentId,
-          types: ['delivery'],
-          tracks: ['*'],
-          capacity: 20
-        });
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const http = require('http');
+        const url = require('url');
+        const parsedUrl = url.parse(this.orchestratorUrl);
         
-        const options = {
-          hostname: parsedUrl.hostname,
-          port: parsedUrl.port || 3000,
-          path: '/agents/register',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(postData)
-          }
-        };
-        
-        const req = http.request(options, (res) => {
-          let data = '';
-          res.on('data', (chunk) => { data += chunk; });
-          res.on('end', () => {
-            try {
-              const result = JSON.parse(data);
-              console.log(`[Delivery] Registered: ${result.success ? 'OK' : 'FAILED'}`);
-              resolve(result.success);
-            } catch (e) {
+        return new Promise((resolve, reject) => {
+          const postData = JSON.stringify({
+            agent_id: this.agentId,
+            types: ['delivery'],
+            tracks: ['*'],
+            capacity: 20
+          });
+          
+          const options = {
+            hostname: parsedUrl.hostname,
+            port: parsedUrl.port || 3000,
+            path: '/agents/register',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(postData)
+            },
+            timeout: 5000
+          };
+          
+          const req = http.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+              try {
+                if (res.statusCode !== 200) {
+                  console.error(`[Delivery] Registration failed with status ${res.statusCode}`);
+                  resolve(false);
+                  return;
+                }
+                const result = JSON.parse(data);
+                const success = result.ok || result.success || false;
+                console.log(`[Delivery] Registered: ${success ? 'OK' : 'FAILED'}`);
+                resolve(success);
+              } catch (e) {
+                console.error(`[Delivery] Failed to parse registration response: ${e.message}`);
+                resolve(false);
+              }
+            });
+          });
+          
+          req.on('error', (err) => {
+            console.error(`[Delivery] Registration request error (attempt ${attempt}/${maxRetries}):`, err.message);
+            if (attempt === maxRetries) {
               resolve(false);
+            } else {
+              reject(err);
             }
           });
+          
+          req.on('timeout', () => {
+            req.destroy();
+            console.error(`[Delivery] Registration timeout (attempt ${attempt}/${maxRetries})`);
+            if (attempt === maxRetries) {
+              resolve(false);
+            } else {
+              reject(new Error('Request timeout'));
+            }
+          });
+          
+          req.write(postData);
+          req.end();
         });
-        
-        req.on('error', () => resolve(false));
-        req.write(postData);
-        req.end();
-      });
-    } catch (err) {
-      console.error('[Delivery] Registration failed:', err);
-      return false;
+      } catch (err) {
+        console.error(`[Delivery] Registration attempt ${attempt}/${maxRetries} failed:`, err.message);
+        if (attempt === maxRetries) {
+          return false;
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+      }
     }
+    return false;
   }
 
   // Send heartbeat
@@ -253,17 +286,43 @@ class DeliveryAgent {
     });
   }
 
-  // Process results from stream
+  // Process results from stream with comprehensive error handling
   async processResults() {
     const consumerGroup = 'delivery';
     const consumerName = `delivery-${process.pid}`;
+    let consecutiveErrors = 0;
+    const maxConsecutiveErrors = 10;
 
     try {
       await this.redis.xgroup('CREATE', 'agent_results.stream', consumerGroup, '0', 'MKSTREAM').catch(() => {});
-    } catch (err) {}
+    } catch (err) {
+      console.warn('[Delivery] Consumer group creation warning:', err.message);
+    }
 
     while (true) {
       try {
+        // Test connection periodically
+        if (consecutiveErrors > 0 && consecutiveErrors % 5 === 0) {
+          try {
+            await this.redis.ping();
+            consecutiveErrors = 0;
+          } catch (pingErr) {
+            console.error('[Delivery] Redis connection lost, attempting reconnect:', pingErr.message);
+            try {
+              await this.redis.connect();
+              console.log('[Delivery] Redis reconnected');
+            } catch (reconnectErr) {
+              console.error('[Delivery] Reconnection failed:', reconnectErr.message);
+              consecutiveErrors++;
+              if (consecutiveErrors >= maxConsecutiveErrors) {
+                throw new Error('Too many consecutive connection errors');
+              }
+              await new Promise(resolve => setTimeout(resolve, 5000 * consecutiveErrors));
+              continue;
+            }
+          }
+        }
+
         const res = await this.redis.xreadgroup(
           'GROUP', consumerGroup, consumerName,
           'COUNT', 10,
@@ -271,46 +330,92 @@ class DeliveryAgent {
           'STREAMS', 'agent_results.stream', '>'
         );
 
+        consecutiveErrors = 0; // Reset on success
+
         if (!res || res.length === 0) {
           await new Promise(resolve => setTimeout(resolve, 100));
           continue;
         }
 
         const [stream, entries] = res[0];
+        const idsToAck = [];
+        const idsFailed = [];
 
         for (const [id, fields] of entries) {
-          const resultJson = fields.find(f => f[0] === 'result')?.[1];
-          if (!resultJson) {
-            await this.redis.xack('agent_results.stream', consumerGroup, id);
-            continue;
-          }
+          try {
+            const resultJson = fields.find(f => f[0] === 'result')?.[1];
+            if (!resultJson) {
+              idsToAck.push(id); // Ack messages without result field
+              continue;
+            }
 
-          const result = JSON.parse(resultJson);
-          
-          // Route based on task type
-          if (result.task_type === 'explainer' && result.result?.insight) {
-            await this.handleInsight(result.result);
-          } else if (result.task_type === 'preprocessor' && result.result?.aggregate_window_id) {
-            // Broadcast aggregate update
-            this.broadcast({
-              type: 'aggregate_update',
-              data: result.result,
-              timestamp: new Date().toISOString()
-            });
-          } else if (result.task_type === 'eda' && result.result?.clustering) {
-            // Broadcast EDA results
-            this.broadcast({
-              type: 'eda_update',
-              data: result.result,
-              timestamp: new Date().toISOString()
-            });
+            let result;
+            try {
+              result = JSON.parse(resultJson);
+            } catch (parseErr) {
+              console.error(`[Delivery] Failed to parse result JSON for message ${id}:`, parseErr.message);
+              idsFailed.push(id);
+              continue;
+            }
+            
+            // Route based on task type
+            try {
+              if (result.task_type === 'explainer' && result.result?.insight) {
+                await this.handleInsight(result.result);
+              } else if (result.task_type === 'preprocessor' && result.result?.aggregate_window_id) {
+                // Broadcast aggregate update
+                this.broadcast({
+                  type: 'aggregate_update',
+                  data: result.result,
+                  timestamp: new Date().toISOString()
+                });
+              } else if (result.task_type === 'eda' && result.result?.clustering) {
+                // Broadcast EDA results
+                this.broadcast({
+                  type: 'eda_update',
+                  data: result.result,
+                  timestamp: new Date().toISOString()
+                });
+              }
+              idsToAck.push(id);
+            } catch (processErr) {
+              console.error(`[Delivery] Error processing result ${id}:`, processErr.message);
+              idsFailed.push(id);
+            }
+          } catch (err) {
+            console.error(`[Delivery] Error processing message ${id}:`, err.message);
+            idsFailed.push(id);
           }
-
-          await this.redis.xack('agent_results.stream', consumerGroup, id);
         }
+
+        // Ack successful messages
+        if (idsToAck.length > 0) {
+          try {
+            await this.redis.xack('agent_results.stream', consumerGroup, ...idsToAck);
+          } catch (ackErr) {
+            console.error('[Delivery] Failed to ack messages:', ackErr.message);
+            consecutiveErrors++;
+            if (consecutiveErrors >= maxConsecutiveErrors) {
+              throw ackErr;
+            }
+          }
+        }
+
+        // Log failed messages for monitoring
+        if (idsFailed.length > 0) {
+          console.warn(`[Delivery] Failed to process ${idsFailed.length} messages, will be retried`);
+        }
+
       } catch (err) {
-        console.error('[Delivery] Result processing error:', err);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        consecutiveErrors++;
+        console.error(`[Delivery] Result processing error (${consecutiveErrors}/${maxConsecutiveErrors}):`, err.message);
+        
+        if (consecutiveErrors >= maxConsecutiveErrors) {
+          console.error('[Delivery] Too many consecutive errors, shutting down');
+          throw err;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000 * consecutiveErrors));
       }
     }
   }

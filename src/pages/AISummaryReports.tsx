@@ -21,8 +21,8 @@ type Report = {
   ext: string;
 };
 
-// Mock data for AI Summary Reports
-const MOCK_REPORTS: Report[] = [
+// Demo data for AI Summary Reports
+const DEMO_REPORTS: Report[] = [
   {
     id: "sebring",
     filename: "sebring_ai_summary.txt",
@@ -52,11 +52,16 @@ const MOCK_REPORTS: Report[] = [
     id: "barber",
     filename: "barber_ai_summary.txt",
     ext: "txt"
+  },
+  {
+    id: "indianapolis",
+    filename: "indianapolis_ai_summary.txt",
+    ext: "txt"
   }
 ];
 
-// Mock HTML content for previews
-const MOCK_REPORT_CONTENT: Record<string, string> = {
+// Demo HTML content for previews
+const DEMO_REPORT_CONTENT: Record<string, string> = {
   sebring: `
     <html>
       <head>
@@ -1411,8 +1416,8 @@ function getAISummaryApiBase(): string {
   return '';
 }
 
-// Mock data generators for charts based on report content
-function generateMockClusterData(trackId: string) {
+// Demo data generators for charts based on report content
+function generateDemoClusterData(trackId: string) {
   const baseData = {
     sebring: [
       { cluster: 0, avgSpeed: 130.77, tireTemp: 87.78, sampleCount: 892, description: "Conservative driving style, lower tire temperatures" },
@@ -1433,7 +1438,7 @@ function generateMockClusterData(trackId: string) {
   return baseData[trackId as keyof typeof baseData] || baseData.sebring;
 }
 
-function generateMockSpeedDistribution(trackId: string) {
+function generateDemoSpeedDistribution(trackId: string) {
   const ranges = ["100-110", "110-120", "120-130", "130-140", "140-150", "150-160", "160+"];
   const baseFreq = {
     sebring: [45, 120, 280, 420, 380, 200, 63],
@@ -1450,7 +1455,7 @@ function generateMockSpeedDistribution(trackId: string) {
   }));
 }
 
-function generateMockTireTempTrend(trackId: string) {
+function generateDemoTireTempTrend(trackId: string) {
   const laps = Array.from({ length: 20 }, (_, i) => i + 1);
   const baseTemp = trackId === 'sebring' ? 87 : trackId === 'cota' ? 88 : 90;
   
@@ -1462,7 +1467,7 @@ function generateMockTireTempTrend(trackId: string) {
   }));
 }
 
-function generateMockSectorData(trackId: string) {
+function generateDemoSectorData(trackId: string) {
   return [
     { sector: "Sector 1", avgTime: 26.961, bestTime: 26.850, consistency: 99.2, improvement: 0.111 },
     { sector: "Sector 2", avgTime: 43.160, bestTime: 42.980, consistency: 98.8, improvement: 0.180 },
@@ -1480,26 +1485,26 @@ export default function AISummaryReports() {
   const [activeTab, setActiveTab] = useState("overview");
   const API_BASE = getAISummaryApiBase();
 
-  // Generate mock chart data based on selected report
+  // Generate demo chart data based on selected report
   const chartData = useMemo(() => {
     if (!selected) return null;
     
     return {
-      clusterData: generateMockClusterData(selected),
-      speedDistribution: generateMockSpeedDistribution(selected),
-      tireTempTrend: generateMockTireTempTrend(selected),
-      sectorData: generateMockSectorData(selected),
+      clusterData: generateDemoClusterData(selected),
+      speedDistribution: generateDemoSpeedDistribution(selected),
+      tireTempTrend: generateDemoTireTempTrend(selected),
+      sectorData: generateDemoSectorData(selected),
       avgSpeed: selected === 'sebring' ? 133.44 : selected === 'cota' ? 134.31 : 133.51,
       stdDev: selected === 'sebring' ? 5.5 : selected === 'cota' ? 5.5 : 4.5,
     };
   }, [selected]);
 
-  // Manage preview URL for mock content
+  // Manage preview URL for demo content
   useEffect(() => {
     if (selected) {
-      const mockContent = MOCK_REPORT_CONTENT[selected];
-      if (mockContent) {
-        const blob = new Blob([mockContent], { type: 'text/html' });
+      const demoContent = DEMO_REPORT_CONTENT[selected];
+      if (demoContent) {
+        const blob = new Blob([demoContent], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
         return () => {
@@ -1552,11 +1557,11 @@ export default function AISummaryReports() {
         // Merge reports, prefer track analysis reports
         const allReports = trackReports.length > 0 ? trackReports : originalReports;
         
-        // If no reports from API, use mock data
+        // If no reports from API, use demo data
         if (!allReports || allReports.length === 0) {
-          console.log('No reports from API, using mock data');
-          setReports(MOCK_REPORTS);
-          if (MOCK_REPORTS.length > 0) setSelected(MOCK_REPORTS[0].id);
+          console.log('No reports from API, using demo data');
+          setReports(DEMO_REPORTS);
+          if (DEMO_REPORTS.length > 0) setSelected(DEMO_REPORTS[0].id);
         } else {
           setReports(allReports);
           if (allReports.length > 0) setSelected(allReports[0].id);
@@ -1564,11 +1569,11 @@ export default function AISummaryReports() {
         setError(null);
       })
       .catch(err => {
-        console.error('Failed to load AI summary reports, using mock data:', err);
-        // Use mock data as fallback
-        setReports(MOCK_REPORTS);
-        if (MOCK_REPORTS.length > 0) setSelected(MOCK_REPORTS[0].id);
-        setError(null); // Don't show error when using mock data
+        console.error('Failed to load AI summary reports, using demo data:', err);
+        // Use demo data as fallback
+        setReports(DEMO_REPORTS);
+        if (DEMO_REPORTS.length > 0) setSelected(DEMO_REPORTS[0].id);
+        setError(null); // Don't show error when using demo data
       })
       .finally(() => {
         setLoading(false);
@@ -1580,11 +1585,11 @@ export default function AISummaryReports() {
     try {
       const resp = await fetch(`${API_BASE}/api/reports/${id}/pdf`);
       if (!resp.ok) {
-        // If PDF generation fails and we have mock data, create a simple text file
-        const mockContent = MOCK_REPORT_CONTENT[id];
-        if (mockContent) {
+        // If PDF generation fails and we have demo data, create a simple text file
+        const demoContent = DEMO_REPORT_CONTENT[id];
+        if (demoContent) {
           // Create a text version from the HTML
-          const textContent = mockContent
+          const textContent = demoContent
             .replace(/<[^>]*>/g, '')
             .replace(/&nbsp;/g, ' ')
             .trim();
@@ -1614,10 +1619,10 @@ export default function AISummaryReports() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (e) {
-      // If download fails and we have mock data, create a simple text file
-      const mockContent = MOCK_REPORT_CONTENT[id];
-      if (mockContent) {
-        const textContent = mockContent
+      // If download fails and we have demo data, create a simple text file
+        const demoContent = DEMO_REPORT_CONTENT[id];
+      if (demoContent) {
+        const textContent = demoContent
           .replace(/<[^>]*>/g, '')
           .replace(/&nbsp;/g, ' ')
           .trim();
@@ -1748,7 +1753,7 @@ export default function AISummaryReports() {
                 </div>
               ) : selected ? (
                 previewUrl ? (
-                  // Use mock content from blob URL
+                  // Use demo content from blob URL
                   <iframe
                     src={previewUrl}
                     title={`report-${selected}`}
@@ -1796,10 +1801,10 @@ export default function AISummaryReports() {
                                   iframe.src = url;
                                 }
                               } else {
-                                // Fallback to mock content if available
-                                const fallbackMock = MOCK_REPORT_CONTENT[selected];
-                                if (fallbackMock) {
-                                  const blob = new Blob([fallbackMock], { type: 'text/html' });
+                                // Fallback to demo content if available
+                                const fallbackDemo = DEMO_REPORT_CONTENT[selected];
+                                if (fallbackDemo) {
+                                  const blob = new Blob([fallbackDemo], { type: 'text/html' });
                                   const url = URL.createObjectURL(blob);
                                   setPreviewUrl(url);
                                 } else {
@@ -1808,10 +1813,10 @@ export default function AISummaryReports() {
                               }
                             })
                             .catch(() => {
-                              // Fallback to mock content if available
-                              const fallbackMock = MOCK_REPORT_CONTENT[selected];
-                              if (fallbackMock) {
-                                const blob = new Blob([fallbackMock], { type: 'text/html' });
+                              // Fallback to demo content if available
+                              const fallbackDemo = DEMO_REPORT_CONTENT[selected];
+                              if (fallbackDemo) {
+                                const blob = new Blob([fallbackDemo], { type: 'text/html' });
                                 const url = URL.createObjectURL(blob);
                                 setPreviewUrl(url);
                               } else {

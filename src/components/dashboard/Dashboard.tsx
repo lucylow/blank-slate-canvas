@@ -4,7 +4,7 @@ import { useTelemetry } from '@/hooks/useTelemetry';
 import { useStrategy } from '@/hooks/useStrategy';
 import { useQuery } from '@tanstack/react-query';
 import { getAgentStatus, type AgentStatusResponse } from '@/api/pitwall';
-import { generateMockAgentStatusResponse } from '@/lib/mockDemoData';
+import { generateDemoAgentStatusResponse } from '@/lib/mockDemoData';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { Link } from 'react-router-dom';
 
@@ -24,15 +24,15 @@ export function Dashboard() {
     queryKey: ['agentStatus', isDemoMode],
     queryFn: async () => {
       if (isDemoMode) {
-        // Use mock data in demo mode
-        return generateMockAgentStatusResponse();
+        // Use demo data in demo mode
+        return generateDemoAgentStatusResponse();
       }
       try {
         return await getAgentStatus();
       } catch (error) {
-        // Fall back to mock data on error
-        console.warn('Failed to fetch agent status, using mock data:', error);
-        return generateMockAgentStatusResponse();
+        // Fall back to demo data on error
+        console.warn('Failed to fetch agent status, using demo data:', error);
+        return generateDemoAgentStatusResponse();
       }
     },
     refetchInterval: 30000,

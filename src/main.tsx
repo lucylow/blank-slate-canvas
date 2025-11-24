@@ -10,7 +10,7 @@ if (!rootElement) {
 }
 
 // Setup MSW for development/demo mode (non-blocking)
-async function enableMocking() {
+async function enableDemoMode() {
   if (import.meta.env.MODE !== 'development') {
     return;
   }
@@ -25,16 +25,16 @@ async function enableMocking() {
       await worker.start({
         onUnhandledRequest: 'bypass',
       });
-      console.log('[MSW] Mock server enabled (Demo Mode)');
+      console.log('[MSW] Demo server enabled (Demo Mode)');
     }
   } catch (error) {
     // MSW not available or failed to load - continue without it
-    console.warn('[MSW] Failed to enable mocking:', error);
+    console.warn('[MSW] Failed to enable demo mode:', error);
   }
 }
 
 // Start MSW in background (don't block app rendering)
-enableMocking().catch((error) => {
+enableDemoMode().catch((error) => {
   console.warn('[MSW] Error during initialization:', error);
 });
 

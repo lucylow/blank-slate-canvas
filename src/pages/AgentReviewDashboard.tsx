@@ -1,6 +1,6 @@
 // src/pages/AgentReviewDashboard.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
@@ -48,6 +48,7 @@ export default function AgentReviewDashboard() {
   const { 
     data: pendingData, 
     isLoading: pendingLoading,
+    error: pendingError,
     refetch: refetchPending
   } = useQuery({
     queryKey: ['pendingDecisions', trackFilter, chassisFilter, riskFilter],
@@ -58,16 +59,21 @@ export default function AgentReviewDashboard() {
       100
     ),
     refetchInterval: 10000, // Refresh every 10 seconds
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Fetch review history
   const { 
     data: historyData, 
-    isLoading: historyLoading 
+    isLoading: historyLoading,
+    error: historyError
   } = useQuery({
     queryKey: ['reviewHistory'],
     queryFn: () => getReviewHistory(100),
     enabled: showHistory,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const handleReviewComplete = () => {
@@ -77,6 +83,24 @@ export default function AgentReviewDashboard() {
 
   const pendingDecisions = pendingData?.decisions || [];
   const reviewHistory = historyData?.reviews || [];
+
+  // Show error messages if queries fail
+  useEffect(() => {
+    if (pendingError) {
+      toast({
+        title: "Failed to load pending decisions",
+        description: pendingError instanceof Error ? pendingError.message : "Unable to fetch pending decisions. Please try again.",
+        variant: "destructive",
+      });
+    }
+    if (historyError) {
+      toast({
+        title: "Failed to load review history",
+        description: historyError instanceof Error ? historyError.message : "Unable to fetch review history. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [pendingError, historyError, toast]);
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
@@ -221,7 +245,7 @@ export default function AgentReviewDashboard() {
                   {pendingLoading ? (
                     <Skeleton className="h-8 w-16" />
                   ) : (
-                    pendingDecisions.filter(d => d.risk_level === "critical" || d.risk_level === undefined).length
+                    pendingDecisions.filter(d => d && (d.risk_level === "critical" || d.risk_level === undefined)).length
                   )}
                 </p>
               </div>
@@ -269,6 +293,18 @@ export default function AgentReviewDashboard() {
                     <Skeleton key={i} className="h-32 w-full" />
                   ))}
                 </div>
+              ) : pendingError ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
+                  <p className="text-lg font-medium mb-2">Error loading decisions</p>
+                  <p className="text-sm mb-4">
+                    {pendingError instanceof Error ? pendingError.message : "Failed to load pending decisions"}
+                  </p>
+                  <Button onClick={() => refetchPending()} variant="outline" size="sm">
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Retry
+                  </Button>
+                </div>
               ) : pendingDecisions.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <CheckCircle2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -277,7 +313,9 @@ export default function AgentReviewDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {pendingDecisions.map((decision) => (
+                  {pendingDecisions
+                    .filter((decision) => decision && decision.decision_id) // Filter out invalid decisions
+                    .map((decision) => (
                     <motion.div
                       key={decision.decision_id}
                       initial={{ opacity: 0, x: -20 }}
@@ -297,21 +335,31 @@ export default function AgentReviewDashboard() {
                               {decision.risk_level || "moderate"}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              {decision.created_at 
-                                ? new Date(decision.created_at).toLocaleString()
-                                : (decision as any).timestamp 
-                                ? new Date((decision as any).timestamp).toLocaleString()
-                                : "N/A"}
+                              {(() => {
+                                try {
+                                  if (decision.created_at) {
+                                    const date = new Date(decision.created_at);
+                                    return !isNaN(date.getTime()) ? date.toLocaleString() : "N/A";
+                                  }
+                                  if ((decision as any).timestamp) {
+                                    const date = new Date((decision as any).timestamp);
+                                    return !isNaN(date.getTime()) ? date.toLocaleString() : "N/A";
+                                  }
+                                  return "N/A";
+                                } catch {
+                                  return "N/A";
+                                }
+                              })()}
                             </span>
                           </div>
-                          <h3 className="font-semibold mb-1">{decision.action || "No action specified"}</h3>
+                          <h3 className="font-semibold mb-1">{decision.action ? String(decision.action) : "No action specified"}</h3>
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="uppercase">{decision.track || "N/A"}</span>
                             <span>•</span>
                             <span>{decision.chassis || "N/A"}</span>
                             <span>•</span>
                             <span>
-                              {decision.confidence !== undefined && decision.confidence !== null
+                              {decision.confidence !== undefined && decision.confidence !== null && typeof decision.confidence === 'number'
                                 ? `${(decision.confidence * 100).toFixed(0)}% confidence`
                                 : "Confidence N/A"}
                             </span>
@@ -319,22 +367,24 @@ export default function AgentReviewDashboard() {
                         </div>
                       </div>
 
-                      {decision.reasoning && decision.reasoning.length > 0 && (
+                      {decision.reasoning && Array.isArray(decision.reasoning) && decision.reasoning.length > 0 && (
                         <div className="mt-3 mb-3 p-2 bg-muted/50 rounded text-sm">
                           <p className="font-medium mb-1">Reasoning:</p>
                           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                             {decision.reasoning.slice(0, 3).map((reason, idx) => (
-                              <li key={idx}>{reason}</li>
+                              <li key={idx}>{typeof reason === 'string' ? reason : String(reason)}</li>
                             ))}
                           </ul>
                         </div>
                       )}
 
-                      <HumanReviewPanel
-                        decision={decision as AgentDecision}
-                        onReviewComplete={handleReviewComplete}
-                        showReviewStatus={false}
-                      />
+                      {decision.decision_id && (
+                        <HumanReviewPanel
+                          decision={decision as AgentDecision}
+                          onReviewComplete={handleReviewComplete}
+                          showReviewStatus={false}
+                        />
+                      )}
                     </motion.div>
                   ))}
                 </div>
@@ -365,6 +415,14 @@ export default function AgentReviewDashboard() {
                     <Skeleton key={i} className="h-24 w-full" />
                   ))}
                 </div>
+              ) : historyError ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
+                  <p className="text-lg font-medium mb-2">Error loading review history</p>
+                  <p className="text-sm">
+                    {historyError instanceof Error ? historyError.message : "Failed to load review history"}
+                  </p>
+                </div>
               ) : reviewHistory.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -373,7 +431,9 @@ export default function AgentReviewDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {reviewHistory.map((review) => (
+                  {reviewHistory
+                    .filter((review) => review && review.decision_id) // Filter out invalid reviews
+                    .map((review) => (
                     <motion.div
                       key={review.decision_id}
                       initial={{ opacity: 0, x: -20 }}
@@ -423,7 +483,14 @@ export default function AgentReviewDashboard() {
                                 <>
                                   <Clock className="w-3 h-3" />
                                   <span>
-                                    {new Date(review.reviewed_at).toLocaleString()}
+                                    {(() => {
+                                      try {
+                                        const date = new Date(review.reviewed_at);
+                                        return !isNaN(date.getTime()) ? date.toLocaleString() : "N/A";
+                                      } catch {
+                                        return "N/A";
+                                      }
+                                    })()}
                                   </span>
                                 </>
                               )}

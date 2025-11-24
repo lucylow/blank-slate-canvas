@@ -1,0 +1,49 @@
+{
+  "approval_rules": [
+    {
+      "decision_types": ["pit"],
+      "min_confidence_threshold": 0.0,
+      "max_confidence_threshold": 0.85,
+      "risk_levels": ["critical", "aggressive"],
+      "require_approval": true,
+      "timeout_seconds": 300,
+      "timeout_policy": "auto_approve",
+      "priority": 10
+    },
+    {
+      "decision_types": ["anomaly"],
+      "min_confidence_threshold": 0.0,
+      "max_confidence_threshold": 0.90,
+      "risk_levels": ["critical"],
+      "require_approval": true,
+      "timeout_seconds": 60,
+      "timeout_policy": "auto_approve",
+      "priority": 20
+    },
+    {
+      "decision_types": ["coach"],
+      "min_confidence_threshold": 0.0,
+      "max_confidence_threshold": 0.70,
+      "risk_levels": [],
+      "require_approval": false,
+      "timeout_seconds": 600,
+      "timeout_policy": "auto_approve",
+      "priority": 5
+    },
+    {
+      "decision_types": ["strategy"],
+      "min_confidence_threshold": 0.0,
+      "max_confidence_threshold": 0.80,
+      "risk_levels": ["critical", "aggressive"],
+      "require_approval": true,
+      "timeout_seconds": 180,
+      "timeout_policy": "auto_approve",
+      "priority": 15
+    }
+  ],
+  "default_timeout_policy": "auto_approve",
+  "default_timeout_seconds": 300,
+  "enable_audit_logging": true,
+  "audit_log_retention_days": 30
+}
+

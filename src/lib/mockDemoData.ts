@@ -1,15 +1,15 @@
 // src/lib/mockDemoData.ts
-// Comprehensive mock data generator for demo mode
+// Comprehensive demo data generator for demo mode
 // Generates data for all 7 AI agents, time series, and tire predictions for all tracks
 //
-// NOTE: For comprehensive mock data with all API integrations (Weather, AI Analytics,
+// NOTE: For comprehensive demo data with all API integrations (Weather, AI Analytics,
 // Google Maps, Hugging Face, Twilio, Slack, F1, Computer Vision, Driver Fingerprinting,
 // Anomaly Detection), see src/lib/comprehensiveMockData.ts
 
 import type { AgentDecision } from "@/components/pitwall/AIAgentDecisions";
 
-// Configuration interface for mock data generation
-export interface MockDataConfig {
+// Configuration interface for demo data generation
+export interface DemoDataConfig {
   seed?: number; // Seed for deterministic random generation
   enableCache?: boolean; // Enable caching of generated data
   cacheExpiryMs?: number; // Cache expiry time in milliseconds
@@ -20,7 +20,7 @@ export interface MockDataConfig {
 }
 
 // Default configuration
-const DEFAULT_CONFIG: Required<MockDataConfig> = {
+const DEFAULT_CONFIG: Required<DemoDataConfig> = {
   seed: 12345,
   enableCache: true,
   cacheExpiryMs: 5 * 60 * 1000, // 5 minutes
@@ -56,13 +56,13 @@ class SeededRandom {
   }
 }
 
-// Cache for generated mock data
+// Cache for generated demo data
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
 }
 
-class MockDataCache {
+class DemoDataCache {
   private cache: Map<string, CacheEntry<any>> = new Map();
   private expiryMs: number;
 
@@ -100,17 +100,17 @@ class MockDataCache {
 }
 
 // Global cache instance
-let globalCache: MockDataCache | null = null;
+let globalCache: DemoDataCache | null = null;
 
-function getCache(config: MockDataConfig): MockDataCache | null {
+function getCache(config: DemoDataConfig): DemoDataCache | null {
   if (!config.enableCache) return null;
   if (!globalCache) {
-    globalCache = new MockDataCache(config.cacheExpiryMs ?? DEFAULT_CONFIG.cacheExpiryMs);
+    globalCache = new DemoDataCache(config.cacheExpiryMs ?? DEFAULT_CONFIG.cacheExpiryMs);
   }
   return globalCache;
 }
 
-export interface MockTelemetryPoint {
+export interface DemoTelemetryPoint {
   timestamp: string;
   vehicle_id: string;
   vehicle_number: number;
@@ -135,7 +135,7 @@ export interface MockTelemetryPoint {
   RAIN: number;
 }
 
-export interface MockTirePrediction {
+export interface DemoTirePrediction {
   chassis: string;
   track: string;
   vehicle_number: number;
@@ -152,7 +152,7 @@ export interface MockTirePrediction {
   explanation: string[];
 }
 
-export interface MockTimeSeriesData {
+export interface DemoTimeSeriesData {
   timestamp: string;
   track: string;
   vehicle_number: number;
@@ -201,7 +201,7 @@ function calculateTireWear(
   baseWear: number,
   degradationRate: number,
   rng: SeededRandom,
-  config: Required<MockDataConfig>
+  config: Required<DemoDataConfig>
 ): number {
   if (!config.enableRealisticPatterns) {
     return baseWear + (lap * degradationRate) + rng.next() * 5;
@@ -220,7 +220,7 @@ function calculateLapTime(
   tireWear: number,
   lap: number,
   rng: SeededRandom,
-  config: Required<MockDataConfig>
+  config: Required<DemoDataConfig>
 ): number {
   if (!config.enableRealisticPatterns) {
     return baseLapTime + rng.next() * config.lapTimeVariation;
@@ -243,7 +243,7 @@ export function generateAgentDecisions(
   trackId: string,
   vehicleNumber: number,
   baseTime: Date = new Date(),
-  config: MockDataConfig = {}
+  config: DemoDataConfig = {}
 ): AgentDecision[] {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const cache = getCache(fullConfig);
@@ -522,20 +522,20 @@ export function generateTimeSeriesData(
   vehicleNumber: number,
   numPoints: number = 100,
   baseTime: Date = new Date(),
-  config: MockDataConfig = {}
-): MockTimeSeriesData[] {
+  config: DemoDataConfig = {}
+): DemoTimeSeriesData[] {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const cache = getCache(fullConfig);
   const cacheKey = cache?.generateKey('timeSeries', trackId, vehicleNumber, numPoints, baseTime.getTime());
   
   if (cache && cacheKey) {
-    const cached = cache.get<MockTimeSeriesData[]>(cacheKey);
+    const cached = cache.get<DemoTimeSeriesData[]>(cacheKey);
     if (cached) return cached;
   }
 
   const track = TRACKS.find((t) => t.id === trackId) || TRACKS[0];
   const rng = new SeededRandom(fullConfig.seed + trackId.charCodeAt(0) + vehicleNumber + numPoints);
-  const data: MockTimeSeriesData[] = [];
+  const data: DemoTimeSeriesData[] = [];
   
   let currentLap = 1;
   let lapProgress = 0;
@@ -605,19 +605,19 @@ export function generateTirePredictions(
   trackId: string,
   vehicleNumber: number,
   baseTime: Date = new Date(),
-  config: MockDataConfig = {}
-): MockTirePrediction[] {
+  config: DemoDataConfig = {}
+): DemoTirePrediction[] {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const cache = getCache(fullConfig);
   const cacheKey = cache?.generateKey('tirePredictions', trackId, vehicleNumber, baseTime.getTime());
   
   if (cache && cacheKey) {
-    const cached = cache.get<MockTirePrediction[]>(cacheKey);
+    const cached = cache.get<DemoTirePrediction[]>(cacheKey);
     if (cached) return cached;
   }
 
   const rng = new SeededRandom(fullConfig.seed + trackId.charCodeAt(0) + vehicleNumber);
-  const predictions: MockTirePrediction[] = [];
+  const predictions: DemoTirePrediction[] = [];
   
   for (let lap = 5; lap <= 25; lap += 2) {
     const baseWear = 40 + (lap * fullConfig.tireDegradationRate);
@@ -671,26 +671,26 @@ export function generateTirePredictions(
   return predictions;
 }
 
-// Generate comprehensive mock data for all tracks
-export function generateAllTracksMockData(config: MockDataConfig = {}): {
+// Generate comprehensive demo data for all tracks
+export function generateAllTracksDemoData(config: DemoDataConfig = {}): {
   agentDecisions: Record<string, AgentDecision[]>;
-  timeSeries: Record<string, MockTimeSeriesData[]>;
-  tirePredictions: Record<string, MockTirePrediction[]>;
-  telemetry: Record<string, MockTelemetryPoint[]>;
+  timeSeries: Record<string, DemoTimeSeriesData[]>;
+  tirePredictions: Record<string, DemoTirePrediction[]>;
+  telemetry: Record<string, DemoTelemetryPoint[]>;
 } {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const cache = getCache(fullConfig);
   const cacheKey = cache?.generateKey('allTracksData', JSON.stringify(config));
   
   if (cache && cacheKey) {
-    const cached = cache.get<ReturnType<typeof generateAllTracksMockData>>(cacheKey);
+    const cached = cache.get<ReturnType<typeof generateAllTracksDemoData>>(cacheKey);
     if (cached) return cached;
   }
 
   const agentDecisions: Record<string, AgentDecision[]> = {};
-  const timeSeries: Record<string, MockTimeSeriesData[]> = {};
-  const tirePredictions: Record<string, MockTirePrediction[]> = {};
-  const telemetry: Record<string, MockTelemetryPoint[]> = {};
+  const timeSeries: Record<string, DemoTimeSeriesData[]> = {};
+  const tirePredictions: Record<string, DemoTirePrediction[]> = {};
+  const telemetry: Record<string, DemoTelemetryPoint[]> = {};
 
   const baseTime = new Date();
   const rng = new SeededRandom(fullConfig.seed);
@@ -768,9 +768,9 @@ export function generateAllTracksMockData(config: MockDataConfig = {}): {
   return result;
 }
 
-// Get mock data for a specific track
-export function getTrackMockData(trackId: string, config: MockDataConfig = {}) {
-  const allData = generateAllTracksMockData(config);
+// Get demo data for a specific track
+export function getTrackDemoData(trackId: string, config: DemoDataConfig = {}) {
+  const allData = generateAllTracksDemoData(config);
   
   return {
     agentDecisions: allData.agentDecisions[trackId] || [],
@@ -780,8 +780,8 @@ export function getTrackMockData(trackId: string, config: MockDataConfig = {}) {
   };
 }
 
-// Utility function to clear mock data cache
-export function clearMockDataCache(): void {
+// Utility function to clear demo data cache
+export function clearDemoDataCache(): void {
   if (globalCache) {
     globalCache.clear();
   }
@@ -790,8 +790,8 @@ export function clearMockDataCache(): void {
 // Export default configuration for external use
 export { DEFAULT_CONFIG };
 
-// Agent System Mock Data
-export interface MockAgent {
+// Agent System Demo Data
+export interface DemoAgent {
   id: string;
   status: 'active' | 'idle' | 'error';
   types?: string[];
@@ -799,7 +799,7 @@ export interface MockAgent {
   capacity?: number;
 }
 
-export interface MockInsight {
+export interface DemoInsight {
   insight_id: string;
   decision_id?: string;
   track: string;
@@ -833,7 +833,7 @@ export interface MockInsight {
   };
 }
 
-export interface MockQueueStats {
+export interface DemoQueueStats {
   tasksLength?: number;
   resultsLength?: number;
   inboxLengths?: Array<{
@@ -842,11 +842,11 @@ export interface MockQueueStats {
   }>;
 }
 
-// Generate mock agents
-export function generateMockAgents(config: MockDataConfig = {}): MockAgent[] {
+// Generate demo agents
+export function generateDemoAgents(config: DemoDataConfig = {}): DemoAgent[] {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const rng = new SeededRandom(fullConfig.seed);
-  const agents: MockAgent[] = [];
+  const agents: DemoAgent[] = [];
   
   for (let i = 0; i < AGENT_TYPES.length; i++) {
     const agentType = AGENT_TYPES[i];
@@ -866,15 +866,15 @@ export function generateMockAgents(config: MockDataConfig = {}): MockAgent[] {
   return agents;
 }
 
-// Generate mock insights from agent decisions
-export function generateMockInsights(
+// Generate demo insights from agent decisions
+export function generateDemoInsights(
   numInsights: number = 15,
   baseTime: Date = new Date(),
-  config: MockDataConfig = {}
-): MockInsight[] {
+  config: DemoDataConfig = {}
+): DemoInsight[] {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const rng = new SeededRandom(fullConfig.seed + numInsights);
-  const insights: MockInsight[] = [];
+  const insights: DemoInsight[] = [];
   const track = rng.choice(TRACKS);
   const vehicle = rng.choice(VEHICLES);
   
@@ -973,8 +973,8 @@ export function generateMockInsights(
   return insights.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 }
 
-// Generate mock queue stats
-export function generateMockQueueStats(agents: MockAgent[], config: MockDataConfig = {}): MockQueueStats {
+// Generate demo queue stats
+export function generateDemoQueueStats(agents: DemoAgent[], config: DemoDataConfig = {}): DemoQueueStats {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const rng = new SeededRandom(fullConfig.seed);
   const tasksLength = 10 + rng.nextInt(50);
@@ -992,11 +992,11 @@ export function generateMockQueueStats(agents: MockAgent[], config: MockDataConf
   };
 }
 
-// Generate all agent system mock data
-export function generateAgentSystemMockData(config: MockDataConfig = {}) {
-  const agents = generateMockAgents(config);
-  const insights = generateMockInsights(20, new Date(), config);
-  const queueStats = generateMockQueueStats(agents, config);
+// Generate all agent system demo data
+export function generateAgentSystemDemoData(config: DemoDataConfig = {}) {
+  const agents = generateDemoAgents(config);
+  const insights = generateDemoInsights(20, new Date(), config);
+  const queueStats = generateDemoQueueStats(agents, config);
   
   return {
     agents,
@@ -1005,14 +1005,14 @@ export function generateAgentSystemMockData(config: MockDataConfig = {}) {
   };
 }
 
-// Generate mock AgentStatusResponse for API fallback
-export function generateMockAgentStatusResponse(config: MockDataConfig = {}) {
+// Generate demo AgentStatusResponse for API fallback
+export function generateDemoAgentStatusResponse(config: DemoDataConfig = {}) {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const rng = new SeededRandom(fullConfig.seed);
-  const agents = generateMockAgents(fullConfig);
-  const queueStats = generateMockQueueStats(agents, fullConfig);
+  const agents = generateDemoAgents(fullConfig);
+  const queueStats = generateDemoQueueStats(agents, fullConfig);
   
-  // Convert MockAgent[] to Agent[] format matching AgentStatusResponse
+  // Convert DemoAgent[] to Agent[] format matching AgentStatusResponse
   const convertedAgents = agents.map((agent, index) => ({
     id: agent.id,
     type: agent.types?.[0] || 'strategy',
@@ -1034,13 +1034,13 @@ export function generateMockAgentStatusResponse(config: MockDataConfig = {}) {
   };
 }
 
-// Generate mock DashboardData for demo mode
-export function generateMockDashboardData(
+// Generate demo DashboardData for demo mode
+export function generateDemoDashboardData(
   track: string,
   race: number,
   vehicle: number,
   lap: number,
-  config: MockDataConfig = {}
+  config: DemoDataConfig = {}
 ): import("@/api/pitwall").DashboardData {
   const fullConfig = { ...DEFAULT_CONFIG, ...config };
   const rng = new SeededRandom(fullConfig.seed + track.charCodeAt(0) + vehicle + lap);
@@ -1096,4 +1096,17 @@ export function generateMockDashboardData(
     live_data: false,
   };
 }
+
+// Export aliases for backward compatibility with "Demo" naming
+export const generateAllTracksMockData = generateAllTracksDemoData;
+export const getTrackMockData = getTrackDemoData;
+export const generateAgentSystemMockData = generateAgentSystemDemoData;
+export const generateMockInsights = generateDemoInsights;
+export const generateMockQueueStats = generateDemoQueueStats;
+export type MockTelemetryPoint = DemoTelemetryPoint;
+export type MockTimeSeriesData = DemoTimeSeriesData;
+export type MockTirePrediction = DemoTirePrediction;
+export type MockAgent = DemoAgent;
+export type MockInsight = DemoInsight;
+export type MockQueueStats = DemoQueueStats;
 

@@ -85,8 +85,8 @@ interface RaceStory {
   summary: string;
 }
 
-// Mock data generator - in production, this would come from telemetry analysis
-const generateMockHighlights = (): RaceMoment[] => {
+// Demo data generator - in production, this would come from telemetry analysis
+const generateDemoHighlights = (): RaceMoment[] => {
   return [
     {
       id: "1",
@@ -194,7 +194,7 @@ export default function RaceStoryGenerator() {
     // Simulate loading race highlights
     setIsGenerating(true);
     setTimeout(() => {
-      setHighlights(generateMockHighlights());
+      setHighlights(generateDemoHighlights());
       setIsGenerating(false);
     }, 1500);
   }, [selectedRace]);
@@ -202,7 +202,7 @@ export default function RaceStoryGenerator() {
   const handleGenerate = () => {
     setIsGenerating(true);
     setTimeout(() => {
-      setHighlights(generateMockHighlights());
+      setHighlights(generateDemoHighlights());
       setIsGenerating(false);
     }, 1500);
   };
@@ -398,19 +398,19 @@ export default function RaceStoryGenerator() {
 
   return (
     <RouteLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold flex items-center gap-3">
               <Sparkles className="h-8 w-8 text-primary" />
               Race Story Generator
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
               Automatically identifies key race moments and converts telemetry data into shareable story highlights
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Select value={selectedRace} onValueChange={setSelectedRace}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Race" />
@@ -438,7 +438,7 @@ export default function RaceStoryGenerator() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Key Moments</CardTitle>
@@ -489,32 +489,32 @@ export default function RaceStoryGenerator() {
         </div>
 
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "story" | "data" | "generator")}>
-          <TabsList>
+          <TabsList className="mb-6">
             <TabsTrigger value="generator">Race Story Generator</TabsTrigger>
             <TabsTrigger value="story">Story View</TabsTrigger>
             <TabsTrigger value="data">Data Analysis</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent value="generator" className="space-y-6 mt-6">
             {/* New Race Story Generator Component */}
             <RaceStoryHighlights highlights={generatedHighlights} />
 
             {/* English Summaries Section */}
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-4">
                 <CardTitle>English Summaries</CardTitle>
-                <CardDescription>
+                <CardDescription className="mt-2">
                   Human-readable summaries generated from telemetry data (Data → English translation)
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {englishSummaries.map((summary, index) => (
                     <div
                       key={index}
-                      className="bg-muted rounded-md p-4 border-l-4 border-primary"
+                      className="bg-muted rounded-md p-5 border-l-4 border-primary"
                     >
-                      <p className="text-sm">{summary}</p>
+                      <p className="text-sm leading-relaxed">{summary}</p>
                     </div>
                   ))}
                 </div>
@@ -523,22 +523,22 @@ export default function RaceStoryGenerator() {
 
             {/* Broadcast Cards Section */}
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-4">
                 <CardTitle>Broadcast Cards</CardTitle>
-                <CardDescription>
+                <CardDescription className="mt-2">
                   Media-ready visuals for commentary and post-race recaps
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {broadcastCards.map((card, index) => (
                     <div
                       key={index}
-                      className="bg-primary/10 border border-primary/20 rounded-md p-4"
+                      className="bg-primary/10 border border-primary/20 rounded-md p-5"
                     >
-                      <h3 className="font-bold text-primary mb-2">{card.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-3">{card.mainText}</p>
-                      <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-primary/10">
+                      <h3 className="font-bold text-primary mb-3">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{card.mainText}</p>
+                      <div className="text-xs text-muted-foreground space-y-2 pt-3 border-t border-primary/10">
                         {card.evidence.sectorDelta && (
                           <div>
                             <span className="text-primary">Sector {card.evidence.sectorDelta.sector}:</span>{" "}
@@ -583,9 +583,9 @@ export default function RaceStoryGenerator() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="story" className="space-y-4">
+          <TabsContent value="story" className="space-y-6 mt-6">
             {/* Highlights List */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
               {highlights.map((highlight) => (
                 <motion.div
                   key={highlight.id}
@@ -599,10 +599,10 @@ export default function RaceStoryGenerator() {
                     }`}
                     onClick={() => setSelectedHighlight(highlight.id)}
                   >
-                    <CardHeader>
+                    <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Badge className={getMomentTypeColor(highlight.type)}>
                               {getMomentTypeLabel(highlight.type)}
                             </Badge>
@@ -610,8 +610,8 @@ export default function RaceStoryGenerator() {
                               {highlight.impact.toUpperCase()} IMPACT
                             </Badge>
                           </div>
-                          <CardTitle className="text-lg">{highlight.title}</CardTitle>
-                          <CardDescription className="mt-2 flex items-center gap-4">
+                          <CardTitle className="text-lg leading-tight">{highlight.title}</CardTitle>
+                          <CardDescription className="flex items-center gap-4 flex-wrap">
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               Lap {highlight.lap}
@@ -629,13 +629,13 @@ export default function RaceStoryGenerator() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">{highlight.description}</p>
+                    <CardContent className="space-y-5">
+                      <p className="text-sm text-muted-foreground leading-relaxed">{highlight.description}</p>
 
                       {/* Evidence Summary */}
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="bg-muted p-2 rounded">
-                          <div className="text-xs text-muted-foreground">Pace Change</div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-muted p-3 rounded">
+                          <div className="text-xs text-muted-foreground mb-1">Pace Change</div>
                           <div
                             className={`text-sm font-semibold ${
                               highlight.evidence.paceChange > 0 ? "text-green-600" : "text-red-600"
@@ -645,8 +645,8 @@ export default function RaceStoryGenerator() {
                             {highlight.evidence.paceChange.toFixed(2)}s
                           </div>
                         </div>
-                        <div className="bg-muted p-2 rounded">
-                          <div className="text-xs text-muted-foreground">Time Delta</div>
+                        <div className="bg-muted p-3 rounded">
+                          <div className="text-xs text-muted-foreground mb-1">Time Delta</div>
                           <div
                             className={`text-sm font-semibold ${
                               highlight.evidence.timeDelta < 0 ? "text-green-600" : "text-red-600"
@@ -656,8 +656,8 @@ export default function RaceStoryGenerator() {
                             {highlight.evidence.timeDelta.toFixed(2)}s
                           </div>
                         </div>
-                        <div className="bg-muted p-2 rounded">
-                          <div className="text-xs text-muted-foreground">Stress Level</div>
+                        <div className="bg-muted p-3 rounded">
+                          <div className="text-xs text-muted-foreground mb-1">Stress Level</div>
                           <div className="text-sm font-semibold">
                             {Math.round(highlight.evidence.stressLevel * 100)}%
                           </div>
@@ -665,12 +665,12 @@ export default function RaceStoryGenerator() {
                       </div>
 
                       {/* Sector Deltas */}
-                      <div className="mb-4">
-                        <div className="text-xs font-medium mb-2">Sector Deltas</div>
-                        <div className="flex gap-2">
+                      <div>
+                        <div className="text-xs font-medium mb-3">Sector Deltas</div>
+                        <div className="flex gap-3">
                           {Object.entries(highlight.evidence.sectorDeltas).map(([sector, delta]) => (
-                            <div key={sector} className="flex-1 bg-muted p-2 rounded text-center">
-                              <div className="text-xs text-muted-foreground">{sector.toUpperCase()}</div>
+                            <div key={sector} className="flex-1 bg-muted p-3 rounded text-center">
+                              <div className="text-xs text-muted-foreground mb-1">{sector.toUpperCase()}</div>
                               <div
                                 className={`text-sm font-semibold ${
                                   delta > 0 ? "text-green-600" : delta < 0 ? "text-red-600" : "text-gray-600"
@@ -685,7 +685,7 @@ export default function RaceStoryGenerator() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex gap-2">
+                      <div className="flex gap-3 pt-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -736,13 +736,13 @@ export default function RaceStoryGenerator() {
             </div>
           </TabsContent>
 
-          <TabsContent value="data" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <TabsContent value="data" className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
               {/* Pace Change Chart */}
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <CardTitle>Pace Changes Over Race</CardTitle>
-                  <CardDescription>Time delta and pace changes by lap</CardDescription>
+                  <CardDescription className="mt-2">Time delta and pace changes by lap</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -773,9 +773,9 @@ export default function RaceStoryGenerator() {
 
               {/* Stress Level Chart */}
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-4">
                   <CardTitle>Stress Levels by Moment</CardTitle>
-                  <CardDescription>Intensity of key race moments</CardDescription>
+                  <CardDescription className="mt-2">Intensity of key race moments</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -794,13 +794,13 @@ export default function RaceStoryGenerator() {
               {/* Tire Condition */}
               {selectedMoment && (
                 <Card className="lg:col-span-2">
-                  <CardHeader>
+                  <CardHeader className="pb-4">
                     <CardTitle>Tire Condition Analysis - {selectedMoment.title}</CardTitle>
-                    <CardDescription>
+                    <CardDescription className="mt-2">
                       Tire wear percentages: FL (Front Left), FR (Front Right), RL (Rear Left), RR (Rear Right)
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-6">
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={tireData}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -811,7 +811,7 @@ export default function RaceStoryGenerator() {
                         <Bar dataKey="value" fill="#ef4444" name="Tire Condition (%)" />
                       </BarChart>
                     </ResponsiveContainer>
-                    <div className="mt-4 grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-4 gap-4">
                       {tireData.map((tire) => (
                         <div key={tire.name} className="text-center">
                           <div className="text-sm font-medium">{tire.name}</div>
@@ -838,12 +838,12 @@ export default function RaceStoryGenerator() {
 
         {/* Export Section */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle>Export & Share</CardTitle>
-            <CardDescription>Generate media-ready content for broadcasts and debriefs</CardDescription>
+            <CardDescription className="mt-2">Generate media-ready content for broadcasts and debriefs</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               <Button variant="outline" onClick={handleExportReport}>
                 <FileText className="h-4 w-4 mr-2" />
                 Export Report

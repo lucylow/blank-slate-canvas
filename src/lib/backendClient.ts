@@ -30,16 +30,19 @@ export async function setFlags(payload: Record<string, boolean>): Promise<{ succ
   }
 }
 
-export async function fetchMockAgents(): Promise<any[]> {
+export async function fetchDemoAgents(): Promise<any[]> {
   try {
-    const res = await fetch(`${API_BASE}/api/mock_agents`);
+    const res = await fetch(`${API_BASE}/api/demo_agents`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   } catch (e) {
-    console.debug("Failed to fetch mock agents:", e);
+    console.debug("Failed to fetch demo agents:", e);
     return [];
   }
 }
+
+// Legacy export for backward compatibility
+export const fetchMockAgents = fetchDemoAgents;
 
 export async function saveInsight(insight: any): Promise<{ success: boolean; insight?: any }> {
   try {

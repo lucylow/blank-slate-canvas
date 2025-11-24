@@ -10,6 +10,11 @@ import redis
 import requests
 from typing import Dict, List, Optional
 from datetime import datetime
+import logging
+import traceback
+
+logger = logging.getLogger("explainer_agent")
+logging.basicConfig(level=logging.INFO)
 
 class ExplainerAgent:
     def __init__(self, config: Optional[Dict] = None):
@@ -20,34 +25,48 @@ class ExplainerAgent:
         self.orchestrator_url = config.get('orchestrator_url') or os.getenv('ORCHESTRATOR_URL', 'http://localhost:3000')
         
     def register(self) -> bool:
-        """Register with orchestrator"""
-        try:
-            response = requests.post(
-                f'{self.orchestrator_url}/agents/register',
-                json={
-                    'agent_id': self.agent_id,
-                    'types': ['explainer'],
-                    'tracks': ['*'],
-                    'capacity': 6
-                },
-                timeout=5
-            )
-            result = response.json()
-            print(f"[Explainer] Registered: {'OK' if result.get('success') else 'FAILED'}")
-            return result.get('success', False)
-        except Exception as e:
-            print(f"[Explainer] Registration failed: {e}")
-            return False
+        """Register with orchestrator with retry logic"""
+        max_retries = 3
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = requests.post(
+                    f'{self.orchestrator_url}/agents/register',
+                    json={
+                        'agent_id': self.agent_id,
+                        'types': ['explainer'],
+                        'tracks': ['*'],
+                        'capacity': 6
+                    },
+                    timeout=5
+                )
+                response.raise_for_status()  # Raise exception for bad status codes
+                result = response.json()
+                success = result.get('ok', result.get('success', False))
+                logger.info(f"[Explainer] Registered: {'OK' if success else 'FAILED'}")
+                return success
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"[Explainer] Registration attempt {attempt}/{max_retries} failed: {e}")
+                if attempt == max_retries:
+                    logger.error(f"[Explainer] Registration failed after {max_retries} attempts")
+                    return False
+                time.sleep(2 * attempt)
+            except Exception as e:
+                logger.error(f"[Explainer] Unexpected error during registration: {e}", exc_info=True)
+                return False
+        return False
     
     def heartbeat(self):
-        """Send heartbeat to orchestrator"""
+        """Send heartbeat to orchestrator with error handling"""
         try:
-            requests.post(
+            response = requests.post(
                 f'{self.orchestrator_url}/agents/heartbeat/{self.agent_id}',
                 timeout=2
             )
-        except:
-            pass
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logger.debug(f"[Explainer] Heartbeat failed: {e}")
+        except Exception as e:
+            logger.debug(f"[Explainer] Unexpected heartbeat error: {e}")
     
     def format_insight(self, prediction_result: Dict, strategy_result: Optional[Dict] = None) -> Dict:
         """Format prediction and strategy into human-readable insight"""
@@ -166,55 +185,127 @@ class ExplainerAgent:
         }
     
     def start(self):
-        """Start explainer agent loop"""
-        self.register()
+        """Start explainer agent loop with comprehensive error handling"""
+        if not self.register():
+            logger.warning("[Explainer] Registration failed, continuing anyway...")
         
         # Send heartbeat every 10s
         import threading
         def heartbeat_loop():
             while True:
-                time.sleep(10)
-                self.heartbeat()
+                try:
+                    time.sleep(10)
+                    self.heartbeat()
+                except Exception as e:
+                    logger.debug(f"[Explainer] Heartbeat loop error: {e}")
         
         threading.Thread(target=heartbeat_loop, daemon=True).start()
         
         # Process tasks from inbox
         inbox = f'agent:{self.agent_id}:inbox'
+        consecutive_errors = 0
+        max_consecutive_errors = 10
         
         while True:
             try:
+                # Test Redis connection periodically
+                if consecutive_errors > 0 and consecutive_errors % 5 == 0:
+                    try:
+                        self.redis.ping()
+                    except Exception as e:
+                        logger.warning(f"[Explainer] Redis connection lost, reconnecting: {e}")
+                        try:
+                            self.redis = redis.Redis.from_url(self.redis_url, decode_responses=True)
+                            self.redis.ping()
+                            logger.info("[Explainer] Redis reconnected")
+                        except Exception as reconnect_error:
+                            logger.error(f"[Explainer] Reconnection failed: {reconnect_error}")
+                            consecutive_errors += 1
+                            if consecutive_errors >= max_consecutive_errors:
+                                raise
+                            time.sleep(5 * consecutive_errors)
+                            continue
+                
                 msg = self.redis.blpop(inbox, timeout=5)
                 if not msg:
+                    consecutive_errors = 0  # Reset on successful poll
                     continue
                 
                 _, task_json = msg
-                task = json.loads(task_json)
-                print(f"[Explainer] Processing task {task.get('task_id')}")
                 
-                start_time = time.time()
-                result = self.process_window(task)
-                latency_ms = (time.time() - start_time) * 1000
+                try:
+                    task = json.loads(task_json)
+                except json.JSONDecodeError as e:
+                    logger.error(f"[Explainer] Failed to parse task JSON: {e}, preview: {task_json[:200]}")
+                    consecutive_errors += 1
+                    if consecutive_errors >= max_consecutive_errors:
+                        raise
+                    time.sleep(1)
+                    continue
                 
-                # Send result
-                result_msg = {
-                    'task_id': task.get('task_id'),
-                    'agent_id': self.agent_id,
-                    'task_type': 'explainer',
-                    'success': result.get('success', False),
-                    'result': result,
-                    'latency_ms': latency_ms,
-                    'completed_at': datetime.utcnow().isoformat()
-                }
+                task_id = task.get('task_id', 'unknown')
+                logger.info(f"[Explainer] Processing task {task_id}")
                 
-                self.redis.xadd('agent_results.stream', {
-                    'result': json.dumps(result_msg)
-                })
+                try:
+                    start_time = time.time()
+                    result = self.process_window(task)
+                    latency_ms = (time.time() - start_time) * 1000
+                    
+                    # Send result
+                    result_msg = {
+                        'task_id': task_id,
+                        'agent_id': self.agent_id,
+                        'task_type': 'explainer',
+                        'success': result.get('success', False),
+                        'result': result,
+                        'latency_ms': latency_ms,
+                        'completed_at': datetime.utcnow().isoformat()
+                    }
+                    
+                    try:
+                        self.redis.xadd('agent_results.stream', {
+                            'result': json.dumps(result_msg)
+                        })
+                        consecutive_errors = 0  # Reset on success
+                    except redis.ConnectionError as e:
+                        logger.error(f"[Explainer] Redis connection error publishing result: {e}")
+                        # Mark connection as broken
+                        self.redis = None
+                        consecutive_errors += 1
+                        if consecutive_errors >= max_consecutive_errors:
+                            raise
+                        time.sleep(2)
+                    except Exception as e:
+                        logger.error(f"[Explainer] Failed to publish result: {e}", exc_info=True)
+                        consecutive_errors += 1
+                        if consecutive_errors >= max_consecutive_errors:
+                            raise
+                        time.sleep(1)
+                        
+                except KeyError as e:
+                    logger.error(f"[Explainer] Missing required field in task {task_id}: {e}")
+                    consecutive_errors += 1
+                    if consecutive_errors >= max_consecutive_errors:
+                        raise
+                    time.sleep(1)
+                except Exception as e:
+                    logger.error(f"[Explainer] Error processing task {task_id}: {e}", exc_info=True)
+                    consecutive_errors += 1
+                    if consecutive_errors >= max_consecutive_errors:
+                        logger.error(f"[Explainer] Too many consecutive errors ({consecutive_errors}), shutting down")
+                        raise
+                    time.sleep(1)
                 
+            except KeyboardInterrupt:
+                logger.info("[Explainer] Interrupted by user")
+                break
             except Exception as e:
-                print(f"[Explainer] Processing error: {e}")
-                import traceback
-                traceback.print_exc()
-                time.sleep(1)
+                consecutive_errors += 1
+                logger.error(f"[Explainer] Fatal error in main loop: {e}", exc_info=True)
+                if consecutive_errors >= max_consecutive_errors:
+                    logger.error(f"[Explainer] Too many consecutive errors ({consecutive_errors}), shutting down")
+                    raise
+                time.sleep(5 * consecutive_errors)
 
 if __name__ == '__main__':
     agent = ExplainerAgent()

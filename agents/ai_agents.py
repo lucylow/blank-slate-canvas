@@ -160,17 +160,32 @@ class PitWallAgent(ABC):
         logger.info(f"Initialized {agent_type.value} agent: {agent_id}")
     
     async def connect(self):
-        """Connect to Redis"""
-        self.redis = await redis.from_url(self.redis_url)
-        await self.register()
+        """Connect to Redis with retry logic"""
+        max_retries = 5
+        for attempt in range(1, max_retries + 1):
+            try:
+                self.redis = await redis.from_url(self.redis_url)
+                await self.redis.ping()  # Test connection
+                await self.register()
+                logger.info(f"Agent {self.agent_id} connected to Redis")
+                return
+            except Exception as e:
+                logger.warning(f"Connection attempt {attempt}/{max_retries} failed: {e}")
+                if attempt == max_retries:
+                    logger.error(f"Failed to connect after {max_retries} attempts")
+                    raise
+                await asyncio.sleep(2 * attempt)
     
     async def disconnect(self):
         """Clean up connections"""
         if self.redis:
-            await self.redis.close()
+            try:
+                await self.redis.close()
+            except Exception as e:
+                logger.warning(f"Error during disconnect: {e}")
     
     async def register(self):
-        """Register this agent in the orchestrator"""
+        """Register this agent in the orchestrator with error handling"""
         registry_key = "agents.registry"
         agent_info = {
             "id": self.agent_id,
@@ -179,36 +194,102 @@ class PitWallAgent(ABC):
             "registered_at": datetime.utcnow().isoformat(),
             "status": "active"
         }
-        await self.redis.hset(registry_key, self.agent_id, json.dumps(agent_info))
-        logger.info(f"Agent {self.agent_id} registered in orchestrator")
+        try:
+            await self.redis.hset(registry_key, self.agent_id, json.dumps(agent_info))
+            logger.info(f"Agent {self.agent_id} registered in orchestrator")
+        except Exception as e:
+            logger.error(f"Failed to register agent {self.agent_id}: {e}", exc_info=True)
+            raise
     
     async def listen_for_tasks(self):
-        """Subscribe to task stream and process autonomously"""
+        """Subscribe to task stream and process autonomously with error handling"""
         inbox = f"agent:{self.agent_id}:inbox"
         logger.info(f"Listening for tasks on {inbox}")
         
+        consecutive_errors = 0
+        max_consecutive_errors = 10
+        
         while True:
             try:
+                # Ensure connection is active
+                if not self.redis:
+                    await self.connect()
+                
                 # Block until task arrives or timeout
-                task_json = await self.redis.blpop(inbox, timeout=5)
-                if not task_json:
-                    await asyncio.sleep(0.1)
+                try:
+                    task_json = await self.redis.blpop(inbox, timeout=5)
+                except (redis.ConnectionError, OSError) as e:
+                    logger.warning(f"Redis connection error, reconnecting: {e}")
+                    await asyncio.sleep(2)
+                    try:
+                        await self.connect()
+                    except Exception as reconnect_error:
+                        logger.error(f"Reconnection failed: {reconnect_error}")
+                        consecutive_errors += 1
+                        if consecutive_errors >= max_consecutive_errors:
+                            raise
+                        await asyncio.sleep(5 * consecutive_errors)
                     continue
                 
-                task = json.loads(task_json[1])
-                logger.debug(f"Received task: {task['task_id']}")
+                if not task_json:
+                    await asyncio.sleep(0.1)
+                    consecutive_errors = 0  # Reset on successful poll
+                    continue
                 
-                # Core agent loop: observe → decide → act
-                telemetry = TelemetryFrame(**task.get('payload', {}).get('sample', {}))
-                decision = await self.decide(telemetry)
+                try:
+                    task = json.loads(task_json[1])
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to parse task JSON: {e}, raw: {task_json[1][:200]}")
+                    consecutive_errors += 1
+                    if consecutive_errors >= max_consecutive_errors:
+                        raise
+                    await asyncio.sleep(1)
+                    continue
                 
-                if decision:
-                    await self.act(decision)
-                    self.decision_history[task.get('track')].append(decision)
+                task_id = task.get('task_id', 'unknown')
+                logger.debug(f"Received task: {task_id}")
                 
+                try:
+                    # Core agent loop: observe → decide → act
+                    payload = task.get('payload', {})
+                    sample = payload.get('sample', {})
+                    
+                    if not sample:
+                        logger.warning(f"Task {task_id} has no sample data")
+                        continue
+                    
+                    telemetry = TelemetryFrame(**sample)
+                    decision = await self.decide(telemetry)
+                    
+                    if decision:
+                        await self.act(decision)
+                        self.decision_history[task.get('track', 'unknown')].append(decision)
+                    
+                    consecutive_errors = 0  # Reset on successful processing
+                    
+                except KeyError as e:
+                    logger.error(f"Missing required field in task {task_id}: {e}")
+                    consecutive_errors += 1
+                    if consecutive_errors >= max_consecutive_errors:
+                        raise
+                    await asyncio.sleep(1)
+                except Exception as e:
+                    logger.error(f"Error processing task {task_id}: {e}", exc_info=True)
+                    consecutive_errors += 1
+                    if consecutive_errors >= max_consecutive_errors:
+                        logger.error(f"Too many consecutive errors ({consecutive_errors}), shutting down")
+                        raise
+                    await asyncio.sleep(1)
+                
+            except asyncio.CancelledError:
+                logger.info(f"Agent {self.agent_id} task listener cancelled")
+                break
             except Exception as e:
-                logger.error(f"Task processing error: {e}")
-                await asyncio.sleep(1)
+                logger.error(f"Fatal error in task listener: {e}", exc_info=True)
+                consecutive_errors += 1
+                if consecutive_errors >= max_consecutive_errors:
+                    raise
+                await asyncio.sleep(5)
     
     async def decide(self, telemetry: TelemetryFrame) -> Optional[AgentDecision]:
         """
@@ -221,36 +302,57 @@ class PitWallAgent(ABC):
     async def act(self, decision: AgentDecision):
         """
         Execute decision by broadcasting to system.
-        Stores decision and publishes to results stream.
+        Stores decision and publishes to results stream with error handling.
         """
         results_stream = "results.stream"
         decision_dict = decision.to_dict()
-        
-        # Store full decision for later retrieval
         insight_id = decision.decision_id
-        await self.redis.hset(
-            f"insight:{insight_id}",
-            mapping={
-                "payload": json.dumps(decision_dict),
+        
+        try:
+            # Store full decision for later retrieval
+            try:
+                await self.redis.hset(
+                    f"insight:{insight_id}",
+                    mapping={
+                        "payload": json.dumps(decision_dict),
+                        "created_at": decision.timestamp
+                    }
+                )
+            except Exception as e:
+                logger.error(f"Failed to store decision {insight_id}: {e}", exc_info=True)
+                # Continue to try broadcasting even if storage fails
+            
+            # Broadcast summary to results stream
+            summary = {
+                "type": "agent_decision",
+                "agent_id": self.agent_id,
+                "decision_id": insight_id,
+                "track": decision.track,
+                "chassis": decision.chassis,
+                "action": decision.action,
+                "confidence": decision.confidence,
+                "risk_level": decision.risk_level,
                 "created_at": decision.timestamp
             }
-        )
-        
-        # Broadcast summary to results stream
-        summary = {
-            "type": "agent_decision",
-            "agent_id": self.agent_id,
-            "decision_id": insight_id,
-            "track": decision.track,
-            "chassis": decision.chassis,
-            "action": decision.action,
-            "confidence": decision.confidence,
-            "risk_level": decision.risk_level,
-            "created_at": decision.timestamp
-        }
-        
-        await self.redis.xadd(results_stream, "*", "result", json.dumps(summary))
-        logger.info(f"Decision executed: {decision.decision_id} ({decision.action})")
+            
+            try:
+                await self.redis.xadd(results_stream, "*", "result", json.dumps(summary))
+                logger.info(f"Decision executed: {decision.decision_id} ({decision.action})")
+            except Exception as e:
+                logger.error(f"Failed to publish decision {insight_id} to stream: {e}", exc_info=True)
+                raise
+                
+        except (redis.ConnectionError, OSError) as e:
+            logger.error(f"Connection error while executing decision {insight_id}: {e}")
+            # Attempt reconnection
+            try:
+                await self.connect()
+            except Exception as reconnect_error:
+                logger.error(f"Reconnection failed: {reconnect_error}")
+                raise
+        except Exception as e:
+            logger.error(f"Unexpected error executing decision {insight_id}: {e}", exc_info=True)
+            raise
 
 # ============================================================================
 # STRATEGY AGENT - Autonomous pit and race strategy optimizer

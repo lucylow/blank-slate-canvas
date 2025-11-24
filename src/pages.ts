@@ -36,4 +36,7 @@ export { default as AIDataAnalyticsPage } from "./pages/AIDataAnalyticsPage";
 export { default as AnomalyDetectionPage } from "./pages/AnomalyDetectionPage";
 export { default as DriverFingerprintingPage } from "./pages/DriverFingerprintingPage";
 export { default as SlackIntegrationPage } from "./pages/SlackIntegrationPage";
+export { default as TechnicalDocs } from "./pages/TechnicalDocs";
+export { default as RaceDashboard } from "./pages/RaceDashboard";
+export { default as Login } from "./pages/Login";
 

@@ -13,10 +13,10 @@ import {
   sendLapTimeNotification,
   sendPitStopNotification,
   sendTireWearAlert,
-  getMockMessages,
-  clearMockMessages,
-  isSlackMockMode,
-  type MockSlackMessage
+  getDemoMessages,
+  clearDemoMessages,
+  isSlackDemoMode,
+  type DemoSlackMessage
 } from '@/api/slack';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,12 +27,12 @@ export default function SlackIntegrationPage() {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [lastResponse, setLastResponse] = useState<string | null>(null);
-  const [mockMessages, setMockMessages] = useState<MockSlackMessage[]>(getMockMessages());
+  const [demoMessages, setDemoMessages] = useState<DemoSlackMessage[]>(getDemoMessages());
 
-  const isMock = isSlackMockMode();
+  const isDemo = isSlackDemoMode();
 
-  const refreshMockMessages = () => {
-    setMockMessages(getMockMessages());
+  const refreshDemoMessages = () => {
+    setDemoMessages(getDemoMessages());
   };
 
   const handleSendMessage = async () => {
@@ -45,7 +45,7 @@ export default function SlackIntegrationPage() {
       const response = await sendSlackMessage(message);
       setLastResponse(response.success ? 'Message sent successfully!' : `Error: ${response.error}`);
       setMessage('');
-      refreshMockMessages();
+      refreshDemoMessages();
     } catch (error) {
       setLastResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -83,7 +83,7 @@ export default function SlackIntegrationPage() {
           return;
       }
       setLastResponse(response.success ? `${type} alert sent successfully!` : `Error: ${response.error}`);
-      refreshMockMessages();
+      refreshDemoMessages();
     } catch (error) {
       setLastResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -107,11 +107,11 @@ export default function SlackIntegrationPage() {
             lap times, pit stop notifications, and more to your Slack channels.
           </p>
           <div className="flex items-center justify-center gap-2">
-            {isMock ? (
+            {isDemo ? (
               <>
                 <WifiOff className="w-5 h-5 text-yellow-500" />
                 <Badge variant="outline" className="text-yellow-600 border-yellow-500">
-                  Mock Mode Active
+                  Demo Mode Active
                 </Badge>
               </>
             ) : (
@@ -298,16 +298,16 @@ export default function SlackIntegrationPage() {
           </CardContent>
         </Card>
 
-        {/* Mock Messages (only shown in mock mode) */}
-        {isMock && mockMessages.length > 0 && (
+        {/* Demo Messages (only shown in demo mode) */}
+        {isDemo && demoMessages.length > 0 && (
           <Card className="border-border/50">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Mock Messages ({mockMessages.length})</CardTitle>
+                <CardTitle>Demo Messages ({demoMessages.length})</CardTitle>
                 <Button 
                   onClick={() => {
-                    clearMockMessages();
-                    refreshMockMessages();
+                    clearDemoMessages();
+                    refreshDemoMessages();
                   }}
                   variant="outline"
                   size="sm"
@@ -319,7 +319,7 @@ export default function SlackIntegrationPage() {
             <CardContent>
               <ScrollArea className="h-[400px]">
                 <div className="space-y-4">
-                  {mockMessages.map((msg) => (
+                  {demoMessages.map((msg) => (
                     <Card key={msg.id} className="border-border/30">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-2">
@@ -327,7 +327,7 @@ export default function SlackIntegrationPage() {
                             {new Date(msg.timestamp).toLocaleString()}
                           </Badge>
                           <Badge variant="outline" className="text-xs text-yellow-600">
-                            Mock
+                            Demo
                           </Badge>
                         </div>
                         <div className="space-y-2">

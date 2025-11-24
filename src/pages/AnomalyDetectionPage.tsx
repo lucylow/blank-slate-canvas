@@ -1,5 +1,5 @@
 // src/pages/AnomalyDetectionPage.tsx
-// Enhanced Anomaly Detection Page with Mock Data, Interactive Features, and Charts
+// Enhanced Anomaly Detection Page with Demo Data, Interactive Features, and Charts
 
 import { RouteLayout } from '@/components/layout/RouteLayout';
 import { AlertCircle, Activity, Wifi, CheckCircle2, Filter, TrendingUp, TrendingDown, BarChart3, PieChart, LineChart as LineChartIcon, Calendar, Clock, Download, RefreshCw } from 'lucide-react';
@@ -40,8 +40,8 @@ import {
 } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-// Mock data generation
-interface MockAnomalyData extends AnomalyDetectionResult {
+// Demo data generation
+interface DemoAnomalyData extends AnomalyDetectionResult {
   sensor_type: string;
   location: string;
   lap_number: number;
@@ -64,8 +64,8 @@ const SENSORS = [
 const SEVERITIES: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
 const LOCATIONS = ['Turn 1', 'Turn 3', 'Turn 5', 'Turn 7', 'Turn 9', 'Straight', 'Chicane', 'S-Curves'];
 
-function generateMockAnomalies(count: number = 100): MockAnomalyData[] {
-  const anomalies: MockAnomalyData[] = [];
+function generateDemoAnomalies(count: number = 100): DemoAnomalyData[] {
+  const anomalies: DemoAnomalyData[] = [];
   const now = Date.now();
   const dayInMs = 24 * 60 * 60 * 1000;
 
@@ -109,7 +109,7 @@ function generateMockAnomalies(count: number = 100): MockAnomalyData[] {
   return anomalies.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
-function generateMockStats(anomalies: MockAnomalyData[]): AnomalyStats {
+function generateDemoStats(anomalies: DemoAnomalyData[]): AnomalyStats {
   const severityCounts = {
     high: 0,
     medium: 0,
@@ -144,7 +144,7 @@ function generateMockStats(anomalies: MockAnomalyData[]): AnomalyStats {
 
 export default function AnomalyDetectionPage() {
   const [showHealth, setShowHealth] = useState(false);
-  const [mockData, setMockData] = useState<MockAnomalyData[]>(generateMockAnomalies(150));
+  const [demoData, setDemoData] = useState<DemoAnomalyData[]>(generateDemoAnomalies(150));
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
   const [severityFilter, setSeverityFilter] = useState<string>('all');
   const [sensorFilter, setSensorFilter] = useState<string>('all');
@@ -158,12 +158,12 @@ export default function AnomalyDetectionPage() {
     retry: 1,
   });
 
-  // Generate mock stats from current data
-  const mockStats = useMemo(() => generateMockStats(mockData), [mockData]);
+  // Generate demo stats from current data
+  const demoStats = useMemo(() => generateDemoStats(demoData), [demoData]);
 
   // Filter anomalies based on selected filters
   const filteredAnomalies = useMemo(() => {
-    let filtered = [...mockData];
+    let filtered = [...demoData];
 
     if (severityFilter !== 'all') {
       filtered = filtered.filter(a => a.alerts[0]?.severity === severityFilter);
@@ -200,7 +200,7 @@ export default function AnomalyDetectionPage() {
     });
 
     return filtered;
-  }, [mockData, severityFilter, sensorFilter, dateRange, sortBy]);
+  }, [demoData, severityFilter, sensorFilter, dateRange, sortBy]);
 
   // Chart data transformations
   const timelineData = useMemo(() => {
@@ -287,8 +287,8 @@ export default function AnomalyDetectionPage() {
 
     const interval = setInterval(() => {
       if (Math.random() > 0.7) { // 30% chance to add new anomaly
-        const newAnomaly = generateMockAnomalies(1)[0];
-        setMockData(prev => [newAnomaly, ...prev].slice(0, 200));
+        const newAnomaly = generateDemoAnomalies(1)[0];
+        setDemoData(prev => [newAnomaly, ...prev].slice(0, 200));
       }
     }, 3000);
 
@@ -296,7 +296,7 @@ export default function AnomalyDetectionPage() {
   }, [isRealTimeEnabled]);
 
   const handleRefresh = () => {
-    setMockData(generateMockAnomalies(150));
+    setDemoData(generateDemoAnomalies(150));
   };
 
   const handleExport = () => {
@@ -328,12 +328,12 @@ export default function AnomalyDetectionPage() {
     <RouteLayout>
       <div className="container mx-auto py-8 space-y-8">
         {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-4 flex-1">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-xl shadow-red-500/20">
+              <AlertCircle className="w-8 h-8 text-white" />
+            </div>
             <div className="space-y-2">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl mb-4 shadow-xl shadow-red-500/20">
-                <AlertCircle className="w-8 h-8 text-white" />
-              </div>
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 Real-Time Anomaly Detection
               </h1>
@@ -341,16 +341,16 @@ export default function AnomalyDetectionPage() {
                 AI-powered anomaly detection for telemetry data with real-time alerts and ML-based pattern recognition
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handleRefresh} className="gap-2">
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </Button>
-              <Button variant="outline" onClick={handleExport} className="gap-2">
-                <Download className="w-4 h-4" />
-                Export CSV
-              </Button>
-            </div>
+          </div>
+          <div className="flex gap-2 flex-shrink-0 w-full md:w-auto">
+            <Button variant="outline" onClick={handleRefresh} className="gap-2 flex-1 md:flex-initial">
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+            <Button variant="outline" onClick={handleExport} className="gap-2 flex-1 md:flex-initial">
+              <Download className="w-4 h-4" />
+              Export CSV
+            </Button>
           </div>
         </div>
 
@@ -363,7 +363,7 @@ export default function AnomalyDetectionPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{filteredAnomalies.length}</div>
-              <p className="text-xs text-muted-foreground">from {mockStats.total_points} data points</p>
+              <p className="text-xs text-muted-foreground">from {demoStats.total_points} data points</p>
             </CardContent>
           </Card>
           <Card>
@@ -372,8 +372,8 @@ export default function AnomalyDetectionPage() {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{mockStats.anomaly_rate.toFixed(2)}%</div>
-              <p className="text-xs text-muted-foreground">Average score: {(mockStats.avg_anomaly_score * 100).toFixed(1)}%</p>
+              <div className="text-2xl font-bold">{demoStats.anomaly_rate.toFixed(2)}%</div>
+              <p className="text-xs text-muted-foreground">Average score: {(demoStats.avg_anomaly_score * 100).toFixed(1)}%</p>
             </CardContent>
           </Card>
           <Card>
@@ -382,8 +382,8 @@ export default function AnomalyDetectionPage() {
               <AlertCircle className="h-4 w-4 text-red-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-500">{mockStats.critical_alerts}</div>
-              <p className="text-xs text-muted-foreground">{mockStats.ml_detected_anomalies} ML detected</p>
+              <div className="text-2xl font-bold text-red-500">{demoStats.critical_alerts}</div>
+              <p className="text-xs text-muted-foreground">{demoStats.ml_detected_anomalies} ML detected</p>
             </CardContent>
           </Card>
           <Card>
@@ -746,9 +746,9 @@ export default function AnomalyDetectionPage() {
             <CardTitle>Service Health</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-sm text-muted-foreground">
                   Check the status of the anomaly detection service
                 </p>
               </div>
@@ -757,7 +757,7 @@ export default function AnomalyDetectionPage() {
                   setShowHealth(true);
                   refetchAnomalyHealth();
                 }}
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 w-full sm:w-auto"
                 disabled={isLoading}
               >
                 {anomalyHealth ? 'Refresh Service Health' : 'Check Service Health'}

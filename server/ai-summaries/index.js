@@ -26,6 +26,36 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Extract track ID from filename
+// Handles patterns like: indianapolis_race_analysis.md -> indianapolis
+// or barber_motorsports_race_analysis.md -> barber
+function extractTrackId(filename) {
+  const basename = path.basename(filename, path.extname(filename)).toLowerCase();
+  // Known track IDs
+  const trackIds = ['sebring', 'road_america', 'cota', 'sonoma', 'vir', 'barber', 'indianapolis'];
+  
+  // Try to find a track ID at the start of the filename
+  for (const trackId of trackIds) {
+    if (basename.startsWith(trackId + '_') || basename === trackId) {
+      return trackId;
+    }
+  }
+  
+  // Fallback: use the original logic but try to extract first word
+  // For filenames like "indianapolis_race_analysis", extract "indianapolis"
+  const parts = basename.split('_');
+  if (parts.length > 0) {
+    const firstPart = parts[0];
+    // If first part matches a known track ID, use it
+    if (trackIds.includes(firstPart)) {
+      return firstPart;
+    }
+  }
+  
+  // Final fallback: return the full basename
+  return basename.replace(/\s+/g, '_');
+}
+
 // list files
 async function listReports() {
   try {
@@ -36,7 +66,7 @@ async function listReports() {
       const stat = await fs.stat(p);
       if (!stat.isFile()) continue;
       const ext = path.extname(f).toLowerCase();
-      const id = path.basename(f, ext).replace(/\s+/g,'_').toLowerCase();
+      const id = extractTrackId(f);
       out.push({ id, filename: f, ext, path: p });
     }
     return out;
@@ -89,11 +119,25 @@ app.get('/api/reports', async (req, res) => {
   res.json(list.map(l=>({ id: l.id, filename: l.filename, ext: l.ext })));
 });
 
+// Helper to find report by ID (supports both track ID and full filename ID)
+function findReportById(list, id) {
+  // First try exact match
+  let entry = list.find(l => l.id === id);
+  if (entry) return entry;
+  
+  // Try to find by filename (for backward compatibility)
+  entry = list.find(l => {
+    const basename = path.basename(l.filename, l.ext).toLowerCase().replace(/\s+/g, '_');
+    return basename === id || basename.startsWith(id + '_') || id.startsWith(basename + '_');
+  });
+  return entry;
+}
+
 // raw file route for direct download/view
 app.get('/api/reports/:id/raw', async (req,res)=>{
   const id = req.params.id;
   const list = await listReports();
-  const entry = list.find(l=>l.id === id);
+  const entry = findReportById(list, id);
   if (!entry) return res.status(404).send('Not found');
   res.sendFile(entry.path);
 });
@@ -102,7 +146,7 @@ app.get('/api/reports/:id/raw', async (req,res)=>{
 app.get('/api/reports/:id/html', async (req,res)=>{
   const id = req.params.id;
   const list = await listReports();
-  const entry = list.find(l=>l.id === id);
+  const entry = findReportById(list, id);
   if (!entry) return res.status(404).send('Not found');
   const html = await reportToHtml(entry);
   res.setHeader('Content-Type','text/html; charset=utf-8');
@@ -113,7 +157,7 @@ app.get('/api/reports/:id/html', async (req,res)=>{
 app.get('/api/reports/:id/pdf', async (req,res)=>{
   const id = req.params.id;
   const list = await listReports();
-  const entry = list.find(l=>l.id === id);
+  const entry = findReportById(list, id);
   if (!entry) return res.status(404).json({error:'not found'});
   const html = await reportToHtml(entry);
   let browser;
@@ -146,7 +190,7 @@ app.get("/api/ai-summaries", async (req, res) => {
 app.get("/api/ai-summaries/:track/raw", async (req, res) => {
   const { track } = req.params;
   const list = await listReports();
-  const match = list.find(l => l.id === track);
+  const match = findReportById(list, track);
   if (!match) return res.status(404).json({ error: "not found" });
   res.sendFile(match.path);
 });
@@ -154,7 +198,7 @@ app.get("/api/ai-summaries/:track/raw", async (req, res) => {
 app.get("/api/ai-summaries/:track/html", async (req, res) => {
   const { track } = req.params;
   const list = await listReports();
-  const entry = list.find(l => l.id === track);
+  const entry = findReportById(list, track);
   if (!entry) return res.status(404).send("Not found");
   const html = await reportToHtml(entry);
   res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -164,7 +208,7 @@ app.get("/api/ai-summaries/:track/html", async (req, res) => {
 app.get("/api/ai-summaries/:track/pdf", async (req, res) => {
   const { track } = req.params;
   const list = await listReports();
-  const entry = list.find(l => l.id === track);
+  const entry = findReportById(list, track);
   if (!entry) return res.status(404).json({ error: "not found" });
   const html = await reportToHtml(entry);
   let browser;

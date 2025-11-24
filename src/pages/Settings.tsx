@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { PageWithMiniTabs, type MiniTab } from "@/components/PageWithMiniTabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings as SettingsIcon, Wifi, Bell, Palette, Database, Key, Server, Globe, User, Mail, Phone, MapPin, Calendar, Edit, Flag } from "lucide-react";
+import { Settings as SettingsIcon, Wifi, Bell, Palette, Database, Key, Server, User, Mail, Phone, MapPin, Calendar, Edit, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -19,7 +19,6 @@ const Settings = () => {
   const tabs: MiniTab[] = [
     { id: 'profile', label: 'Profile', icon: <User className="h-4 w-4" /> },
     { id: 'features', label: 'Feature Flags', icon: <Flag className="h-4 w-4" /> },
-    { id: 'external', label: 'External APIs', icon: <Globe className="h-4 w-4" /> },
     { id: 'keys', label: 'Keys & Secrets', icon: <Key className="h-4 w-4" /> },
     { id: 'demo', label: 'Demo Server', icon: <Server className="h-4 w-4" /> },
     { id: 'prefs', label: 'Preferences', icon: <Palette className="h-4 w-4" /> },
@@ -179,36 +178,6 @@ const Settings = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FeatureFlagToggles />
-                </CardContent>
-              </Card>
-            </>
-          )}
-
-          {active === 'external' && (
-            <>
-              <Card className="bg-card/60 backdrop-blur-md border-border/50">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-                      <Globe className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <CardTitle>External APIs</CardTitle>
-                      <CardDescription>
-                        Configure external API integrations
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-4 bg-muted rounded-lg border border-border/30">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      External APIs require configuration in Keys & Secrets tab.
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Configure API keys for Gemini AI, Google Maps, and other external services.
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
             </>

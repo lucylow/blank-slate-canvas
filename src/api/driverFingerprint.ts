@@ -162,5 +162,148 @@ export async function compareDrivers(
   }
 }
 
+/**
+ * Driver profile upload data
+ */
+export interface DriverProfileUploadData {
+  driver_id: string;
+  driver_name?: string;
+  car_number?: string;
+  chassis_number?: string;
+  vehicle_id?: string;
+  team?: string;
+  nationality?: string;
+  telemetry_data?: TelemetryRequest;
+  profile_data?: Record<string, any>;
+}
+
+/**
+ * Upload driver profile from JSON file
+ */
+export async function uploadDriverProfile(
+  file: File
+): Promise<{
+  success: boolean;
+  message: string;
+  profile: any;
+  fingerprint?: DriverFingerprint;
+  alerts?: CoachingAlert[];
+  coaching_plan?: CoachingPlan;
+  warning?: string;
+}> {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await client.post<{
+      success: boolean;
+      message: string;
+      profile: any;
+      fingerprint?: DriverFingerprint;
+      alerts?: CoachingAlert[];
+      coaching_plan?: CoachingPlan;
+      warning?: string;
+    }>(
+      '/api/drivers/upload-profile',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.detail || `Failed to upload driver profile: ${error.message}`
+    );
+  }
+}
+
+/**
+ * Upload driver profile from form data
+ */
+export async function uploadDriverProfileForm(
+  data: DriverProfileUploadData
+): Promise<{
+  success: boolean;
+  message: string;
+  profile: any;
+  fingerprint?: DriverFingerprint;
+  alerts?: CoachingAlert[];
+  coaching_plan?: CoachingPlan;
+  warning?: string;
+}> {
+  try {
+    const formData = new FormData();
+    
+    if (data.driver_id) formData.append('driver_id', data.driver_id);
+    if (data.driver_name) formData.append('driver_name', data.driver_name);
+    if (data.car_number) formData.append('car_number', data.car_number);
+    if (data.chassis_number) formData.append('chassis_number', data.chassis_number);
+    if (data.vehicle_id) formData.append('vehicle_id', data.vehicle_id);
+    if (data.team) formData.append('team', data.team);
+    if (data.nationality) formData.append('nationality', data.nationality);
+
+    const res = await client.post<{
+      success: boolean;
+      message: string;
+      profile: any;
+      fingerprint?: DriverFingerprint;
+      alerts?: CoachingAlert[];
+      coaching_plan?: CoachingPlan;
+      warning?: string;
+    }>(
+      '/api/drivers/upload-profile',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.detail || `Failed to upload driver profile: ${error.message}`
+    );
+  }
+}
+
+/**
+ * Upload driver profile via JSON request
+ */
+export async function uploadDriverProfileJSON(
+  data: DriverProfileUploadData
+): Promise<{
+  success: boolean;
+  message: string;
+  profile: any;
+  fingerprint?: DriverFingerprint;
+  alerts?: CoachingAlert[];
+  coaching_plan?: CoachingPlan;
+  warning?: string;
+}> {
+  try {
+    const res = await client.post<{
+      success: boolean;
+      message: string;
+      profile: any;
+      fingerprint?: DriverFingerprint;
+      alerts?: CoachingAlert[];
+      coaching_plan?: CoachingPlan;
+      warning?: string;
+    }>(
+      '/api/drivers/upload-profile-json',
+      data
+    );
+    return res.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.detail || `Failed to upload driver profile: ${error.message}`
+    );
+  }
+}
+
 
 

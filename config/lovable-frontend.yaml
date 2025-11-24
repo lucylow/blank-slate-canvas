@@ -137,4 +137,16 @@ routes:
   - path: /lovable-config
     name: Lovable Cloud Config
     description: Configuration and debugging page
+    
+  - path: /technical-docs
+    name: Technical Documentation
+    description: Comprehensive technical guides and API reference
+    
+  - path: /race-dashboard
+    name: Race Dashboard
+    description: Real-time race dashboard with telemetry and CV track analysis
+    
+  - path: /login
+    name: Login
+    description: Authentication page
 

@@ -4,6 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookOpen, CheckCircle2, Circle, Target, TrendingUp } from 'lucide-react';
 
 interface CoachingTip {
@@ -27,6 +31,14 @@ interface PlaybookItem {
 
 interface CoachingTipsPlaybookProps {
   selectedDriver: string;
+}
+
+interface StrategyPlan {
+  pitWindowStart: number;
+  pitWindowEnd: number;
+  tireManagement: string;
+  fuelStrategy: string;
+  expectedFinish: string;
 }
 
 const mockTips: CoachingTip[] = [
@@ -95,6 +107,14 @@ const mockPlaybook: PlaybookItem[] = [
 export function CoachingTipsPlaybook({ selectedDriver }: CoachingTipsPlaybookProps) {
   const [playbook, setPlaybook] = useState<PlaybookItem[]>(mockPlaybook);
   const [selectedTip, setSelectedTip] = useState<CoachingTip | null>(mockTips[0]);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [strategyPlan, setStrategyPlan] = useState<StrategyPlan>({
+    pitWindowStart: 12,
+    pitWindowEnd: 14,
+    tireManagement: 'Conservative',
+    fuelStrategy: 'One-Stop',
+    expectedFinish: 'P3-P5',
+  });
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -141,6 +161,11 @@ export function CoachingTipsPlaybook({ selectedDriver }: CoachingTipsPlaybookPro
     setPlaybook(playbook.map(item => 
       item.id === id ? { ...item, acknowledged: !item.acknowledged } : item
     ));
+  };
+
+  const handleSaveStrategyPlan = () => {
+    // Strategy plan is already updated via state
+    setIsEditDialogOpen(false);
   };
 
   return (
@@ -308,26 +333,137 @@ export function CoachingTipsPlaybook({ selectedDriver }: CoachingTipsPlaybookPro
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
                       <span>Pit Window:</span>
-                      <Badge>Laps 12-14</Badge>
+                      <Badge>Laps {strategyPlan.pitWindowStart}-{strategyPlan.pitWindowEnd}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Tire Management:</span>
-                      <Badge variant="outline">Conservative</Badge>
+                      <Badge variant="outline">{strategyPlan.tireManagement}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Fuel Strategy:</span>
-                      <Badge variant="outline">One-Stop</Badge>
+                      <Badge variant="outline">{strategyPlan.fuelStrategy}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Expected Finish:</span>
-                      <Badge className="bg-green-500/20 text-green-500">P3-P5</Badge>
+                      <Badge className="bg-green-500/20 text-green-500">{strategyPlan.expectedFinish}</Badge>
                     </div>
                   </div>
                 </div>
-                <Button className="w-full">
+                <Button className="w-full" onClick={() => setIsEditDialogOpen(true)}>
                   <BookOpen className="h-4 w-4 mr-2" />
                   Edit Strategy Plan
                 </Button>
+
+                <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>Edit Strategy Plan</DialogTitle>
+                      <DialogDescription>
+                        Customize the race strategy plan for {selectedDriver}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="pitWindowStart">Pit Window Start (Lap)</Label>
+                          <Input
+                            id="pitWindowStart"
+                            type="number"
+                            min="1"
+                            value={strategyPlan.pitWindowStart}
+                            onChange={(e) => setStrategyPlan({
+                              ...strategyPlan,
+                              pitWindowStart: parseInt(e.target.value) || 0
+                            })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="pitWindowEnd">Pit Window End (Lap)</Label>
+                          <Input
+                            id="pitWindowEnd"
+                            type="number"
+                            min="1"
+                            value={strategyPlan.pitWindowEnd}
+                            onChange={(e) => setStrategyPlan({
+                              ...strategyPlan,
+                              pitWindowEnd: parseInt(e.target.value) || 0
+                            })}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tireManagement">Tire Management</Label>
+                        <Select
+                          value={strategyPlan.tireManagement}
+                          onValueChange={(value) => setStrategyPlan({
+                            ...strategyPlan,
+                            tireManagement: value
+                          })}
+                        >
+                          <SelectTrigger id="tireManagement">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Aggressive">Aggressive</SelectItem>
+                            <SelectItem value="Moderate">Moderate</SelectItem>
+                            <SelectItem value="Conservative">Conservative</SelectItem>
+                            <SelectItem value="Very Conservative">Very Conservative</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="fuelStrategy">Fuel Strategy</Label>
+                        <Select
+                          value={strategyPlan.fuelStrategy}
+                          onValueChange={(value) => setStrategyPlan({
+                            ...strategyPlan,
+                            fuelStrategy: value
+                          })}
+                        >
+                          <SelectTrigger id="fuelStrategy">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="No-Stop">No-Stop</SelectItem>
+                            <SelectItem value="One-Stop">One-Stop</SelectItem>
+                            <SelectItem value="Two-Stop">Two-Stop</SelectItem>
+                            <SelectItem value="Three-Stop">Three-Stop</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="expectedFinish">Expected Finish</Label>
+                        <Select
+                          value={strategyPlan.expectedFinish}
+                          onValueChange={(value) => setStrategyPlan({
+                            ...strategyPlan,
+                            expectedFinish: value
+                          })}
+                        >
+                          <SelectTrigger id="expectedFinish">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="P1">P1</SelectItem>
+                            <SelectItem value="P2">P2</SelectItem>
+                            <SelectItem value="P3">P3</SelectItem>
+                            <SelectItem value="P3-P5">P3-P5</SelectItem>
+                            <SelectItem value="P5-P10">P5-P10</SelectItem>
+                            <SelectItem value="Points">Points</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSaveStrategyPlan}>
+                        Save Changes
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>

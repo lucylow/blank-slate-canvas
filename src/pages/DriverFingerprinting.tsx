@@ -5,20 +5,20 @@ import {
 } from "recharts";
 
 import { connectAgentWS } from "../lib/agentWSClient";
-import { fetchMockAgents } from "../lib/backendClient";
+import { fetchDemoAgents } from "../lib/backendClient";
 import { WSClient } from "../lib/wsClient";
 
 /**
  * DriverFingerprinting.tsx — Realtime WS integration
  *
- * This variant wires the driver fingerprint page to the backend mock WebSocket
+ * This variant wires the driver fingerprint page to the backend demo WebSocket
  * at ws://localhost:4001/ws/agents. Incoming agent events will:
  *  - add alerts for anomalies (high severity)
  *  - add coaching suggestions for predictor/simulator events
  *  - surface explainer results in a small "recentExplainers" feed
  *
  * Make sure:
- *  - backend mock server is running: backend/index.js (port 4001)
+ *  - backend demo server is running: backend/index.js (port 4001)
  *  - ws client helper exists at src/lib/agentWSClient.ts
  *  - backendClient.fetchMockAgents exists at src/lib/backendClient.ts
  *
@@ -90,7 +90,7 @@ interface AgentEvent {
   features?: Array<{ name: string; impact: number }>;
 }
 
-function generateDriverMockData(driverId: number = 13, track: string = "COTA"): DriverData {
+function generateDriverDemoData(driverId: number = 13, track: string = "COTA"): DriverData {
   const rng = seededRandom(1000 + driverId);
   const fingerprint: Fingerprint = {
     Aggressiveness: Math.round(30 + rng() * 60),
@@ -189,7 +189,7 @@ export default function DriverFingerprintingPage() {
   const drivers = [13, 22, 46, 72];
   const [selected, setSelected] = useState(13);
   const [compareWith, setCompareWith] = useState<number | null>(null);
-  const [data, setData] = useState<DriverData>(() => generateDriverMockData(13));
+  const [data, setData] = useState<DriverData>(() => generateDriverDemoData(13));
   const [compareData, setCompareData] = useState<DriverData | null>(null);
   const [lapRange, setLapRange] = useState<[number, number]>([1, 15]);
   const [liveEvents, setLiveEvents] = useState<AgentEvent[]>([]);
@@ -199,15 +199,15 @@ export default function DriverFingerprintingPage() {
   const DESIGN_DOC_PATH = "/mnt/data/3. Hack the Track presented by Toyota GR_ real time analytics. PitWall A.I.  (2).docx";
 
   useEffect(() => {
-    setData(generateDriverMockData(selected));
-    setCompareData(compareWith ? generateDriverMockData(compareWith) : null);
+    setData(generateDriverDemoData(selected));
+    setCompareData(compareWith ? generateDriverDemoData(compareWith) : null);
   }, [selected, compareWith]);
 
   // connect to backend WS and fetch initial events via REST
   useEffect(() => {
     let mounted = true;
-    // seed existing mock events into liveEvents for context
-    fetchMockAgents().then(arr => {
+    // seed existing demo events into liveEvents for context
+    fetchDemoAgents().then(arr => {
       if (!mounted) return;
       // map to show only those related to driver if possible, and seed alerts
       setLiveEvents(prev => [...(arr || []), ...prev].slice(0, 60));
@@ -359,8 +359,8 @@ export default function DriverFingerprintingPage() {
 
   /* -------------------- UI helpers -------------------- */
   function refresh() {
-    setData(generateDriverMockData(selected));
-    if (compareWith) setCompareData(generateDriverMockData(compareWith));
+    setData(generateDriverDemoData(selected));
+    if (compareWith) setCompareData(generateDriverDemoData(compareWith));
   }
 
   function median(arr: number[]) {
@@ -438,7 +438,7 @@ export default function DriverFingerprintingPage() {
                 {data.coachingPlan.map((c, i) => <li key={i} style={{ marginBottom: 8 }}>{c}</li>)}
               </ol>
             )}
-            <button onClick={() => alert("Exported coaching plan (mock).")} style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, background: "#06b6d4", color: "#fff", border: "none" }}>
+            <button onClick={() => alert("Exported coaching plan (demo).")} style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, background: "#06b6d4", color: "#fff", border: "none" }}>
               Export Plan
             </button>
           </div>
@@ -528,7 +528,7 @@ export default function DriverFingerprintingPage() {
                   <li>Sector 2 shows highest variance — focus on entry stability drills.</li>
                   <li>Compare with teammate: see differences in sector3 exit speed.</li>
                 </ul>
-                <button onClick={() => alert("Added a focused drill to coaching plan (mock).")} style={{ marginTop: 8, padding: "8px 12px", background: "#0ea5a4", color: "#fff", borderRadius: 8, border: "none" }}>
+                <button onClick={() => alert("Added a focused drill to coaching plan (demo).")} style={{ marginTop: 8, padding: "8px 12px", background: "#0ea5a4", color: "#fff", borderRadius: 8, border: "none" }}>
                   Add Drill to Plan
                 </button>
               </div>

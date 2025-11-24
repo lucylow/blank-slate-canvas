@@ -6,8 +6,8 @@ import asyncio
 import json
 import logging
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect
-from typing import Optional, Dict, Any
+from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect, UploadFile, File, Form
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel
 
 from app.services.driver_fingerprint_service import driver_fingerprint_service
@@ -31,6 +31,19 @@ class TelemetryRequest(BaseModel):
     sector_data: Optional[list] = []
     steering_data: Optional[list] = []
     session_type: Optional[str] = "practice"
+
+
+class DriverProfileUpload(BaseModel):
+    """Request model for driver profile upload"""
+    driver_id: str
+    driver_name: Optional[str] = None
+    car_number: Optional[str] = None
+    chassis_number: Optional[str] = None
+    vehicle_id: Optional[str] = None
+    team: Optional[str] = None
+    nationality: Optional[str] = None
+    telemetry_data: Optional[Dict[str, Any]] = None
+    profile_data: Optional[Dict[str, Any]] = None
 
 
 @router.post("/{driver_id}/process")
@@ -377,4 +390,207 @@ async def broadcast_coaching_alert(driver_id: str, alert: Dict):
     
     if not fingerprint_connections[driver_id]:
         del fingerprint_connections[driver_id]
+
+
+@router.post("/upload-profile")
+async def upload_driver_profile(
+    file: Optional[UploadFile] = File(None),
+    driver_id: Optional[str] = Form(None),
+    driver_name: Optional[str] = Form(None),
+    car_number: Optional[str] = Form(None),
+    chassis_number: Optional[str] = Form(None),
+    vehicle_id: Optional[str] = Form(None),
+    team: Optional[str] = Form(None),
+    nationality: Optional[str] = Form(None),
+):
+    """
+    Upload a new driver profile from JSON file or form data
+    
+    Supports:
+    - JSON file upload with driver profile data
+    - Form data with individual fields
+    - Telemetry data processing to generate fingerprint
+    
+    Args:
+        file: Optional JSON file containing driver profile
+        driver_id: Driver identifier
+        driver_name: Driver name
+        car_number: Car number
+        chassis_number: Chassis number
+        vehicle_id: Vehicle ID
+        team: Team name
+        nationality: Driver nationality
+        
+    Returns:
+        Created profile and generated fingerprint if telemetry data provided
+    """
+    try:
+        profile_data = {}
+        
+        # If file is provided, parse JSON
+        if file:
+            if not file.filename.endswith('.json'):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Only JSON files are supported"
+                )
+            
+            content = await file.read()
+            try:
+                file_data = json.loads(content.decode('utf-8'))
+            except json.JSONDecodeError as e:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid JSON file: {str(e)}"
+                )
+            
+            # Extract profile data from file
+            profile_data.update(file_data)
+            
+            # If driver_id not provided in form, try to get from file
+            if not driver_id:
+                driver_id = file_data.get('driver_id') or file_data.get('driverId') or file_data.get('id')
+                if not driver_id:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="driver_id is required (either in form or JSON file)"
+                    )
+        
+        # Override with form data if provided
+        if driver_id:
+            profile_data['driver_id'] = driver_id
+        if driver_name:
+            profile_data['driver_name'] = driver_name
+        if car_number:
+            profile_data['car_number'] = car_number
+        if chassis_number:
+            profile_data['chassis_number'] = chassis_number
+        if vehicle_id:
+            profile_data['vehicle_id'] = vehicle_id
+        if team:
+            profile_data['team'] = team
+        if nationality:
+            profile_data['nationality'] = nationality
+        
+        if not driver_id:
+            raise HTTPException(
+                status_code=400,
+                detail="driver_id is required"
+            )
+        
+        # Check if telemetry data is included
+        telemetry_data = profile_data.get('telemetry_data') or profile_data.get('telemetry')
+        
+        # Store profile (in production, this would save to database)
+        stored_profile = {
+            "driver_id": driver_id,
+            "driver_name": profile_data.get('driver_name'),
+            "car_number": profile_data.get('car_number'),
+            "chassis_number": profile_data.get('chassis_number'),
+            "vehicle_id": profile_data.get('vehicle_id'),
+            "team": profile_data.get('team'),
+            "nationality": profile_data.get('nationality'),
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        
+        result = {
+            "success": True,
+            "message": f"Driver profile uploaded successfully for {driver_id}",
+            "profile": stored_profile
+        }
+        
+        # If telemetry data is provided, process it to generate fingerprint
+        if telemetry_data:
+            try:
+                # Convert telemetry data to TelemetryRequest format
+                telemetry_request = TelemetryRequest(
+                    session_id=telemetry_data.get('session_id'),
+                    brake_events=telemetry_data.get('brake_events', []),
+                    throttle_data=telemetry_data.get('throttle_data', []),
+                    cornering_events=telemetry_data.get('cornering_events', []),
+                    lap_times=telemetry_data.get('lap_times', []),
+                    sector_data=telemetry_data.get('sector_data', []),
+                    steering_data=telemetry_data.get('steering_data', []),
+                    session_type=telemetry_data.get('session_type', 'practice')
+                )
+                
+                # Process telemetry to generate fingerprint
+                fingerprint_result = await process_telemetry(driver_id, telemetry_request)
+                result["fingerprint"] = fingerprint_result.get("fingerprint")
+                result["alerts"] = fingerprint_result.get("alerts", [])
+                result["coaching_plan"] = fingerprint_result.get("coaching_plan")
+                
+            except Exception as e:
+                logger.warning(f"Error processing telemetry data: {e}")
+                result["warning"] = f"Profile uploaded but fingerprint generation failed: {str(e)}"
+        
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as error:
+        logger.error(f"Error uploading driver profile: {error}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(error))
+
+
+@router.post("/upload-profile-json")
+async def upload_driver_profile_json(request: DriverProfileUpload):
+    """
+    Upload driver profile via JSON request body
+    
+    Args:
+        request: Driver profile data including optional telemetry
+        
+    Returns:
+        Created profile and generated fingerprint if telemetry data provided
+    """
+    try:
+        # Store profile
+        stored_profile = {
+            "driver_id": request.driver_id,
+            "driver_name": request.driver_name,
+            "car_number": request.car_number,
+            "chassis_number": request.chassis_number,
+            "vehicle_id": request.vehicle_id,
+            "team": request.team,
+            "nationality": request.nationality,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        
+        result = {
+            "success": True,
+            "message": f"Driver profile uploaded successfully for {request.driver_id}",
+            "profile": stored_profile
+        }
+        
+        # If telemetry data is provided, process it
+        if request.telemetry_data:
+            try:
+                telemetry_request = TelemetryRequest(
+                    session_id=request.telemetry_data.get('session_id'),
+                    brake_events=request.telemetry_data.get('brake_events', []),
+                    throttle_data=request.telemetry_data.get('throttle_data', []),
+                    cornering_events=request.telemetry_data.get('cornering_events', []),
+                    lap_times=request.telemetry_data.get('lap_times', []),
+                    sector_data=request.telemetry_data.get('sector_data', []),
+                    steering_data=request.telemetry_data.get('steering_data', []),
+                    session_type=request.telemetry_data.get('session_type', 'practice')
+                )
+                
+                fingerprint_result = await process_telemetry(request.driver_id, telemetry_request)
+                result["fingerprint"] = fingerprint_result.get("fingerprint")
+                result["alerts"] = fingerprint_result.get("alerts", [])
+                result["coaching_plan"] = fingerprint_result.get("coaching_plan")
+                
+            except Exception as e:
+                logger.warning(f"Error processing telemetry data: {e}")
+                result["warning"] = f"Profile uploaded but fingerprint generation failed: {str(e)}"
+        
+        return result
+    
+    except Exception as error:
+        logger.error(f"Error uploading driver profile: {error}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(error))
 

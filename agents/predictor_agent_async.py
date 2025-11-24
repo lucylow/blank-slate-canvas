@@ -22,10 +22,34 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, Any, Optional
+import traceback
 
 import redis.asyncio as aioredis
 import onnxruntime as ort
 from river import linear_model, preprocessing  # example online model
+
+# Import error handling utilities
+sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from utils.error_handling import (
+        retry_with_backoff,
+        handle_redis_error,
+        log_error_with_context,
+        ErrorSeverity,
+        safe_redis_operation
+    )
+except ImportError:
+    # Fallback if utils not available
+    def retry_with_backoff(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+    def handle_redis_error(*args, **kwargs):
+        pass
+    def log_error_with_context(*args, **kwargs):
+        pass
+    ErrorSeverity = None
+    safe_redis_operation = None
 
 # Add project root to path for importing gr_car_track_mapper
 project_root = Path(__file__).parent.parent
@@ -130,10 +154,31 @@ def _normalize_track_name(track: str) -> str:
     return track.replace("_", " ").title().replace(" ", "")
 
 async def ensure_group(r):
+    """Ensure consumer group exists with proper error handling."""
     try:
         await r.xgroup_create(INPUT_STREAM, GROUP, id="$", mkstream=True)
-    except Exception:
-        pass
+        logger.debug(f"Created consumer group {GROUP} for stream {INPUT_STREAM}")
+    except aioredis.exceptions.ResponseError as e:
+        # Group already exists - this is expected
+        if "BUSYGROUP" in str(e) or "already exists" in str(e).lower():
+            logger.debug(f"Consumer group {GROUP} already exists")
+        else:
+            log_error_with_context(
+                e,
+                "predictor_agent",
+                "ensure_group",
+                ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                {"stream": INPUT_STREAM, "group": GROUP}
+            )
+    except Exception as e:
+        log_error_with_context(
+            e,
+            "predictor_agent",
+            "ensure_group",
+            ErrorSeverity.HIGH if ErrorSeverity else None,
+            {"stream": INPUT_STREAM, "group": GROUP}
+        )
+        raise
 
 def _prepare_input_vector(agg: Dict[str, Any]):
     """
@@ -230,60 +275,223 @@ def _prepare_input_vector(agg: Dict[str, Any]):
     return vec, base_order
 
 def run_onnx_inference(vec):
+    """Run ONNX inference with error handling."""
     if sess is None:
         # fallback to trivial predictor
         return {"pred": sum(vec)/len(vec) if vec else 0.0}
-    inp_name = sess.get_inputs()[0].name
-    out_name = sess.get_outputs()[0].name
-    # onnx expects numpy arrays
-    import numpy as np
-    arr = np.array([vec], dtype=np.float32)
-    res = sess.run([out_name], {inp_name: arr})
-    return {"pred": float(res[0][0][0])}
+    
+    try:
+        inp_name = sess.get_inputs()[0].name
+        out_name = sess.get_outputs()[0].name
+        # onnx expects numpy arrays
+        import numpy as np
+        arr = np.array([vec], dtype=np.float32)
+        res = sess.run([out_name], {inp_name: arr})
+        return {"pred": float(res[0][0][0])}
+    except Exception as e:
+        log_error_with_context(
+            e,
+            "predictor_agent",
+            "onnx_inference",
+            ErrorSeverity.HIGH if ErrorSeverity else None,
+            {"vector_length": len(vec) if vec else 0}
+        )
+        # Fallback to trivial predictor on error
+        return {"pred": sum(vec)/len(vec) if vec else 0.0, "error": str(e)}
 
 async def process_message(r, msg_id, agg_msg):
-    # prepare vec (now includes car-track features if available)
-    vec, order = _prepare_input_vector(agg_msg)
-    # inference in threadpool to avoid blocking event loop
-    loop = asyncio.get_running_loop()
-    pred = await loop.run_in_executor(executor, run_onnx_inference, vec)
-    # publish result (include feature order for debugging)
-    out = {
-        "task": agg_msg,
-        "prediction": pred,
-        "model_version": "onnx-v1",
-        "feature_count": len(vec),
-        "features_enriched": len(order) > 6,  # More than base 6 features
-        "timestamp": time.time()
-    }
-    await r.xadd(PRED_STREAM, {"payload": json.dumps(out)})
-    # optional: online update using river if label arrives later
-    # river_model.learn_one({order[i]: vec[i] for i in range(len(order))}, y_true)
+    """Process a single message with comprehensive error handling."""
+    try:
+        # prepare vec (now includes car-track features if available)
+        try:
+            vec, order = _prepare_input_vector(agg_msg)
+        except Exception as e:
+            log_error_with_context(
+                e,
+                "predictor_agent",
+                "prepare_input_vector",
+                ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                {"msg_id": msg_id, "agg_keys": list(agg_msg.keys()) if isinstance(agg_msg, dict) else "unknown"}
+            )
+            raise
+        
+        # inference in threadpool to avoid blocking event loop
+        try:
+            loop = asyncio.get_running_loop()
+            pred = await loop.run_in_executor(executor, run_onnx_inference, vec)
+        except Exception as e:
+            log_error_with_context(
+                e,
+                "predictor_agent",
+                "inference",
+                ErrorSeverity.HIGH if ErrorSeverity else None,
+                {"msg_id": msg_id, "vector_length": len(vec) if vec else 0}
+            )
+            raise
+        
+        # publish result (include feature order for debugging)
+        out = {
+            "task": agg_msg,
+            "prediction": pred,
+            "model_version": "onnx-v1",
+            "feature_count": len(vec),
+            "features_enriched": len(order) > 6,  # More than base 6 features
+            "timestamp": time.time()
+        }
+        
+        try:
+            await r.xadd(PRED_STREAM, {"payload": json.dumps(out)})
+        except Exception as e:
+            handle_redis_error("xadd_prediction", "predictor_agent", e, {"msg_id": msg_id})
+            raise
+        
+        # optional: online update using river if label arrives later
+        # river_model.learn_one({order[i]: vec[i] for i in range(len(order))}, y_true)
+        
+    except Exception as e:
+        # Re-raise to be handled by caller
+        raise
 
 async def run_predictor():
-    r = aioredis.from_url(REDIS_URL, decode_responses=True)
-    await ensure_group(r)
+    """Main predictor loop with comprehensive error handling."""
+    r = None
+    connection_retries = 0
+    max_connection_retries = 5
+    
+    # Initialize Redis connection with retry
+    while r is None:
+        try:
+            r = aioredis.from_url(REDIS_URL, decode_responses=True)
+            await r.ping()
+            await ensure_group(r)
+            connection_retries = 0
+            logger.info("Predictor agent connected to Redis")
+        except Exception as e:
+            connection_retries += 1
+            handle_redis_error("initial_connect", "predictor_agent", e)
+            if connection_retries >= max_connection_retries:
+                logger.error(f"Failed to connect to Redis after {max_connection_retries} attempts")
+                raise
+            await asyncio.sleep(2 * connection_retries)
+    
+    consecutive_errors = 0
+    max_consecutive_errors = 10
+    
     while True:
         try:
+            # Test connection periodically
+            if consecutive_errors > 0 and consecutive_errors % 5 == 0:
+                try:
+                    await r.ping()
+                    connection_retries = 0
+                except Exception as e:
+                    handle_redis_error("ping", "predictor_agent", e)
+                    r = None
+                    # Attempt reconnection
+                    for retry in range(max_connection_retries):
+                        try:
+                            r = aioredis.from_url(REDIS_URL, decode_responses=True)
+                            await r.ping()
+                            await ensure_group(r)
+                            logger.info("Predictor agent reconnected to Redis")
+                            break
+                        except Exception as reconnect_error:
+                            if retry == max_connection_retries - 1:
+                                logger.error("Failed to reconnect to Redis")
+                                raise
+                            await asyncio.sleep(2 * (retry + 1))
+            
             res = await r.xreadgroup(GROUP, CONSUMER, {INPUT_STREAM: ">"}, count=20, block=500)
+            consecutive_errors = 0  # Reset on success
+            
             if not res:
                 await asyncio.sleep(0.01)
                 continue
+            
             for stream, entries in res:
                 ids_to_ack = []
+                ids_failed = []
+                
                 for msg_id, fields in entries:
-                    payload = fields.get("payload")
                     try:
-                        agg_msg = json.loads(payload)
-                    except Exception:
-                        agg_msg = fields
-                    await process_message(r, msg_id, agg_msg)
-                    ids_to_ack.append(msg_id)
+                        payload = fields.get("payload")
+                        if not payload:
+                            logger.warning(f"No payload in message {msg_id}")
+                            ids_failed.append(msg_id)
+                            continue
+                        
+                        try:
+                            agg_msg = json.loads(payload)
+                        except json.JSONDecodeError as e:
+                            log_error_with_context(
+                                e,
+                                "predictor_agent",
+                                "parse_payload",
+                                ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                                {"msg_id": msg_id, "payload_preview": str(payload)[:200]}
+                            )
+                            # Try to use fields directly as fallback
+                            agg_msg = fields
+                        except Exception as e:
+                            log_error_with_context(
+                                e,
+                                "predictor_agent",
+                                "parse_payload",
+                                ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                                {"msg_id": msg_id}
+                            )
+                            agg_msg = fields
+                        
+                        await process_message(r, msg_id, agg_msg)
+                        ids_to_ack.append(msg_id)
+                        
+                    except Exception as e:
+                        log_error_with_context(
+                            e,
+                            "predictor_agent",
+                            "process_message",
+                            ErrorSeverity.MEDIUM if ErrorSeverity else None,
+                            {"msg_id": msg_id}
+                        )
+                        ids_failed.append(msg_id)
+                
+                # Ack successful messages
                 if ids_to_ack:
-                    await r.xack(INPUT_STREAM, GROUP, *ids_to_ack)
-        except Exception:
-            logger.exception("predictor loop error")
-            await asyncio.sleep(0.5)
+                    try:
+                        await r.xack(INPUT_STREAM, GROUP, *ids_to_ack)
+                    except Exception as e:
+                        handle_redis_error("xack", "predictor_agent", e, {"msg_count": len(ids_to_ack)})
+                        r = None  # Mark connection as potentially broken
+                        raise
+                
+                # Log failed messages for monitoring
+                if ids_failed:
+                    logger.warning(f"Failed to process {len(ids_failed)} messages, will be retried")
+                    
+        except asyncio.CancelledError:
+            logger.info("Predictor agent cancelled")
+            break
+        except (aioredis.exceptions.ConnectionError, OSError, ConnectionError) as e:
+            consecutive_errors += 1
+            handle_redis_error("xreadgroup", "predictor_agent", e)
+            r = None  # Mark connection as broken
+            if consecutive_errors >= max_consecutive_errors:
+                logger.error(f"Too many consecutive connection errors ({consecutive_errors}), shutting down")
+                raise
+            await asyncio.sleep(1 * consecutive_errors)
+        except Exception as e:
+            consecutive_errors += 1
+            log_error_with_context(
+                e,
+                "predictor_agent",
+                "main_loop",
+                ErrorSeverity.HIGH if ErrorSeverity else None,
+                {"consecutive_errors": consecutive_errors}
+            )
+            if consecutive_errors >= max_consecutive_errors:
+                logger.error(f"Too many consecutive errors ({consecutive_errors}), shutting down")
+                raise
+            await asyncio.sleep(0.5 * consecutive_errors)
 
 if __name__ == "__main__":
     asyncio.run(run_predictor())

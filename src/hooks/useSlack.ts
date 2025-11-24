@@ -11,12 +11,12 @@ import {
   sendLapTimeNotification,
   sendPitStopNotification,
   sendTireWearAlert,
-  getMockMessages,
-  clearMockMessages,
-  isSlackMockMode,
+  getDemoMessages,
+  clearDemoMessages,
+  isSlackDemoMode,
   type SlackMessage,
   type SlackWebhookResponse,
-  type MockSlackMessage,
+  type DemoSlackMessage,
 } from '@/api/slack';
 
 export interface UseSlackReturn {
@@ -64,17 +64,17 @@ export interface UseSlackReturn {
     recommendedLap?: number
   ) => Promise<SlackWebhookResponse>;
   
-  // Mock data functions
-  getMockMessages: (limit?: number) => MockSlackMessage[];
-  clearMockMessages: () => void;
-  isMockMode: boolean;
+  // Demo data functions
+  getDemoMessages: (limit?: number) => DemoSlackMessage[];
+  clearDemoMessages: () => void;
+  isDemoMode: boolean;
 }
 
 /**
  * React hook for Slack webhook integration
  */
 export function useSlack(): UseSlackReturn {
-  const isMockMode = isSlackMockMode();
+  const isDemoMode = isSlackDemoMode();
 
   const sendMessage = useCallback(
     async (message: string | SlackMessage): Promise<SlackWebhookResponse> => {
@@ -173,9 +173,9 @@ export function useSlack(): UseSlackReturn {
     sendLapTimeNotification: handleLapTimeNotification,
     sendPitStopNotification: handlePitStopNotification,
     sendTireWearAlert: handleTireWearAlert,
-    getMockMessages,
-    clearMockMessages,
-    isMockMode,
+    getDemoMessages,
+    clearDemoMessages,
+    isDemoMode,
   };
 }
 

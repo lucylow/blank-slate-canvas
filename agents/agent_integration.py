@@ -40,16 +40,30 @@ class DecisionAggregator:
     2. Pit strategy decisions require >85% confidence
     3. Coaching suggestions are always broadcast (no threshold)
     4. Conflicting pit recommendations use vote + confidence weighting
+    5. Human-in-the-loop: Decisions requiring approval are queued for review
     """
     
-    def __init__(self, redis_url: str = "redis://127.0.0.1:6379"):
+    def __init__(self, redis_url: str = "redis://127.0.0.1:6379", enable_hitl: bool = True):
         self.redis = None
         self.redis_url = redis_url
         self.decision_cache = defaultdict(list)  # Per-chassis decisions
         self.conflict_log = []
+        self.enable_hitl = enable_hitl
+        self.hitl_manager = None
+        
+        # Initialize human-in-the-loop manager if enabled
+        if self.enable_hitl:
+            try:
+                from human_in_the_loop import HumanInTheLoopManager
+                self.hitl_manager = HumanInTheLoopManager(redis_url)
+            except ImportError:
+                logger.warning("Human-in-the-loop module not available, continuing without HITL")
+                self.enable_hitl = False
     
     async def connect(self):
         self.redis = await redis.from_url(self.redis_url)
+        if self.hitl_manager:
+            await self.hitl_manager.connect()
     
     async def aggregate(self, decisions: List[Dict]) -> List[Dict]:
         """
@@ -70,25 +84,60 @@ class DecisionAggregator:
         coaching_decisions = [d for d in decisions if d.get("decision_type") == "coach"]
         
         aggregated = []
+        pending_for_approval = []
         
-        # 1) Broadcast ALL safety alerts immediately
+        # 1) Process safety alerts (check approval requirements)
         for alert in safety_alerts:
+            if self.enable_hitl and self.hitl_manager:
+                requires_approval, rule = await self.hitl_manager.check_approval_required(alert)
+                if requires_approval:
+                    pending = await self.hitl_manager.submit_decision_for_review(alert, rule)
+                    pending_for_approval.append(pending)
+                    logger.info(f"Safety alert {alert.get('decision_id')} queued for approval")
+                    continue  # Don't broadcast until approved
+            
             aggregated.append(alert)
             logger.warning(f"Safety alert: {alert.get('action')} for {alert.get('chassis')}")
         
         # 2) Resolve pit decisions (enforce threshold + conflict resolution)
         if pit_decisions:
             pit_result = self._resolve_pit_conflict(pit_decisions)
-            if pit_result and pit_result.get("confidence", 0) > 0.85:
-                aggregated.append(pit_result)
-                logger.info(f"Pit decision: {pit_result.get('action')} (confidence: {pit_result.get('confidence'):.2%})")
-            else:
-                logger.debug(f"Pit decision below threshold: {pit_result}")
+            if pit_result:
+                if self.enable_hitl and self.hitl_manager:
+                    requires_approval, rule = await self.hitl_manager.check_approval_required(pit_result)
+                    if requires_approval:
+                        pending = await self.hitl_manager.submit_decision_for_review(pit_result, rule)
+                        pending_for_approval.append(pending)
+                        logger.info(f"Pit decision {pit_result.get('decision_id')} queued for approval")
+                    else:
+                        # High confidence, auto-approved
+                        if pit_result.get("confidence", 0) > 0.85:
+                            aggregated.append(pit_result)
+                            logger.info(f"Pit decision: {pit_result.get('action')} (confidence: {pit_result.get('confidence'):.2%})")
+                else:
+                    # HITL disabled, use old threshold logic
+                    if pit_result.get("confidence", 0) > 0.85:
+                        aggregated.append(pit_result)
+                        logger.info(f"Pit decision: {pit_result.get('action')} (confidence: {pit_result.get('confidence'):.2%})")
+                    else:
+                        logger.debug(f"Pit decision below threshold: {pit_result}")
         
-        # 3) Broadcast ALL coaching decisions
+        # 3) Process coaching decisions (usually don't need approval)
         for coach in coaching_decisions:
+            if self.enable_hitl and self.hitl_manager:
+                requires_approval, rule = await self.hitl_manager.check_approval_required(coach)
+                if requires_approval:
+                    pending = await self.hitl_manager.submit_decision_for_review(coach, rule)
+                    pending_for_approval.append(pending)
+                    logger.info(f"Coaching decision {coach.get('decision_id')} queued for approval")
+                    continue
+            
             aggregated.append(coach)
             logger.debug(f"Coaching: {coach.get('action')} for {coach.get('chassis')}")
+        
+        # Log pending decisions
+        if pending_for_approval:
+            logger.info(f"{len(pending_for_approval)} decision(s) pending human approval")
         
         return aggregated
     
@@ -160,17 +209,38 @@ class TelemetryIngestor:
     
     async def ingest_from_stream(self, stream_name: str = "telemetry.stream"):
         """
-        Continuously read from Redis stream and dispatch to agents.
+        Continuously read from Redis stream and dispatch to agents with error handling.
         """
         logger.info(f"Ingesting from {stream_name}")
         last_id = "$"
+        consecutive_errors = 0
+        max_consecutive_errors = 10
         
         while True:
             try:
+                # Ensure connection is active
+                if not self.redis:
+                    await self.connect()
+                
                 # Read from stream (block for 2s)
-                messages = await self.redis.xread(
-                    "BLOCK", 2000, "COUNT", 50, "STREAMS", stream_name, last_id
-                )
+                try:
+                    messages = await self.redis.xread(
+                        "BLOCK", 2000, "COUNT", 50, "STREAMS", stream_name, last_id
+                    )
+                except (redis.ConnectionError, OSError) as e:
+                    logger.warning(f"Redis connection error, reconnecting: {e}")
+                    await asyncio.sleep(2)
+                    try:
+                        await self.connect()
+                    except Exception as reconnect_error:
+                        logger.error(f"Reconnection failed: {reconnect_error}")
+                        consecutive_errors += 1
+                        if consecutive_errors >= max_consecutive_errors:
+                            raise
+                        await asyncio.sleep(5 * consecutive_errors)
+                    continue
+                
+                consecutive_errors = 0  # Reset on success
                 
                 if not messages:
                     await asyncio.sleep(0.1)
@@ -181,21 +251,37 @@ class TelemetryIngestor:
                         try:
                             telemetry_json = fields.get(b"data") or fields.get(b"telemetry")
                             if not telemetry_json:
+                                logger.debug(f"No telemetry data in message {msg_id}")
                                 continue
                             
-                            telemetry = json.loads(telemetry_json)
-                            last_id = msg_id.decode()
+                            try:
+                                if isinstance(telemetry_json, bytes):
+                                    telemetry = json.loads(telemetry_json.decode('utf-8'))
+                                else:
+                                    telemetry = json.loads(telemetry_json)
+                            except json.JSONDecodeError as e:
+                                logger.error(f"Failed to parse telemetry JSON: {e}, preview: {str(telemetry_json)[:200]}")
+                                continue
+                            
+                            last_id = msg_id.decode() if isinstance(msg_id, bytes) else str(msg_id)
                             
                             # Dispatch to agents
                             await self._dispatch_telemetry(telemetry)
                         
                         except Exception as e:
-                            logger.error(f"Telemetry parsing error: {e}")
+                            logger.error(f"Telemetry parsing error: {e}", exc_info=True)
                             continue
             
+            except asyncio.CancelledError:
+                logger.info("Telemetry ingestion cancelled")
+                break
             except Exception as e:
-                logger.error(f"Stream ingest error: {e}")
-                await asyncio.sleep(1)
+                consecutive_errors += 1
+                logger.error(f"Stream ingest error: {e}", exc_info=True)
+                if consecutive_errors >= max_consecutive_errors:
+                    logger.error(f"Too many consecutive errors ({consecutive_errors}), shutting down")
+                    raise
+                await asyncio.sleep(1 * consecutive_errors)
     
     async def ingest_csv(self, csv_path: str, track: str):
         """Batch ingest telemetry from CSV file (for replay/testing)"""
@@ -233,31 +319,47 @@ class TelemetryIngestor:
             logger.error(f"CSV ingest error: {e}")
     
     async def _dispatch_telemetry(self, telemetry: Dict):
-        """Create task and dispatch to orchestrator"""
-        chassis = telemetry.get("chassis")
-        
-        # Buffer and batch
-        self.buffer[chassis].append(telemetry)
-        
-        if len(self.buffer[chassis]) >= self.buffer_size:
-            batch = self.buffer[chassis]
-            self.buffer[chassis] = []
+        """Create task and dispatch to orchestrator with error handling"""
+        try:
+            chassis = telemetry.get("chassis")
+            if not chassis:
+                logger.warning("Telemetry missing chassis identifier")
+                return
             
-            task = {
-                "task_id": f"task-{datetime.utcnow().timestamp()}",
-                "task_type": "predictor",
-                "priority": "normal",
-                "track": telemetry.get("track"),
-                "chassis": chassis,
-                "payload": {
-                    "sample": telemetry,
-                    "batch_size": len(batch)
-                },
-                "created_at": datetime.utcnow().isoformat()
-            }
+            # Buffer and batch
+            self.buffer[chassis].append(telemetry)
             
-            # Push to tasks stream for orchestrator
-            await self.redis.xadd("tasks.stream", "*", "task", json.dumps(task))
+            if len(self.buffer[chassis]) >= self.buffer_size:
+                batch = self.buffer[chassis]
+                self.buffer[chassis] = []
+                
+                task = {
+                    "task_id": f"task-{datetime.utcnow().timestamp()}",
+                    "task_type": "predictor",
+                    "priority": "normal",
+                    "track": telemetry.get("track", "unknown"),
+                    "chassis": chassis,
+                    "payload": {
+                        "sample": telemetry,
+                        "batch_size": len(batch)
+                    },
+                    "created_at": datetime.utcnow().isoformat()
+                }
+                
+                # Push to tasks stream for orchestrator with retry
+                try:
+                    await self.redis.xadd("tasks.stream", "*", "task", json.dumps(task))
+                except (redis.ConnectionError, OSError) as e:
+                    logger.error(f"Failed to dispatch task: {e}")
+                    # Re-add to buffer for retry
+                    self.buffer[chassis].extend(batch)
+                    raise
+                except Exception as e:
+                    logger.error(f"Unexpected error dispatching task: {e}", exc_info=True)
+                    raise
+        except Exception as e:
+            logger.error(f"Error in _dispatch_telemetry: {e}", exc_info=True)
+            # Don't re-raise to prevent breaking the ingestion loop
 
 # ============================================================================
 # AGENT WORKER POOL - Manages multiple agent instances
@@ -405,16 +507,37 @@ class AgentIntegration:
     
     async def _aggregation_loop(self):
         """
-        Continuously consume decisions and aggregate them.
+        Continuously consume decisions and aggregate them with error handling.
         """
         logger.info("Decision aggregation loop started")
+        consecutive_errors = 0
+        max_consecutive_errors = 10
         
         while True:
             try:
+                # Ensure connection is active
+                if not self.redis:
+                    await self.connect()
+                
                 # Read from results stream
-                results = await self.redis.xread(
-                    "BLOCK", 5000, "COUNT", 10, "STREAMS", "results.stream", "$"
-                )
+                try:
+                    results = await self.redis.xread(
+                        "BLOCK", 5000, "COUNT", 10, "STREAMS", "results.stream", "$"
+                    )
+                except (redis.ConnectionError, OSError) as e:
+                    logger.warning(f"Redis connection error in aggregation loop: {e}")
+                    await asyncio.sleep(2)
+                    try:
+                        await self.connect()
+                    except Exception as reconnect_error:
+                        logger.error(f"Reconnection failed: {reconnect_error}")
+                        consecutive_errors += 1
+                        if consecutive_errors >= max_consecutive_errors:
+                            raise
+                        await asyncio.sleep(5 * consecutive_errors)
+                    continue
+                
+                consecutive_errors = 0  # Reset on success
                 
                 if not results:
                     await asyncio.sleep(0.1)
@@ -423,20 +546,43 @@ class AgentIntegration:
                 decisions = []
                 for stream, entries in results:
                     for msg_id, fields in entries:
-                        result_json = fields.get(b"result")
-                        if result_json:
-                            decision = json.loads(result_json)
-                            decisions.append(decision)
+                        try:
+                            result_json = fields.get(b"result")
+                            if not result_json:
+                                continue
+                            
+                            try:
+                                if isinstance(result_json, bytes):
+                                    decision = json.loads(result_json.decode('utf-8'))
+                                else:
+                                    decision = json.loads(result_json)
+                                decisions.append(decision)
+                            except json.JSONDecodeError as e:
+                                logger.error(f"Failed to parse decision JSON: {e}, preview: {str(result_json)[:200]}")
+                                continue
+                        except Exception as e:
+                            logger.error(f"Error processing result message: {e}", exc_info=True)
+                            continue
                 
                 # Aggregate and broadcast
                 if decisions:
-                    aggregated = await self.aggregator.aggregate(decisions)
-                    await self.aggregator.broadcast_aggregated(aggregated)
+                    try:
+                        aggregated = await self.aggregator.aggregate(decisions)
+                        await self.aggregator.broadcast_aggregated(aggregated)
+                    except Exception as e:
+                        logger.error(f"Error aggregating/broadcasting decisions: {e}", exc_info=True)
+                        # Continue processing even if aggregation fails
             
+            except asyncio.CancelledError:
+                logger.info("Aggregation loop cancelled")
+                break
             except Exception as e:
-                logger.error(f"Aggregation loop error: {e}")
-                traceback.print_exc()
-                await asyncio.sleep(1)
+                consecutive_errors += 1
+                logger.error(f"Aggregation loop error: {e}", exc_info=True)
+                if consecutive_errors >= max_consecutive_errors:
+                    logger.error(f"Too many consecutive errors ({consecutive_errors}), shutting down")
+                    raise
+                await asyncio.sleep(1 * consecutive_errors)
     
     async def shutdown(self):
         """Graceful shutdown"""
