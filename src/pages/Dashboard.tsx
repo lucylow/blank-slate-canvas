@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Sparkles, Activity } from 'lucide-react';
+import { Loader2, Sparkles, Activity, RefreshCw } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { TireWearCard } from '@/components/dashboard/TireWearCard';
 import { StrategyCard } from '@/components/dashboard/StrategyCard';
 import { PerformanceCard } from '@/components/dashboard/PerformanceCard';
 import { TelemetryComparison } from '@/components/dashboard/TelemetryComparison';
+import { CarTelemetryData } from '@/components/dashboard/CarTelemetryData';
 import { DemoButton } from '@/components/DemoButton';
 
 import { useBackendConfig } from '@/hooks/useBackendConfig';
@@ -315,6 +316,9 @@ export function Dashboard() {
             >
               <TelemetryComparison />
             </motion.div>
+
+            {/* Car Telemetry Data Section */}
+            <CarTelemetryData />
           </>
         ) : (
           <motion.div
