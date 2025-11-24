@@ -94,8 +94,7 @@ export interface AnalysisProgress {
   message: string;
 }
 
-// Export types for external use
-export type { TrackName, ZipDatasetInfo, DatasetMatch };
+// Types are already defined above
 
 /**
  * Generate a simple hash for file caching
