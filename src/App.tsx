@@ -51,6 +51,7 @@ import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
 import SlackIntegrationPage from "./pages/SlackIntegrationPage";
 import COTADashboard from "./pages/COTADashboard";
 import COTA22DriversDashboard from "./pages/COTA22DriversDashboard";
+import COTATelemetryPage from "./pages/COTATelemetryPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +103,9 @@ const App = () => (
                     
                     {/* COTA 22 Drivers Dashboard - All 22 drivers telemetry dashboard */}
                     <Route path="/cota-22-drivers" element={<COTA22DriversDashboard />} />
+                    
+                    {/* COTA Telemetry Dashboard - 22 drivers telemetry visualization with mock data */}
+                    <Route path="/cota-telemetry" element={<COTATelemetryPage />} />
                     
                     {/* Analytics - Performance metrics and analysis */}
                     <Route path="/analytics" element={<Analytics />} />
