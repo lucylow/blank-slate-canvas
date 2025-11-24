@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef, useM
 import { telemetryWS, TelemetryPoint } from '@/lib/api';
 import { getSeedDrivers } from '@/lib/driverProfiles';
 import { GRCarId, DEFAULT_VISIBLE_CARS } from '@/constants/cars';
+import { generateAllCarsTelemetry } from '@/utils/mockTelemetry';
+import { useDemoMode } from '@/hooks/useDemoMode';
 
 interface TelemetryData {
   timestamp: number;
@@ -61,6 +63,7 @@ function convertTelemetryPoint(point: TelemetryPoint): TelemetryData {
 }
 
 export function TelemetryProvider({ children }: { children: ReactNode }) {
+  const { isDemoMode } = useDemoMode();
   const [telemetryData, setTelemetryData] = useState<TelemetryData[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>(getSeedDrivers());
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(drivers[0]);
@@ -68,6 +71,7 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
   const [visibleCars, setVisibleCars] = useState<Record<GRCarId, boolean>>(DEFAULT_VISIBLE_CARS);
   const lastLapRef = useRef<number>(0);
+  const mockDataInitialized = useRef(false);
 
   // Filter telemetry data based on visible cars
   const filteredTelemetryData = useMemo(() => {
@@ -94,36 +98,60 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Connect to WebSocket and handle telemetry data
+  // Initialize mock data or connect to WebSocket
   useEffect(() => {
-    // Set up connection status handler
-    telemetryWS.setConnectionChangeHandler((status) => {
-      setConnectionStatus(status);
-    });
+    // Always initialize with mock data for immediate display
+    if (!mockDataInitialized.current) {
+      const mockData = generateAllCarsTelemetry(Date.now() - 60000, 60000, 100);
+      const convertedMockData = mockData.map((point) => ({
+        timestamp: point.timestamp,
+        speed: point.speed,
+        throttle: point.throttle,
+        brake: point.brake,
+        gear: point.gear,
+        rpm: point.rpm,
+        lat: 30.1328 + (Math.random() - 0.5) * 0.01, // Mock GPS coordinates
+        lng: -97.6411 + (Math.random() - 0.5) * 0.01,
+        lapDistance: Math.random() * 5500,
+        carType: point.carId,
+        carNumber: point.carId === 'supra' ? '23' : point.carId === 'yaris' ? '7' : point.carId === 'gr86' ? '14' : '99',
+      }));
+      setTelemetryData(convertedMockData);
+      mockDataInitialized.current = true;
+      setConnectionStatus('connected');
+    }
 
-    // Connect to WebSocket
-    telemetryWS.connect();
+    // If not in demo mode, also try WebSocket connection
+    if (!isDemoMode) {
+      // Set up connection status handler
+      telemetryWS.setConnectionChangeHandler((status) => {
+        setConnectionStatus(status);
+      });
 
-    // Subscribe to telemetry data
-    const unsubscribe = telemetryWS.subscribe((point: TelemetryPoint) => {
-      const converted = convertTelemetryPoint(point);
-      
-      // Update current lap when it changes
-      if (point.lap !== lastLapRef.current) {
-        lastLapRef.current = point.lap;
-        setCurrentLap(point.lap);
-      }
+      // Connect to WebSocket
+      telemetryWS.connect();
 
-      // Add to telemetry data array (keep last 1000 points)
-      setTelemetryData(prev => [...prev.slice(-999), converted]);
-    });
+      // Subscribe to telemetry data
+      const unsubscribe = telemetryWS.subscribe((point: TelemetryPoint) => {
+        const converted = convertTelemetryPoint(point);
+        
+        // Update current lap when it changes
+        if (point.lap !== lastLapRef.current) {
+          lastLapRef.current = point.lap;
+          setCurrentLap(point.lap);
+        }
 
-    // Cleanup on unmount
-    return () => {
-      unsubscribe();
-      telemetryWS.disconnect();
-    };
-  }, []);
+        // Add to telemetry data array (keep last 1000 points)
+        setTelemetryData(prev => [...prev.slice(-999), converted]);
+      });
+
+      // Cleanup on unmount
+      return () => {
+        unsubscribe();
+        telemetryWS.disconnect();
+      };
+    }
+  }, [isDemoMode]);
 
   const value = {
     telemetryData,
