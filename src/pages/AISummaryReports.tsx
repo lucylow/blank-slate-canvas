@@ -1987,41 +1987,54 @@ export default function AISummaryReports() {
             </TabsContent>
 
             <TabsContent value="comparison" className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <LapSplitDeltaChart
-                  track={selected}
-                  race={1}
-                  cars={[7, 13, 22]}
-                  refCar={7}
-                />
-              </motion.div>
-              <div className="grid lg:grid-cols-2 gap-6">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <DriverClusterChart
-                    data={chartData.clusterData}
-                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                  />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <SpeedDistributionChart
-                    data={chartData.speedDistribution}
-                    trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                    avgSpeed={chartData.avgSpeed}
-                    stdDev={chartData.stdDev}
-                  />
-                </motion.div>
-              </div>
+              {!selected || !chartData ? (
+                <Card>
+                  <CardContent className="flex items-center justify-center h-64">
+                    <div className="text-center space-y-2">
+                      <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto" />
+                      <p className="text-muted-foreground">Please select a report to view comparison data</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <LapSplitDeltaChart
+                      track={selected}
+                      race={1}
+                      cars={[7, 13, 22]}
+                      refCar={7}
+                    />
+                  </motion.div>
+                  <div className="grid lg:grid-cols-2 gap-6">
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <DriverClusterChart
+                        data={chartData.clusterData}
+                        trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                      />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <SpeedDistributionChart
+                        data={chartData.speedDistribution}
+                        trackName={selected.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                        avgSpeed={chartData.avgSpeed}
+                        stdDev={chartData.stdDev}
+                      />
+                    </motion.div>
+                  </div>
+                </>
+              )}
             </TabsContent>
           </Tabs>
 

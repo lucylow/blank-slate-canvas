@@ -32,6 +32,7 @@ import {
   Minimize2
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { DeliveryProvider } from '../components/DeliveryProvider';
 import { InsightList } from '../components/InsightList';
@@ -53,8 +54,20 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAgentStore } from '../stores/agentStore';
 import type { DashboardData } from '@/lib/types';
+import RaceDashboard from './RaceDashboard';
 
 export default function LiveInsightsDashboard() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Determine active tab from URL hash or default to 'insights'
+  const getActiveTab = () => {
+    if (location.hash === '#race-dashboard') return 'race-dashboard';
+    if (location.pathname === '/race-dashboard') return 'race-dashboard';
+    return 'insights';
+  };
+  
+  const [activeTab, setActiveTab] = useState<string>(getActiveTab());
   const [openId, setOpenId] = useState<string | null>(null);
   const [selectedTrack, setSelectedTrack] = useState('sebring');
   const [selectedRace, setSelectedRace] = useState(1);
@@ -64,6 +77,33 @@ export default function LiveInsightsDashboard() {
   const [chartExpanded, setChartExpanded] = useState(false);
   const [telemetryHistory, setTelemetryHistory] = useState<Array<{time: number; speed: number; rpm: number; throttle: number; brake: number; tireHealth: number}>>([]);
   const historyRef = useRef<typeof telemetryHistory>([]);
+  
+  // Update active tab when location changes (including hash changes)
+  useEffect(() => {
+    const tab = getActiveTab();
+    setActiveTab(tab);
+    
+    // Also listen for hash changes
+    const handleHashChange = () => {
+      const newTab = getActiveTab();
+      setActiveTab(newTab);
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [location]);
+  
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'race-dashboard') {
+      window.location.hash = 'race-dashboard';
+      navigate('/live-insights#race-dashboard', { replace: true });
+    } else {
+      window.location.hash = '';
+      navigate('/live-insights', { replace: true });
+    }
+  };
 
   const { 
     data, 
@@ -191,8 +231,8 @@ export default function LiveInsightsDashboard() {
             </motion.div>
             <div>
               <h1 className="text-4xl font-bold text-white flex items-center gap-3">
-                Live Insights Dashboard
-                {connected && (
+                Live Insights
+                {connected && activeTab === 'insights' && (
                   <motion.div
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
@@ -215,7 +255,7 @@ export default function LiveInsightsDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {!connected && streamError && (
+            {!connected && streamError && activeTab === 'insights' && (
               <Button
                 variant="outline"
                 size="sm"
@@ -233,6 +273,27 @@ export default function LiveInsightsDashboard() {
             </Button>
           </div>
         </motion.div>
+
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 bg-slate-800/50 border border-slate-700 mb-6">
+            <TabsTrigger 
+              value="insights" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 flex items-center gap-2"
+            >
+              <Activity className="w-4 h-4" />
+              Live Insights
+            </TabsTrigger>
+            <TabsTrigger 
+              value="race-dashboard" 
+              className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 flex items-center gap-2"
+            >
+              <Zap className="w-4 h-4" />
+              Race Dashboard
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="insights" className="mt-0">
 
         {/* Enhanced Connection Status & Controls */}
         <Card className="border-2 border-slate-800/50 bg-slate-900/50 backdrop-blur-xl shadow-2xl">
@@ -753,6 +814,12 @@ export default function LiveInsightsDashboard() {
 
         {/* Insight Modal */}
         {openId && <InsightModal id={openId} onClose={() => setOpenId(null)} />}
+          </TabsContent>
+
+          <TabsContent value="race-dashboard" className="mt-0">
+            <RaceDashboard />
+          </TabsContent>
+        </Tabs>
       </div>
     </DeliveryProvider>
   );

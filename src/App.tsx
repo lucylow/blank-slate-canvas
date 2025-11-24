@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense } from "react";
 
@@ -49,7 +49,6 @@ import AIDataAnalyticsPage from "./pages/AIDataAnalyticsPage";
 import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
 import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
 import SlackIntegrationPage from "./pages/SlackIntegrationPage";
-import RaceDashboard from "./pages/RaceDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -184,8 +183,8 @@ const App = () => (
                     {/* Slack Integration - Real-time race alerts and notifications */}
                     <Route path="/slack-integration" element={<SlackIntegrationPage />} />
                     
-                    {/* Race Dashboard - Real-time telemetry with 7-track CV analysis */}
-                    <Route path="/race-dashboard" element={<RaceDashboard />} />
+                    {/* Race Dashboard - Redirected to Live Insights tab */}
+                    <Route path="/race-dashboard" element={<Navigate to="/live-insights#race-dashboard" replace />} />
                     
                     {/* ========== SETTINGS ========== */}
                     {/* About - Information about the app */}
