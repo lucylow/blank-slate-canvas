@@ -1163,50 +1163,52 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
-            <Link to="/comprehensive">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center flex-wrap px-2">
+            <Link to="/comprehensive" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-base md:text-lg px-8 py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 md:py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
                 onClick={() => trackButtonClick('View Comprehensive Dashboard', 'hero')}
               >
-                View Comprehensive Dashboard
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <span className="hidden sm:inline">View Comprehensive Dashboard</span>
+                <span className="sm:hidden">Comprehensive Dashboard</span>
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/telemetry">
+            <Link to="/telemetry" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                className="bg-primary hover:bg-primary/90 text-base md:text-lg px-8 py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 md:py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
                 aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
                 onClick={() => trackButtonClick('View Telemetry Comparison', 'hero')}
               >
-                View Telemetry Comparison
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <span className="hidden sm:inline">View Telemetry Comparison</span>
+                <span className="sm:hidden">Telemetry Comparison</span>
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/dashboard" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                className="w-full sm:w-auto text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="Run Demo - Opens interactive dashboard"
                 onClick={() => trackButtonClick('Run Demo', 'hero')}
               >
                 Run Demo
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/agents">
+            <Link to="/agents" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                className="w-full sm:w-auto text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agents"
                 onClick={() => trackButtonClick('AI Agents', 'hero')}
               >
-                <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
+                <Sparkles className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
                 AI Agents
                 {agentStatus?.agents && agentStatus?.agents.length > 0 && (
                   <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
@@ -1215,16 +1217,17 @@ const Index = () => {
                 )}
               </Button>
             </Link>
-            <Link to="/agent-integration">
+            <Link to="/agent-integration" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                className="w-full sm:w-auto text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
                 aria-label="View AI Agent Integration Patterns"
                 onClick={() => trackButtonClick('Agent Integration', 'hero')}
               >
-                <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
-                Agent Integration
+                <Sparkles className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
+                <span className="hidden sm:inline">Agent Integration</span>
+                <span className="sm:hidden">Integration</span>
               </Button>
             </Link>
           </div>
@@ -1232,12 +1235,12 @@ const Index = () => {
       </section>
 
       {/* Demo Launcher Section */}
-      <section className="py-12 px-6">
+      <section className="py-8 sm:py-12 px-4 sm:px-6">
         <DemoLauncher />
       </section>
 
       {/* Real-Time Analysis Section */}
-      <section id="realtime-analysis" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="realtime-analysis" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-12">
@@ -1245,10 +1248,10 @@ const Index = () => {
               <Activity className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Live Telemetry Monitoring</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Real-Time Analysis Dashboard
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2">
               Monitor live telemetry data, track performance metrics, analyze gaps, and receive real-time alerts during races.
             </p>
           </div>
@@ -1257,7 +1260,7 @@ const Index = () => {
       </section>
 
       {/* AI Agents Showcase Section */}
-      <section className="py-24 px-6 bg-gradient-to-br from-primary/10 via-primary/5 to-background relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-br from-primary/10 via-primary/5 to-background relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)]" />
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-12">
@@ -1265,7 +1268,7 @@ const Index = () => {
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Autonomous AI Agent System</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Powered by 7 Specialized AI Agents
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
@@ -1285,7 +1288,7 @@ const Index = () => {
             <AIAgentResults />
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
@@ -1332,16 +1335,16 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-6 bg-gradient-to-b from-accent via-accent/50 to-background relative overflow-hidden scroll-mt-20" aria-label="Features section">
+      <section id="features" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-accent via-accent/50 to-background relative overflow-hidden scroll-mt-20" aria-label="Features section">
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
         
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Powerful Racing Intelligence
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
               PitWall AI combines telemetry data, predictive modeling, and real-time analytics powered by our autonomous AI agent system to give your team the competitive edge.
             </p>
           </div>
@@ -1368,7 +1371,7 @@ const Index = () => {
       </section>
 
       {/* Racing Community Impact Section */}
-      <section className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-accent/30 relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-accent/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.08),transparent_70%)]" />
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-16">
@@ -1376,15 +1379,15 @@ const Index = () => {
               <Users className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Racing Community Impact</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Empowering the Racing Community
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2">
               PitWall AI is designed to democratize professional-grade race analytics, making advanced AI-powered insights accessible to teams at all levels of competition.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
             <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mb-4 text-primary-foreground shadow-lg shadow-primary/30">
@@ -1468,7 +1471,7 @@ const Index = () => {
       </section>
 
       {/* GR Car Comparison Section */}
-      <section id="gr-cars" className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20">
+      <section id="gr-cars" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-accent/30 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <GRCarComparison selectedTrack={selectedTrack} onTrackChange={setSelectedTrack} />
@@ -1476,7 +1479,7 @@ const Index = () => {
       </section>
 
       {/* GR Telemetry Comparison Section */}
-      <section className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <GRTelemetryComparison />
@@ -1484,7 +1487,7 @@ const Index = () => {
       </section>
 
       {/* GR Telemetry Comparison Section */}
-      <section id="telemetry-comparison" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="telemetry-comparison" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-[1920px] relative z-10">
           <div className="text-center mb-12">
@@ -1492,10 +1495,10 @@ const Index = () => {
               <Zap className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary">Real-Time Telemetry Analytics</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Speed & G-Force Comparison
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed px-2">
               Professional pit wall visualization comparing speed and G-forces across all four Toyota GR cars. 
               Real-time telemetry analysis for race engineers and strategy optimization.
             </p>
@@ -1505,13 +1508,13 @@ const Index = () => {
       </section>
 
       {/* Tracks Section */}
-      <section id="tracks" className="py-24 px-6 relative scroll-mt-20">
+      <section id="tracks" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 relative scroll-mt-20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               GR Cup Track Analytics
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
               Comprehensive data and models for all 7 tracks in the Toyota GR Cup North America series.
             </p>
             {/* PDF Report Generators */}
@@ -1604,7 +1607,7 @@ const Index = () => {
           {/* Sonoma Race Results Section */}
           <div className="mt-16">
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                 Sonoma Raceway - Race Results
               </h3>
               <p className="text-muted-foreground">
@@ -1617,7 +1620,7 @@ const Index = () => {
           {/* Indianapolis Race Results Section */}
           <div className="mt-16">
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                 Indianapolis Motor Speedway - Real-Time Race Analysis
               </h3>
               <p className="text-muted-foreground">
@@ -1630,7 +1633,7 @@ const Index = () => {
           {/* Sebring Race Results Section */}
           <div className="mt-16">
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                 Sebring International Raceway - Race Results
               </h3>
               <p className="text-muted-foreground">
@@ -1643,7 +1646,7 @@ const Index = () => {
           {/* Circuit of the Americas Race Results Section */}
           <div className="mt-16">
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                 Circuit of the Americas - Race Results
               </h3>
               <p className="text-muted-foreground">
@@ -1656,7 +1659,7 @@ const Index = () => {
           {/* Road America Race Results Section */}
           <div className="mt-16">
             <div className="text-center mb-8">
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                 Road America - Race Results & Analysis
               </h3>
               <p className="text-muted-foreground">
@@ -1673,14 +1676,14 @@ const Index = () => {
       </section>
 
       {/* Dashboard Preview */}
-      <section className="py-24 px-6 bg-gradient-to-b from-background via-accent/30 to-accent relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-accent/30 to-accent relative overflow-hidden">
         {/* Decorative background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(59,130,246,0.08),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(220,38,38,0.08),transparent_50%)]" />
         
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               Interactive Dashboard Preview
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
@@ -1737,7 +1740,7 @@ const Index = () => {
                 </button>
               </div>
             </div>
-            <div className="grid md:grid-cols-2 gap-6 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6">
               <Card className="border-border/50 bg-card/40 backdrop-blur-sm hover:bg-card/60 transition-all duration-300 hover:scale-[1.02]">
                 <CardContent className="p-6">
                   <h4 className="text-lg font-bold mb-5 text-primary flex items-center gap-2">
@@ -1827,7 +1830,7 @@ const Index = () => {
               <Bot className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary">AI-Powered Analysis</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
               AI Summary Report
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-6">
@@ -1940,7 +1943,7 @@ const Index = () => {
           </div>
 
           {/* AI Agent Insights */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
@@ -2019,7 +2022,7 @@ const Index = () => {
           </div>
 
           {/* Tire Analysis & Performance Metrics */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <Card className="bg-card/60 backdrop-blur-md border-primary/30 hover:border-primary/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-6">
@@ -2134,7 +2137,7 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">Strategy Agent - Opponent Modeling</p>
                 </div>
               </div>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold">P1 - Car #55</span>
@@ -2187,7 +2190,7 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">Consolidated insights from all AI agents</p>
                 </div>
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-card/60 border border-primary/20">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -2263,16 +2266,16 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden" aria-label="Call to action section">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden" aria-label="Call to action section">
         {/* Animated background pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:40px_40px] opacity-30" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
         
         <div className="container mx-auto max-w-4xl text-center relative z-10">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight px-2">
             Ready to Transform Your Race Strategy?
           </h2>
-          <p className="text-xl md:text-2xl mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 md:mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto px-2">
             Request early access to PitWall AI for your racing team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -2289,7 +2292,7 @@ const Index = () => {
       </section>
 
       {/* Telemetry Comparison Section */}
-      <section id="telemetry-comparison-charts" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="telemetry-comparison-charts" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <TelemetryComparisonCharts selectedTrack={selectedTrack} />
@@ -2297,7 +2300,7 @@ const Index = () => {
       </section>
 
       {/* AI Data Analytics Section */}
-      <section id="ai-data-analytics" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="ai-data-analytics" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-12">
@@ -2321,7 +2324,7 @@ const Index = () => {
       </section>
 
       {/* Multi-Track Real-Time Analysis Section */}
-      <section id="multi-track-realtime" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="multi-track-realtime" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
@@ -2347,14 +2350,14 @@ const Index = () => {
       </section>
 
       {/* A.I. Features Showcase Section */}
-      <section id="gemini-features" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="gemini-features" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
           <GeminiFeaturesShowcase />
         </div>
       </section>
 
       {/* Gemini Multimodal Input Section */}
-      <section id="gemini-multimodal" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="gemini-multimodal" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
@@ -2392,16 +2395,16 @@ const Index = () => {
       </section>
 
       {/* Google Maps Integration Section */}
-      <section id="google-maps-integration" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="google-maps-integration" className="py-16 sm:py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
-              <Globe className="w-8 h-8 text-primary-foreground" />
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-8 shadow-xl shadow-primary/20">
+              <Globe className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Google Maps Integration
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
               Complete Google Maps Platform integration with all APIs: Air Quality, Solar, Weather, Pollen, 
               Maps, Places, Routes, Elevation, Time Zone, Address Validation, and more. 
               Comprehensive demo data fallbacks ensure all features work even without API keys.
@@ -2412,7 +2415,7 @@ const Index = () => {
       </section>
 
       {/* Data & Analytics APIs Section */}
-      <section id="data-analytics-apis" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="data-analytics-apis" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
@@ -2426,7 +2429,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {/* TimescaleDB Cloud API */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -2643,7 +2646,7 @@ const Index = () => {
                   <Sparkles className="w-5 h-5 text-primary" />
                   Comparison & Recommendations
                 </h3>
-                <div className="grid md:grid-cols-3 gap-6 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 text-sm">
                   <div>
                     <h4 className="font-semibold mb-2 text-primary">TimescaleDB</h4>
                     <p className="text-muted-foreground">
@@ -2675,13 +2678,13 @@ const Index = () => {
       </section>
 
       {/* Anomaly Detection Section */}
-      <section id="anomaly-detection" className="py-24 px-6 bg-gradient-to-b from-background via-red-500/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="anomaly-detection" className="py-16 sm:py-20 md:py-28 px-4 sm:px-6 bg-gradient-to-b from-background via-red-500/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl mb-6 shadow-xl shadow-red-500/20">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl mb-8 shadow-xl shadow-red-500/20">
               <AlertCircle className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Real-Time Anomaly Detection
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -2768,29 +2771,29 @@ const Index = () => {
             </Card>
           </div>
 
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-8">
             <Button 
               onClick={() => refetchAnomalyHealth()}
-              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-8 py-6 text-base"
               disabled={!anomalyHealthData && !anomalyHealth}
             >
               {anomalyHealthData || anomalyHealth ? 'Refresh Service Health' : 'Check Service Health'}
             </Button>
             
             {anomalyHealth && (
-              <Card className="mt-6 max-w-2xl mx-auto border-border/50">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Anomaly Detection Service Status</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
+              <Card className="mt-8 max-w-2xl mx-auto border-border/50">
+                <CardContent className="p-8">
+                  <h3 className="text-xl font-bold mb-6">Anomaly Detection Service Status</h3>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Status</p>
                       <p className="text-lg font-semibold text-green-500">{anomalyHealth.status}</p>
                     </div>
-                    <div>
+                    <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">PyOD Available</p>
                       <p className="text-lg font-semibold">{anomalyHealth.pyod_available ? '✅ Yes' : '❌ No'}</p>
                     </div>
-                    <div>
+                    <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Active Connections</p>
                       <p className="text-lg font-semibold">{anomalyHealth.active_connections || 0}</p>
                     </div>
@@ -2803,72 +2806,72 @@ const Index = () => {
       </section>
 
       {/* Driver Fingerprinting Section */}
-      <section id="driver-fingerprinting" className="py-24 px-6 bg-gradient-to-b from-background via-purple-500/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="driver-fingerprinting" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-purple-500/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-6 shadow-xl shadow-purple-500/20">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-6 sm:mb-8 shadow-xl shadow-purple-500/20">
               <Users className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 sm:mb-8 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Driver Fingerprinting & Coaching
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               AI-powered driver analysis with personalized coaching plans and performance insights
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8">
             <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-5 sm:mb-6">
                   <Target className="w-6 h-6 text-purple-500" />
                   <h3 className="text-lg font-bold">Fingerprinting</h3>
                 </div>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                   Generate unique driver fingerprints from telemetry data including braking consistency, throttle smoothness, and cornering style.
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-5 sm:mb-6">
                   <AlertCircle className="w-6 h-6 text-purple-500" />
                   <h3 className="text-lg font-bold">Coaching Alerts</h3>
                 </div>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                   Real-time coaching alerts with priority levels (critical, high, medium, low) and improvement area identification.
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-5 sm:mb-6">
                   <Award className="w-6 h-6 text-purple-500" />
                   <h3 className="text-lg font-bold">Coaching Plans</h3>
                 </div>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                   Personalized weekly coaching plans with specific drills, priority areas, and progress metrics.
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-border/50 hover:border-purple-500/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-5 sm:mb-6">
                   <TrendingUp className="w-6 h-6 text-purple-500" />
                   <h3 className="text-lg font-bold">Driver Comparison</h3>
                 </div>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                   Compare drivers with teammates or baseline drivers to identify performance differences and improvement opportunities.
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-4">
+          <div className="text-center mt-12 sm:mt-16">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
               Features: Braking consistency, throttle smoothness, cornering style, lap consistency, tire stress index, overall score
             </p>
           </div>
@@ -2877,7 +2880,7 @@ const Index = () => {
 
 
       {/* F1 Benchmarking Section */}
-      <section id="f1-benchmarking" className="py-24 px-6 bg-gradient-to-b from-background via-orange-500/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="f1-benchmarking" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-orange-500/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-6 shadow-xl shadow-orange-500/20">
@@ -3007,7 +3010,7 @@ const Index = () => {
       </section>
 
       {/* Slack Integration Section */}
-      <section id="slack-integration" className="py-24 px-6 bg-gradient-to-b from-background via-green-500/5 to-background relative overflow-hidden scroll-mt-20">
+      <section id="slack-integration" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-green-500/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl mb-6 shadow-xl shadow-green-500/20">
@@ -3125,9 +3128,9 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-b from-accent to-background border-t border-border/50 py-16 px-6">
+      <footer className="bg-gradient-to-b from-accent to-background border-t border-border/50 py-12 sm:py-16 px-4 sm:px-6">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-12">
             <div>
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
@@ -3337,15 +3340,15 @@ const Index = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-8 left-8 z-50"
+            className="fixed bottom-4 right-4 sm:bottom-8 sm:left-8 z-50"
           >
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/50 hover:shadow-primary/70 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
               aria-label="Scroll to top"
             >
-              <ArrowUp className="w-5 h-5" />
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </motion.div>
         )}
