@@ -25,7 +25,7 @@ import logging
 import traceback
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 
 import redis.asyncio as aioredis
 
@@ -127,11 +127,11 @@ class SlidingAggregator:
             b = self.buckets.setdefault(key, {
                 "count": 0,
                 "sum": defaultdict(float),
-                "first_ts": rec.get("meta_time", datetime.utcnow().isoformat()),
-                "last_ts": rec.get("meta_time", datetime.utcnow().isoformat())
+                "first_ts": rec.get("meta_time", datetime.now(timezone.utc).isoformat()),
+                "last_ts": rec.get("meta_time", datetime.now(timezone.utc).isoformat())
             })
             b["count"] += 1
-            b["last_ts"] = rec.get("meta_time", datetime.utcnow().isoformat())
+            b["last_ts"] = rec.get("meta_time", datetime.now(timezone.utc).isoformat())
             
             # Aggregate numeric fields
             for k, v in rec.items():

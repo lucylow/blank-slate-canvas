@@ -23,6 +23,8 @@ import { useDemoWs } from "@/hooks/useDemoWs";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import { useMockAgentDecisions, useMockTelemetryStream } from "@/hooks/useMockDemoData";
 import { useMockNotifications } from "@/hooks/useMockNotifications";
+import { useRealtimeInsights } from "@/hooks/useRealtimeInsights";
+import { RealTimeInsights } from "@/components/dashboard/RealTimeInsights";
 
 import { getWsUrl } from "@/utils/wsUrl";
 
@@ -116,6 +118,14 @@ export default function PitWallDashboard() {
   const messageCount = messages.length;
   // derive last telemetry point for car position
   const lastPoint = useMemo(() => messages.length ? messages[messages.length-1] : null, [messages]);
+
+  // Get real-time insights from WebSocket
+  const realtimeWsUrl = isDemoMode ? '' : getWsUrl('/ws');
+  const { gaps, insights, metrics, currentGap, connected: insightsConnected } = useRealtimeInsights(
+    realtimeWsUrl,
+    !isDemoMode,
+    lastPoint ? (lastPoint as any).chassis : undefined
+  );
   
   // Helper function to safely extract numeric value from telemetry point
   const getTelemetryValue = (point: unknown, key: string, defaultValue: number): number => {
@@ -403,6 +413,16 @@ export default function PitWallDashboard() {
                 maxAlerts={5}
                 autoDismiss={true}
                 dismissAfter={10000}
+              />
+            )}
+
+            {/* Real-Time Insights */}
+            {!isDemoMode && insightsConnected && (
+              <RealTimeInsights
+                gaps={gaps}
+                insights={insights}
+                metrics={metrics || undefined}
+                chassis={lastPoint ? (lastPoint as any).chassis : undefined}
               />
             )}
           </motion.aside>

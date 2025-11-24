@@ -532,19 +532,42 @@ function buildAnalyticsPrompt(data: RaceDataAnalytics, analysisType: string): st
     ? `\n\nMULTIMODAL CONTEXT: This analysis includes images, video, or audio data. Please analyze these media files in conjunction with the telemetry data to provide comprehensive insights.`
     : '';
 
+  // Check if multi-track data is available
+  const tireData = data.tireData || {};
+  const hasMultiTrackData = tireData.cross_track_patterns && Array.isArray(tireData.cross_track_patterns) && tireData.cross_track_patterns.length > 0;
+  const tracksAnalyzed = tireData.tracks_analyzed || 1;
+  
+  const multiTrackContext = hasMultiTrackData 
+    ? `\n\nMULTI-TRACK ANALYSIS CONTEXT: This analysis includes data from ${tracksAnalyzed} different race tracks (${tireData.cross_track_patterns?.map((p: any) => p.track).join(', ')}). 
+    
+    CRITICAL INSTRUCTIONS FOR MULTI-TRACK ANALYSIS:
+    1. Compare patterns across all ${tracksAnalyzed} tracks to identify universal vs track-specific behaviors
+    2. Use cross-track historical data to improve prediction accuracy for the primary track (${data.track})
+    3. Identify transferable insights: What works well across multiple tracks?
+    4. Detect track-specific anomalies: What's unique about ${data.track} compared to other tracks?
+    5. Leverage ensemble predictions: Combine insights from all tracks for more robust forecasts
+    6. Cross-validate predictions: Use patterns from similar tracks to validate primary track predictions
+    
+    CROSS-TRACK DATA AVAILABLE:
+    ${JSON.stringify(tireData.cross_track_patterns?.slice(0, 5), null, 2)}
+    
+    Use this multi-track context to provide more accurate and robust predictions by learning from patterns across all ${tracksAnalyzed} datasets.`
+    : '';
+
   const basePrompt = `You are an expert motorsports data analyst specializing in race telemetry analysis, performance optimization, and predictive analytics.
 
 Analyze the following race data and provide comprehensive data analytics insights:
 
-TRACK: ${data.track}
+PRIMARY TRACK: ${data.track}
 RACE: ${data.race}
 ${data.vehicle ? `VEHICLE: ${data.vehicle}` : ''}
 ${data.lap ? `LAP: ${data.lap}` : ''}
+${hasMultiTrackData ? `\nMULTI-TRACK ANALYSIS: Using data from ${tracksAnalyzed} tracks for enhanced predictions` : ''}
 
-TELEMETRY DATA:
+PRIMARY TRACK TELEMETRY DATA:
 ${JSON.stringify(data.telemetry || {}, null, 2)}
 
-PERFORMANCE DATA:
+PRIMARY TRACK PERFORMANCE DATA:
 ${JSON.stringify(data.performance || {}, null, 2)}
 
 TIRE DATA:
@@ -552,16 +575,24 @@ ${JSON.stringify(data.tireData || {}, null, 2)}
 
 ${data.weather ? `WEATHER DATA:\n${JSON.stringify(data.weather, null, 2)}` : ''}
 ${multimodalContext}
+${multiTrackContext}
 
 ANALYSIS TYPE: ${analysisType}
+${hasMultiTrackData ? '\nENHANCED ANALYSIS MODE: Multi-track cross-validation enabled - use patterns from all tracks to improve prediction accuracy' : ''}
 
 Please provide:
-1. KEY INSIGHTS: List 5-7 actionable insights from the data${hasMultimodal ? ' (including observations from media files)' : ''}
-2. RECOMMENDATIONS: Provide 3-5 strategic recommendations
-3. PREDICTIONS: Forecast tire wear, lap times, pit windows, and performance trends
-4. PATTERNS: Identify data patterns, anomalies, and trends
-5. SUMMARY: A concise executive summary of the analysis
-6. CONFIDENCE: A confidence score (0-100) for the analysis
+1. KEY INSIGHTS: List 5-7 actionable insights from the data${hasMultimodal ? ' (including observations from media files)' : ''}${hasMultiTrackData ? ' (leveraging cross-track patterns)' : ''}
+2. RECOMMENDATIONS: Provide 3-5 strategic recommendations${hasMultiTrackData ? ' based on successful strategies across multiple tracks' : ''}
+3. PREDICTIONS: Forecast tire wear, lap times, pit windows, and performance trends${hasMultiTrackData ? ' using ensemble methods across all tracks' : ''}
+4. PATTERNS: Identify data patterns, anomalies, and trends${hasMultiTrackData ? ' (including cross-track patterns and track-specific behaviors)' : ''}
+5. SUMMARY: A concise executive summary of the analysis${hasMultiTrackData ? ' highlighting how multi-track data improved predictions' : ''}
+6. CONFIDENCE: A confidence score (0-100) for the analysis${hasMultiTrackData ? ' (higher confidence expected due to cross-track validation)' : ''}
+
+${hasMultiTrackData ? `\nSPECIAL FOCUS: 
+- Compare ${data.track} performance against patterns from other tracks
+- Identify which predictions are validated by cross-track data
+- Highlight track-specific vs universal patterns
+- Provide ensemble predictions that combine insights from all ${tracksAnalyzed} tracks` : ''}
 
 Format your response as JSON with the following structure:
 {
@@ -833,6 +864,124 @@ export async function getRealTimeAIAnalytics(
   } catch (error) {
     console.error('Error fetching race data for AI analytics:', error);
     throw error;
+  }
+}
+
+/**
+ * All 7 track datasets for multi-track analysis
+ */
+export const ALL_TRACKS = [
+  'barber',
+  'cota',
+  'indianapolis',
+  'road_america',
+  'sebring',
+  'sonoma',
+  'vir'
+] as const;
+
+/**
+ * Fetch dashboard data from multiple tracks in parallel
+ */
+async function fetchMultiTrackData(
+  tracks: string[],
+  race: number,
+  vehicle?: number,
+  lap?: number
+): Promise<Array<{ track: string; data: any; error?: string }>> {
+  const fetchPromises = tracks.map(async (track) => {
+    try {
+      const dashboardData = await client.get('/api/dashboard/live', {
+        params: { track, race, vehicle, lap }
+      });
+      return {
+        track,
+        data: dashboardData.data,
+      };
+    } catch (error) {
+      console.warn(`Failed to fetch data for track ${track}:`, error);
+      return {
+        track,
+        data: null,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  });
+
+  return Promise.all(fetchPromises);
+}
+
+/**
+ * Get real-time analytics using data from all 7 datasets for enhanced predictions
+ * This leverages cross-track patterns and historical data from all tracks
+ */
+export async function getRealTimeAIAnalyticsMultiTrack(
+  primaryTrack: string,
+  race: number,
+  vehicle?: number,
+  lap?: number,
+  options?: {
+    includeAllTracks?: boolean;
+    tracks?: string[];
+    model?: 'openai' | 'gemini' | 'both';
+    geminiOptions?: GeminiOptions;
+  }
+): Promise<AIAnalyticsResponse> {
+  const {
+    includeAllTracks = true,
+    tracks = includeAllTracks ? [...ALL_TRACKS] : [primaryTrack],
+    model = 'openai',
+    geminiOptions = {},
+  } = options || {};
+
+  try {
+    // Fetch data from all tracks in parallel
+    const multiTrackData = await fetchMultiTrackData(tracks, race, vehicle, lap);
+    
+    // Separate primary track data from other tracks
+    const primaryData = multiTrackData.find(d => d.track === primaryTrack);
+    const otherTracksData = multiTrackData.filter(d => d.track !== primaryTrack && !d.error);
+
+    // Build comprehensive race data with multi-track context
+    const raceData: RaceDataAnalytics = {
+      track: primaryTrack,
+      race,
+      vehicle,
+      lap,
+      telemetry: primaryData?.data as Record<string, unknown> || {},
+      performance: primaryData?.data as Record<string, unknown> || {},
+      // Include multi-track context for cross-track analysis
+      tireData: {
+        primary_track: primaryData?.data,
+        cross_track_patterns: otherTracksData.map(d => ({
+          track: d.track,
+          data: d.data,
+        })),
+        tracks_analyzed: multiTrackData.length,
+        successful_fetches: multiTrackData.filter(d => !d.error).length,
+      },
+    };
+
+    // Use enhanced prompt that leverages multi-track data
+    return performAIAnalytics({
+      data: raceData,
+      analysisType: 'predictive', // Use predictive for cross-track learning
+      model,
+      geminiOptions: {
+        ...geminiOptions,
+        enableGrounding: true, // Enable grounding for better context
+        groundingQueries: [
+          `${primaryTrack} race track characteristics`,
+          `GR Cup ${primaryTrack} vs other tracks comparison`,
+          `cross-track tire wear patterns`,
+          `multi-track race strategy optimization`,
+        ],
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching multi-track data for AI analytics:', error);
+    // Fallback to single-track analysis
+    return getRealTimeAIAnalytics(primaryTrack, race, vehicle, lap);
   }
 }
 

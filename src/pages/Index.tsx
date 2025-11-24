@@ -23,6 +23,8 @@ import { TelemetryComparisonCharts } from "@/components/TelemetryComparisonChart
 import Chatbot from "@/components/Chatbot";
 import { AnalyticsPopup } from "@/components/AnalyticsPopup";
 import { AIDataAnalytics } from "@/components/AIDataAnalytics";
+import { MultiTrackRealTimeAnalysis } from "@/components/MultiTrackRealTimeAnalysis";
+import { RealTimeAnalysis } from "@/components/RealTimeAnalysis";
 import { GeminiZipMatcher } from "@/components/GeminiZipMatcher";
 import { GeminiFeaturesShowcase } from "@/components/GeminiFeaturesShowcase";
 import { GeminiMultimodalInput } from "@/components/GeminiMultimodalInput";
@@ -1234,6 +1236,26 @@ const Index = () => {
         <DemoLauncher />
       </section>
 
+      {/* Real-Time Analysis Section */}
+      <section id="realtime-analysis" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
+              <Activity className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">Live Telemetry Monitoring</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Real-Time Analysis Dashboard
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Monitor live telemetry data, track performance metrics, analyze gaps, and receive real-time alerts during races.
+            </p>
+          </div>
+          <RealTimeAnalysis />
+        </div>
+      </section>
+
       {/* AI Agents Showcase Section */}
       <section className="py-24 px-6 bg-gradient-to-br from-primary/10 via-primary/5 to-background relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)]" />
@@ -2294,6 +2316,32 @@ const Index = () => {
             track={selectedTrack || undefined}
             race={1}
             autoRefresh={false}
+          />
+        </div>
+      </section>
+
+      {/* Multi-Track Real-Time Analysis Section */}
+      <section id="multi-track-realtime" className="py-24 px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
+              <Brain className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Real-Time Multi-Track Analysis
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Leverage data from all 7 datasets to make enhanced predictions. Cross-track pattern recognition 
+              and ensemble methods provide more accurate and robust real-time analytics.
+            </p>
+          </div>
+          <MultiTrackRealTimeAnalysis
+            primaryTrack={selectedTrack || 'cota'}
+            race={1}
+            vehicle={7}
+            lap={12}
+            autoRefresh={true}
+            refreshInterval={30000}
           />
         </div>
       </section>

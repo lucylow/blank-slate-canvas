@@ -7,7 +7,7 @@ import Fastify from "fastify";
 import WebSocket from "ws";
 import { Worker } from "worker_threads";
 import { RingBuffer } from "./ringbuffer";
-import { TelemetryPoint, AggregateResult } from "./types";
+import { TelemetryPoint, AggregateResult, GapAnalysis, RealTimeInsight } from "./types";
 import { startUdpListener } from "./udp_listener";
 import { pollBucketPrefix } from "./s3_watcher";
 import * as cfg from "./config";
@@ -39,7 +39,7 @@ const metrics: ServerMetrics = {
 class WorkerPool {
   private workers: Worker[] = [];
   private availableWorkers: Worker[] = [];
-  private pendingTasks: Array<{ task: any; resolve: (value: any) => void; reject: (error: any) => void }> = [];
+  private pendingTasks: Array<{ batch: TelemetryPoint[]; sectors: any; track: string; resolve: (value: any) => void; reject: (error: any) => void }> = [];
   private workerCount: number;
 
   constructor(count: number = cfg.AGGREGATOR_WORKER_COUNT) {
@@ -51,46 +51,79 @@ class WorkerPool {
     const workerPath = path.join(__dirname, "aggregator.worker.js");
     for (let i = 0; i < this.workerCount; i++) {
       const worker = new Worker(workerPath);
+      
+      // Set up message handler for this worker
       worker.on("message", (result) => {
+        // Worker is now available again
         this.availableWorkers.push(worker);
-        this.processNextTask(worker, result);
+        // Process next pending task if any
+        this.processNextPendingTask();
       });
+      
       worker.on("error", (err) => {
         console.error(`Worker ${i} error:`, err);
         metrics.errors++;
         // Restart worker
         this.restartWorker(i);
       });
+      
       worker.on("exit", (code) => {
         if (code !== 0) {
           console.log(`Worker ${i} exited with code ${code}`);
           this.restartWorker(i);
         }
       });
+      
       this.workers.push(worker);
       this.availableWorkers.push(worker);
     }
   }
 
   private restartWorker(index: number) {
+    const oldWorker = this.workers[index];
+    if (oldWorker) {
+      try {
+        oldWorker.terminate();
+      } catch (e) {
+        // Ignore termination errors
+      }
+    }
+    
     const workerPath = path.join(__dirname, "aggregator.worker.js");
     const newWorker = new Worker(workerPath);
+    
     newWorker.on("message", (result) => {
       this.availableWorkers.push(newWorker);
-      this.processNextTask(newWorker, result);
+      this.processNextPendingTask();
     });
+    
     newWorker.on("error", (err) => {
       console.error(`Worker ${index} error:`, err);
       metrics.errors++;
     });
+    
     this.workers[index] = newWorker;
     this.availableWorkers.push(newWorker);
   }
 
-  private processNextTask(worker: Worker, result: any) {
-    if (this.pendingTasks.length > 0) {
+  private processNextPendingTask() {
+    if (this.pendingTasks.length > 0 && this.availableWorkers.length > 0) {
+      const worker = this.availableWorkers.shift()!;
       const task = this.pendingTasks.shift()!;
-      task.resolve(result);
+      
+      worker.once("message", (result) => {
+        this.availableWorkers.push(worker);
+        task.resolve(result);
+        // Process next pending task
+        this.processNextPendingTask();
+      });
+      
+      worker.postMessage({ 
+        type: "BATCH", 
+        points: task.batch, 
+        sectors: task.sectors, 
+        track: task.track 
+      });
     }
   }
 
@@ -101,31 +134,28 @@ class WorkerPool {
         worker.once("message", (result) => {
           this.availableWorkers.push(worker);
           resolve(result);
+          // Process next pending task
+          this.processNextPendingTask();
         });
         worker.postMessage({ type: "BATCH", points: batch, sectors, track });
       } else {
         // Queue task if no workers available
-        this.pendingTasks.push({ task: { batch, sectors, track }, resolve, reject });
-        // Process when worker becomes available
-        const checkWorker = () => {
-          if (this.availableWorkers.length > 0) {
-            const worker = this.availableWorkers.shift()!;
-            worker.once("message", (result) => {
-              this.availableWorkers.push(worker);
-              resolve(result);
-            });
-            worker.postMessage({ type: "BATCH", points: batch, sectors, track });
-          } else {
-            setTimeout(checkWorker, 10);
-          }
-        };
-        checkWorker();
+        this.pendingTasks.push({ batch, sectors, track, resolve, reject });
       }
     });
   }
 
   shutdown() {
-    this.workers.forEach(worker => worker.terminate());
+    this.workers.forEach(worker => {
+      try {
+        worker.terminate();
+      } catch (e) {
+        // Ignore termination errors
+      }
+    });
+    this.workers = [];
+    this.availableWorkers = [];
+    this.pendingTasks = [];
   }
 }
 
@@ -148,6 +178,152 @@ try {
 
 // Initialize worker pool
 const workerPool = new WorkerPool(cfg.AGGREGATOR_WORKER_COUNT);
+
+// Gap analysis computation
+function computeGapAnalysis(results: AggregateResult[]): GapAnalysis[] {
+  if (results.length === 0) return [];
+
+  // Sort by average speed (proxy for position)
+  const sorted = [...results].sort((a, b) => {
+    const speedA = a.meta?.avgSpeed || 0;
+    const speedB = b.meta?.avgSpeed || 0;
+    return speedB - speedA; // Descending
+  });
+
+  const gaps: GapAnalysis[] = [];
+  const leaderSpeed = sorted[0]?.meta?.avgSpeed || 0;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const current = sorted[i];
+    const currentSpeed = current.meta?.avgSpeed || 0;
+    const ahead = i > 0 ? sorted[i - 1] : null;
+    const behind = i < sorted.length - 1 ? sorted[i + 1] : null;
+
+    // Estimate gaps based on speed differential (simplified)
+    const gapToLeader = leaderSpeed > 0 
+      ? ((leaderSpeed - currentSpeed) / leaderSpeed) * 100 // percentage gap
+      : 0;
+    
+    const gapToAhead = ahead && currentSpeed > 0
+      ? ((ahead.meta?.avgSpeed || 0) - currentSpeed) / currentSpeed * 100
+      : null;
+
+    const gapToBehind = behind && currentSpeed > 0
+      ? (currentSpeed - (behind.meta?.avgSpeed || 0)) / currentSpeed * 100
+      : null;
+
+    // Overtaking opportunity: within 2% speed and behind someone
+    const overtakingOpportunity = ahead !== null && gapToAhead !== null && gapToAhead < 2 && gapToAhead > 0;
+    
+    // Under pressure: someone close behind (within 1% speed)
+    const underPressure = behind !== null && gapToBehind !== null && gapToBehind < 1 && gapToBehind > 0;
+
+    gaps.push({
+      chassis: current.chassis,
+      position: i + 1,
+      gapToLeader: Number(gapToLeader.toFixed(2)),
+      gapToAhead: gapToAhead !== null ? Number(gapToAhead.toFixed(2)) : null,
+      gapToBehind: gapToBehind !== null ? Number(gapToBehind.toFixed(2)) : null,
+      relativeSpeed: Number((currentSpeed - leaderSpeed).toFixed(2)),
+      overtakingOpportunity,
+      underPressure
+    });
+  }
+
+  return gaps;
+}
+
+// Generate real-time insights
+function generateInsights(results: AggregateResult[], gaps: GapAnalysis[]): RealTimeInsight[] {
+  const insights: RealTimeInsight[] = [];
+  const now = Date.now();
+
+  for (const result of results) {
+    // Tire wear insights
+    if (result.laps_until_0_5s_loss < 5) {
+      insights.push({
+        type: 'tire_wear',
+        severity: result.laps_until_0_5s_loss < 2 ? 'critical' : 'high',
+        message: `Critical tire wear: ${result.laps_until_0_5s_loss.toFixed(1)} laps until 0.5s loss`,
+        chassis: result.chassis,
+        timestamp: now,
+        data: {
+          laps_until_loss: result.laps_until_0_5s_loss,
+          predicted_loss_per_lap: result.predicted_loss_per_lap_seconds
+        }
+      });
+    } else if (result.laps_until_0_5s_loss < 10) {
+      insights.push({
+        type: 'tire_wear',
+        severity: 'medium',
+        message: `Tire wear monitoring: ${result.laps_until_0_5s_loss.toFixed(1)} laps until significant loss`,
+        chassis: result.chassis,
+        timestamp: now,
+        data: { laps_until_loss: result.laps_until_0_5s_loss }
+      });
+    }
+
+    // Performance degradation
+    if (result.meta?.performanceTrend === 'degrading') {
+      insights.push({
+        type: 'performance',
+        severity: 'medium',
+        message: `Performance degrading - consider strategy adjustment`,
+        chassis: result.chassis,
+        timestamp: now,
+        data: {
+          trend: result.meta.performanceTrend,
+          consistency: result.meta.consistency
+        }
+      });
+    }
+
+    // Low consistency alert
+    if (result.meta?.consistency !== undefined && result.meta.consistency < 80) {
+      insights.push({
+        type: 'performance',
+        severity: 'low',
+        message: `Low consistency detected: ${result.meta.consistency.toFixed(1)}%`,
+        chassis: result.chassis,
+        timestamp: now,
+        data: { consistency: result.meta.consistency }
+      });
+    }
+  }
+
+  // Gap analysis insights
+  for (const gap of gaps) {
+    if (gap.overtakingOpportunity) {
+      insights.push({
+        type: 'gap_analysis',
+        severity: 'low',
+        message: `Overtaking opportunity: ${gap.gapToAhead?.toFixed(2)}% gap to car ahead`,
+        chassis: gap.chassis,
+        timestamp: now,
+        data: {
+          gapToAhead: gap.gapToAhead,
+          position: gap.position
+        }
+      });
+    }
+
+    if (gap.underPressure) {
+      insights.push({
+        type: 'gap_analysis',
+        severity: 'medium',
+        message: `Under pressure: ${gap.gapToBehind?.toFixed(2)}% gap to car behind`,
+        chassis: gap.chassis,
+        timestamp: now,
+        data: {
+          gapToBehind: gap.gapToBehind,
+          position: gap.position
+        }
+      });
+    }
+  }
+
+  return insights;
+}
 
 // fastify
 const fastify = Fastify({ logger: false });
@@ -238,7 +414,6 @@ function broadcast(msg: string, skipIfBackpressure: boolean = true) {
 }
 
 // Optimized periodic batch processing with worker pool
-let lastBatchTime = Date.now();
 setInterval(async () => {
   if (ring.size === 0) return;
   
@@ -253,10 +428,24 @@ setInterval(async () => {
     
     if (result && result.type === "AGGREGATES") {
       metrics.aggregationsProcessed++;
+      
+      // Compute gap analysis
+      const gaps = computeGapAnalysis(result.results);
+      
+      // Generate insights
+      const insights = generateInsights(result.results, gaps);
+      
+      // Enhanced payload with all analysis
       const payload = JSON.stringify({ 
         type: "insight_update", 
-        data: result.results, 
-        meta: { generated_at: new Date(result.ts).toISOString() } 
+        data: result.results,
+        gaps: gaps,
+        insights: insights,
+        meta: { 
+          generated_at: new Date(result.ts).toISOString(),
+          vehicle_count: result.results.length,
+          analysis_version: "2.0"
+        } 
       });
       broadcast(payload);
     }
