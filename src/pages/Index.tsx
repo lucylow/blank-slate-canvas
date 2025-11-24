@@ -6,7 +6,6 @@ import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Men
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import DemoLauncher from "@/components/DemoLauncher";
 import AIAgentResults from "@/components/AIAgentResults";
 import PDFReportGenerator from "@/components/PDFReportGenerator";
 import SebringPDFReportGenerator from "@/components/SebringPDFReportGenerator";
@@ -1216,11 +1215,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Demo Launcher Section */}
-      <section className="py-8 sm:py-12 px-4 sm:px-6">
-        <DemoLauncher />
-      </section>
-
       {/* Real-Time Analysis Section */}
       <section id="realtime-analysis" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
@@ -1796,32 +1790,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden" aria-label="Call to action section">
-        {/* Animated background pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:40px_40px] opacity-30" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
-        
-        <div className="container mx-auto max-w-4xl text-center relative z-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight px-2">
-            Ready to Transform Your Race Strategy?
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 md:mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto px-2">
-            Request early access to PitWall AI for your racing team.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
-              aria-label="Contact Our Team"
-            >
-              Contact Our Team
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Telemetry Comparison Section */}
       <section id="telemetry-comparison-charts" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
@@ -2052,6 +2020,32 @@ const Index = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Real-time race alerts and notifications via Slack webhooks. Configure in the dashboard settings.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden" aria-label="Call to action section">
+        {/* Animated background pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:40px_40px] opacity-30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
+        
+        <div className="container mx-auto max-w-4xl text-center relative z-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight px-2">
+            Ready to Transform Your Race Strategy?
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 md:mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto px-2">
+            Request early access to PitWall AI for your racing team.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+              aria-label="Contact Our Team"
+            >
+              Contact Our Team
+            </Button>
           </div>
         </div>
       </section>

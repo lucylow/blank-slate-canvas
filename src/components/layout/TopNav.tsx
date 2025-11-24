@@ -39,6 +39,10 @@ const routeTitles: Record<string, string> = {
   '/post-event-analysis': 'Post-Event Analysis',
   '/pit-window': 'Pit Window',
   '/gr-cars-drivers': 'Cars & Drivers',
+  '/ai-analytics': 'AI Data Analytics',
+  '/driver-fingerprinting': 'Driver Fingerprinting',
+  '/anomaly-detection': 'Anomaly Detection',
+  '/slack-integration': 'Slack Integration',
   '/about': 'About',
   '/settings': 'Settings',
 };

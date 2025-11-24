@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 
 interface VideoPreviewProps {
   src: string;
@@ -11,7 +11,14 @@ interface VideoPreviewProps {
   ariaLabel?: string;
 }
 
-export default function VideoPreview({
+export interface VideoPreviewHandle {
+  seekTo: (seconds: number) => void;
+  play: () => Promise<void>;
+  pause: () => void;
+  getCurrentTime: () => number;
+}
+
+const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
   src,
   poster = null,
   className = '',
@@ -20,13 +27,37 @@ export default function VideoPreview({
   playsInline = true,
   preload = 'metadata',
   ariaLabel = 'Video preview'
-}: VideoPreviewProps) {
-  const ref = useRef<HTMLVideoElement>(null);
+}, ref) => {
   const [isHoverPlaying, setHoverPlaying] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  useImperativeHandle(ref, () => ({
+    seekTo: (seconds: number) => {
+      const v = videoRef.current;
+      if (v) {
+        v.currentTime = seconds;
+      }
+    },
+    play: async () => {
+      const v = videoRef.current;
+      if (v) {
+        await v.play();
+      }
+    },
+    pause: () => {
+      const v = videoRef.current;
+      if (v) {
+        v.pause();
+      }
+    },
+    getCurrentTime: () => {
+      const v = videoRef.current;
+      return v ? v.currentTime : 0;
+    }
+  }), []);
+
   useEffect(() => {
-    const v = ref.current;
+    const v = videoRef.current;
     if (!v) return;
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
@@ -40,7 +71,7 @@ export default function VideoPreview({
 
   // Hover handlers (desktop)
   const handleMouseEnter = async () => {
-    const v = ref.current;
+    const v = videoRef.current;
     if (!v) return;
     try {
       // mute + play for autoplay policy
@@ -55,7 +86,7 @@ export default function VideoPreview({
   };
 
   const handleMouseLeave = () => {
-    const v = ref.current;
+    const v = videoRef.current;
     if (!v) return;
     v.pause();
     setHoverPlaying(false);
@@ -63,7 +94,7 @@ export default function VideoPreview({
 
   // Click toggles play/pause (mobile friendly)
   const handleClick = async (e: React.MouseEvent) => {
-    const v = ref.current;
+    const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
       try {
@@ -78,7 +109,7 @@ export default function VideoPreview({
 
   // Double click to fullscreen
   const handleDoubleClick = () => {
-    const v = ref.current;
+    const v = videoRef.current;
     if (!v) return;
     if (v.requestFullscreen) {
       v.requestFullscreen();
@@ -122,7 +153,7 @@ export default function VideoPreview({
       style={{ minHeight: 220, backgroundColor: '#000' }}
     >
       <video
-        ref={ref}
+        ref={videoRef}
         src={src}
         poster={poster || undefined}
         preload={preload}
@@ -157,5 +188,9 @@ export default function VideoPreview({
       </div>
     </div>
   );
-}
+});
+
+VideoPreview.displayName = 'VideoPreview';
+
+export default VideoPreview;
 

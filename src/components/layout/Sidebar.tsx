@@ -288,7 +288,7 @@ export function Sidebar() {
         <Button
           variant="ghost"
           size="icon"
-          className="hidden lg:flex fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-accent"
+          className="hidden lg:flex fixed top-4 left-4 z-[60] bg-background/95 backdrop-blur-sm border border-border shadow-lg hover:bg-accent hover:shadow-xl transition-all"
           onClick={() => setIsExpanded(true)}
           aria-label="Show sidebar"
         >

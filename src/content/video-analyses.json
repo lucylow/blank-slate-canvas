@@ -1,0 +1,112 @@
+[
+  {
+    "id": "overtake-turn3",
+    "title": "Overtake on Turn 3",
+    "video": "/videos/overtake-turn3.mp4",
+    "poster": "/videos/posters/overtake-turn3.jpg",
+    "event_ts": "2025-03-15T14:12:34.000Z",
+    "lap": 19,
+    "sector": 2,
+    "timestamp_s": 12.34,
+    "telemetry": { "speed_kph": 185, "g": 2.4 },
+    "agents": {
+      "predictor": { "loss_s_per_lap": 0.321, "laps_until_cliff": 3, "confidence": 0.78 },
+      "simulator": { "recommendation": "pit_lap_15", "expected_gain_s": 3.3, "p50": 3.3, "confidence": 0.6 },
+      "anomaly": { "score": 0.12, "type": "none" }
+    },
+    "shap": [
+      { "feature": "tire_stress_sector_1", "impact": 0.21 },
+      { "feature": "brake_energy_sector_2", "impact": 0.18 },
+      { "feature": "throttle_variability", "impact": 0.11 }
+    ],
+    "fingerprint": { "baseline_similarity": 0.82, "note": "Slightly more aggressive at apex entry." },
+    "coaching": [
+      "Reduce trailing brake 0.08s in final corner to improve exit.",
+      "Smooth throttle on initial 5m after apex to preserve rear grip."
+    ],
+    "severity": "info",
+    "tags": ["overtake", "inside-line"]
+  },
+  {
+    "id": "defensive-roadamerica",
+    "title": "Defensive Move on Straight",
+    "video": "/videos/defensive-block-roadamerica.mp4",
+    "poster": "/videos/posters/defensive-roadamerica.jpg",
+    "event_ts": "2025-03-15T14:18:45.000Z",
+    "lap": 8,
+    "sector": 2,
+    "timestamp_s": 18.45,
+    "telemetry": { "speed_kph": 310, "g": 1.8 },
+    "agents": {
+      "predictor": { "loss_s_per_lap": 0.12, "laps_until_cliff": 10, "confidence": 0.86 },
+      "simulator": { "recommendation": "stay_out", "expected_gain_s": -0.2, "confidence": 0.5 },
+      "anomaly": { "score": 0.05, "type": "none" }
+    },
+    "shap": [
+      { "feature": "slip_angle", "impact": 0.15 },
+      { "feature": "drag_coefficient", "impact": 0.10 },
+      { "feature": "draft_gain", "impact": 0.08 }
+    ],
+    "fingerprint": { "baseline_similarity": 0.95, "note": "Conservative block—consistent." },
+    "coaching": [
+      "Maintain current line; slight reduction in brake bias may help under braking on repeat attempts."
+    ],
+    "severity": "info",
+    "tags": ["defensive", "block"]
+  },
+  {
+    "id": "personal-best-sebring",
+    "title": "Personal Best Lap — Sebring",
+    "video": "/videos/personal-best-sebring.mp4",
+    "poster": "/videos/posters/personal-best-sebring.jpg",
+    "event_ts": "2025-03-15T14:25:12.000Z",
+    "lap": 12,
+    "sector": 3,
+    "timestamp_s": 25.12,
+    "telemetry": { "speed_kph": 164, "g": 1.6 },
+    "agents": {
+      "predictor": { "loss_s_per_lap": 0.18, "laps_until_cliff": 6, "confidence": 0.82 },
+      "simulator": { "recommendation": "push_next_lap", "expected_gain_s": 0.7, "confidence": 0.45 },
+      "anomaly": { "score": 0.02, "type": "none" }
+    },
+    "shap": [
+      { "feature": "sector2_time", "impact": 0.27 },
+      { "feature": "apex_consistency", "impact": 0.15 },
+      { "feature": "rpm_peak", "impact": 0.08 }
+    ],
+    "fingerprint": { "baseline_similarity": 0.98, "note": "Highly stable lap — recommended repetition." },
+    "coaching": [
+      "Repeat sector 2 approach; small throttle blip at exit yielded gains."
+    ],
+    "severity": "success",
+    "tags": ["fastlap", "personal-best"]
+  },
+  {
+    "id": "near-miss-barber",
+    "title": "Near Miss - Turn 5",
+    "video": "/videos/near-miss-barber.mp4",
+    "poster": "/videos/posters/near-miss-barber.jpg",
+    "event_ts": "2025-03-15T14:32:08.000Z",
+    "lap": 15,
+    "sector": 1,
+    "timestamp_s": 32.08,
+    "telemetry": { "speed_kph": 142, "g": 2.1 },
+    "agents": {
+      "predictor": { "loss_s_per_lap": 0.40, "laps_until_cliff": 2, "confidence": 0.7 },
+      "simulator": { "recommendation": "monitor_and_replay", "expected_gain_s": 0.0, "confidence": 0.3 },
+      "anomaly": { "score": 0.92, "type": "near_miss" }
+    },
+    "shap": [
+      { "feature": "late_braking_events", "impact": 0.41 },
+      { "feature": "tire_temp_rl", "impact": 0.16 },
+      { "feature": "track_grip_index", "impact": 0.12 }
+    ],
+    "fingerprint": { "baseline_similarity": 0.68, "note": "Deviation: late-brake; potential aggression spike." },
+    "coaching": [
+      "Review replay for cause—engineer validate brake bias and tire condition.",
+      "Recommend controlled braking drills to lower late-braking occurrences."
+    ],
+    "severity": "high",
+    "tags": ["near-miss", "braking", "anomaly"]
+  }
+]

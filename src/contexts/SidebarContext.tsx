@@ -8,10 +8,30 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Default to expanded on larger screens, collapsed on mobile
+  // Also check localStorage for user preference
+  const [isExpanded, setIsExpanded] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebar_expanded');
+      if (saved !== null) {
+        return saved === 'true';
+      }
+      // Default to expanded on desktop, collapsed on mobile
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
+
+  // Save to localStorage when expanded state changes
+  const handleSetExpanded = (expanded: boolean) => {
+    setIsExpanded(expanded);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebar_expanded', String(expanded));
+    }
+  };
 
   return (
-    <SidebarContext.Provider value={{ isExpanded, setIsExpanded }}>
+    <SidebarContext.Provider value={{ isExpanded, setIsExpanded: handleSetExpanded }}>
       {children}
     </SidebarContext.Provider>
   );

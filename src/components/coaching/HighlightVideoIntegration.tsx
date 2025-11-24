@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Video, MessageSquare, Bookmark } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import VideoPreview from '@/components/VideoPreview';
+import VideoPreview, { type VideoPreviewHandle } from '@/components/VideoPreview';
+import AnnotationPanel from '@/components/AnnotationPanel';
+import TimelinePanel from '@/components/TimelinePanel';
 
 interface HighlightEvent {
   id: string;
@@ -108,6 +110,22 @@ const mockHighlights: HighlightEvent[] = [
 export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoIntegrationProps) {
   const [selectedHighlight, setSelectedHighlight] = useState<HighlightEvent | null>(mockHighlights[0]);
   const [annotations, setAnnotations] = useState<string[]>([]);
+  const mainVideoRef = useRef<VideoPreviewHandle>(null);
+
+  const handleJumpTo = (event: { seconds: number; video?: string | null }) => {
+    // If the event has a video, try to find the matching highlight and set it
+    if (event.video) {
+      const matchingHighlight = mockHighlights.find(h => h.videoUrl === event.video);
+      if (matchingHighlight) {
+        setSelectedHighlight(matchingHighlight);
+      }
+    }
+    // Seek to the timestamp in the main video player
+    if (mainVideoRef.current && event.seconds != null) {
+      mainVideoRef.current.seekTo(event.seconds);
+      mainVideoRef.current.play().catch(() => {});
+    }
+  };
 
   // Get video key from highlight id for mapping
   const getVideoKey = (highlightId: string): string => {
@@ -210,6 +228,7 @@ export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoInte
                       {selectedHighlight.videoUrl && (
                         <div className="mb-4">
                           <VideoPreview
+                            ref={mainVideoRef}
                             src={selectedHighlight.videoUrl}
                             poster={POSTER_MAP[getVideoKey(selectedHighlight.id)] || null}
                             ariaLabel={`Video for ${selectedHighlight.title}`}
@@ -265,74 +284,11 @@ export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoInte
         </TabsContent>
 
         <TabsContent value="timeline" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Race Timeline with Highlights</CardTitle>
-              <CardDescription>Key events mapped to race timeline</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="relative">
-                {/* Timeline */}
-                <div className="flex items-center gap-4 overflow-x-auto pb-4">
-                  {mockHighlights.map((highlight, idx) => (
-                    <div key={highlight.id} className="flex-shrink-0 text-center">
-                      <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center mb-2">
-                        <Video className="h-6 w-6 text-primary" />
-                      </div>
-                      <p className="text-xs font-semibold">{highlight.timestamp}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{highlight.type}</p>
-                      {idx < mockHighlights.length - 1 && (
-                        <div className="absolute top-8 left-16 w-16 h-0.5 bg-border" style={{ marginLeft: '64px' }} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TimelinePanel onJumpTo={handleJumpTo} />
         </TabsContent>
 
         <TabsContent value="annotations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Add Annotation</CardTitle>
-              <CardDescription>Review and annotate key moments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Add annotation..."
-                    className="flex-1 px-3 py-2 border rounded-md"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && e.currentTarget.value) {
-                        handleAddAnnotation(e.currentTarget.value);
-                        e.currentTarget.value = '';
-                      }
-                    }}
-                  />
-                  <Button onClick={() => {
-                    const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-                    if (input?.value) {
-                      handleAddAnnotation(input.value);
-                      input.value = '';
-                    }
-                  }}>
-                    <Bookmark className="h-4 w-4 mr-2" />
-                    Add
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {annotations.map((annotation, idx) => (
-                    <Alert key={idx}>
-                      <AlertDescription>{annotation}</AlertDescription>
-                    </Alert>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <AnnotationPanel />
         </TabsContent>
       </Tabs>
     </div>
