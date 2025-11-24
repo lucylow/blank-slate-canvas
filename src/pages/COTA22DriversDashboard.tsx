@@ -200,6 +200,29 @@ export default function COTA22DriversDashboard() {
     }
   };
 
+  // Helper functions for chart labels and colors
+  function getMetricLabel(metric: string): string {
+    switch (metric) {
+      case 'speed': return 'Speed (km/h)';
+      case 'throttle': return 'Throttle (%)';
+      case 'brake': return 'Brake (%)';
+      case 'gear': return 'Gear';
+      case 'rpm': return 'RPM';
+      default: return metric;
+    }
+  }
+
+  function getMetricColorHex(metric: string): string {
+    switch (metric) {
+      case 'speed': return '#3B82F6';
+      case 'throttle': return '#10B981';
+      case 'brake': return '#EF4444';
+      case 'gear': return '#8B5CF6';
+      case 'rpm': return '#F59E0B';
+      default: return '#6B7280';
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -502,7 +525,7 @@ export default function COTA22DriversDashboard() {
                         <Line
                           type="monotone"
                           dataKey={activeMetric}
-                          stroke={getMetricColor(activeMetric)}
+                          stroke={getMetricColorHex(activeMetric)}
                           strokeWidth={2}
                           dot={false}
                           name={getMetricLabel(activeMetric)}
@@ -564,27 +587,5 @@ export default function COTA22DriversDashboard() {
       </div>
     </div>
   );
-
-  function getMetricLabel(metric: string): string {
-    switch (metric) {
-      case 'speed': return 'Speed (km/h)';
-      case 'throttle': return 'Throttle (%)';
-      case 'brake': return 'Brake (%)';
-      case 'gear': return 'Gear';
-      case 'rpm': return 'RPM';
-      default: return metric;
-    }
-  }
-
-  function getMetricColor(metric: string): string {
-    switch (metric) {
-      case 'speed': return '#3B82F6';
-      case 'throttle': return '#10B981';
-      case 'brake': return '#EF4444';
-      case 'gear': return '#8B5CF6';
-      case 'rpm': return '#F59E0B';
-      default: return '#6B7280';
-    }
-  }
 }
 
