@@ -782,7 +782,23 @@ sequenceDiagram
 
 #### Model Architecture
 
-The tire wear prediction system uses a physics-informed machine learning approach that combines domain knowledge with data-driven learning.
+The tire wear prediction system uses a **physics-informed hybrid machine learning architecture** that combines domain knowledge with data-driven learning. The architecture employs a two-stage approach: a physics-based baseline model followed by an ensemble of gradient boosting models that learn residual patterns.
+
+**Hybrid Architecture**:
+```python
+# Physics-informed hybrid model
+y_predicted = y_physics_baseline + y_residual_ensemble
+
+# Where:
+# - y_physics_baseline: Domain knowledge model (tire stress, load cycles)
+# - y_residual_ensemble: ML ensemble (XGBoost + LightGBM + CatBoost)
+```
+
+This hybrid approach provides:
+- **Interpretability**: Physics baseline explains fundamental tire degradation mechanisms
+- **Accuracy**: Ensemble models capture non-linear patterns and track-specific nuances
+- **Robustness**: Falls back to physics model if ML components fail
+- **Generalization**: Physics constraints prevent overfitting to training data
 
 ```mermaid
 graph TB
@@ -806,11 +822,14 @@ graph TB
         H --> J
         I --> J
         
-        J --> K[XGBoost Regressor<br/>or Random Forest]
-        K --> L[Tire Wear Prediction<br/>FL, FR, RL, RR %]
+        J --> K[Physics Baseline Model<br/>Domain Knowledge]
+        K --> L[Residual Ensemble<br/>XGBoost + LightGBM + CatBoost]
+        L --> M[Weighted Ensemble<br/>Prediction Fusion]
+        M --> N[Tire Wear Prediction<br/>FL, FR, RL, RR %]
         
-        L --> M[Confidence Interval<br/>Bootstrap CI]
-        L --> N[Feature Importance<br/>SHAP values]
+        N --> O[Confidence Interval<br/>Bootstrap CI]
+        N --> P[Feature Importance<br/>SHAP values]
+        P --> Q[Explainable Output<br/>Top-3 evidence]
     end
     
     subgraph "Post-Processing"
@@ -820,8 +839,9 @@ graph TB
         P --> Q[Explainable Output<br/>Top-3 evidence]
     end
     
-    style K fill:#4ecdc4
-    style L fill:#ff6b6b
+    style K fill:#95e1d3
+    style L fill:#4ecdc4
+    style N fill:#ff6b6b
     style Q fill:#ffe66d
 ```
 
@@ -925,11 +945,48 @@ graph LR
 - Remaining 17 features: 15% combined importance
 
 **Model Architecture Details**:
-- **Ensemble Method**: Gradient Boosting (XGBoost)
-- **Tree Parameters**: max_depth=6, n_estimators=200, learning_rate=0.1
-- **Regularization**: L1=0.1, L2=1.0 (prevents overfitting)
+
+**Physics Baseline Model**:
+- **Type**: Rule-based model using tire stress equations
+- **Input**: Cumulative G-forces, brake energy, speed profiles
+- **Output**: Baseline tire degradation estimate (0-100%)
+- **Formula**: `wear_baseline = f(cumulative_lateral_g, cumulative_longitudinal_g, brake_energy, lap_number)`
+
+**Residual Ensemble Models**:
+- **XGBoost**: Primary model (weight: 0.5)
+  - Parameters: max_depth=6, n_estimators=200, learning_rate=0.1
+  - Regularization: L1=0.1, L2=1.0
+  - Tree method: `hist` (histogram-based, faster training)
+  
+- **LightGBM**: Secondary model (weight: 0.25)
+  - Parameters: num_leaves=31, n_estimators=150, learning_rate=0.1
+  - Feature fraction: 0.8, bagging fraction: 0.8
+  - Optimized for speed and memory efficiency
+  
+- **CatBoost**: Tertiary model (weight: 0.25)
+  - Parameters: depth=6, iterations=150, learning_rate=0.1
+  - Categorical feature handling: automatic
+  - Robust to overfitting with built-in regularization
+
+**Ensemble Fusion**:
+- **Method**: Weighted average of residual predictions
+- **Weights**: XGBoost (0.5), LightGBM (0.25), CatBoost (0.25)
+- **Final Prediction**: `y_final = y_physics + Σ(w_i × y_residual_i)`
+
+**Training Configuration**:
 - **Training Data**: 1.8GB telemetry data, 500+ laps, 10+ tracks
-- **Training Time**: ~45 minutes on 8-core CPU (hyperparameter tuning via Optuna)
+- **Train/Test Split**: 70/30 stratified by track
+- **Cross-Validation**: 5-fold time-series CV (preserves temporal order)
+- **Hyperparameter Tuning**: Optuna (Bayesian optimization, 100 trials)
+- **Training Time**: ~45 minutes on 8-core CPU (all models)
+- **Model Size**: ~50MB (ONNX quantized INT8), ~200MB (uncompressed)
+
+**Model Deployment**:
+- **Format**: ONNX Runtime (optimized inference engine)
+- **Execution Providers**: CPU (default), CUDA (GPU), TensorRT (NVIDIA)
+- **Quantization**: INT8 quantization for 4x speedup, <1% accuracy loss
+- **Batch Processing**: Supports batch inference (1-100 samples)
+- **Online Learning**: Optional River integration for incremental updates
 
 **Example Prediction Output**:
 
