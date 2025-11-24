@@ -1,0 +1,100 @@
+# Road America - Comprehensive Data Analysis Report
+
+**Date:** November 20, 2025  
+**Track:** Road America  
+**Data Source:** Official GR Cup Race Data (Races 1 & 2)
+
+---
+
+## 1. Executive Summary
+
+This report provides a comprehensive analysis of the Road America race weekend, covering all available data from Race 1 and Race 2. The analysis integrates race results, weather conditions, sector performance, and lap time data to provide a complete picture of the on-track action.
+
+The weekend at Road America was defined by incredibly close competition and changing fortunes. Race 1 saw a tight battle for the win, with the top 3 separated by less than a second. Race 2 featured a different winner and a slightly more spread-out field, suggesting that strategy and adaptation were key. The weather was cool and humid for both races, providing a consistent but challenging environment.
+
+---
+
+## 2. Race 1 Analysis
+
+### 2.1. Race Results
+
+| Metric | Value |
+|---|---|
+| **Total Competitors** | 28 |
+| **Winner** | #55 (45:03.689) |
+| **Podium** | #55, #7 (+0.652s), #13 (+0.801s) |
+| **Fastest Lap** | #55 (2:43.767 @ 143.2 kph) |
+| **Total Laps** | 15 |
+
+- **Photo Finish:** The race was incredibly close, with the top 3 finishers crossing the line within 0.8 seconds of each other.
+- **Deep Field:** The top 9 drivers were all within 6 seconds of the leader, highlighting the depth of competition.
+
+### 2.2. Weather Conditions
+
+- **Air Temperature:** Cool, averaging **21.6°C**.
+- **Track Temperature:** Averaging **24.7°C**.
+- **Humidity:** High at **94.4%**.
+- **Conditions:** The cool, humid air would have been good for engine power, but the high humidity could have affected grip levels. No rain was reported.
+
+### 2.3. Performance Data
+
+- **Sector Analysis:** **415 laps** of sector data were recorded from all 28 drivers, providing a rich dataset for analyzing where time was won and lost on this long and challenging circuit.
+- **Best Laps:** The "Best 10 Laps" data shows that while some drivers could set a single fast lap, consistency over a 10-lap average was a better indicator of race performance.
+
+---
+
+## 3. Race 2 Analysis
+
+### 3.1. Race Results
+
+| Metric | Value |
+|---|---|
+| **Total Competitors** | 28 |
+| **Winner** | #13 (45:10.035) |
+| **Podium** | #13, #22 (+1.321s), #7 (+1.733s) |
+| **Fastest Lap** | #22 (2:43.342 @ 143.6 kph) |
+| **Total Laps** | 15 |
+
+- **New Winner:** Car #13, who finished P3 in Race 1, took the victory in Race 2, showing strong adaptation.
+- **Fastest Lap Holder:** Car #22, who finished P7 in Race 1, not only improved to P2 but also set the fastest lap of the race, indicating a significant setup or strategy change.
+
+### 3.2. Weather Conditions
+
+- **Air Temperature:** Slightly warmer than Race 1, averaging **22.5°C**.
+- **Track Temperature:** Averaging **26.9°C**.
+- **Humidity:** Still high at **93.8%**.
+- **Conditions:** The slight increase in temperature may have changed the track's grip characteristics, favoring those who could adapt their driving style.
+
+### 3.3. Performance Data
+
+- **Sector Analysis:** **414 laps** of sector data were recorded, showing a similar level of data completeness to Race 1.
+- **Lap Times:** **221 lap records** from **28 unique vehicles** were logged, providing a complete picture of the race pace for every car on the grid.
+
+---
+
+## 4. Comparative Analysis & Key Takeaways
+
+1.  **Adaptation is Key:** The change in winners between Race 1 and Race 2, despite similar weather conditions, shows that the ability to analyze Race 1 data and make effective setup changes for Race 2 was the key to victory.
+
+2.  **The Power of the Draft:** Road America is known for its long straights, and the close gaps in both races suggest that the slipstream effect played a significant role in keeping the field bunched up and enabling overtaking maneuvers.
+
+3.  **Consistency Over a Single Lap:** In both races, the winner did not have the absolute fastest lap. Car #55 won Race 1 while setting the fastest lap, but in Race 2, Car #22 had the fastest lap but finished P2. This reinforces the theme that consistent, competitive race pace is more important than a single 
+blistering lap.
+
+4.  **Deep Field of Talent:** The fact that the top 9 cars were within 6 seconds of each other in Race 1, and the podium was decided by less than 2 seconds in both races, speaks to the high level of talent in the GR Cup series.
+
+---
+
+## 5. Conclusion & Strategic Recommendations
+
+This comprehensive analysis of the Road America race weekend highlights a track that rewards both raw speed and tactical racing. The key takeaways for teams are:
+
+- **Drafting and Overtaking:** A strategy that maximizes the slipstream on Road America's long straights is essential. Drivers must be skilled in both using the draft to attack and breaking the draft to defend.
+
+- **Setup for Race 2:** The winner of Race 2 was not the winner of Race 1. This proves that post-race data analysis and making effective setup adjustments for the second race is a critical factor for success.
+
+- **Qualifying vs. Race Pace:** While a good qualifying position is always an advantage, the close nature of the racing and the power of the draft mean that a car with strong, consistent race pace can fight its way to the front even from further down the grid.
+
+- **Focus on Consistency:** Teams should analyze their drivers' lap time data to identify and smooth out any inconsistencies. At a track like Road America, a series of consistent, fast laps is more valuable than one or two 'flyers' followed by slower laps.
+
+This report provides a full and actionable overview of the Road America race weekend, offering data-driven insights to enhance team performance and strategy in future events.
