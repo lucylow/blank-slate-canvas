@@ -6,7 +6,7 @@ numpy==1.26.2
 scikit-learn==1.3.2
 python-multipart==0.0.6
 sse-starlette==1.6.5
-prometheus-client==0.19.0
+prometheus-client==0.23.1
 aioredis==2.0.1
 redis==5.0.1
 hiredis>=5.0.1  # For AI agents Redis support
