@@ -28,6 +28,7 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
   preload = 'metadata',
   ariaLabel = 'Video preview'
 }, ref) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [isHoverPlaying, setHoverPlaying] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 

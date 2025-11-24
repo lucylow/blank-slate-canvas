@@ -73,7 +73,7 @@ interface AgentDecision {
   evidence: Record<string, any>;
 }
 
-function CreateAgentPageContent() {
+export function CreateAgentPageContent() {
   const [agentConfig, setAgentConfig] = useState<AgentConfig>({
     name: '',
     type: 'strategy',
@@ -109,13 +109,13 @@ function CreateAgentPageContent() {
   
   // Update strategy when track/vehicle changes
   useEffect(() => {
-    if (liveData?.meta.lap) {
+    if (liveData?.meta?.lap) {
       refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData.meta.lap);
     }
-  }, [agentConfig.track, agentConfig.vehicle, liveData?.meta.lap, refreshPrediction]);
+  }, [agentConfig.track, agentConfig.vehicle, liveData?.meta?.lap, refreshPrediction]);
 
   const generateAgentDecision = useCallback(() => {
-    if (!liveData) return;
+    if (!liveData || !liveData.tire_wear || !liveData.gap_analysis || !liveData.meta) return;
 
     const decision: AgentDecision = {
       id: `decision-${Date.now()}`,
@@ -126,9 +126,9 @@ function CreateAgentPageContent() {
       reasoning: generateReasoning(agentConfig.type, liveData, strategy),
       evidence: {
         tireWear: liveData.tire_wear,
-        position: liveData.gap_analysis.position,
-        gapToLeader: liveData.gap_analysis.gap_to_leader,
-        currentLap: liveData.meta.lap,
+        position: liveData.gap_analysis?.position ?? 0,
+        gapToLeader: liveData.gap_analysis?.gap_to_leader ?? 'N/A',
+        currentLap: liveData.meta?.lap ?? 0,
       },
     };
 
@@ -167,15 +167,14 @@ function CreateAgentPageContent() {
     const reasoning: string[] = [];
     
     if (type === 'strategy') {
-      if (data.tire_wear) {
-        const avgWear = (
-          data.tire_wear.front_left +
-          data.tire_wear.front_right +
-          data.tire_wear.rear_left +
-          data.tire_wear.rear_right
-        ) / 4;
+      if (data?.tire_wear) {
+        const frontLeft = data.tire_wear.front_left ?? 0;
+        const frontRight = data.tire_wear.front_right ?? 0;
+        const rearLeft = data.tire_wear.rear_left ?? 0;
+        const rearRight = data.tire_wear.rear_right ?? 0;
+        const avgWear = (frontLeft + frontRight + rearLeft + rearRight) / 4;
         reasoning.push(`Average tire wear: ${avgWear.toFixed(1)}%`);
-        if (data.tire_wear.pit_window_optimal) {
+        if (data.tire_wear.pit_window_optimal && Array.isArray(data.tire_wear.pit_window_optimal) && data.tire_wear.pit_window_optimal.length >= 2) {
           reasoning.push(`Optimal pit window: Laps ${data.tire_wear.pit_window_optimal[0]}-${data.tire_wear.pit_window_optimal[1]}`);
         }
       }
@@ -183,17 +182,17 @@ function CreateAgentPageContent() {
         reasoning.push(`Current strategy pit window: Laps ${strategyData.pitWindow.start}-${strategyData.pitWindow.end}`);
       }
     } else if (type === 'tire') {
-      if (data.tire_wear) {
-        reasoning.push(`Front left: ${data.tire_wear.front_left.toFixed(1)}% remaining`);
-        reasoning.push(`Front right: ${data.tire_wear.front_right.toFixed(1)}% remaining`);
-        reasoning.push(`Rear left: ${data.tire_wear.rear_left.toFixed(1)}% remaining`);
-        reasoning.push(`Rear right: ${data.tire_wear.rear_right.toFixed(1)}% remaining`);
+      if (data?.tire_wear) {
+        reasoning.push(`Front left: ${(data.tire_wear.front_left ?? 0).toFixed(1)}% remaining`);
+        reasoning.push(`Front right: ${(data.tire_wear.front_right ?? 0).toFixed(1)}% remaining`);
+        reasoning.push(`Rear left: ${(data.tire_wear.rear_left ?? 0).toFixed(1)}% remaining`);
+        reasoning.push(`Rear right: ${(data.tire_wear.rear_right ?? 0).toFixed(1)}% remaining`);
       }
     } else if (type === 'performance') {
-      if (data.performance) {
-        reasoning.push(`Current lap: ${data.performance.current_lap}`);
-        reasoning.push(`Best lap: ${data.performance.best_lap}`);
-        reasoning.push(`Gap to leader: ${data.performance.gap_to_leader}`);
+      if (data?.performance) {
+        reasoning.push(`Current lap: ${data.performance.current_lap ?? 'N/A'}`);
+        reasoning.push(`Best lap: ${data.performance.best_lap ?? 'N/A'}`);
+        reasoning.push(`Gap to leader: ${data.performance.gap_to_leader ?? 'N/A'}`);
       }
     } else if (type === 'anomaly') {
       reasoning.push('Analyzing telemetry patterns...');
@@ -220,7 +219,7 @@ function CreateAgentPageContent() {
     setIsActive(true);
     
     // Refresh strategy data
-    refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta.lap);
+    refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap);
   };
 
   const handleStopAgent = () => {
@@ -232,7 +231,7 @@ function CreateAgentPageContent() {
   const AgentIcon = selectedAgentType?.icon || Bot;
 
   return (
-    <div className="min-h-screen bg-background p-6 space-y-6">
+    <div className="space-y-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -607,15 +606,15 @@ function CreateAgentPageContent() {
                         <div className="space-y-4">
                           <div>
                             <Label className="text-xs text-muted-foreground">Current Lap</Label>
-                            <p className="text-2xl font-bold">{liveData.meta.lap} / {liveData.meta.total_laps}</p>
+                            <p className="text-2xl font-bold">{liveData?.meta?.lap ?? 0} / {liveData?.meta?.total_laps ?? 0}</p>
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground">Position</Label>
-                            <p className="text-2xl font-bold">#{liveData.gap_analysis.position}</p>
+                            <p className="text-2xl font-bold">#{liveData?.gap_analysis?.position ?? 0}</p>
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground">Gap to Leader</Label>
-                            <p className="text-xl font-semibold">{liveData.gap_analysis.gap_to_leader}</p>
+                            <p className="text-xl font-semibold">{liveData?.gap_analysis?.gap_to_leader ?? 'N/A'}</p>
                           </div>
                         </div>
                         <div className="space-y-4">
@@ -624,23 +623,23 @@ function CreateAgentPageContent() {
                             <div className="grid grid-cols-2 gap-2 mt-2">
                               <div>
                                 <p className="text-xs text-muted-foreground">Front Left</p>
-                                <p className="text-lg font-semibold">{liveData.tire_wear.front_left.toFixed(1)}%</p>
+                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.front_left ?? 0).toFixed(1)}%</p>
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Front Right</p>
-                                <p className="text-lg font-semibold">{liveData.tire_wear.front_right.toFixed(1)}%</p>
+                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.front_right ?? 0).toFixed(1)}%</p>
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Rear Left</p>
-                                <p className="text-lg font-semibold">{liveData.tire_wear.rear_left.toFixed(1)}%</p>
+                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.rear_left ?? 0).toFixed(1)}%</p>
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Rear Right</p>
-                                <p className="text-lg font-semibold">{liveData.tire_wear.rear_right.toFixed(1)}%</p>
+                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.rear_right ?? 0).toFixed(1)}%</p>
                               </div>
                             </div>
                           </div>
-                          {liveData.tire_wear.pit_window_optimal && (
+                          {liveData?.tire_wear?.pit_window_optimal && Array.isArray(liveData.tire_wear.pit_window_optimal) && liveData.tire_wear.pit_window_optimal.length >= 2 && (
                             <div>
                               <Label className="text-xs text-muted-foreground">Optimal Pit Window</Label>
                               <p className="text-lg font-semibold">
@@ -677,12 +676,12 @@ function CreateAgentPageContent() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label className="text-xs text-muted-foreground">Current Tire Wear</Label>
-                            <p className="text-2xl font-bold">{strategy.tireWear.current.toFixed(1)}%</p>
+                            <p className="text-2xl font-bold">{strategy?.tireWear?.current?.toFixed(1) ?? '0.0'}%</p>
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground">Pit Window</Label>
                             <p className="text-xl font-semibold">
-                              Laps {strategy.pitWindow.start} - {strategy.pitWindow.end}
+                              Laps {strategy?.pitWindow?.start ?? 0} - {strategy?.pitWindow?.end ?? 0}
                             </p>
                           </div>
                         </div>
@@ -690,43 +689,51 @@ function CreateAgentPageContent() {
                         <div>
                           <Label className="text-xs text-muted-foreground mb-2 block">Predicted Pit Stops</Label>
                           <div className="space-y-2">
-                            {predictions.pitStops.map((stop, idx) => (
-                              <div key={idx} className="flex items-center justify-between p-2 bg-muted rounded">
-                                <span>Lap {stop.lap}</span>
-                                <Badge>{stop.tyreCompound}</Badge>
-                              </div>
-                            ))}
+                            {predictions?.pitStops && predictions.pitStops.length > 0 ? (
+                              predictions.pitStops.map((stop, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-2 bg-muted rounded">
+                                  <span>Lap {stop.lap}</span>
+                                  <Badge>{stop.tyreCompound}</Badge>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-muted-foreground">No pit stops predicted</p>
+                            )}
                           </div>
                         </div>
 
                         <div>
                           <Label className="text-xs text-muted-foreground mb-2 block">Alerts</Label>
                           <div className="space-y-2">
-                            {alerts.map((alert, idx) => (
-                              <div
-                                key={idx}
-                                className={`p-3 rounded border ${
-                                  alert.severity === 'high'
-                                    ? 'border-destructive bg-destructive/10'
-                                    : alert.severity === 'medium'
-                                    ? 'border-yellow-500 bg-yellow-500/10'
-                                    : 'border-muted bg-muted'
-                                }`}
-                              >
-                                <div className="flex items-start gap-2">
-                                  <AlertCircle
-                                    className={`w-4 h-4 mt-0.5 ${
-                                      alert.severity === 'high'
-                                        ? 'text-destructive'
-                                        : alert.severity === 'medium'
-                                        ? 'text-yellow-500'
-                                        : 'text-muted-foreground'
-                                    }`}
-                                  />
-                                  <p className="text-sm">{alert.message}</p>
+                            {alerts && alerts.length > 0 ? (
+                              alerts.map((alert, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`p-3 rounded border ${
+                                    alert.severity === 'high'
+                                      ? 'border-destructive bg-destructive/10'
+                                      : alert.severity === 'medium'
+                                      ? 'border-yellow-500 bg-yellow-500/10'
+                                      : 'border-muted bg-muted'
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-2">
+                                    <AlertCircle
+                                      className={`w-4 h-4 mt-0.5 ${
+                                        alert.severity === 'high'
+                                          ? 'text-destructive'
+                                          : alert.severity === 'medium'
+                                          ? 'text-yellow-500'
+                                          : 'text-muted-foreground'
+                                      }`}
+                                    />
+                                    <p className="text-sm">{alert.message}</p>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))
+                            ) : (
+                              <p className="text-sm text-muted-foreground">No alerts</p>
+                            )}
                           </div>
                         </div>
                       </div>

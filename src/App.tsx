@@ -49,8 +49,6 @@ import AIDataAnalyticsPage from "./pages/AIDataAnalyticsPage";
 import AnomalyDetectionPage from "./pages/AnomalyDetectionPage";
 import DriverFingerprintingPage from "./pages/DriverFingerprintingPage";
 import SlackIntegrationPage from "./pages/SlackIntegrationPage";
-import CreateAgentPage from "./pages/CreateAgentPage";
-import InteractiveAgentCanvas from "./pages/InteractiveAgentCanvas";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -162,12 +160,6 @@ const App = () => (
                     
                     {/* AI Agent Integration - Three integration patterns showcase */}
                     <Route path="/agent-integration" element={<AIAgentIntegration />} />
-                    
-                    {/* Create Your Own AI Agent - Build custom agents with track data and real-time strategy */}
-                    <Route path="/create-agent" element={<CreateAgentPage />} />
-                    
-                    {/* Interactive Strategy Canvas - Drag & drop agent builder */}
-                    <Route path="/agent-canvas" element={<InteractiveAgentCanvas />} />
                     
                     {/* GR Telemetry Comparison - Speed and G-force comparison dashboard */}
                     <Route path="/telemetry" element={<GRTelemetryDashboard />} />

@@ -80,8 +80,6 @@ export function Sidebar() {
         { icon: Bot, label: 'AI Agents', to: '/agents' },
         { icon: Network, label: 'Agent Integration', to: '/agent-integration' },
         { icon: Brain, label: 'Agent Insights', to: '/agent-insights' },
-        { icon: Bot, label: 'Create Agent', to: '/create-agent' },
-        { icon: Layers, label: 'Agent Canvas', to: '/agent-canvas' },
       ],
     },
     {

@@ -761,7 +761,7 @@ const Index = () => {
               PitWall<span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">AI</span>
             </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main navigation">
+          <nav className="hidden md:flex items-center gap-6" role="navigation" aria-label="Main navigation">
             <a 
               href="#features" 
               onClick={(e) => {
@@ -771,7 +771,7 @@ const Index = () => {
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
                 activeSection === 'features' 
                   ? 'text-primary' 
-                  : 'hover:text-primary'
+                  : 'text-muted-foreground hover:text-primary'
               }`}
             >
               Features
@@ -779,70 +779,12 @@ const Index = () => {
                 activeSection === 'features' ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
             </a>
-            <a 
-              href="#gemini-features" 
-              onClick={(e) => {
-                handleAnchorClick(e, '#gemini-features');
-                trackLinkClick('A.I. Features', '#gemini-features', { location: 'header' });
-              }}
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                activeSection === 'gemini-features' 
-                  ? 'text-primary' 
-                  : 'hover:text-primary'
-              }`}
-            >
-              A.I. Features
-              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                activeSection === 'gemini-features' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </a>
-            <a 
-              href="#gr-cars" 
-              onClick={(e) => handleAnchorClick(e, '#gr-cars')}
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                activeSection === 'gr-cars' 
-                  ? 'text-primary' 
-                  : 'hover:text-primary'
-              }`}
-            >
-              GR Cars
-              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                activeSection === 'gr-cars' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </a>
-            <Link 
-              to="/tracks" 
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === '/tracks' 
-                  ? 'text-primary' 
-                  : 'hover:text-primary'
-              }`}
-            >
-              Tracks
-              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                location.pathname === '/tracks' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </Link>
-            <Link 
-              to="/analytics" 
-              onClick={() => trackLinkClick('Analytics', '/analytics', { location: 'header' })}
-              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
-                location.pathname === '/analytics' 
-                  ? 'text-primary' 
-                  : 'hover:text-primary'
-              }`}
-            >
-              Analytics
-              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                location.pathname === '/analytics' ? 'w-full' : 'w-0 group-hover:w-full'
-              }`}></span>
-            </Link>
             <Link 
               to="/dashboard" 
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
                 location.pathname === '/dashboard' 
                   ? 'text-primary' 
-                  : 'hover:text-primary'
+                  : 'text-muted-foreground hover:text-primary'
               }`}
             >
               Dashboard
@@ -851,11 +793,24 @@ const Index = () => {
               }`}></span>
             </Link>
             <Link 
+              to="/tracks" 
+              className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
+                location.pathname === '/tracks' 
+                  ? 'text-primary' 
+                  : 'text-muted-foreground hover:text-primary'
+              }`}
+            >
+              Tracks
+              <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-200 ${
+                location.pathname === '/tracks' ? 'w-full' : 'w-0 group-hover:w-full'
+              }`}></span>
+            </Link>
+            <Link 
               to="/agents" 
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
                 location.pathname === '/agents' 
                   ? 'text-primary' 
-                  : 'hover:text-primary'
+                  : 'text-muted-foreground hover:text-primary'
               }`}
             >
               AI Agents
@@ -868,7 +823,7 @@ const Index = () => {
               className={`text-sm font-medium transition-all duration-200 relative group focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1 ${
                 location.pathname === '/about' 
                   ? 'text-primary' 
-                  : 'hover:text-primary'
+                  : 'text-muted-foreground hover:text-primary'
               }`}
             >
               About
@@ -877,26 +832,14 @@ const Index = () => {
               }`}></span>
             </Link>
           </nav>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              className="hidden sm:flex"
-              onClick={() => {
-                setAnalyticsOpen(true);
-                trackButtonClick('View Analytics', 'header');
-              }}
-              aria-label="View Analytics"
-            >
-              <BarChart3 className="w-5 h-5" />
-            </Button>
+          <div className="flex items-center gap-3">
             <Link to="/dashboard" className="hidden sm:block">
               <Button 
                 className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                aria-label="View Dashboard - Opens interactive dashboard"
-                onClick={() => trackButtonClick('View Dashboard', 'header')}
+                aria-label="Get Started - Opens interactive dashboard"
+                onClick={() => trackButtonClick('Get Started', 'header')}
               >
-                View Dashboard
+                Get Started
               </Button>
             </Link>
             <Button
@@ -1065,7 +1008,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-24 md:pb-32 px-4 sm:px-6 relative overflow-hidden" role="main" aria-label="Hero section">
+      <section className="pt-32 sm:pt-40 md:pt-48 pb-20 sm:pb-28 md:pb-32 px-4 sm:px-6 relative overflow-hidden min-h-[85vh] flex items-center" role="main" aria-label="Hero section">
         {/* Animated background gradients */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
@@ -1074,123 +1017,165 @@ const Index = () => {
         {/* Animated grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
         
-        <div className="container mx-auto max-w-5xl text-center relative z-10">
+        {/* Floating particles effect */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(6)].map((_, i) => {
+            const initialX = typeof window !== 'undefined' ? Math.random() * window.innerWidth : Math.random() * 1920;
+            const initialY = typeof window !== 'undefined' ? Math.random() * window.innerHeight : Math.random() * 1080;
+            return (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 bg-primary/20 rounded-full"
+                initial={{
+                  x: initialX,
+                  y: initialY,
+                  opacity: 0.2,
+                }}
+                animate={{
+                  y: [initialY, initialY - 100, initialY],
+                  x: [initialX, initialX + 50, initialX],
+                  opacity: [0.2, 0.5, 0.2],
+                }}
+                transition={{
+                  duration: 10 + Math.random() * 10,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        <div className="container mx-auto max-w-6xl text-center relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-full bg-primary/10 border border-primary/20 mb-6 sm:mb-8 backdrop-blur-md shadow-lg shadow-primary/10">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-            <span className="text-xs sm:text-sm font-semibold text-primary">AI-Powered Race Intelligence</span>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8 backdrop-blur-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
+          >
+            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+            <span className="text-sm font-semibold text-primary">AI-Powered Race Intelligence</span>
+          </motion.div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 sm:mb-8 leading-[1.1] tracking-tight px-2">
-            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
-              PitWall{" "}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold mb-8 leading-[1.1] tracking-tight px-2"
+          >
+            <span className="block mb-2">
+              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/90 bg-clip-text text-transparent">
+                PitWall
+              </span>
+              <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent ml-3">
+                A.I.
+              </span>
             </span>
-            <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent">
-              A.I.
+            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl block mt-4 bg-gradient-to-r from-foreground/80 via-foreground/70 to-foreground/60 bg-clip-text text-transparent font-normal">
+              Real-time race strategy & tire intelligence
             </span>
-            <br className="hidden sm:block" />
-            <span className="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl block mt-1 sm:mt-2 bg-gradient-to-r from-foreground/90 via-foreground/80 to-foreground/70 bg-clip-text text-transparent">
-              Real-time race strategy & tire intelligence for the GR Cup
-            </span>
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-2">
-            Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> working in real-time to predict tire loss, recommend pit windows, and provide explainable radio-ready guidance.
-          </p>
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-10 max-w-4xl mx-auto leading-relaxed px-2 font-light"
+          >
+            Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> delivering real-time predictions, pit window optimization, and explainable insights for the GR Cup.
+          </motion.p>
+          {/* Agent Status Badge */}
           {agentStatus?.agents && agentStatus?.agents.length > 0 && (
-            <div className="mb-8 sm:mb-12 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-primary/10 border border-primary/20 max-w-md mx-auto backdrop-blur-md shadow-lg shadow-primary/10">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mb-10 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-primary/10 border border-primary/30 max-w-fit mx-auto backdrop-blur-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
+            >
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-xs sm:text-sm font-semibold text-primary">
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50" />
+                <span className="text-sm font-semibold text-primary">
                   {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} AI Agents Active
                 </span>
               </div>
-              <span className="text-muted-foreground hidden sm:inline">•</span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground">•</span>
+              <span className="text-sm text-muted-foreground">
                 {agentStatus?.agents?.length ?? 0} Total Agents
               </span>
-            </div>
+            </motion.div>
           )}
           
-          <div className="flex flex-col items-center gap-3 sm:gap-4 md:gap-5 mb-8 sm:mb-12 max-w-2xl mx-auto px-2">
-            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
-                Real-time tire predictions (per-sector) → Laps-until-cliff
-              </p>
-            </div>
-            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
-                Pit-window optimizer with "what-if" simulator (SC / traffic)
-              </p>
-            </div>
-            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
-                Driver fingerprinting + actionable coaching alerts
-              </p>
-            </div>
-            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
-                Explainable AI with confidence intervals & feature attribution
-              </p>
-            </div>
-            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
-                Competitor modeling for undercut/overcut strategy windows
-              </p>
-            </div>
-          </div>
+          {/* Key Features Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-5xl mx-auto"
+          >
+            {[
+              "Real-time tire predictions with per-sector analysis",
+              "Pit-window optimizer with Monte Carlo simulation",
+              "Driver fingerprinting & coaching insights",
+              "Explainable AI with confidence intervals",
+              "Competitor modeling & strategy windows",
+              "95%+ accuracy tire wear forecasting"
+            ].map((feature, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.5 + idx * 0.1 }}
+                className="flex items-start gap-3 p-4 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group"
+              >
+                <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+                <p className="text-sm md:text-base text-foreground font-medium leading-relaxed">
+                  {feature}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center flex-wrap px-2">
-            <Link to="/comprehensive" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 md:py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
-                aria-label="View Comprehensive Dashboard - Opens dashboard with all AI features"
-                onClick={() => trackButtonClick('View Comprehensive Dashboard', 'hero')}
-              >
-                <span className="hidden sm:inline">View Comprehensive Dashboard</span>
-                <span className="sm:hidden">Comprehensive Dashboard</span>
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link to="/telemetry" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 md:py-7 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
-                aria-label="View Telemetry Comparison - Opens GR car telemetry comparison dashboard"
-                onClick={() => trackButtonClick('View Telemetry Comparison', 'hero')}
-              >
-                <span className="hidden sm:inline">View Telemetry Comparison</span>
-                <span className="sm:hidden">Telemetry Comparison</span>
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap px-2"
+          >
             <Link to="/dashboard" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
-                aria-label="Run Demo - Opens interactive dashboard"
-                onClick={() => trackButtonClick('Run Demo', 'hero')}
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-base md:text-lg px-8 py-7 shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
+                aria-label="Get Started - Opens interactive dashboard"
+                onClick={() => trackButtonClick('Get Started', 'hero')}
               >
-                Run Demo
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                Get Started
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link to="/comprehensive" className="w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full sm:w-auto text-base md:text-lg px-8 py-7 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                aria-label="View Dashboard - Opens comprehensive dashboard"
+                onClick={() => trackButtonClick('View Dashboard', 'hero')}
+              >
+                View Dashboard
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link to="/agents" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="w-full sm:w-auto text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
-                aria-label="View AI Agents"
-                onClick={() => trackButtonClick('AI Agents', 'hero')}
+                className="w-full sm:w-auto text-base md:text-lg px-8 py-7 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
+                aria-label="Explore AI Agents"
+                onClick={() => trackButtonClick('Explore AI Agents', 'hero')}
               >
-                <Sparkles className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
-                AI Agents
+                <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
+                Explore AI Agents
                 {agentStatus?.agents && agentStatus?.agents.length > 0 && (
                   <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
                     {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} active
@@ -1198,20 +1183,7 @@ const Index = () => {
                 )}
               </Button>
             </Link>
-            <Link to="/agent-integration" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto text-sm sm:text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
-                aria-label="View AI Agent Integration Patterns"
-                onClick={() => trackButtonClick('Agent Integration', 'hero')}
-              >
-                <Sparkles className="mr-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
-                <span className="hidden sm:inline">Agent Integration</span>
-                <span className="sm:hidden">Integration</span>
-              </Button>
-            </Link>
-          </div>
+          </motion.div>
         </div>
       </section>
 

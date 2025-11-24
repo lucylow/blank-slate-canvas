@@ -4,12 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { RealTimeAgentDashboard } from '@/components/RealTimeAgentDashboard';
 import { StrategyCanvas } from '@/components/StrategyCanvas';
 import { PitwallCollaboration } from '@/components/PitwallCollaboration';
-import { Activity, Workflow, Users, List, Play } from 'lucide-react';
+import { Activity, Workflow, Users, List, Play, Bot, Layers } from 'lucide-react';
+import { CreateAgentPageContent } from './CreateAgentPage';
+import { StrategyProvider } from '@/hooks/useStrategy';
+import InteractiveAgentCanvas from './InteractiveAgentCanvas';
 
 const AIAgentIntegration = () => {
   const tabs: MiniTab[] = [
     { id: 'all', label: 'All Agents', icon: <List className="h-4 w-4" /> },
     { id: 'pipeline', label: 'Pipeline', icon: <Workflow className="h-4 w-4" /> },
+    { id: 'create-agent', label: 'Create Agent', icon: <Bot className="h-4 w-4" /> },
+    { id: 'create-canvas', label: 'Create Canvas', icon: <Layers className="h-4 w-4" /> },
     { id: 'logs', label: 'Logs', icon: <Activity className="h-4 w-4" /> },
     { id: 'run-demo', label: 'Run Demo', icon: <Play className="h-4 w-4" /> },
   ];
@@ -107,6 +112,22 @@ const AIAgentIntegration = () => {
                 <StrategyCanvas />
               </CardContent>
             </Card>
+          )}
+
+          {active === 'create-agent' && (
+            <StrategyProvider
+              defaultTrack="cota"
+              defaultChassis="GR86-016-7"
+              defaultLap={12}
+            >
+              <CreateAgentPageContent />
+            </StrategyProvider>
+          )}
+
+          {active === 'create-canvas' && (
+            <div className="h-[calc(100vh-200px)] -mx-6 -my-6">
+              <InteractiveAgentCanvas />
+            </div>
           )}
 
           {active === 'logs' && (
