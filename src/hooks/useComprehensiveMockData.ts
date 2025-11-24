@@ -12,6 +12,9 @@ import {
   TRACK_METADATA,
 } from "@/lib/comprehensiveMockData";
 
+// Re-export TrackId for use in components
+export type { TrackId };
+
 export interface UseComprehensiveMockDataOptions {
   track?: TrackId;
   vehicle?: number;

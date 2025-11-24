@@ -59,9 +59,9 @@ export function SmartSidebar({
       <AnimatePresence>
         {(!compact || isOpen) && (
           <motion.aside
-            initial={compact ? { x: -300 } : false}
+            initial={compact ? { x: -300 } : undefined}
             animate={{ x: 0 }}
-            exit={compact ? { x: -300 } : false}
+            exit={compact ? { x: -300 } : undefined}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={cn(
               "bg-accent/50 backdrop-blur-sm border-r border-border/50 flex flex-col",
