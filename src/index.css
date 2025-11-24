@@ -19,15 +19,13 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* PitWall A.I. Design System - Deep Navy background */
-    --background: 223 72% 13%;
+    --background: 222 47% 8%;
     --foreground: 210 40% 98%;
-    --card: 223 72% 16%;
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
-    --popover: 223 72% 16%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    /* Toyota Red as primary */
-    --primary: 353 91% 48%;
+    --primary: 0 72% 51%;
     --primary-foreground: 0 0% 100%;
     --secondary: 217 33% 14%;
     --secondary-foreground: 210 40% 98%;
