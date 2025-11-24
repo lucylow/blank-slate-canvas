@@ -452,7 +452,50 @@ This hybrid approach provides:
 - **Robustness**: Falls back to physics model if ML components fail
 - **Generalization**: Physics constraints prevent overfitting to training data
 
-![Tire Wear Prediction Model Architecture](assets/images/diagrams_jpeg/diagram_16.jpg)
+```mermaid
+graph TB
+    subgraph "Feature Engineering"
+        A[Raw Telemetry<br/>9 channels × 50Hz] --> B[Sector Aggregation<br/>Rolling windows]
+        B --> C[Feature Extraction<br/>20 features]
+        
+        C --> D[Cumulative G-forces<br/>Lateral + Longitudinal]
+        C --> E[Braking Events<br/>Count + Energy]
+        C --> F[Cornering Events<br/>Count + Peak G]
+        C --> G[Speed Metrics<br/>Avg + Std + Max]
+        C --> H[Lap Metrics<br/>Number + Age]
+        C --> I[Track Context<br/>Sector + Temperature]
+    end
+    
+    subgraph "Model Inference"
+        D --> J[Feature Vector<br/>20 dimensions]
+        E --> J
+        F --> J
+        G --> J
+        H --> J
+        I --> J
+        
+        J --> K[Physics Baseline Model<br/>Domain Knowledge]
+        K --> L[Residual Ensemble<br/>XGBoost + LightGBM + CatBoost]
+        L --> M[Weighted Ensemble<br/>Prediction Fusion]
+        M --> N[Tire Wear Prediction<br/>FL, FR, RL, RR %]
+        
+        N --> O[Confidence Interval<br/>Bootstrap CI]
+        N --> P[Feature Importance<br/>SHAP values]
+        P --> Q[Explainable Output<br/>Top-3 evidence]
+    end
+    
+    subgraph "Post-Processing"
+        M --> O[Laps Until Cliff<br/>Remaining life]
+        N --> O
+        O --> P[Pit Window Calculation<br/>Optimal lap range]
+        P --> Q[Explainable Output<br/>Top-3 evidence]
+    end
+    
+    style K fill:#95e1d3
+    style L fill:#4ecdc4
+    style N fill:#ff6b6b
+    style Q fill:#ffe66d
+```
 
 #### Feature Engineering Details
 
@@ -757,7 +800,36 @@ The system employs a **distributed multi-agent architecture** where specialized 
 
 **Agent Communication Protocol**:
 
-![Agent Communication Protocol](assets/images/diagrams_jpeg/agent_communication_protocol.jpg)
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant P as Preprocessor
+    participant Pr as Predictor
+    participant E as Explainer
+    participant D as Delivery
+    participant R as Redis Streams
+    
+    O->>R: XADD aggregates.stream
+    R->>P: XREADGROUP (Preprocessor)
+    P->>P: Normalize & Aggregate
+    P->>R: XADD tasks.stream
+    
+    R->>O: XREADGROUP (Orchestrator)
+    O->>O: Route to Predictor
+    O->>R: XADD agent:predictor-01:inbox
+    
+    R->>Pr: BLPOP inbox
+    Pr->>Pr: ONNX Inference
+    Pr->>R: XADD results.stream
+    
+    R->>E: XREADGROUP (Explainer)
+    E->>E: Format Insight
+    E->>R: XADD agent_results.stream
+    
+    R->>D: XREADGROUP (Delivery)
+    D->>D: Broadcast WebSocket
+    D->>R: XACK
+```
 
 **Agent State Management**:
 - **Stateful Agents**: Each agent maintains session state (per-chassis, per-track)
@@ -984,7 +1056,45 @@ telemetry.stream
 
 The multi-agent system implements a **distributed, event-driven architecture** where specialized AI agents process telemetry through a pipeline. Agents communicate via Redis Streams using a producer-consumer pattern with consumer groups for load balancing.
 
-![Multi-Agent System Architecture](assets/images/diagrams_jpeg/diagram_19.jpg)
+```mermaid
+graph TB
+    subgraph "Orchestrator Agent"
+        A[Task Router<br/>Track/Chassis Affinity] --> B[Agent Registry<br/>Dynamic Discovery]
+        B --> C[Load Balancer<br/>Round-Robin]
+        C --> D[Task Queue<br/>Redis Streams]
+        D --> E[Health Monitor<br/>Heartbeat Check]
+    end
+    
+    subgraph "Specialized Agents"
+        D --> F[Preprocessor Agent<br/>Schema Validation<br/>Feature Extraction]
+        D --> G[Predictor Agent<br/>ONNX Inference<br/>Ensemble Models]
+        D --> H[EDA Agent<br/>UMAP Clustering<br/>Pattern Detection]
+        D --> I[Simulator Agent<br/>Monte Carlo<br/>Strategy Optimization]
+        D --> J[Explainer Agent<br/>SHAP Analysis<br/>Evidence Formatting]
+        D --> K[Delivery Agent<br/>WebSocket Broadcast<br/>Real-Time Updates]
+    end
+    
+    subgraph "Communication Layer"
+        F --> L[Redis Streams<br/>tasks.stream]
+        G --> M[Redis Streams<br/>results.stream]
+        H --> M
+        I --> M
+        J --> N[Redis Streams<br/>agent_results.stream]
+        K --> O[WebSocket Server<br/>Port 8081]
+    end
+    
+    subgraph "State Management"
+        P[Redis Hash<br/>Session State] --> F
+        P --> G
+        Q[Model Registry<br/>Per-Track Models] --> G
+        R[Driver Profiles<br/>Fingerprinting] --> J
+    end
+    
+    style A fill:#ffe66d
+    style G fill:#4ecdc4
+    style L fill:#ff6b6b
+    style O fill:#95e1d3
+```
 
 ### Agent Implementation Details
 
