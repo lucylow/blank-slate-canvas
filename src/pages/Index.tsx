@@ -1137,27 +1137,27 @@ const Index = () => {
                 Real-time tire predictions (per-sector) → Laps-until-cliff
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-lg text-foreground font-medium">
+            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
                 Pit-window optimizer with "what-if" simulator (SC / traffic)
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-lg text-foreground font-medium">
+            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
                 Driver fingerprinting + actionable coaching alerts
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-lg text-foreground font-medium">
+            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
                 Explainable AI with confidence intervals & feature attribution
               </p>
             </div>
-            <div className="flex items-start gap-4 text-left w-full p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-              <p className="text-lg text-foreground font-medium">
+            <div className="flex items-start gap-3 sm:gap-4 text-left w-full p-4 sm:p-5 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground font-medium">
                 Competitor modeling for undercut/overcut strategy windows
               </p>
             </div>
