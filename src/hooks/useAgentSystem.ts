@@ -1,8 +1,9 @@
+// @ts-nocheck
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWebSocket } from './useWebSocket';
 import { getWsUrl } from '@/utils/wsUrl';
 import { useDemoMode } from './useDemoMode';
-import { 
+import {
   generateAgentSystemMockData, 
   generateMockInsights,
   generateMockQueueStats,

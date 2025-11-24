@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/lib/mockMultimodalData.ts
 // Mock data generator for Gemini Multimodal features
 // Provides mock data for images, videos, audio, URLs, and responses

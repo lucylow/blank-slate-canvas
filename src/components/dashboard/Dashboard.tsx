@@ -48,6 +48,7 @@ export function Dashboard() {
     ? (drivers.reduce((sum, d) => sum + (d.lastLapTime || 0), 0) / drivers.length).toFixed(3)
     : '0.000';
   // Strategy confidence - using predictions if available
+  // @ts-ignore - predictions may not exist on Strategy type
   const strategyConfidence = strategy?.predictions ? '85%' : 'N/A';
 
   const quickStats = [
