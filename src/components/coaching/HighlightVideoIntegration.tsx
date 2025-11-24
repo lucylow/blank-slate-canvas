@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Video, Play, Pause, SkipForward, SkipBack, MessageSquare, Bookmark } from 'lucide-react';
+import { Video, MessageSquare, Bookmark } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import VideoPreview from '@/components/VideoPreview';
 
 interface HighlightEvent {
   id: string;
@@ -26,6 +27,21 @@ interface HighlightVideoIntegrationProps {
   selectedDriver: string;
 }
 
+// Video and poster mappings
+const VIDEO_MAP: Record<string, string> = {
+  'overtake-turn3': '/videos/overtake-turn3.mp4',
+  'defensive-roadamerica': '/videos/defensive-block-roadamerica.mp4',
+  'personal-best-sebring': '/videos/personal-best-sebring.mp4',
+  'near-miss-barber': '/videos/near-miss-barber.mp4',
+};
+
+const POSTER_MAP: Record<string, string> = {
+  'overtake-turn3': '/videos/posters/overtake-turn3.jpg',
+  'defensive-roadamerica': '/videos/posters/defensive-block-roadamerica.jpg',
+  'personal-best-sebring': '/videos/posters/personal-best-sebring.jpg',
+  'near-miss-barber': '/videos/posters/near-miss-barber.jpg',
+};
+
 const mockHighlights: HighlightEvent[] = [
   {
     id: '1',
@@ -33,7 +49,7 @@ const mockHighlights: HighlightEvent[] = [
     type: 'overtake',
     title: 'Overtake on Turn 3',
     description: 'Clean overtake on competitor #45 using inside line',
-    videoUrl: '/videos/overtake-turn3.mp4',
+    videoUrl: VIDEO_MAP['overtake-turn3'],
     telemetryData: {
       lap: 8,
       sector: 'Sector 2',
@@ -48,7 +64,7 @@ const mockHighlights: HighlightEvent[] = [
     type: 'defensive',
     title: 'Defensive Move on Straight',
     description: 'Successfully defended position against #23',
-    videoUrl: '/videos/defensive-straight.mp4',
+    videoUrl: VIDEO_MAP['defensive-roadamerica'],
     telemetryData: {
       lap: 12,
       sector: 'Sector 1',
@@ -63,7 +79,7 @@ const mockHighlights: HighlightEvent[] = [
     type: 'fast-lap',
     title: 'Personal Best Lap',
     description: 'New personal best lap time: 88.45s',
-    videoUrl: '/videos/pb-lap.mp4',
+    videoUrl: VIDEO_MAP['personal-best-sebring'],
     telemetryData: {
       lap: 15,
       sector: 'Full Lap',
@@ -78,7 +94,7 @@ const mockHighlights: HighlightEvent[] = [
     type: 'incident',
     title: 'Near Miss - Turn 5',
     description: 'Close call with competitor, avoided collision',
-    videoUrl: '/videos/near-miss.mp4',
+    videoUrl: VIDEO_MAP['near-miss-barber'],
     telemetryData: {
       lap: 19,
       sector: 'Sector 2',
@@ -91,8 +107,18 @@ const mockHighlights: HighlightEvent[] = [
 
 export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoIntegrationProps) {
   const [selectedHighlight, setSelectedHighlight] = useState<HighlightEvent | null>(mockHighlights[0]);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [annotations, setAnnotations] = useState<string[]>([]);
+
+  // Get video key from highlight id for mapping
+  const getVideoKey = (highlightId: string): string => {
+    switch (highlightId) {
+      case '1': return 'overtake-turn3';
+      case '2': return 'defensive-roadamerica';
+      case '3': return 'personal-best-sebring';
+      case '4': return 'near-miss-barber';
+      default: return 'overtake-turn3';
+    }
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -180,31 +206,17 @@ export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoInte
                       </div>
                     </CardHeader>
                     <CardContent>
-                      {/* Video Player Placeholder */}
-                      <div className="relative aspect-video bg-black rounded-lg flex items-center justify-center mb-4">
-                        <div className="text-center text-white">
-                          <Video className="h-16 w-16 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm opacity-75">Video Player</p>
-                          <p className="text-xs opacity-50 mt-1">{selectedHighlight.videoUrl}</p>
+                      {/* Video Player */}
+                      {selectedHighlight.videoUrl && (
+                        <div className="mb-4">
+                          <VideoPreview
+                            src={selectedHighlight.videoUrl}
+                            poster={POSTER_MAP[getVideoKey(selectedHighlight.id)] || null}
+                            ariaLabel={`Video for ${selectedHighlight.title}`}
+                            className="w-full aspect-video"
+                          />
                         </div>
-                        {/* Video Controls */}
-                        <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-2">
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="rounded-full"
-                            onClick={() => setIsPlaying(!isPlaying)}
-                          >
-                            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                          </Button>
-                          <Button variant="secondary" size="icon" className="rounded-full">
-                            <SkipBack className="h-4 w-4" />
-                          </Button>
-                          <Button variant="secondary" size="icon" className="rounded-full">
-                            <SkipForward className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Telemetry Data */}
                       <div className="grid grid-cols-4 gap-4">
