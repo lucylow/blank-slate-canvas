@@ -39,7 +39,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function AgentReviewDashboard() {
   const [trackFilter, setTrackFilter] = useState<string>("");
   const [chassisFilter, setChassisFilter] = useState<string>("");
-  const [riskFilter, setRiskFilter] = useState<string>("");
+  const [riskFilter, setRiskFilter] = useState<string>("all");
   const [showHistory, setShowHistory] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -55,7 +55,7 @@ export default function AgentReviewDashboard() {
     queryFn: () => getPendingDecisions(
       trackFilter || undefined,
       chassisFilter || undefined,
-      riskFilter || undefined,
+      riskFilter === "all" ? undefined : riskFilter,
       100
     ),
     refetchInterval: 10000, // Refresh every 10 seconds
@@ -199,7 +199,7 @@ export default function AgentReviewDashboard() {
                     <SelectValue placeholder="All risk levels" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All risk levels</SelectItem>
+                    <SelectItem value="all">All risk levels</SelectItem>
                     <SelectItem value="critical">Critical</SelectItem>
                     <SelectItem value="aggressive">Aggressive</SelectItem>
                     <SelectItem value="moderate">Moderate</SelectItem>
