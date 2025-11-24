@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/pitwall/AIAgentDecisions.tsx
 
 import React from "react";

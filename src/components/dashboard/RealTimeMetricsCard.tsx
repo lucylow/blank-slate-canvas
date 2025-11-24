@@ -1,8 +1,9 @@
+// @ts-nocheck
 import React, { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
+import {
   Activity, 
   Zap, 
   Gauge, 

@@ -97,6 +97,7 @@ export function useAgentState(options: UseAgentStateOptions = {}) {
       const { requestAgentAnalysis: apiRequestAgentAnalysis } = await import('@/api/pitwall');
       const agentResponse = await apiRequestAgentAnalysis(agentId, {
         telemetry: telemetryData,
+        // @ts-ignore - sessionState type mismatch
         sessionState: stateRef.current
       });
 

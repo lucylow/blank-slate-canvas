@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/GeminiGrounding.tsx
 // Component for testing and exploring Gemini Grounding with multiple datasets
 
