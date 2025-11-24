@@ -279,14 +279,14 @@ export default function LiveInsightsDashboard() {
           <TabsList className="grid w-full max-w-md grid-cols-2 bg-slate-800/50 border border-slate-700 mb-6">
             <TabsTrigger 
               value="insights" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 flex items-center gap-2"
+              className="data-[state=active]:!bg-primary data-[state=active]:!text-white data-[state=inactive]:text-slate-300 data-[state=inactive]:hover:text-white flex items-center gap-2 transition-colors"
             >
               <Activity className="w-4 h-4" />
               Live Insights
             </TabsTrigger>
             <TabsTrigger 
               value="race-dashboard" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 flex items-center gap-2"
+              className="data-[state=active]:!bg-primary data-[state=active]:!text-white data-[state=inactive]:text-slate-300 data-[state=inactive]:hover:text-white flex items-center gap-2 transition-colors"
             >
               <Zap className="w-4 h-4" />
               Race Dashboard
@@ -521,7 +521,7 @@ export default function LiveInsightsDashboard() {
                           <TabsTrigger
                             key={key}
                             value={key}
-                            className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400"
+                            className="data-[state=active]:!bg-primary data-[state=active]:!text-white data-[state=inactive]:text-slate-300 data-[state=inactive]:hover:text-white transition-colors"
                           >
                             <Icon className="w-4 h-4 mr-1" />
                             {config.label}
