@@ -329,10 +329,7 @@ export default function AnomalyDetectionPage() {
 
   return (
     <RouteLayout>
-      <div className={cn(
-        "container mx-auto py-8 space-y-8",
-        isExpanded ? "px-4 sm:px-6 lg:px-6" : "px-4 sm:px-6 lg:px-8"
-      )}>
+      <div className="container mx-auto py-8 space-y-8 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-4 flex-1">
