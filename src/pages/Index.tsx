@@ -1601,14 +1601,6 @@ const Index = () => {
       </section>
 
       {/* GR Telemetry Comparison Section */}
-      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <GRTelemetryComparison />
-        </div>
-      </section>
-
-      {/* GR Telemetry Comparison Section */}
       <section id="telemetry-comparison" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
         <div className="container mx-auto max-w-[1920px] relative z-10">

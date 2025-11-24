@@ -110,7 +110,7 @@ export function CreateAgentPageContent() {
   // Update strategy when track/vehicle changes
   useEffect(() => {
     if (liveData?.meta?.lap) {
-      refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData.meta.lap);
+      refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
     }
   }, [agentConfig.track, agentConfig.vehicle, liveData?.meta?.lap, refreshPrediction]);
 
@@ -219,7 +219,7 @@ export function CreateAgentPageContent() {
     setIsActive(true);
     
     // Refresh strategy data
-    refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap);
+    refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
   };
 
   const handleStopAgent = () => {
