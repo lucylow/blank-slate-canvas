@@ -93,8 +93,8 @@ export function CreateAgentPageContent() {
   const [decisions, setDecisions] = useState<AgentDecision[]>([]);
   const [isCreating, setIsCreating] = useState(false);
 
-  // Get track name for API
-  const trackName = TRACKS.find(t => t.id === agentConfig.track)?.id || 'cota';
+  // Get track name for API - use track id directly
+  const trackName = agentConfig.track || 'cota';
   
   // Use live stream hook for real-time telemetry
   const { data: liveData, connected, error: streamError } = useLiveStream(
@@ -110,7 +110,8 @@ export function CreateAgentPageContent() {
   // Update strategy when track/vehicle changes
   useEffect(() => {
     if (liveData?.meta?.lap) {
-      refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
+      const normalizedTrack = agentConfig.track.toLowerCase().replace(/\s+/g, '_');
+      refreshPrediction(normalizedTrack, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
     }
   }, [agentConfig.track, agentConfig.vehicle, liveData?.meta?.lap, refreshPrediction]);
 
@@ -219,7 +220,8 @@ export function CreateAgentPageContent() {
     setIsActive(true);
     
     // Refresh strategy data
-    refreshPrediction(agentConfig.track, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
+    const normalizedTrack = agentConfig.track.toLowerCase().replace(/\s+/g, '_');
+    refreshPrediction(normalizedTrack, `GR86-016-${agentConfig.vehicle}`, liveData?.meta?.lap).catch(console.error);
   };
 
   const handleStopAgent = () => {

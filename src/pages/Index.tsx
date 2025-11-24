@@ -87,63 +87,7 @@ import {
   type SlackWebhookResponse 
 } from "@/api/slack";
 
-/* ================================================================================
-
-PITBULL A.I. - DEMO DATA INTEGRATION OUTPUT
-
-================================================================================
-
-
-
-### EXAMPLE 1: INTEGRATED DATA FROM BARBER MOTORSPORTS PARK - RACE 1 ###
-
-
-
-================================================================================
-
-Integrating data for barber - Race 1
-
-================================================================================
-
-✓ Loaded telemetry: 2,847,563 rows
-
-✓ Loaded lap times: 1,234 rows
-
-✓ Loaded weather: 156 rows
-
-✓ Loaded results: 28 rows
-
-✓ Loaded sections: 784 rows
-
-
-
-✓ Final integrated dataset: 2,847,563 rows, 45 columns
-
-
-
-Columns in integrated dataset:
-
-- timestamp, vehicle_id, vehicle_number, lap
-
-- accx_can, accy_can, aps, pbrake_r, pbrake_f, gear
-
-- VBOX_Long_Minutes, VBOX_Lat_Min, Steering_Angle
-
-- Laptrigger_lapdist_dls, nmot, Speed
-
-- AIR_TEMP, TRACK_TEMP, HUMIDITY, WIND_SPEED, RAIN
-
-
-
-================================================================================
-
-RUNNING ANALYTICS
-
-================================================================================
-
-
-
-### 1. LIVE GAPS CALCULATION ###
+const Index = () => {
 
 
 
@@ -426,26 +370,6 @@ DATA INTEGRATION COMPLETE
 3. Consistent Structure: All tracks follow the same data schema
 
 4. Multi-Modal Data: Telemetry, timing, weather, and results all integrated
-
-5. Real-Time Ready: Data structure supports streaming analytics
-
-
-
-### NEXT STEPS FOR PITBULL A.I. ###
-
-
-
-1. Implement streaming data pipeline using Apache Kafka or similar
-
-2. Deploy analytics engine with FastAPI backend
-
-3. Create React dashboard for real-time visualization
-
-4. Add machine learning models for predictive analytics
-
-5. Integrate with race timing systems for live data feed
-
-================================================================================ */
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
