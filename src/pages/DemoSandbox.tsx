@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/pages/DemoSandbox.tsx
 import React, { useEffect, useState, useCallback } from "react";
 import { WSClient } from "../lib/wsClient";

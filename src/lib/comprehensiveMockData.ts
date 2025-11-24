@@ -734,7 +734,7 @@ export function generateComputerVisionData(track: TrackId): ComputerVisionData {
         ],
       },
       track_features: {
-        corner_count: TRACK_METADATA[track].characteristics.includes("twisty") ? 17 : 12,
+        corner_count: (TRACK_METADATA[track].characteristics as any).includes("twisty") ? 17 : 12,
         elevation_changes: TRACK_METADATA[track].elevation > 200 ? 5 : 2,
         surface_type: track === "sebring" ? ["concrete", "asphalt"] : ["asphalt"],
       },

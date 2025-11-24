@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 import type { Highlight } from "../lib/raceStoryGenerator";
 

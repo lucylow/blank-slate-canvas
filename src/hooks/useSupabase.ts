@@ -179,7 +179,7 @@ export function usePaginatedQuery<T>(
  * Hook to get current Supabase user
  */
 export function useSupabaseUser() {
-  const [user, setUser] = useState(supabase.auth.getUser());
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
