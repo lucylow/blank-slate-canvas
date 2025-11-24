@@ -20,6 +20,7 @@ import {
   dismissNotification,
   type Notification,
   type HumanLoopData,
+  type PitDecisionAlertData,
 } from '@/services/notificationService';
 import { Flag, AlertTriangle, Wrench, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -147,6 +148,8 @@ function NotificationCard({ notification, onDismiss }: NotificationCardProps) {
         return <Flag className="w-5 h-5" />;
       case 'pit-alert':
         return <Wrench className="w-5 h-5" />;
+      case 'pit-decision':
+        return <AlertCircle className="w-5 h-5" />;
       case 'tire-alert':
         return <AlertTriangle className="w-5 h-5" />;
       default:
@@ -258,6 +261,81 @@ function NotificationDetails({ notification }: { notification: Notification }) {
             {data.recommendedAction}
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (notification.type === 'pit-decision' && notification.data) {
+    const data = notification.data as PitDecisionAlertData;
+    return (
+      <div className="space-y-3 text-xs">
+        <div className={`p-3 rounded-lg border-2 ${
+          data.recommendation === 'pit-now' 
+            ? 'border-red-500/50 bg-red-500/10'
+            : data.recommendation === 'stay-out'
+            ? 'border-green-500/50 bg-green-500/10'
+            : 'border-yellow-500/50 bg-yellow-500/10'
+        }`}>
+          <div className="font-semibold mb-2">
+            Recommendation: {data.recommendation === 'pit-now' ? 'PIT NOW' : data.recommendation === 'stay-out' ? 'STAY OUT' : 'PIT SOON'}
+          </div>
+          <div className="space-y-1">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Confidence:</span>
+              <span className="font-medium">{(data.confidence * 100).toFixed(0)}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Track:</span>
+              <span className="font-medium">{data.track}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Current Lap:</span>
+              <span className="font-medium">{data.currentLap}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded border border-border/50">
+            <div className="font-semibold text-xs mb-1">Pit Now</div>
+            <div className="space-y-0.5">
+              <div className="flex justify-between">
+                <span>Time Δ:</span>
+                <span className={data.pitNowAnalysis.timeDelta < 0 ? 'text-green-500' : 'text-red-500'}>
+                  {data.pitNowAnalysis.timeDelta.toFixed(1)}s
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Risk:</span>
+                <span>{data.pitNowAnalysis.risk.toFixed(0)}%</span>
+              </div>
+            </div>
+          </div>
+          <div className="p-2 rounded border border-border/50">
+            <div className="font-semibold text-xs mb-1">Stay Out</div>
+            <div className="space-y-0.5">
+              <div className="flex justify-between">
+                <span>Time Δ:</span>
+                <span className="text-red-500">
+                  +{data.stayOutAnalysis.timeDelta.toFixed(1)}s
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Risk:</span>
+                <span>{data.stayOutAnalysis.risk.toFixed(0)}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="pt-2 border-t">
+          <div className="font-semibold mb-1">Key Reasons:</div>
+          <ul className="space-y-0.5">
+            {data.reasoning.slice(0, 3).map((reason, idx) => (
+              <li key={idx} className="text-muted-foreground">• {reason}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }

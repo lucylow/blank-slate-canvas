@@ -8,10 +8,12 @@ import {
   generateRaceAlert,
   generatePitAlert,
   generateTireAlert,
+  generatePitDecisionAlert,
   generateHumanLoop,
   showRaceAlert,
   showPitAlert,
   showTireAlert,
+  showPitDecisionAlert,
   showHumanLoop,
 } from '@/mocks/notificationMockData';
 
@@ -39,6 +41,12 @@ export function useMockNotifications(options: UseMockNotificationsOptions = {}) 
       return;
     }
 
+    // Trigger pit decision alert in first 10 seconds for dashboard (at 8 seconds)
+    const earlyPitAlertTimeout = setTimeout(() => {
+      const pitDecision = generatePitDecisionAlert();
+      showPitDecisionAlert(pitDecision);
+    }, 8000); // 8 seconds (within first 10 seconds)
+
     // Start the simulation
     const stopSimulation = startMockNotificationSimulation(intervalMs);
     stopSimulationRef.current = stopSimulation;
@@ -49,6 +57,7 @@ export function useMockNotifications(options: UseMockNotificationsOptions = {}) 
     }, 3000);
 
     return () => {
+      clearTimeout(earlyPitAlertTimeout);
       clearTimeout(initialTimeout);
       if (stopSimulationRef.current) {
         stopSimulationRef.current();
@@ -73,6 +82,10 @@ export function useMockNotifications(options: UseMockNotificationsOptions = {}) 
     return showHumanLoop(generateHumanLoop());
   };
 
+  const triggerPitDecision = () => {
+    showPitDecisionAlert(generatePitDecisionAlert());
+  };
+
   const triggerRandom = () => {
     triggerRandomNotification();
   };
@@ -81,6 +94,7 @@ export function useMockNotifications(options: UseMockNotificationsOptions = {}) 
     triggerRaceAlert,
     triggerPitAlert,
     triggerTireAlert,
+    triggerPitDecision,
     triggerHumanLoop,
     triggerRandom,
     stopSimulation: () => {

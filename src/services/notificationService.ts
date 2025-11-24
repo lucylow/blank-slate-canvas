@@ -4,7 +4,7 @@
 import { toast } from "sonner";
 import { sendRaceAlert, sendPitStopNotification, sendTireWearAlert } from "@/api/slack";
 
-export type NotificationType = 'race-alert' | 'pit-alert' | 'tire-alert' | 'human-loop';
+export type NotificationType = 'race-alert' | 'pit-alert' | 'tire-alert' | 'human-loop' | 'pit-decision';
 
 export type NotificationSeverity = 'info' | 'warning' | 'critical' | 'success';
 
@@ -44,6 +44,34 @@ export interface HumanLoopData {
   onCancel?: () => void;
 }
 
+export interface PitDecisionAlertData {
+  vehicle: string;
+  vehicleNumber: number;
+  currentLap: number;
+  track: string;
+  recommendation: 'pit-now' | 'stay-out' | 'pit-soon';
+  pitNowAnalysis: {
+    timeDelta: number; // seconds gained/lost
+    positionDelta: number;
+    risk: number; // percentage
+    tireWear: number;
+    trafficRisk: number;
+    advantages: string[];
+    disadvantages: string[];
+  };
+  stayOutAnalysis: {
+    timeDelta: number;
+    positionDelta: number;
+    risk: number;
+    projectedFinalTireWear: number;
+    undercutRisk: number;
+    advantages: string[];
+    disadvantages: string[];
+  };
+  reasoning: string[];
+  confidence: number;
+}
+
 export interface Notification {
   id: string;
   type: NotificationType;
@@ -51,7 +79,7 @@ export interface Notification {
   title: string;
   message: string;
   timestamp: Date;
-  data?: RaceAlertData | PitAlertData | TireAlertData | HumanLoopData;
+  data?: RaceAlertData | PitAlertData | TireAlertData | HumanLoopData | PitDecisionAlertData;
   dismissed?: boolean;
 }
 
@@ -170,6 +198,20 @@ export function showTireAlert(data: TireAlertData, severity?: NotificationSeveri
     severity: finalSeverity,
     title: `${finalSeverity === 'critical' ? '🚨' : '⚠️'} Tire Wear Alert - Car #${data.vehicleNumber}`,
     message: `Vehicle ${data.vehicle} tire wear levels: FL ${data.frontLeft.toFixed(1)}%, FR ${data.frontRight.toFixed(1)}%, RL ${data.rearLeft.toFixed(1)}%, RR ${data.rearRight.toFixed(1)}%${data.recommendedLap ? `\nRecommended pit: Lap ${data.recommendedLap}` : ''}`,
+    data,
+  });
+}
+
+// Show pit decision alert
+export function showPitDecisionAlert(data: PitDecisionAlertData, severity: NotificationSeverity = 'warning'): string {
+  const recommendationEmoji = data.recommendation === 'pit-now' ? '🔴' : data.recommendation === 'stay-out' ? '🟢' : '🟡';
+  const recommendationText = data.recommendation === 'pit-now' ? 'PIT NOW' : data.recommendation === 'stay-out' ? 'STAY OUT' : 'PIT SOON';
+  
+  return addNotification({
+    type: 'pit-decision',
+    severity,
+    title: `${recommendationEmoji} Pit Decision - Car #${data.vehicleNumber} (${data.track})`,
+    message: `Lap ${data.currentLap}: ${recommendationText}\n${data.reasoning.slice(0, 2).join('\n')}`,
     data,
   });
 }
