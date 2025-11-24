@@ -13,7 +13,6 @@ import {
   Clock,
   BarChart3,
   Gauge,
-  Speed,
   RotateCw,
   Flame,
   Droplet,
@@ -165,7 +164,7 @@ export default function LiveInsightsDashboard() {
   }, [telemetryHistory]);
 
   const metricConfig = {
-    speed: { color: '#3B82F6', label: 'Speed', unit: 'mph', icon: Speed },
+    speed: { color: '#3B82F6', label: 'Speed', unit: 'mph', icon: Zap },
     rpm: { color: '#F59E0B', label: 'RPM', unit: 'rpm', icon: GaugeIcon },
     throttle: { color: '#10B981', label: 'Throttle', unit: '%', icon: Flame },
     brake: { color: '#EF4444', label: 'Brake', unit: '%', icon: AlertTriangle },
