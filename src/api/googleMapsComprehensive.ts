@@ -423,7 +423,7 @@ function generateMockWeatherData(location: { lat: number; lng: number }): Weathe
   return {
     location: {
       name: 'Track Location',
-      coordinates: location,
+      coordinates: { latitude: location.lat, longitude: location.lng },
     },
     currentConditions: {
       temperature: temp,
@@ -745,8 +745,8 @@ function generateMockDirections(
           {
             distanceMeters: Math.floor(distance),
             duration: `${hours}h ${minutes}m ${seconds}s`,
-            startLocation: origin,
-            endLocation: destination,
+            startLocation: { latitude: origin.lat, longitude: origin.lng },
+            endLocation: { latitude: destination.lat, longitude: destination.lng },
             steps: [
               {
                 distanceMeters: Math.floor(distance / 2),

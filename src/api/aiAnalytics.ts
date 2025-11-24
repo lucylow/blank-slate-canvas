@@ -537,8 +537,9 @@ function buildAnalyticsPrompt(data: RaceDataAnalytics, analysisType: string): st
   const hasMultiTrackData = tireData.cross_track_patterns && Array.isArray(tireData.cross_track_patterns) && tireData.cross_track_patterns.length > 0;
   const tracksAnalyzed = tireData.tracks_analyzed || 1;
   
+  const crossTrackPatterns = (tireData.cross_track_patterns as any[]) || [];
   const multiTrackContext = hasMultiTrackData 
-    ? `\n\nMULTI-TRACK ANALYSIS CONTEXT: This analysis includes data from ${tracksAnalyzed} different race tracks (${tireData.cross_track_patterns?.map((p: any) => p.track).join(', ')}). 
+    ? `\n\nMULTI-TRACK ANALYSIS CONTEXT: This analysis includes data from ${tracksAnalyzed} different race tracks (${crossTrackPatterns.map((p: any) => p.track).join(', ')}). 
     
     CRITICAL INSTRUCTIONS FOR MULTI-TRACK ANALYSIS:
     1. Compare patterns across all ${tracksAnalyzed} tracks to identify universal vs track-specific behaviors
@@ -549,7 +550,7 @@ function buildAnalyticsPrompt(data: RaceDataAnalytics, analysisType: string): st
     6. Cross-validate predictions: Use patterns from similar tracks to validate primary track predictions
     
     CROSS-TRACK DATA AVAILABLE:
-    ${JSON.stringify(tireData.cross_track_patterns?.slice(0, 5), null, 2)}
+    ${JSON.stringify(crossTrackPatterns.slice(0, 5), null, 2)}
     
     Use this multi-track context to provide more accurate and robust predictions by learning from patterns across all ${tracksAnalyzed} datasets.`
     : '';
@@ -1182,7 +1183,7 @@ export async function* streamRaceDataAnalysis(
     maxOutputTokens = 4000,
     functions = [],
     urlContext = false,
-  } = { ...options, enableStreaming: true };
+  } = options;
 
   const modelName = GEMINI_MODELS[model];
   const prompt = buildAnalyticsPrompt(data, analysisType);
@@ -1298,6 +1299,5 @@ export async function* streamRaceDataAnalysis(
   }
 }
 
-// Export types
-export type { GeminiOptions, GeminiFunction, GroundingMetadata, Citation };
+// Types are already defined above, no need to re-export
 
