@@ -281,13 +281,15 @@ export function TelemetryComparison({ className }: TelemetryComparisonProps) {
                             />
                           ))
                       ) : (
-                        <Line
-                          type="monotone"
-                          dataKey={`${metric}_${GR_CARS[0].id}`}
-                          stroke={activeMetric === metric ? metricConfigs[metric].color : 'hsl(var(--muted-foreground))'}
-                          strokeWidth={activeMetric === metric ? 2 : 1}
-                          dot={false}
-                        />
+                        GR_CARS.length > 0 && (
+                          <Line
+                            type="monotone"
+                            dataKey={`${metric}_${GR_CARS[0].id}`}
+                            stroke={activeMetric === metric ? metricConfigs[metric].color : 'hsl(var(--muted-foreground))'}
+                            strokeWidth={activeMetric === metric ? 2 : 1}
+                            dot={false}
+                          />
+                        )
                       )}
                     </LineChart>
                   </ResponsiveContainer>

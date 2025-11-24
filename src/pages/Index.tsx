@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2, Brain, Globe, Download } from "lucide-react";
+import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Menu, X, FileText, ExternalLink, ArrowUp, ArrowDown, BarChart3, Activity, AlertCircle, CheckCircle2, Clock, Award, TrendingDown, Gauge, Flame, Bot, Wifi, WifiOff, Loader2, Brain, Globe, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -1009,183 +1009,397 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="pt-32 sm:pt-40 md:pt-48 pb-20 sm:pb-28 md:pb-32 px-4 sm:px-6 relative overflow-hidden min-h-[85vh] flex items-center" role="main" aria-label="Hero section">
-        {/* Animated background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
+      {/* Hero Section - Design Prompt Spec */}
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20 md:pb-24 px-4 sm:px-6 relative overflow-hidden min-h-[90vh] flex items-center" role="main" aria-label="Hero section" style={{ background: 'linear-gradient(135deg, #0A1A3E 0%, #0A1A3E 50%, #00D9FF10 100%)' }}>
+        {/* Animated background gradients - Deep Navy to Cyan */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1A3E] via-[#0A1A3E] to-[#00D9FF08]" />
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-[#0A1A3E] via-[#0A1A3E] to-[#00D9FF10]"
+          animate={{
+            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
         
-        {/* Animated grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+        {/* Subtle animated grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00D9FF05_1px,transparent_1px),linear-gradient(to_bottom,#00D9FF05_1px,transparent_1px)] bg-[size:80px_80px]" />
         
-        {/* Floating particles effect */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(6)].map((_, i) => {
-            const initialX = typeof window !== 'undefined' ? Math.random() * window.innerWidth : Math.random() * 1920;
-            const initialY = typeof window !== 'undefined' ? Math.random() * window.innerHeight : Math.random() * 1080;
-            return (
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content - 50% Text */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
+            >
+              {/* Badge */}
               <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-primary/20 rounded-full"
-                initial={{
-                  x: initialX,
-                  y: initialY,
-                  opacity: 0.2,
-                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="inline-flex items-center gap-2 text-sm text-[#6B7280] mb-4"
+              >
+                <Zap className="w-4 h-4 text-[#00D9FF]" />
+                <span>Trusted by racing teams</span>
+              </motion.div>
+              
+              {/* Headline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-[56px] font-extrabold text-white leading-[1.2] tracking-[-0.5px]"
+              >
+                Real-Time Race Strategy AI for Championship Teams
+              </motion.h1>
+              
+              {/* Subheadline */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-lg sm:text-xl text-[#6B7280] leading-relaxed font-normal"
+              >
+                Predict tire wear with 95%+ accuracy. Optimize pit windows. Win races.
+              </motion.p>
+              
+              {/* CTAs - Stacked Horizontal */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-col sm:flex-row gap-4 pt-2"
+              >
+                <Link to="/dashboard" className="sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto bg-[#EB0A1E] hover:bg-[#C8081A] text-white font-semibold text-base uppercase tracking-[0.5px] px-10 py-4 border-2 border-transparent hover:shadow-[0_0_30px_rgba(0,217,255,0.5)] transition-all duration-150 group"
+                    onClick={() => trackButtonClick('Get Early Access', 'hero')}
+                  >
+                    Get Early Access
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link to="/comprehensive" className="sm:w-auto">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto bg-transparent border-2 border-[#00D9FF] text-[#00D9FF] hover:bg-[#00D9FF] hover:text-[#0A1A3E] font-semibold text-base px-10 py-4 transition-all duration-150"
+                    onClick={() => trackButtonClick('Watch Demo', 'hero')}
+                  >
+                    Watch Demo
+                  </Button>
+                </Link>
+              </motion.div>
+            </motion.div>
+            
+            {/* Right Visual - 50% Dashboard Mockup */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative lg:block hidden"
+            >
+              <motion.div
+                className="relative bg-gradient-to-br from-[#0A1A3E] to-[#0F0F0F] rounded-2xl border border-[#00D9FF30] p-6 opacity-90 backdrop-blur-sm"
                 animate={{
-                  y: [initialY, initialY - 100, initialY],
-                  x: [initialX, initialX + 50, initialX],
-                  opacity: [0.2, 0.5, 0.2],
+                  scale: [1, 1.02, 1],
                 }}
                 transition={{
-                  duration: 10 + Math.random() * 10,
+                  duration: 3,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }}
-              />
-            );
-          })}
-        </div>
-        
-        <div className="container mx-auto max-w-6xl text-center relative z-10">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8 backdrop-blur-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
-          >
-            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-            <span className="text-sm font-semibold text-primary">AI-Powered Race Intelligence</span>
-          </motion.div>
-          
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold mb-8 leading-[1.1] tracking-tight px-2"
-          >
-            <span className="block mb-2">
-              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/90 bg-clip-text text-transparent">
-                PitWall
-              </span>
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent ml-3">
-                A.I.
-              </span>
-            </span>
-            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl block mt-4 bg-gradient-to-r from-foreground/80 via-foreground/70 to-foreground/60 bg-clip-text text-transparent font-normal">
-              Real-time race strategy & tire intelligence
-            </span>
-          </motion.h1>
-          
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-10 max-w-4xl mx-auto leading-relaxed px-2 font-light"
-          >
-            Powered by <span className="font-semibold text-primary">7 autonomous AI agents</span> delivering real-time predictions, pit window optimization, and explainable insights for the GR Cup.
-          </motion.p>
-          {/* Agent Status Badge */}
-          {agentStatus?.agents && agentStatus?.agents.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mb-10 flex items-center justify-center gap-3 px-5 py-3 rounded-full bg-primary/10 border border-primary/30 max-w-fit mx-auto backdrop-blur-md shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50" />
-                <span className="text-sm font-semibold text-primary">
-                  {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} AI Agents Active
-                </span>
-              </div>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">
-                {agentStatus?.agents?.length ?? 0} Total Agents
-              </span>
+              >
+                {/* Dashboard Mockup Visual */}
+                <div className="space-y-4">
+                  {/* Tire Wear Gauges */}
+                  <div className="grid grid-cols-4 gap-3">
+                    {['FL', 'FR', 'RL', 'RR'].map((tire, idx) => (
+                      <motion.div
+                        key={tire}
+                        className="bg-[#0F0F0F] rounded-lg p-3 border border-[#00D9FF20]"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 + idx * 0.1 }}
+                      >
+                        <div className="text-xs text-[#6B7280] mb-1">{tire}</div>
+                        <motion.div
+                          className="h-2 bg-[#0A1A3E] rounded-full overflow-hidden"
+                          initial={{ width: 0 }}
+                          animate={{ width: '100%' }}
+                          transition={{ duration: 1, delay: 0.5 + idx * 0.1 }}
+                        >
+                          <motion.div
+                            className="h-full bg-[#00D9FF]"
+                            initial={{ width: '0%' }}
+                            animate={{ width: `${65 + idx * 5}%` }}
+                            transition={{ duration: 1.5, delay: 0.6 + idx * 0.1 }}
+                          />
+                        </motion.div>
+                        <div className="text-xs text-[#00D9FF] mt-1 font-mono">{65 + idx * 5}%</div>
+                      </motion.div>
+                    ))}
+                  </div>
+                  
+                  {/* PIT WINDOW Indicator */}
+                  <motion.div
+                    className="bg-[#00D9FF10] border border-[#00D9FF] rounded-lg p-4 text-center"
+                    animate={{
+                      boxShadow: [
+                        '0 0 10px rgba(0, 217, 255, 0.3)',
+                        '0 0 20px rgba(0, 217, 255, 0.5)',
+                        '0 0 10px rgba(0, 217, 255, 0.3)',
+                      ],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  >
+                    <div className="text-xs text-[#6B7280] mb-1">PIT WINDOW</div>
+                    <div className="text-lg font-bold text-[#00D9FF] font-mono">Lap 12-14</div>
+                  </motion.div>
+                  
+                  {/* Strategy Recommendation Cards */}
+                  <div className="space-y-2">
+                    {['UNDERCUT +2.1 pos', 'OVERCUT +0.5 pos', 'TWO-STOP -1.0 pos'].map((strategy, idx) => (
+                      <motion.div
+                        key={strategy}
+                        className="bg-[#0F0F0F] rounded-lg p-3 border border-[#00D9FF20]"
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.8 + idx * 0.1 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-white">{strategy.split(' ')[0]}</span>
+                          <span className={`text-sm font-mono ${strategy.includes('+') ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                            {strategy.split(' ')[1]}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
-          )}
+            
+            {/* Mobile/Tablet: Show simplified visual */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="lg:hidden mt-8"
+            >
+              <div className="bg-gradient-to-br from-[#0A1A3E] to-[#0F0F0F] rounded-2xl border border-[#00D9FF30] p-6">
+                <div className="text-center text-sm text-[#00D9FF] mb-4">LIVE DASHBOARD PREVIEW</div>
+                <div className="grid grid-cols-2 gap-3">
+                  {['FL', 'FR', 'RL', 'RR'].map((tire) => (
+                    <div key={tire} className="bg-[#0F0F0F] rounded-lg p-3 border border-[#00D9FF20]">
+                      <div className="text-xs text-[#6B7280] mb-1">{tire}</div>
+                      <div className="text-sm text-[#00D9FF] font-mono">65%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
           
-          {/* Key Features Grid */}
+          {/* Scroll Indicator */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-5xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
           >
+            <motion.div
+              animate={{
+                y: [0, 10, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="text-[#00D9FF]"
+            >
+              <ArrowDown className="w-6 h-6" />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* SECTION 2: PROBLEM STATEMENT - Design Prompt Spec */}
+      <section className="py-24 px-4 sm:px-6 md:px-10 bg-[#0F0F0F] relative overflow-hidden min-h-[30vh] flex items-center" aria-label="Problem Statement">
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00D9FF05_1px,transparent_1px),linear-gradient(to_bottom,#00D9FF05_1px,transparent_1px)] bg-[size:80px_80px] opacity-30" />
+        
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
+            >
+              The Pit Wall Challenge
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-lg text-[#6B7280] max-w-2xl mx-auto"
+            >
+              Manual pit window calculations. Reactive tire management. Missed opportunities.
+            </motion.p>
+          </div>
+          
+          {/* Three Problem Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
-              "Real-time tire predictions with per-sector analysis",
-              "Pit-window optimizer with Monte Carlo simulation",
-              "Driver fingerprinting & coaching insights",
-              "Explainable AI with confidence intervals",
-              "Competitor modeling & strategy windows",
-              "95%+ accuracy tire wear forecasting"
+              {
+                icon: <Clock className="w-12 h-12" />,
+                title: "⏱️ Slow Decisions",
+                description: "Manual analysis takes 20+ minutes. Pit wall has <30 seconds.",
+              },
+              {
+                icon: <Target className="w-12 h-12" />,
+                title: "🎯 Guesswork Strategy",
+                description: "Rule-based heuristics miss optimal pit windows. Cost: 3-5 positions/race.",
+              },
+              {
+                icon: <Users className="w-12 h-12" />,
+                title: "👤 Limited Coaching",
+                description: "Subjective feedback. No continuous driver performance analysis.",
+              },
+            ].map((problem, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className="bg-gradient-to-br from-[#0A1A3E] to-[#00D9FF05] rounded-xl border border-[#00D9FF33] p-8 hover:border-[#00D9FF] hover:shadow-[0_10px_40px_rgba(0,217,255,0.2)] transition-all duration-300 group"
+              >
+                <div className="text-[#00D9FF] mb-4 opacity-80 group-hover:opacity-100 transition-opacity">
+                  {problem.icon}
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">{problem.title}</h3>
+                <p className="text-sm text-[#6B7280] leading-relaxed">{problem.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: SOLUTION OVERVIEW - Design Prompt Spec */}
+      <section className="py-24 px-4 sm:px-6 md:px-10 bg-[#0A1A3E] relative overflow-hidden" aria-label="Solution Overview">
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
+            >
+              How PitWall A.I. Changes Everything
+            </motion.h2>
+          </div>
+          
+          {/* Three Feature Blocks */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                icon: <Gauge className="w-16 h-16" />,
+                title: "Real-Time Tire Prediction",
+                headline: "95%+ Accurate Tire Wear Forecasting",
+                description: "ML models predict tire cliff with <30 seconds notice. No more guesswork.",
+                metric: "Confidence: 92%",
+                metricColor: "text-[#00D9FF]",
+                hoverDetail: "Per-tire predictions with confidence intervals",
+              },
+              {
+                icon: <Target className="w-16 h-16" />,
+                title: "Smart Pit Strategy",
+                headline: "Optimal Pit Windows in Real-Time",
+                description: "Monte Carlo simulation evaluates 10,000 scenarios instantly. Maximizes race position.",
+                metric: "10,000 iterations/strategy",
+                metricColor: "text-[#00D9FF]",
+                hoverDetail: "Undercut +2.1 pos | Overcut +0.5 pos | Two-stop -1.0 pos",
+              },
+              {
+                icon: <Users className="w-16 h-16" />,
+                title: "AI Driver Coaching",
+                headline: "Continuous Performance Analysis",
+                description: "AI fingerprints each driver. Generates actionable coaching in real-time.",
+                metric: "89% coaching accuracy",
+                metricColor: "text-[#00D9FF]",
+                hoverDetail: "Brake 20m earlier → -0.15s/lap improvement",
+              },
             ].map((feature, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.5 + idx * 0.1 }}
-                className="flex items-start gap-3 p-4 rounded-xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-300 group"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.15 }}
+                whileHover={{ scale: 1.02, y: -5 }}
+                className="relative bg-gradient-to-br from-[#0A1A3E] to-[#00D9FF05] rounded-xl border border-[#00D9FF33] p-8 h-[400px] flex flex-col hover:border-[#00D9FF] hover:shadow-[0_20px_40px_rgba(0,217,255,0.2)] transition-all duration-300 group"
               >
-                <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0 shadow-lg shadow-primary/50 group-hover:scale-150 transition-transform" />
-                <p className="text-sm md:text-base text-foreground font-medium leading-relaxed">
-                  {feature}
-                </p>
+                {/* Metric Badge */}
+                <div className="absolute top-4 right-4">
+                  <span className={`text-xs font-semibold ${feature.metricColor} bg-[#00D9FF10] px-3 py-1 rounded-full border border-[#00D9FF30]`}>
+                    {feature.metric}
+                  </span>
+                </div>
+                
+                {/* Icon */}
+                <motion.div
+                  className="text-[#00D9FF] mb-6"
+                  animate={{
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                >
+                  {feature.icon}
+                </motion.div>
+                
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-[#6B7280] mb-3">{feature.title}</h3>
+                
+                {/* Headline */}
+                <h4 className="text-xl font-bold text-white mb-3">{feature.headline}</h4>
+                
+                {/* Description */}
+                <p className="text-sm text-[#6B7280] leading-relaxed mb-6 flex-grow">{feature.description}</p>
+                
+                {/* Hover Detail */}
+                <div className="mt-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-xs text-[#00D9FF] font-mono border-t border-[#00D9FF20] pt-3">
+                    {feature.hoverDetail}
+                  </p>
+                </div>
+                
+                {/* CTA Link */}
+                <a href="#features" className="text-sm text-[#00D9FF] hover:underline mt-4 inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Learn more →
+                </a>
               </motion.div>
             ))}
-          </motion.div>
-          
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap px-2"
-          >
-            <Link to="/dashboard" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-base md:text-lg px-8 py-7 shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 group"
-                aria-label="Get Started - Opens interactive dashboard"
-                onClick={() => trackButtonClick('Get Started', 'hero')}
-              >
-                Get Started
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link to="/comprehensive" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto text-base md:text-lg px-8 py-7 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
-                aria-label="View Dashboard - Opens comprehensive dashboard"
-                onClick={() => trackButtonClick('View Dashboard', 'hero')}
-              >
-                View Dashboard
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link to="/agents" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto text-base md:text-lg px-8 py-7 border-2 hover:bg-accent/50 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 backdrop-blur-sm group"
-                aria-label="Explore AI Agents"
-                onClick={() => trackButtonClick('Explore AI Agents', 'hero')}
-              >
-                <Sparkles className="mr-2 w-5 h-5 group-hover:rotate-12 transition-transform" />
-                Explore AI Agents
-                {agentStatus?.agents && agentStatus?.agents.length > 0 && (
-                  <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs font-semibold rounded-full">
-                    {agentStatus?.agents?.filter(a => a.status === 'active').length ?? 0} active
-                  </span>
-                )}
-              </Button>
-            </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -1857,8 +2071,8 @@ const Index = () => {
                   urls: data.urls,
                   options: {
                     model: 'gpt-4o',
-                    temperature: data.options.temperature,
-                    maxTokens: data.options.maxTokens,
+                    temperature: data.options?.temperature ?? 0.7,
+                    maxTokens: data.options?.maxTokens ?? 4096,
                   }
                 });
                 
@@ -2032,29 +2246,77 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground relative overflow-hidden" aria-label="Call to action section">
+      {/* SECTION 8: FINAL CTA - Design Prompt Spec */}
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 relative overflow-hidden min-h-[30vh] flex items-center" aria-label="Call to action section" style={{ background: 'linear-gradient(135deg, #0A1A3E 0%, #EB0A1E 100%)' }}>
         {/* Animated background pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))] bg-[size:40px_40px] opacity-30" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
         
-        <div className="container mx-auto max-w-4xl text-center relative z-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight px-2">
-            Ready to Transform Your Race Strategy?
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 md:mb-10 opacity-95 leading-relaxed max-w-2xl mx-auto px-2">
-            Request early access to PitWall AI for your racing team.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-lg px-8 py-6 bg-transparent border-2 border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground hover:text-primary shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
-              aria-label="Contact Our Team"
-            >
-              Contact Our Team
-            </Button>
-          </div>
+        <div className="container mx-auto max-w-5xl text-center relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-white"
+          >
+            Join Championship-Tier Teams Using PitWall A.I.
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 text-white/90 leading-relaxed max-w-2xl mx-auto"
+          >
+            Get early access. Real-time analytics for your race strategy.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <Link to="/dashboard">
+              <Button
+                size="lg"
+                className="bg-black hover:bg-gray-900 text-white font-semibold text-base uppercase tracking-[0.5px] px-10 py-4 border-2 border-transparent hover:shadow-[0_0_30px_rgba(235,10,30,0.6),0_0_30px_rgba(0,217,255,0.5)] transition-all duration-150"
+                onClick={() => trackButtonClick('Get Early Access', 'final-cta')}
+              >
+                Get Early Access
+              </Button>
+            </Link>
+            <Link to="/comprehensive">
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-2 border-[#00D9FF] text-[#00D9FF] hover:bg-[#00D9FF] hover:text-[#0A1A3E] font-semibold text-base px-10 py-4 transition-all duration-150"
+                onClick={() => trackButtonClick('Schedule Demo', 'final-cta')}
+              >
+                Schedule Demo
+              </Button>
+            </Link>
+          </motion.div>
+          
+          {/* Animated Checkmark Visual Accent */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="absolute right-10 top-1/2 transform -translate-y-1/2 hidden lg:block"
+            animate={{
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 0.3,
+            }}
+          >
+            <CheckCircle2 className="w-[120px] h-[120px] text-[#00D9FF] opacity-30" />
+          </motion.div>
         </div>
       </section>
 

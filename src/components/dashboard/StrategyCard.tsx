@@ -58,12 +58,12 @@ export function StrategyCard({ strategy }: Props) {
             <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{recommended.reasoning}</p>
           </div>
         )}
-        {strategies.filter(s => s.name !== strategy.recommended_strategy).length > 0 && (
+        {strategies.filter(s => s.name !== (strategy?.recommended_strategy || '')).length > 0 && (
           <div>
             <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Alternatives</h4>
             <div className="space-y-2">
               {strategies
-                .filter(s => s.name !== strategy.recommended_strategy)
+                .filter(s => s.name !== (strategy?.recommended_strategy || ''))
                 .map(s => (
                   <div key={s.name} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg text-sm">
                     <div>

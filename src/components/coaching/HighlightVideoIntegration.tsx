@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import VideoPreview, { type VideoPreviewHandle } from '@/components/VideoPreview';
 import AnnotationPanel from '@/components/AnnotationPanel';
 import TimelinePanel from '@/components/TimelinePanel';
+import { ComputerVisionAnalytics } from '@/components/coaching/ComputerVisionAnalytics';
 
 interface HighlightEvent {
   id: string;
@@ -188,6 +189,17 @@ export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoInte
                     }}
                   >
                     <CardContent className="pt-4">
+                      {/* Video Thumbnail */}
+                      {highlight.videoUrl && (
+                        <div className="mb-3 rounded-md overflow-hidden">
+                          <VideoPreview
+                            src={highlight.videoUrl}
+                            poster={POSTER_MAP[getVideoKey(highlight.id)] || null}
+                            ariaLabel={`Thumbnail for ${highlight.title}`}
+                            className="w-full h-32"
+                          />
+                        </div>
+                      )}
                       <div className="flex items-start justify-between mb-2">
                         <Badge className={getTypeColor(highlight.type)}>
                           {highlight.type}
@@ -280,6 +292,11 @@ export function HighlightVideoIntegration({ selectedDriver }: HighlightVideoInte
                 </>
               )}
             </div>
+          </div>
+
+          {/* Computer Vision & Coaching Analytics */}
+          <div className="mt-8">
+            <ComputerVisionAnalytics selectedDriver={selectedDriver} />
           </div>
         </TabsContent>
 

@@ -54,6 +54,17 @@ export default {
           gray: "hsl(var(--racing-gray))",
           silver: "hsl(var(--racing-silver))",
         },
+        // PitWall A.I. Design System Colors
+        pitwall: {
+          "toyota-red": "#EB0A1E",
+          "deep-navy": "#0A1A3E",
+          "bright-cyan": "#00D9FF",
+          "matte-black": "#0F0F0F",
+          "success-green": "#10B981",
+          "warning-orange": "#F59E0B",
+          "alert-red": "#EF4444",
+          "neutral-gray": "#6B7280",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

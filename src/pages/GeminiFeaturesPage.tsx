@@ -40,8 +40,8 @@ export default function GeminiFeaturesPage() {
                     urls: data.urls,
                     options: {
                       model: 'gpt-4o',
-                      temperature: data.options.temperature,
-                      maxTokens: data.options.maxTokens,
+                      temperature: data.options?.temperature ?? 0.7,
+                      maxTokens: data.options?.maxTokens ?? 4096,
                     }
                   });
                   

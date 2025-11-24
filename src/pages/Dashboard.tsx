@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Wifi, WifiOff, AlertCircle, Sparkles, Activity, RefreshCw, XCircle, Clock, Network, Server, FileX } from 'lucide-react';
+import { Loader2, Sparkles, Activity } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,9 @@ import { TelemetryComparison } from '@/components/dashboard/TelemetryComparison'
 import { DemoButton } from '@/components/DemoButton';
 
 import { useBackendConfig } from '@/hooks/useBackendConfig';
-import { useLiveStream } from '@/hooks/useLiveStream';
 import { useDemoMode } from '@/hooks/useDemoMode';
-import { getBackendUrl } from '@/utils/backendUrl';
+import { generateDemoDashboardData } from '@/lib/mockDemoData';
+import type { DashboardData } from '@/lib/types';
 
 export function Dashboard() {
   const { isDemoMode } = useDemoMode();
@@ -28,57 +28,73 @@ export function Dashboard() {
     maxRetries: configMaxRetries
   } = useBackendConfig();
   
-  // Get the current backend URL for display
-  const backendUrl = getBackendUrl();
-  const viteBackendUrl = import.meta.env.VITE_BACKEND_URL;
-  const displayBackendUrl = viteBackendUrl || backendUrl || (import.meta.env.DEV ? 'http://localhost:8000 (via Vite proxy)' : 'Relative path (/api)');
   
   const [selectedTrack, setSelectedTrack] = useState('sebring');
   const [selectedRace, setSelectedRace] = useState(1);
   const [selectedVehicle, setSelectedVehicle] = useState(7);
+  const [currentLap, setCurrentLap] = useState(12);
 
-  const { 
-    data, 
-    connected, 
-    error: streamError,
-    reconnectAttempts,
-    retry: retryStream,
-    maxReconnectAttempts
-  } = useLiveStream(
-    selectedTrack,
-    selectedRace,
-    selectedVehicle
-  );
+  // Use mock data instead of live stream
+  const mockData = useMemo(() => {
+    const baseData = generateDemoDashboardData(
+      selectedTrack,
+      selectedRace,
+      selectedVehicle,
+      currentLap
+    );
+    
+    // Convert to DashboardData format expected by components
+    const dashboardData: DashboardData = {
+      meta: {
+        ok: true,
+        track: selectedTrack,
+        lap: currentLap,
+        total_laps: baseData.total_laps || 30,
+        enhanced_features: false,
+      },
+      tire_wear: baseData.tire_wear,
+      performance: baseData.performance,
+      gap_analysis: baseData.gap_analysis,
+      strategy: baseData.strategy || {
+        recommended_strategy: '2-stop strategy',
+        strategies: [
+          {
+            name: '2-stop strategy',
+            pit_lap: 12,
+            expected_finish: 'P3',
+            confidence: 0.85,
+            reasoning: 'Optimal balance between tire wear and track position',
+          },
+          {
+            name: '1-stop strategy',
+            pit_lap: 18,
+            expected_finish: 'P5',
+            confidence: 0.70,
+            reasoning: 'Higher tire degradation risk but track position advantage',
+          },
+        ],
+      },
+    };
+    
+    return dashboardData;
+  }, [selectedTrack, selectedRace, selectedVehicle, currentLap]);
 
-  const getErrorIcon = (errorType?: string) => {
-    switch (errorType) {
-      case 'network':
-        return <Network className="h-4 w-4" />;
-      case 'timeout':
-        return <Clock className="h-4 w-4" />;
-      case 'server':
-        return <Server className="h-4 w-4" />;
-      case 'parse':
-        return <FileX className="h-4 w-4" />;
-      default:
-        return <AlertCircle className="h-4 w-4" />;
-    }
-  };
+  // Simulate live data updates by incrementing lap periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentLap((prev) => {
+        const maxLap = 30;
+        return prev >= maxLap ? 1 : prev + 1;
+      });
+    }, 5000); // Update every 5 seconds
 
-  const getErrorColor = (errorType?: string) => {
-    switch (errorType) {
-      case 'network':
-        return 'text-blue-500';
-      case 'timeout':
-        return 'text-yellow-500';
-      case 'server':
-        return 'text-red-500';
-      case 'parse':
-        return 'text-orange-500';
-      default:
-        return 'text-red-500';
-    }
-  };
+    return () => clearInterval(interval);
+  }, []);
+
+  // Mock connection status - always connected for mock data
+  const connected = true;
+  const data = mockData;
+
 
   if (configLoading) {
     return (
@@ -215,7 +231,7 @@ export function Dashboard() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
               <Activity className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-primary">
-                {isDemoMode ? 'Demo Dashboard' : 'Live Dashboard'}
+                Mock Data Dashboard
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
@@ -228,213 +244,34 @@ export function Dashboard() {
           <div className="flex items-center gap-3 flex-wrap">
             <DemoButton />
             <motion.div 
-              className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
-                connected 
-                  ? 'bg-green-500/10 text-green-500 border border-green-500/20 shadow-lg shadow-green-500/20' 
-                  : 'bg-red-500/10 text-red-500 border border-red-500/20'
-              }`}
-              animate={connected ? { scale: [1, 1.05, 1] } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 bg-blue-500/10 text-blue-500 border border-blue-500/20"
             >
-              {connected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+              <Sparkles className="w-4 h-4" />
               <span className="text-sm font-medium">
-                {connected ? 'Live' : 'Disconnected'}
+                Mock Data
               </span>
             </motion.div>
           </div>
         </motion.header>
 
-        {/* Backend URL Configuration Display */}
+        {/* Mock Data Info */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <Card className="bg-card/40 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-all duration-300">
-            <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Server className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-0.5">Backend URL</p>
-                    <p className="text-sm font-mono text-foreground break-all">
-                      {displayBackendUrl}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {viteBackendUrl ? (
-                    <span className="px-2 py-1 rounded bg-primary/10 text-primary border border-primary/20">
-                      VITE_BACKEND_URL
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 rounded bg-muted border border-border">
-                      Auto-detected
-                    </span>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <Alert className="bg-blue-500/10 border-blue-500/20">
+            <Sparkles className="h-4 w-4 text-blue-500" />
+            <AlertTitle className="text-blue-500">Using Mock Data</AlertTitle>
+            <AlertDescription className="text-sm">
+              The dashboard is currently displaying mock data. Data updates every 5 seconds to simulate live telemetry.
+              Track: {selectedTrack.charAt(0).toUpperCase() + selectedTrack.slice(1)} | Race: {selectedRace} | Vehicle: {selectedVehicle} | Lap: {currentLap}
+            </AlertDescription>
+          </Alert>
         </motion.div>
 
-        {streamError && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <Alert 
-              variant={streamError.type === 'server' || streamError.type === 'parse' ? "destructive" : "default"} 
-              className="bg-card/60 backdrop-blur-md border-border/50"
-            >
-              <div className="flex items-start gap-3">
-                <div className={getErrorColor(streamError.type)}>
-                  {getErrorIcon(streamError.type)}
-                </div>
-                <div className="flex-1">
-                  <AlertTitle className="flex items-center gap-2">
-                    Stream Error
-                    {reconnectAttempts > 0 && (
-                      <span className="text-xs font-normal text-muted-foreground">
-                        (Reconnect attempt {reconnectAttempts}/{maxReconnectAttempts})
-                      </span>
-                    )}
-                  </AlertTitle>
-                  <AlertDescription className="mt-2 space-y-3">
-                    <div>
-                      <p className="font-medium mb-1">{streamError.message}</p>
-                      {streamError.details && (
-                        <p className="text-sm text-muted-foreground mt-1">{streamError.details}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Error occurred at {new Date(streamError.timestamp).toLocaleTimeString()}
-                      </p>
-                    </div>
 
-                    <div className="bg-muted/50 p-3 rounded-md text-sm space-y-2">
-                      <p className="font-medium">Possible solutions:</p>
-                      <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                        {streamError.type === 'network' && (
-                          <>
-                            <li>Check your network connection</li>
-                            <li>Verify the backend server is accessible</li>
-                            <li>Check firewall or proxy settings</li>
-                          </>
-                        )}
-                        {streamError.type === 'timeout' && (
-                          <>
-                            <li>The backend may be slow to respond</li>
-                            <li>Try refreshing the connection</li>
-                            <li>Check backend server load and performance</li>
-                          </>
-                        )}
-                        {streamError.type === 'server' && (
-                          <>
-                            <li>Backend server encountered an error</li>
-                            <li>Check backend logs for details</li>
-                            <li>The selected track/race/vehicle combination may be invalid</li>
-                          </>
-                        )}
-                        {streamError.type === 'parse' && (
-                          <>
-                            <li>Data format may have changed</li>
-                            <li>Backend version may be incompatible</li>
-                            <li>Check browser console for details</li>
-                          </>
-                        )}
-                        {streamError.type === 'unknown' && (
-                          <>
-                            <li>An unexpected error occurred</li>
-                            <li>Try refreshing the page</li>
-                            <li>Check browser console for more details</li>
-                          </>
-                        )}
-                      </ul>
-                    </div>
-
-                    {streamError.retryable && (
-                      <div className="flex items-center gap-3 pt-2">
-                        <Button
-                          onClick={retryStream}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                          Retry Stream
-                        </Button>
-                        {reconnectAttempts > 0 && reconnectAttempts < maxReconnectAttempts && (
-                          <span className="text-xs text-muted-foreground">
-                            Auto-retrying... ({reconnectAttempts}/{maxReconnectAttempts})
-                          </span>
-                        )}
-                        {reconnectAttempts >= maxReconnectAttempts && (
-                          <span className="text-xs text-yellow-500">
-                            Max retry attempts reached. Please retry manually.
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {!streamError.retryable && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <XCircle className="w-4 h-4" />
-                        <span>This error cannot be automatically retried. Please check the issue and try again.</span>
-                      </div>
-                    )}
-                  </AlertDescription>
-                </div>
-              </div>
-            </Alert>
-
-            {/* Additional context alerts based on error type */}
-            {streamError.type === 'network' && (
-              <Alert className="mt-3 bg-blue-500/10 border-blue-500/20">
-                <Network className="h-4 w-4 text-blue-500" />
-                <AlertTitle className="text-blue-500">Network Connectivity Issue</AlertTitle>
-                <AlertDescription className="text-sm">
-                  Unable to establish or maintain connection to the backend stream. This is typically a network or server availability issue.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {streamError.type === 'timeout' && (
-              <Alert className="mt-3 bg-yellow-500/10 border-yellow-500/20">
-                <Clock className="h-4 w-4 text-yellow-500" />
-                <AlertTitle className="text-yellow-500">Connection Timeout</AlertTitle>
-                <AlertDescription className="text-sm">
-                  The connection timed out. The backend may be experiencing high load or the network connection is slow.
-                </AlertDescription>
-              </Alert>
-            )}
-          </motion.div>
-        )}
-
-        {!connected && !streamError && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Alert className="mb-6 bg-card/60 backdrop-blur-md border-border/50">
-              <div className="flex items-center gap-3">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                <div className="flex-1">
-                  <AlertTitle>Connecting to stream</AlertTitle>
-                  <AlertDescription>
-                    Establishing connection to live data stream from backend...
-                    {reconnectAttempts > 0 && (
-                      <span className="block mt-1 text-xs text-muted-foreground">
-                        Reconnection attempt {reconnectAttempts}/{maxReconnectAttempts}
-                      </span>
-                    )}
-                  </AlertDescription>
-                </div>
-              </div>
-            </Alert>
-          </motion.div>
-        )}
 
         {data ? (
           <>

@@ -235,11 +235,17 @@ export function CreateAgentPageContent() {
       <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
-            <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Create Your Own AI Agent</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
+              <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                Create Your Own AI Agent
+              </h1>
+            </div>
           </div>
-          <p className="text-muted-foreground text-base sm:text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
             Build custom AI agents that work with real-time track data and strategy analytics
           </p>
         </div>
@@ -247,10 +253,12 @@ export function CreateAgentPageContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column: Agent Configuration */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-card via-card to-card/95 border-b">
                 <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
+                  <div className="p-1.5 rounded-md bg-primary/10">
+                    <Settings className="w-5 h-5 text-primary" />
+                  </div>
                   Agent Configuration
                 </CardTitle>
                 <CardDescription>
@@ -460,37 +468,50 @@ export function CreateAgentPageContent() {
 
             {/* Agent Status */}
             {isActive && (
-              <Card>
-                <CardHeader>
+              <Card className="overflow-hidden border-primary/20">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-primary/20">
                   <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
+                    <div className="p-1.5 rounded-md bg-primary/20">
+                      <Activity className="w-5 h-5 text-primary" />
+                    </div>
                     Agent Status
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Status</span>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <span className="text-sm font-medium">Status</span>
+                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/50">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       Active
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Track Data</span>
-                    <Badge variant={connected ? "outline" : "destructive"}>
-                      {connected ? 'Connected' : 'Disconnected'}
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <span className="text-sm font-medium">Track Data</span>
+                    <Badge 
+                      variant={connected ? "outline" : "destructive"}
+                      className={connected ? "bg-green-500/10 text-green-500 border-green-500/50" : ""}
+                    >
+                      {connected ? (
+                        <>
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5" />
+                          Connected
+                        </>
+                      ) : (
+                        'Disconnected'
+                      )}
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Decisions Made</span>
-                    <span className="font-semibold">{decisions.length}</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <span className="text-sm font-medium">Decisions Made</span>
+                    <span className="font-bold text-lg text-primary">{decisions.length}</span>
                   </div>
                   {selectedTrack && (
-                    <div className="pt-2 border-t">
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Track:</span>
-                        <span className="font-medium">{selectedTrack.name}</span>
+                    <div className="pt-3 mt-3 border-t border-border/50">
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/20">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        <span className="text-sm text-muted-foreground">Track:</span>
+                        <span className="text-sm font-semibold">{selectedTrack.name}</span>
                       </div>
                     </div>
                   )}
@@ -502,70 +523,161 @@ export function CreateAgentPageContent() {
           {/* Right Column: Real-Time Data & Decisions */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <Tabs defaultValue="decisions" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="decisions">Agent Decisions</TabsTrigger>
-                <TabsTrigger value="telemetry">Live Telemetry</TabsTrigger>
-                <TabsTrigger value="strategy">Strategy Data</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 bg-muted/30 p-1.5 rounded-lg">
+                <TabsTrigger value="decisions" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                  <Brain className="w-4 h-4 mr-2" />
+                  Agent Decisions
+                </TabsTrigger>
+                <TabsTrigger value="telemetry" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Live Telemetry
+                </TabsTrigger>
+                <TabsTrigger value="strategy" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Strategy Data
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="decisions" className="space-y-4">
-                <Card>
-                  <CardHeader>
+                <Card className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-card via-card to-card/95 border-b">
                     <CardTitle className="flex items-center gap-2">
-                      <Brain className="w-5 h-5" />
+                      <div className="p-1.5 rounded-md bg-primary/10">
+                        <Brain className="w-5 h-5 text-primary" />
+                      </div>
                       Agent Decisions
                     </CardTitle>
                     <CardDescription>
                       Real-time decisions made by your AI agent
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-0">
                     {decisions.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        {isActive ? (
-                          <div className="space-y-2">
-                            <Loader2 className="w-8 h-8 mx-auto animate-spin" />
-                            <p>Waiting for agent decisions...</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            <Bot className="w-8 h-8 mx-auto opacity-50" />
-                            <p>Start your agent to see decisions here</p>
-                          </div>
-                        )}
+                      <div className="relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
+                        <div className="relative text-center py-16 px-6">
+                          {isActive ? (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="space-y-4"
+                            >
+                              <div className="relative inline-block">
+                                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                                <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary relative z-10" />
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-base font-medium">Analyzing telemetry data...</p>
+                                <p className="text-sm text-muted-foreground">Your agent is processing real-time information</p>
+                              </div>
+                              <div className="flex items-center justify-center gap-2 pt-2">
+                                <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0ms' }} />
+                                <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" style={{ animationDelay: '150ms' }} />
+                                <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" style={{ animationDelay: '300ms' }} />
+                              </div>
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="space-y-4"
+                            >
+                              <div className="relative inline-block">
+                                <div className="absolute inset-0 bg-muted/50 rounded-full blur-2xl" />
+                                <div className="relative p-6 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50 backdrop-blur-sm">
+                                  <Bot className="w-16 h-16 mx-auto text-muted-foreground/60" />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-base font-semibold">No decisions yet</p>
+                                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                                  Create and activate your agent to start receiving real-time AI-powered decisions
+                                </p>
+                              </div>
+                              <div className="pt-2">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-sm text-muted-foreground">
+                                  <Play className="w-4 h-4" />
+                                  <span>Configure your agent to begin</span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
                       </div>
                     ) : (
-                      <div className="space-y-3">
-                        <AnimatePresence>
-                          {decisions.map((decision) => (
+                      <div className="p-6 space-y-3 max-h-[600px] overflow-y-auto">
+                        <AnimatePresence mode="popLayout">
+                          {decisions.map((decision, index) => (
                             <motion.div
                               key={decision.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -20 }}
-                              className="border rounded-lg p-4 space-y-2"
+                              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                              transition={{ 
+                                duration: 0.3,
+                                delay: index === 0 ? 0 : 0.05
+                              }}
+                              className="group relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-br from-card via-card to-muted/20 hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md"
                             >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <AgentIcon className="w-4 h-4 text-primary" />
-                                    <span className="font-semibold">{decision.action}</span>
-                                    <Badge variant="outline" className="ml-auto">
-                                      {(decision.confidence * 100).toFixed(0)}% confidence
-                                    </Badge>
-                                  </div>
-                                  <div className="text-sm text-muted-foreground mb-2">
-                                    {new Date(decision.timestamp).toLocaleTimeString()}
-                                  </div>
-                                  <div className="space-y-1">
-                                    {decision.reasoning.map((reason, idx) => (
-                                      <div key={idx} className="text-sm flex items-start gap-2">
-                                        <span className="text-muted-foreground">•</span>
-                                        <span>{reason}</span>
+                              {/* Gradient accent bar */}
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/80 to-primary/40" />
+                              
+                              <div className="p-5 space-y-3 pl-6">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                                    <div className="mt-0.5 p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                                      <AgentIcon className="w-4 h-4 text-primary" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                        <span className="font-semibold text-base">{decision.action}</span>
+                                        <Badge 
+                                          variant="outline" 
+                                          className="ml-auto bg-primary/5 border-primary/20 text-primary hover:bg-primary/10"
+                                        >
+                                          <div className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5 animate-pulse" />
+                                          {(decision.confidence * 100).toFixed(0)}% confidence
+                                        </Badge>
                                       </div>
-                                    ))}
+                                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                                        <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                                        {new Date(decision.timestamp).toLocaleTimeString()}
+                                      </div>
+                                      <div className="space-y-2">
+                                        {decision.reasoning.map((reason, idx) => (
+                                          <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            className="text-sm flex items-start gap-2.5 text-foreground/90"
+                                          >
+                                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
+                                            <span className="leading-relaxed">{reason}</span>
+                                          </motion.div>
+                                        ))}
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
+                                
+                                {/* Evidence summary */}
+                                {decision.evidence && (
+                                  <div className="pt-3 mt-3 border-t border-border/30 flex items-center gap-4 text-xs">
+                                    {decision.evidence.currentLap && (
+                                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                                        <Activity className="w-3.5 h-3.5" />
+                                        <span>Lap {decision.evidence.currentLap}</span>
+                                      </div>
+                                    )}
+                                    {decision.evidence.position && (
+                                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                                        <Target className="w-3.5 h-3.5" />
+                                        <span>P{decision.evidence.position}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </motion.div>
                           ))}
@@ -577,72 +689,99 @@ export function CreateAgentPageContent() {
               </TabsContent>
 
               <TabsContent value="telemetry" className="space-y-4">
-                <Card>
-                  <CardHeader>
+                <Card className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-card via-card to-card/95 border-b">
                     <CardTitle className="flex items-center gap-2">
-                      <Zap className="w-5 h-5" />
+                      <div className="p-1.5 rounded-md bg-primary/10">
+                        <Zap className="w-5 h-5 text-primary" />
+                      </div>
                       Live Telemetry Data
                     </CardTitle>
                     <CardDescription>
                       Real-time track data from {selectedTrack?.name}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6">
                     {!connected ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <AlertCircle className="w-8 h-8 mx-auto mb-2" />
-                        <p>Not connected to telemetry stream</p>
-                        {streamError && (
-                          <p className="text-sm text-destructive mt-2">{streamError.message}</p>
-                        )}
-                      </div>
-                    ) : !liveData ? (
-                      <div className="text-center py-12">
-                        <Loader2 className="w-8 h-8 mx-auto animate-spin" />
-                        <p className="text-muted-foreground mt-2">Loading telemetry data...</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Current Lap</Label>
-                            <p className="text-2xl font-bold">{liveData?.meta?.lap ?? 0} / {liveData?.meta?.total_laps ?? 0}</p>
+                      <div className="relative overflow-hidden rounded-xl">
+                        <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 via-transparent to-destructive/10" />
+                        <div className="relative text-center py-16 px-6">
+                          <div className="relative inline-block mb-4">
+                            <div className="absolute inset-0 bg-destructive/20 rounded-full blur-xl" />
+                            <div className="relative p-4 rounded-full bg-destructive/10 border border-destructive/20">
+                              <AlertCircle className="w-10 h-10 mx-auto text-destructive" />
+                            </div>
                           </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Position</Label>
-                            <p className="text-2xl font-bold">#{liveData?.gap_analysis?.position ?? 0}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Gap to Leader</Label>
-                            <p className="text-xl font-semibold">{liveData?.gap_analysis?.gap_to_leader ?? 'N/A'}</p>
+                          <div className="space-y-2">
+                            <p className="text-base font-semibold">Not connected to telemetry stream</p>
+                            <p className="text-sm text-muted-foreground">
+                              Ensure your agent is active and track data is available
+                            </p>
+                            {streamError && (
+                              <p className="text-sm text-destructive mt-3 px-4 py-2 rounded-lg bg-destructive/10 border border-destructive/20 inline-block">
+                                {streamError.message}
+                              </p>
+                            )}
                           </div>
                         </div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Tire Wear</Label>
-                            <div className="grid grid-cols-2 gap-2 mt-2">
-                              <div>
-                                <p className="text-xs text-muted-foreground">Front Left</p>
-                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.front_left ?? 0).toFixed(1)}%</p>
+                      </div>
+                    ) : !liveData ? (
+                      <div className="relative overflow-hidden rounded-xl">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
+                        <div className="relative text-center py-16 px-6">
+                          <div className="relative inline-block mb-4">
+                            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                            <Loader2 className="w-10 h-10 mx-auto animate-spin text-primary relative z-10" />
+                          </div>
+                          <p className="text-base font-medium">Loading telemetry data...</p>
+                          <p className="text-sm text-muted-foreground mt-1">Establishing connection to track sensors</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-6">
+                          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Current Lap</Label>
+                            <div className="flex items-baseline gap-2">
+                              <p className="text-4xl font-bold">{liveData?.meta?.lap ?? 0}</p>
+                              <span className="text-lg text-muted-foreground">/ {liveData?.meta?.total_laps ?? 0}</span>
+                            </div>
+                          </div>
+                          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Position</Label>
+                            <p className="text-4xl font-bold">#{liveData?.gap_analysis?.position ?? 0}</p>
+                          </div>
+                          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Gap to Leader</Label>
+                            <p className="text-3xl font-bold">{liveData?.gap_analysis?.gap_to_leader ?? 'N/A'}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-6">
+                          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-4 block">Tire Wear</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="p-3 rounded-lg bg-card/50 border border-border/30">
+                                <p className="text-xs text-muted-foreground mb-1">Front Left</p>
+                                <p className="text-2xl font-bold">{(liveData?.tire_wear?.front_left ?? 0).toFixed(1)}%</p>
                               </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Front Right</p>
-                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.front_right ?? 0).toFixed(1)}%</p>
+                              <div className="p-3 rounded-lg bg-card/50 border border-border/30">
+                                <p className="text-xs text-muted-foreground mb-1">Front Right</p>
+                                <p className="text-2xl font-bold">{(liveData?.tire_wear?.front_right ?? 0).toFixed(1)}%</p>
                               </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Rear Left</p>
-                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.rear_left ?? 0).toFixed(1)}%</p>
+                              <div className="p-3 rounded-lg bg-card/50 border border-border/30">
+                                <p className="text-xs text-muted-foreground mb-1">Rear Left</p>
+                                <p className="text-2xl font-bold">{(liveData?.tire_wear?.rear_left ?? 0).toFixed(1)}%</p>
                               </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground">Rear Right</p>
-                                <p className="text-lg font-semibold">{(liveData?.tire_wear?.rear_right ?? 0).toFixed(1)}%</p>
+                              <div className="p-3 rounded-lg bg-card/50 border border-border/30">
+                                <p className="text-xs text-muted-foreground mb-1">Rear Right</p>
+                                <p className="text-2xl font-bold">{(liveData?.tire_wear?.rear_right ?? 0).toFixed(1)}%</p>
                               </div>
                             </div>
                           </div>
                           {liveData?.tire_wear?.pit_window_optimal && Array.isArray(liveData.tire_wear.pit_window_optimal) && liveData.tire_wear.pit_window_optimal.length >= 2 && (
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Optimal Pit Window</Label>
-                              <p className="text-lg font-semibold">
+                            <div className="p-5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                              <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Optimal Pit Window</Label>
+                              <p className="text-2xl font-bold">
                                 Laps {liveData.tire_wear.pit_window_optimal[0]} - {liveData.tire_wear.pit_window_optimal[1]}
                               </p>
                             </div>
@@ -655,71 +794,98 @@ export function CreateAgentPageContent() {
               </TabsContent>
 
               <TabsContent value="strategy" className="space-y-4">
-                <Card>
-                  <CardHeader>
+                <Card className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-card via-card to-card/95 border-b">
                     <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
+                      <div className="p-1.5 rounded-md bg-primary/10">
+                        <TrendingUp className="w-5 h-5 text-primary" />
+                      </div>
                       Strategy Analytics
                     </CardTitle>
                     <CardDescription>
                       Real-time strategy predictions and recommendations
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6">
                     {strategyLoading ? (
-                      <div className="text-center py-12">
-                        <Loader2 className="w-8 h-8 mx-auto animate-spin" />
-                        <p className="text-muted-foreground mt-2">Loading strategy data...</p>
+                      <div className="relative overflow-hidden rounded-xl">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
+                        <div className="relative text-center py-16 px-6">
+                          <div className="relative inline-block mb-4">
+                            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                            <Loader2 className="w-10 h-10 mx-auto animate-spin text-primary relative z-10" />
+                          </div>
+                          <p className="text-base font-medium">Loading strategy data...</p>
+                          <p className="text-sm text-muted-foreground mt-1">Analyzing race conditions and predictions</p>
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Current Tire Wear</Label>
-                            <p className="text-2xl font-bold">{strategy?.tireWear?.current?.toFixed(1) ?? '0.0'}%</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-5 rounded-xl bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Current Tire Wear</Label>
+                            <p className="text-4xl font-bold">{strategy?.tireWear?.current?.toFixed(1) ?? '0.0'}%</p>
                           </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Pit Window</Label>
-                            <p className="text-xl font-semibold">
+                          <div className="p-5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Pit Window</Label>
+                            <p className="text-3xl font-bold">
                               Laps {strategy?.pitWindow?.start ?? 0} - {strategy?.pitWindow?.end ?? 0}
                             </p>
                           </div>
                         </div>
 
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-2 block">Predicted Pit Stops</Label>
+                          <Label className="text-sm font-semibold mb-3 block">Predicted Pit Stops</Label>
                           <div className="space-y-2">
                             {predictions?.pitStops && predictions.pitStops.length > 0 ? (
                               predictions.pitStops.map((stop, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-2 bg-muted rounded">
-                                  <span>Lap {stop.lap}</span>
-                                  <Badge>{stop.tyreCompound}</Badge>
-                                </div>
+                                <motion.div
+                                  key={idx}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: idx * 0.1 }}
+                                  className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-muted/40 to-muted/20 border border-border/50 hover:border-primary/30 transition-all"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                      <span className="text-sm font-bold text-primary">{stop.lap}</span>
+                                    </div>
+                                    <span className="font-medium">Lap {stop.lap}</span>
+                                  </div>
+                                  <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+                                    {stop.tyreCompound}
+                                  </Badge>
+                                </motion.div>
                               ))
                             ) : (
-                              <p className="text-sm text-muted-foreground">No pit stops predicted</p>
+                              <div className="p-8 rounded-xl bg-muted/20 border border-border/50 text-center">
+                                <p className="text-sm text-muted-foreground">No pit stops predicted</p>
+                              </div>
                             )}
                           </div>
                         </div>
 
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-2 block">Alerts</Label>
+                          <Label className="text-sm font-semibold mb-3 block">Alerts</Label>
                           <div className="space-y-2">
                             {alerts && alerts.length > 0 ? (
                               alerts.map((alert, idx) => (
-                                <div
+                                <motion.div
                                   key={idx}
-                                  className={`p-3 rounded border ${
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: idx * 0.1 }}
+                                  className={`p-4 rounded-lg border ${
                                     alert.severity === 'high'
-                                      ? 'border-destructive bg-destructive/10'
+                                      ? 'border-destructive/50 bg-destructive/10 hover:bg-destructive/15'
                                       : alert.severity === 'medium'
-                                      ? 'border-yellow-500 bg-yellow-500/10'
-                                      : 'border-muted bg-muted'
-                                  }`}
+                                      ? 'border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/15'
+                                      : 'border-muted bg-muted/50 hover:bg-muted'
+                                  } transition-all`}
                                 >
-                                  <div className="flex items-start gap-2">
+                                  <div className="flex items-start gap-3">
                                     <AlertCircle
-                                      className={`w-4 h-4 mt-0.5 ${
+                                      className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
                                         alert.severity === 'high'
                                           ? 'text-destructive'
                                           : alert.severity === 'medium'
@@ -727,12 +893,15 @@ export function CreateAgentPageContent() {
                                           : 'text-muted-foreground'
                                       }`}
                                     />
-                                    <p className="text-sm">{alert.message}</p>
+                                    <p className="text-sm leading-relaxed">{alert.message}</p>
                                   </div>
-                                </div>
+                                </motion.div>
                               ))
                             ) : (
-                              <p className="text-sm text-muted-foreground">No alerts</p>
+                              <div className="p-8 rounded-xl bg-muted/20 border border-border/50 text-center">
+                                <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
+                                <p className="text-sm text-muted-foreground">No alerts - all systems optimal</p>
+                              </div>
                             )}
                           </div>
                         </div>
