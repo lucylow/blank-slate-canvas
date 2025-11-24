@@ -5,6 +5,7 @@ import { Flag, TrendingUp, Target, Zap, MapPin, Users, ArrowRight, Sparkles, Men
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import AIAgentResults from "@/components/AIAgentResults";
 import PDFReportGenerator from "@/components/PDFReportGenerator";
@@ -88,296 +89,13 @@ import {
 } from "@/api/slack";
 
 const Index = () => {
-
-
-
-vehicle_id        vehicle_number  lap  gap_to_leader
-
-GR86-002-000      0               28   0.000
-
-GR86-004-78       78              28   2.346
-
-GR86-006-13       13              28   16.306
-
-GR86-008-22       22              28   20.694
-
-GR86-010-46       46              28   20.885
-
-GR86-012-47       47              28   24.207
-
-GR86-014-21       21              28   25.484
-
-GR86-016-7        7               28   31.131
-
-GR86-018-88       88              28   31.341
-
-GR86-020-111      111             28   32.047
-
-
-
-### 2. TIRE WEAR INDEX ###
-
-
-
-vehicle_id        timestamp                   tire_wear_index
-
-GR86-002-000      2025-09-06 19:24:31.471     1247.832
-
-GR86-004-78       2025-09-06 19:24:28.193     1198.456
-
-GR86-006-13       2025-09-06 19:24:25.837     1312.674
-
-GR86-008-22       2025-09-06 19:24:23.421     1156.892
-
-GR86-010-46       2025-09-06 19:24:21.098     1289.345
-
-GR86-012-47       2025-09-06 19:24:18.764     1234.567
-
-GR86-014-21       2025-09-06 19:24:16.432     1276.891
-
-GR86-016-7        2025-09-06 19:24:14.109     1198.234
-
-GR86-018-88       2025-09-06 19:24:11.786     1245.678
-
-GR86-020-111      2025-09-06 19:24:09.463     1267.890
-
-
-
-### 3. PREDICTED LAP TIMES (Based on Sector Data) ###
-
-
-
-NUMBER  S1_SECONDS  S2_SECONDS  S3_SECONDS  predicted_lap_time
-
-0       26.961      43.160      29.163      99.284
-
-13      27.062      43.148      29.145      99.355
-
-22      27.128      43.240      29.185      99.553
-
-2       27.185      43.294      29.604      100.083
-
-72      27.189      43.148      29.480      99.817
-
-46      27.201      43.335      29.269      99.805
-
-47      27.224      43.813      29.145      100.182
-
-21      27.245      43.260      29.185      99.690
-
-
-
-### 4. DRIVER CONSISTENCY SCORES ###
-
-
-
-NUMBER  mean_lap_time  std_lap_time  consistency_score
-
-13      99.355         0.234         99.76%
-
-22      99.553         0.289         99.71%
-
-0       99.284         0.312         99.69%
-
-46      99.805         0.367         99.63%
-
-2       100.083        0.421         99.58%
-
-72      99.817         0.445         99.55%
-
-21      99.690         0.478         99.52%
-
-47      100.182        0.512         99.49%
-
-
-
-================================================================================
-
-
-
-### EXAMPLE 2: DEMO REAL-TIME DATA STREAM ###
-
-
-
-================================================================================
-
-DEMO REAL-TIME DATA STREAM
-
-================================================================================
-
-
-
-✓ Generated 500 demo data points
-
-
-
-Sample data (first 10 rows):
-
-
-
-timestamp                   vehicle_id      vehicle_number  lap  Speed    gear  nmot     aps      pbrake_f  accx_can  accy_can  Steering_Angle  Laptrigger_lapdist_dls
-
-2025-11-19 20:58:00.000000  GR86-001-10    10              5    117.23   4     6234.56  82.34    0.00      0.87      -0.45     12.34           1000
-
-2025-11-19 20:58:00.000000  GR86-002-20    20              5    123.45   5     6456.78  91.23    0.00      1.12      0.23      -8.76           1000
-
-2025-11-19 20:58:00.000000  GR86-003-30    30              5    119.87   4     5987.34  78.90    45.67     -0.23     -0.67     23.45           1000
-
-2025-11-19 20:58:00.000000  GR86-004-40    40              5    125.67   6     6789.12  95.67    0.00      1.05      0.89      -15.23          1000
-
-2025-11-19 20:58:00.000000  GR86-005-50    50              5    121.34   5     6123.45  85.43    0.00      0.76      -0.12     5.67            1000
-
-2025-11-19 20:58:00.100000  GR86-001-10    10              5    118.45   4     6345.67  83.21    0.00      0.92      -0.34     14.56           1100
-
-2025-11-19 20:58:00.100000  GR86-002-20    20              5    124.56   5     6567.89  92.34    0.00      1.18      0.45      -6.54           1100
-
-2025-11-19 20:58:00.100000  GR86-003-30    30              5    120.98   4     6098.45  79.87    67.89     -0.45     -0.78     25.67           1100
-
-2025-11-19 20:58:00.100000  GR86-004-40    40              5    126.78   6     6890.23  96.78    0.00      1.12      0.98      -13.01          1100
-
-2025-11-19 20:58:00.100000  GR86-005-50    50              5    122.45   5     6234.56  86.54    0.00      0.82      -0.01     7.89            1100
-
-
-
-Demo Live Gaps:
-
-
-
-vehicle_id      vehicle_number  lap  gap_to_leader
-
-GR86-001-10    10              6    0.000
-
-GR86-002-20    20              6    0.000
-
-GR86-003-30    30              6    0.000
-
-GR86-004-40    40              6    0.000
-
-GR86-005-50    50              6    0.000
-
-GR86-006-60    60              6    0.000
-
-GR86-007-70    70              6    0.000
-
-GR86-008-80    80              6    0.000
-
-GR86-009-90    90              6    0.000
-
-GR86-010-100   100             6    0.000
-
-
-
-Demo Tire Wear (last 10 data points):
-
-
-
-vehicle_id      timestamp                   tire_wear_index
-
-GR86-001-10    2025-11-19 20:58:04.900000  8.234
-
-GR86-002-20    2025-11-19 20:58:04.900000  9.567
-
-GR86-003-30    2025-11-19 20:58:04.900000  7.891
-
-GR86-004-40    2025-11-19 20:58:04.900000  10.234
-
-GR86-005-50    2025-11-19 20:58:04.900000  8.678
-
-GR86-006-60    2025-11-19 20:58:04.900000  9.123
-
-GR86-007-70    2025-11-19 20:58:04.900000  8.456
-
-GR86-008-80    2025-11-19 20:58:04.900000  9.789
-
-GR86-009-90    2025-11-19 20:58:04.900000  8.901
-
-GR86-010-100   2025-11-19 20:58:04.900000  9.345
-
-
-
-================================================================================
-
-
-
-### EXAMPLE 3: MULTI-TRACK INTEGRATION SUMMARY ###
-
-
-
-================================================================================
-
-MULTI-TRACK INTEGRATION SUMMARY
-
-================================================================================
-
-
-
-track            race  telemetry_rows  vehicles  time_span_minutes
-
-barber           1     2,847,563       28        45.62
-
-barber           2     2,912,456       28        45.37
-
-cota             1     3,124,789       32        48.23
-
-cota             2     3,089,234       32        47.89
-
-indianapolis     1     3,456,123       35        52.34
-
-indianapolis     2     3,398,765       35        51.78
-
-road_america     1     2,678,901       26        42.56
-
-road_america     2     2,734,567       26        43.12
-
-sebring          1     2,945,678       29        46.78
-
-sebring          2     2,987,234       29        47.23
-
-sonoma           1     2,567,890       24        41.34
-
-sonoma           2     2,623,456       24        42.01
-
-vir              1     2,789,012       27        44.23
-
-vir              2     2,834,678       27        44.89
-
-
-
-Total Telemetry Data Points: 41,989,346
-
-Total Unique Vehicles: 397
-
-Average Race Duration: 45.8 minutes
-
-
-
-================================================================================
-
-DATA INTEGRATION COMPLETE
-
-================================================================================
-
-
-
-### KEY INSIGHTS ###
-
-
-
-1. Data Volume: Over 41 million telemetry data points across 7 tracks
-
-2. High-Frequency Data: Average sampling rate of ~15-20 Hz per vehicle
-
-3. Consistent Structure: All tracks follow the same data schema
-
-4. Multi-Modal Data: Telemetry, timing, weather, and results all integrated
-
-const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<TrackId>("sonoma");
   const [telemetryConnectionStatus, setTelemetryConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('disconnected');
+  const [advancedFeaturesTab, setAdvancedFeaturesTab] = useState<string>('analytics');
   
   // API feature states
   const [anomalyHealth, setAnomalyHealth] = useState<{ status: string; pyod_available: boolean; active_connections: number } | null>(null);
@@ -1327,10 +1045,39 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Real-Time Analysis Section */}
-      <section id="realtime-analysis" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
-        <div className="container mx-auto max-w-7xl relative z-10">
+      {/* Advanced Features - Tabbed Interface */}
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Advanced Features & Analytics
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Explore our comprehensive analytics tools, AI features, and integrations
+            </p>
+          </div>
+          
+          <Tabs value={advancedFeaturesTab} onValueChange={setAdvancedFeaturesTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted/50 p-1.5 rounded-lg">
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-card">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger value="ai-features" className="data-[state=active]:bg-card">
+                <Brain className="w-4 h-4 mr-2" />
+                AI Features
+              </TabsTrigger>
+              <TabsTrigger value="integrations" className="data-[state=active]:bg-card">
+                <Zap className="w-4 h-4 mr-2" />
+                Integrations
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="analytics" className="space-y-12">
+              {/* Real-Time Analysis Section */}
+              <section id="realtime-analysis" className="py-8 sm:py-12 relative overflow-hidden scroll-mt-20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
+                <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
               <Activity className="w-4 h-4 text-primary" />
@@ -1894,18 +1641,20 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Telemetry Comparison Section */}
-      <section id="telemetry-comparison-charts" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <TelemetryComparisonCharts selectedTrack={selectedTrack} />
-        </div>
-      </section>
+              {/* Telemetry Comparison Section */}
+              <section id="telemetry-comparison-charts" className="py-8 sm:py-12 relative overflow-hidden scroll-mt-20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
+                <div className="container mx-auto max-w-7xl relative z-10">
+                  <TelemetryComparisonCharts selectedTrack={selectedTrack} />
+                </div>
+              </section>
+            </TabsContent>
 
-      {/* AI Data Analytics Section */}
-      <section id="ai-data-analytics" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
-        <div className="container mx-auto max-w-7xl relative z-10">
+            <TabsContent value="ai-features" className="space-y-12">
+              {/* AI Data Analytics Section */}
+              <section id="ai-data-analytics" className="py-8 sm:py-12 relative overflow-hidden scroll-mt-20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)]" />
+                <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-6 shadow-xl shadow-primary/20">
               <Brain className="w-8 h-8 text-primary-foreground" />
@@ -2029,10 +1778,12 @@ const Index = () => {
           </div>
           <GeminiZipMatcher />
         </div>
-      </section>
+              </section>
+            </TabsContent>
 
-      {/* Google Maps Integration Section */}
-      <section id="google-maps-integration" className="py-16 sm:py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-primary/5 to-background relative overflow-hidden scroll-mt-20">
+            <TabsContent value="integrations" className="space-y-12">
+              {/* Google Maps Integration Section */}
+              <section id="google-maps-integration" className="py-8 sm:py-12 relative overflow-hidden scroll-mt-20">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16 sm:mb-20">
             <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl mb-8 shadow-xl shadow-primary/20">
@@ -2159,6 +1910,10 @@ const Index = () => {
               Real-time race alerts and notifications via Slack webhooks. Configure in the dashboard settings.
             </p>
           </div>
+        </div>
+              </section>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
