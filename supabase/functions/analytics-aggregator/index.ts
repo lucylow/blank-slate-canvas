@@ -99,20 +99,23 @@ async function aggregateTelemetryData(supabase: any, sessionId: string, carNumbe
   }, {} as Record<number, any[]>);
 
   // Calculate per-lap statistics
-  const lapStats = Object.entries(lapData).map(([lap, data]: [string, any[]]) => ({
-    lap: parseInt(lap),
-    avg_speed: data.reduce((sum: number, d: any) => sum + (d.speed || 0), 0) / data.length,
-    max_speed: Math.max(...data.map((d: any) => d.speed || 0)),
-    avg_throttle: data.reduce((sum: number, d: any) => sum + (d.throttle_position || 0), 0) / data.length,
-    avg_brake: data.reduce((sum: number, d: any) => sum + (d.brake_pressure || 0), 0) / data.length,
-    max_lateral_g: Math.max(...data.map((d: any) => Math.abs(d.lateral_g || 0))),
-    max_longitudinal_g: Math.max(...data.map((d: any) => Math.abs(d.longitudinal_g || 0))),
-    avg_tire_temp: data.reduce((sum: number, d: any) => 
-      sum + ((d.tire_temp_front_left || 0) + (d.tire_temp_front_right || 0) + 
-             (d.tire_temp_rear_left || 0) + (d.tire_temp_rear_right || 0)) / 4, 0
-    ) / data.length,
-    data_points: data.length,
-  }));
+  const lapStats = Object.entries(lapData).map(([lap, data]) => {
+    const typedData = data as any[];
+    return {
+      lap: parseInt(lap),
+      avg_speed: typedData.reduce((sum: number, d: any) => sum + (d.speed || 0), 0) / typedData.length,
+      max_speed: Math.max(...typedData.map((d: any) => d.speed || 0)),
+      avg_throttle: typedData.reduce((sum: number, d: any) => sum + (d.throttle_position || 0), 0) / typedData.length,
+      avg_brake: typedData.reduce((sum: number, d: any) => sum + (d.brake_pressure || 0), 0) / typedData.length,
+      max_lateral_g: Math.max(...typedData.map((d: any) => Math.abs(d.lateral_g || 0))),
+      max_longitudinal_g: Math.max(...typedData.map((d: any) => Math.abs(d.longitudinal_g || 0))),
+      avg_tire_temp: typedData.reduce((sum: number, d: any) => 
+        sum + ((d.tire_temp_front_left || 0) + (d.tire_temp_front_right || 0) + 
+               (d.tire_temp_rear_left || 0) + (d.tire_temp_rear_right || 0)) / 4, 0
+      ) / typedData.length,
+      data_points: typedData.length,
+    };
+  });
 
   return {
     total_laps: Object.keys(lapData).length,
