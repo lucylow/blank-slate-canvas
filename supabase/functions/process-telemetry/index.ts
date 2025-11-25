@@ -79,7 +79,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing telemetry:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -104,12 +104,12 @@ async function calculateRealtimeAnalytics(supabase: any, carNumber: number, lapN
   }
 
   // Calculate averages and trends
-  const avgSpeed = recentTelemetry.reduce((sum, t) => sum + (t.speed || 0), 0) / recentTelemetry.length;
-  const avgThrottle = recentTelemetry.reduce((sum, t) => sum + (t.throttle_position || 0), 0) / recentTelemetry.length;
-  const avgBrake = recentTelemetry.reduce((sum, t) => sum + (t.brake_pressure || 0), 0) / recentTelemetry.length;
+  const avgSpeed = recentTelemetry.reduce((sum: number, t: any) => sum + (t.speed || 0), 0) / recentTelemetry.length;
+  const avgThrottle = recentTelemetry.reduce((sum: number, t: any) => sum + (t.throttle_position || 0), 0) / recentTelemetry.length;
+  const avgBrake = recentTelemetry.reduce((sum: number, t: any) => sum + (t.brake_pressure || 0), 0) / recentTelemetry.length;
   
   const avgTireTemp = (
-    recentTelemetry.reduce((sum, t) => sum + (t.tire_temp_front_left || 0) + (t.tire_temp_front_right || 0) + 
+    recentTelemetry.reduce((sum: number, t: any) => sum + (t.tire_temp_front_left || 0) + (t.tire_temp_front_right || 0) + 
                                             (t.tire_temp_rear_left || 0) + (t.tire_temp_rear_right || 0), 0) / 
     (recentTelemetry.length * 4)
   );

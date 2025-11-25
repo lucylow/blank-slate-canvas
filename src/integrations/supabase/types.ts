@@ -313,7 +313,54 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      analyze_tire_degradation: {
+        Args: { p_car_number: number; p_session_id: string }
+        Returns: {
+          confidence: number
+          lap_number: number
+          laps_until_cliff: number
+          wear_percent: number
+          wear_rate: number
+        }[]
+      }
+      compare_drivers_realtime: {
+        Args: { p_car_numbers: number[]; p_session_id: string }
+        Returns: {
+          avg_lap_time: number
+          avg_speed: number
+          car_number: number
+          consistency_score: number
+          position_estimate: number
+          tire_wear: number
+        }[]
+      }
+      get_lap_statistics: {
+        Args: {
+          p_car_number: number
+          p_lap_number: number
+          p_session_id: string
+        }
+        Returns: {
+          avg_brake: number
+          avg_speed: number
+          avg_throttle: number
+          avg_tire_temp: number
+          data_points: number
+          max_lateral_g: number
+          max_longitudinal_g: number
+          max_speed: number
+        }[]
+      }
+      get_session_summary: {
+        Args: { p_session_id: string }
+        Returns: {
+          active_cars: number
+          session_duration: unknown
+          total_laps: number
+          total_predictions: number
+          total_telemetry_points: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

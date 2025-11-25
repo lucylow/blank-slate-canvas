@@ -64,7 +64,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in analytics aggregator:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -90,7 +90,7 @@ async function aggregateTelemetryData(supabase: any, sessionId: string, carNumbe
   }
 
   // Group by lap
-  const lapData = telemetry.reduce((acc, t) => {
+  const lapData = telemetry.reduce((acc: Record<number, any[]>, t: any) => {
     if (!acc[t.lap_number]) {
       acc[t.lap_number] = [];
     }
@@ -99,15 +99,15 @@ async function aggregateTelemetryData(supabase: any, sessionId: string, carNumbe
   }, {} as Record<number, any[]>);
 
   // Calculate per-lap statistics
-  const lapStats = Object.entries(lapData).map(([lap, data]) => ({
+  const lapStats = Object.entries(lapData).map(([lap, data]: [string, any[]]) => ({
     lap: parseInt(lap),
-    avg_speed: data.reduce((sum, d) => sum + (d.speed || 0), 0) / data.length,
-    max_speed: Math.max(...data.map(d => d.speed || 0)),
-    avg_throttle: data.reduce((sum, d) => sum + (d.throttle_position || 0), 0) / data.length,
-    avg_brake: data.reduce((sum, d) => sum + (d.brake_pressure || 0), 0) / data.length,
-    max_lateral_g: Math.max(...data.map(d => Math.abs(d.lateral_g || 0))),
-    max_longitudinal_g: Math.max(...data.map(d => Math.abs(d.longitudinal_g || 0))),
-    avg_tire_temp: data.reduce((sum, d) => 
+    avg_speed: data.reduce((sum: number, d: any) => sum + (d.speed || 0), 0) / data.length,
+    max_speed: Math.max(...data.map((d: any) => d.speed || 0)),
+    avg_throttle: data.reduce((sum: number, d: any) => sum + (d.throttle_position || 0), 0) / data.length,
+    avg_brake: data.reduce((sum: number, d: any) => sum + (d.brake_pressure || 0), 0) / data.length,
+    max_lateral_g: Math.max(...data.map((d: any) => Math.abs(d.lateral_g || 0))),
+    max_longitudinal_g: Math.max(...data.map((d: any) => Math.abs(d.longitudinal_g || 0))),
+    avg_tire_temp: data.reduce((sum: number, d: any) => 
       sum + ((d.tire_temp_front_left || 0) + (d.tire_temp_front_right || 0) + 
              (d.tire_temp_rear_left || 0) + (d.tire_temp_rear_right || 0)) / 4, 0
     ) / data.length,
@@ -143,7 +143,7 @@ async function analyzeTireWear(supabase: any, sessionId: string, carNumber?: num
   }
 
   // Analyze wear trends
-  const wearProgression = predictions.map(p => ({
+  const wearProgression = predictions.map((p: any) => ({
     lap: p.lap_number,
     wear_percent: p.wear_percent,
     laps_until_cliff: p.laps_until_cliff,
@@ -215,19 +215,19 @@ async function calculateDriverMetrics(supabase: any, sessionId: string, carNumbe
   }
 
   // Calculate smoothness metrics
-  const throttleChanges = telemetry.slice(0, -1).map((t, i) => 
+  const throttleChanges = telemetry.slice(0, -1).map((t: any, i: number) => 
     Math.abs((t.throttle_position || 0) - (telemetry[i + 1].throttle_position || 0))
   );
-  const brakeChanges = telemetry.slice(0, -1).map((t, i) => 
+  const brakeChanges = telemetry.slice(0, -1).map((t: any, i: number) => 
     Math.abs((t.brake_pressure || 0) - (telemetry[i + 1].brake_pressure || 0))
   );
 
-  const throttleSmoothness = 1 - (throttleChanges.reduce((sum, c) => sum + c, 0) / throttleChanges.length);
-  const brakeSmoothness = 1 - (brakeChanges.reduce((sum, c) => sum + c, 0) / brakeChanges.length / 100);
+  const throttleSmoothness = 1 - (throttleChanges.reduce((sum: number, c: number) => sum + c, 0) / throttleChanges.length);
+  const brakeSmoothness = 1 - (brakeChanges.reduce((sum: number, c: number) => sum + c, 0) / brakeChanges.length / 100);
 
   // Calculate aggression metrics
-  const hardBraking = telemetry.filter(t => (t.brake_pressure || 0) > 80).length / telemetry.length;
-  const highGForce = telemetry.filter(t => 
+  const hardBraking = telemetry.filter((t: any) => (t.brake_pressure || 0) > 80).length / telemetry.length;
+  const highGForce = telemetry.filter((t: any) => 
     Math.abs(t.lateral_g || 0) > 1.5 || Math.abs(t.longitudinal_g || 0) > 1.5
   ).length / telemetry.length;
 
